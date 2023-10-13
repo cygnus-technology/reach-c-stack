@@ -266,7 +266,7 @@ int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len)
 }
 
 // static uint32_t lastTick = 0;
-static int StickCount = 0;
+// static int StickCount = 0;
 // The application must call cr_process() regularly.
 // ticks tells it approximately how many  milliseconds have passed since
 // the system started.  This allows it to perform timing related tasks.
@@ -1366,7 +1366,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
 
     if (sCr_file_xfer_state.bytes_transfered >= sCr_file_xfer_state.transfer_length)
     {
-        i3_log(LOG_MASK_FILES, "file write complete.");
+        i3_log(LOG_MASK_ALWAYS, "file write complete.");
         if (bytes_remaining_to_write != 0)
         {
             i3_log(LOG_MASK_WARN, "On file write, remaining bytes is below zero.");
@@ -1420,13 +1420,13 @@ static int handle_transfer_data_notification(
         case cr_FileTransferState_COMPLETE:
             if (request->is_complete)
             {
-                i3_log(LOG_MASK_FILES, "Complete the file read.");
                 // echo the notification back
                 memcpy(dataTransfer, request, sizeof(cr_FileTransferDataNotification));
                 sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
                 sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                 sCr_num_remaining_objects = 0;
                 sCr_num_continued_objects = 0;
+                i3_log(LOG_MASK_FILES, "Completing the file read.");
                 return 0;
             }
 
@@ -1450,7 +1450,7 @@ static int handle_transfer_data_notification(
         }
         if (request->is_complete)
         {
-            i3_log(LOG_MASK_FILES, "file read of fid %d is complete.", 
+            i3_log(LOG_MASK_ALWAYS, "file read of fid %d is complete.", 
                    sCr_file_xfer_state.file_id);
             sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -1525,7 +1525,7 @@ static int handle_transfer_data_notification(
     bytes_remaining_to_read -= bytes_read;
     if (bytes_remaining_to_read == 0)
     {
-        i3_log(LOG_MASK_FILES, "File read complete.");
+        i3_log(LOG_MASK_ALWAYS, "File read complete.");
         sCr_num_remaining_objects = 0;
         sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
