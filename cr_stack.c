@@ -431,11 +431,11 @@ static int checkSize(size_t test, size_t limit, char *name)
 
     if (test > limit)
     {
-        i3_log(LOG_MASK_ALWAYS, TEXT_RED "%s = %d, TOO BIG." TEXT_RESET, name, test);
+        i3_log(LOG_MASK_ALWAYS, TEXT_RED "  %s = %d, TOO BIG." TEXT_RESET, name, test);
         return 1;
     }
   #ifdef VERBOSE_SIZES
-    i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "%s = %d, OK." TEXT_RESET, name, test);
+    i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "  %s = %d, OK." TEXT_RESET, name, test);
   #endif  // def VERBOSE_SIZES
     return 0;
 }
@@ -447,6 +447,11 @@ void cr_test_sizes()
     int rval = 0;
     #define MAX_BLE_SZ  CR_CODED_BUFFER_SIZE
 
+  #ifdef VERBOSE_SIZES
+    i3_log(LOG_MASK_ALWAYS, "Verbose buffer size report:" TEXT_RESET);
+  #else
+    i3_log(LOG_MASK_ALWAYS, "Silent buffer size check:" TEXT_RESET);
+  #endif
     // reach.pb.h gives us some "Maximum encoded size of messages".
     // Check these.
     rval += checkSize(cr_CLIData_size, MAX_BLE_SZ, "cr_CLIData_size");
