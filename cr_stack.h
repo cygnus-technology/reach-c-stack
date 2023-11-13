@@ -87,6 +87,7 @@ extern "C" {
 
 #define REACH_PROTOCOL_VERSION  0
 
+#define REACH_TIMEOUT   5000   // 5 seconds in ms
 /*
 //----------------------------------------------------------------------------
 // static buffers used and reused by the reach stack.

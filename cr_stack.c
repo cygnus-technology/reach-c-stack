@@ -179,6 +179,26 @@ bool encode_reach_message(const cr_ReachMessage *message,       // in:  message 
 // static int handle_remote_cli();
 
 
+// 
+// Timeout Watchdog interface
+// This is used in the file write sequences.
+// 
+// 0 ms disables watchdog.
+static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks);
+
+// resets the timeout period to original
+void scr_stroke_timeout_watchdog(uint32_t ticks);
+
+// disables the watchdog
+void scr_end_timeout_watchdog();
+
+// if active, compares ticks to expected timeout.
+// return 1 if timeout occurred
+int scr_check_timeout_watchdog(uint32_t ticks);
+
+
+
+
 static int handle_continued_transactions()
 {
     int rval = 0;
@@ -266,13 +286,22 @@ int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len)
 }
 
 // static uint32_t lastTick = 0;
-// static int StickCount = 0;
+static int sCallCount = 0;
+static uint32_t sCurrentTicks = 0;
 // The application must call cr_process() regularly.
 // ticks tells it approximately how many  milliseconds have passed since
 // the system started.  This allows it to perform timing related tasks.
 int cr_process(uint32_t ticks) 
 {
-    (void)ticks;
+    sCurrentTicks = ticks;   // store it so others can use it.
+    sCallCount++;
+
+    int timeout = scr_check_timeout_watchdog(ticks);
+    if (timeout) {
+        i3_log(LOG_MASK_ERROR, "Timeout watchdog expired.");
+        scr_end_timeout_watchdog();
+    }
+
     /*if (ticks - lastTick > 10001)
     {
         i3_log(LOG_MASK_ALWAYS, "\r\n--------%s: tick %d", __FUNCTION__, ticks);
@@ -289,7 +318,7 @@ int cr_process(uint32_t ticks)
 
   // #define TEST_ERROR_REPORT
   #ifdef TEST_ERROR_REPORT
-    if (StickCount++ == 500)
+    if (sCallCount == 500)
     {
         i3_log(LOG_MASK_ALWAYS, "On tick 500, test the error report using Future Legend:");
         // Tick 2 error test: Send 190 characters to test too long string.
@@ -300,7 +329,7 @@ int cr_process(uint32_t ticks)
         crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
         return 0;
     }
-    if (StickCount > 5000) StickCount = 5000;
+    if (sCallCount > 5000) sCallCount = 5000;
   #endif  // def TEST_ERROR_REPORT
 
     // Support for continued transactions:
@@ -341,6 +370,11 @@ int cr_process(uint32_t ticks)
     // use ticks to decide whether to notify.
 
     return CR_ERROR_NONE;
+}
+
+uint32_t cr_get_current_ticks()
+{
+    return sCurrentTicks;
 }
 
 
@@ -1246,6 +1280,8 @@ static int handle_transfer_init(const cr_FileTransferInit *request,
            request->file_id, request->request_offset, request->transfer_length,
            request->messages_per_ack);
 
+    scr_start_timeout_watchdog(REACH_TIMEOUT, sCurrentTicks);
+
     return 0;
 }
 
@@ -1266,18 +1302,21 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         cr_report_error(CR_ERROR_INVALID_STATE, 
                         "%s should not be called in state invalid.", __FUNCTION__);
         response->result = CR_ERROR_INVALID_STATE;
+        scr_end_timeout_watchdog();
         return CR_ERROR_INVALID_STATE;
     case cr_FileTransferState_IDLE:
         LOG_ERROR("In idle state is not right");
         cr_report_error(CR_ERROR_INVALID_STATE, 
                         "%s should not be called in state idle.", __FUNCTION__);
         response->result = CR_ERROR_INVALID_STATE;
+        scr_end_timeout_watchdog();
         return CR_ERROR_INVALID_STATE;
     case cr_FileTransferState_COMPLETE:
         LOG_ERROR("In complete state is not right");
         cr_report_error(CR_ERROR_INVALID_STATE, 
                         "%s should not be called in state complete.", __FUNCTION__);
         response->result = CR_ERROR_INVALID_STATE;
+        scr_end_timeout_watchdog();
         return CR_ERROR_INVALID_STATE;
     case cr_FileTransferState_INIT:
     case cr_FileTransferState_DATA:
@@ -1302,6 +1341,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         cr_report_error(CR_ERROR_INVALID_PARAMETER, 
                         "%s: Requested xfer of %d bytes > cr_StaticBufferSize_BIG_DATA_BUFFER_LEN (%d).",
                         __FUNCTION__, bytes_to_write, cr_StaticBufferSize_BIG_DATA_BUFFER_LEN);
+        scr_end_timeout_watchdog();
         return CR_ERROR_INVALID_PARAMETER;
     }
 
@@ -1323,6 +1363,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         cr_report_error(CR_ERROR_WRITE_FAILED, 
                         "%s: Requested write of %d bytes for fid %d failed.",
                         __FUNCTION__, bytes_to_write, sCr_file_xfer_state.transfer_id);
+        scr_end_timeout_watchdog();
         return CR_ERROR_WRITE_FAILED;
     }
 
@@ -1355,6 +1396,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         */
         // if we don't stop this lets me see on error per mismatch
         sCr_file_xfer_state.message_number = dataTransfer->message_number;
+        scr_stroke_timeout_watchdog(sCurrentTicks);
         return 0; // CR_ERROR_WRITE_FAILED;
     }
 
@@ -1377,6 +1419,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
             i3_log(LOG_MASK_WARN, "On file write, remaining bytes is below zero.");
         }
         response->is_complete = true;
+        scr_end_timeout_watchdog();
         return 0;
     }
 
@@ -1396,6 +1439,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
     sCr_file_xfer_state.messages_until_ack = sCr_file_xfer_state.messages_per_ack;
     sCr_file_xfer_state.message_number = 0;
     response->is_complete = false;
+    scr_stroke_timeout_watchdog(sCurrentTicks);
     return 0;
 }
 
@@ -1415,12 +1459,14 @@ static int handle_transfer_data_notification(
             cr_report_error(CR_ERROR_INVALID_STATE, 
                             "%s should not be called in state invalid.", __FUNCTION__);
             dataTransfer->result = CR_ERROR_INVALID_STATE;
+            scr_end_timeout_watchdog();
             return CR_ERROR_INVALID_STATE;
         case cr_FileTransferState_IDLE:
             LOG_ERROR("In idle state is not right");
             cr_report_error(CR_ERROR_INVALID_STATE, 
                             "%s should not be called in state idle.", __FUNCTION__);
             dataTransfer->result = CR_ERROR_INVALID_STATE;
+            scr_end_timeout_watchdog();
             return CR_ERROR_INVALID_STATE;
         case cr_FileTransferState_COMPLETE:
             if (request->is_complete)
@@ -1432,6 +1478,7 @@ static int handle_transfer_data_notification(
                 sCr_num_remaining_objects = 0;
                 sCr_num_continued_objects = 0;
                 i3_log(LOG_MASK_FILES, "Completing the file read.");
+                scr_end_timeout_watchdog();
                 return 0;
             }
 
@@ -1439,6 +1486,7 @@ static int handle_transfer_data_notification(
             cr_report_error(CR_ERROR_INVALID_STATE, 
                             "%s should not be called in state complete.", __FUNCTION__);
             dataTransfer->result = CR_ERROR_INVALID_STATE;
+            scr_end_timeout_watchdog();
             return CR_ERROR_INVALID_STATE;
         case cr_FileTransferState_INIT:
         case cr_FileTransferState_DATA:
@@ -1451,6 +1499,7 @@ static int handle_transfer_data_notification(
             cr_report_error(CR_ERROR_INVALID_STATE, 
                             "%s Expecting read, not write.", __FUNCTION__);
             dataTransfer->result = CR_ERROR_WRITE_FAILED;
+            scr_end_timeout_watchdog();
             return CR_ERROR_WRITE_FAILED;
         }
         if (request->is_complete)
@@ -1462,6 +1511,7 @@ static int handle_transfer_data_notification(
             sCr_num_remaining_objects = 0;
             sCr_num_continued_objects = 0;
             dataTransfer->result = 0;
+            scr_end_timeout_watchdog();
             return 0;
         }
 
@@ -1503,6 +1553,7 @@ static int handle_transfer_data_notification(
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         sCr_num_remaining_objects = 0;
         sCr_num_continued_objects = 0;
+        scr_end_timeout_watchdog();
         return CR_ERROR_READ_FAILED;
     }
     dataTransfer->message_data.size = bytes_read;
@@ -1534,9 +1585,11 @@ static int handle_transfer_data_notification(
         sCr_num_remaining_objects = 0;
         sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        scr_end_timeout_watchdog();
         return 0;
     }
     sCr_file_xfer_state.state = cr_FileTransferState_DATA;
+    scr_stroke_timeout_watchdog(sCurrentTicks);
     return 0;
 }
 
@@ -1709,6 +1762,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_INIT:
+
       status = pb_encode(&os_stream, cr_FileTransferInitReply_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
@@ -1863,4 +1917,63 @@ static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
     }
     return 0;
 }
+
+
+// 
+// Timeout Watchdog interface
+// This is used in the file write sequences.
+// 
+
+static bool  sTimeoutWatchdog_is_active = false;
+static uint32_t sTimeoutWatchdog_period = 0;
+static uint32_t sTimeoutWatchdog_target = 0;
+
+// 0 ms disables watchdog.
+static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks)
+{
+    if (msec > 0) {
+        sTimeoutWatchdog_is_active = true;
+        sTimeoutWatchdog_period    = msec;
+        sTimeoutWatchdog_target = ticks + msec;
+        i3_log(LOG_MASK_TIMEOUT, "%s: set timeout to %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+        return;
+    }
+    i3_log(LOG_MASK_TIMEOUT, "%s: Disable timeout with %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+    sTimeoutWatchdog_is_active = false;
+}
+
+// resets the timeout period to original
+void scr_stroke_timeout_watchdog(uint32_t ticks)
+{
+    if (sTimeoutWatchdog_is_active) {
+        sTimeoutWatchdog_target = ticks + sTimeoutWatchdog_period;
+        i3_log(LOG_MASK_TIMEOUT, "%s: Stroke timeout with %d ms at %d ticks.", 
+               __FUNCTION__, sTimeoutWatchdog_period, ticks);
+        return;
+    }
+    i3_log(LOG_MASK_TIMEOUT, "%s: Stroke timeout inactive.", __FUNCTION__);
+}
+
+// disables the watchdog
+void scr_end_timeout_watchdog()
+{
+    sTimeoutWatchdog_is_active = false;
+    i3_log(LOG_MASK_TIMEOUT, "%s: End timeout.", __FUNCTION__);
+}
+
+// if active, compares ticks to expected timeout.
+// return 1 if timeout occurred
+int scr_check_timeout_watchdog(uint32_t ticks)
+{
+    if (!sTimeoutWatchdog_is_active)
+        return 0;
+
+    if (ticks > sTimeoutWatchdog_target)
+    {
+        i3_log(LOG_MASK_TIMEOUT, TEXT_RED "%s: timeout Expired.", __FUNCTION__);
+        return 1;
+    }
+    return 0;
+}
+
 
