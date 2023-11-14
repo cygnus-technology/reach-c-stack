@@ -1430,6 +1430,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
                sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.messages_until_ack,
                sCr_file_xfer_state.message_number);
          */
+        scr_stroke_timeout_watchdog(sCurrentTicks);
         return CR_ERROR_NO_RESPONSE;
     }
     // here we want to ack, also reset the counters.
