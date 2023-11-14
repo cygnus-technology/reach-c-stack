@@ -456,7 +456,7 @@ static int handle_coded_prompt()
 }
 
 
-#define VERBOSE_SIZES
+// #define VERBOSE_SIZES
 static size_t sMaxBufferSize = 0;
 static int checkSize(size_t test, size_t limit, char *name)
 {
@@ -484,7 +484,7 @@ void cr_test_sizes()
   #ifdef VERBOSE_SIZES
     i3_log(LOG_MASK_ALWAYS, "Verbose buffer size report:" TEXT_RESET);
   #else
-    i3_log(LOG_MASK_ALWAYS, "Silent buffer size check:" TEXT_RESET);
+    i3_log(LOG_MASK_ALWAYS, "Silent buffer size check:  " TEXT_RESET);
   #endif
     // reach.pb.h gives us some "Maximum encoded size of messages".
     // Check these.
