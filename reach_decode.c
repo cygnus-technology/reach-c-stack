@@ -121,7 +121,7 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
       status = pb_decode(&is_stream, cr_FileTransferData_fields, data);
       if (status) 
       {
-          cr_FileTransferData *ftd = (cr_FileTransferData*)data;
+          // cr_FileTransferData *ftd = (cr_FileTransferData*)data;
           LOG_REACH("Transfer data received: \n%s\n",
                     message_util_transfer_data_json((cr_FileTransferData *)data));
           // i3_log_dump_buffer(LOG_MASK_REACH, "Data Decoded", 
