@@ -333,28 +333,63 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
     // This event indicates the device has started and the radio is ready.
     // Do not call any stack command before receiving this boot event!
     case sl_bt_evt_system_boot_id:
-      // Create an advertising set.
-      sc = sl_bt_advertiser_create_set(&advertising_set_handle);
-      app_assert_status(sc);
 
-      // Generate data for advertising
-      sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
-                                                 sl_bt_advertiser_general_discoverable);
-      app_assert_status(sc);
+    {
+        bd_addr address;
+        uint8_t address_type;
+        uint8_t sysId[8];
 
-      // Set advertising interval to 100ms.
-      sc = sl_bt_advertiser_set_timing(
-        advertising_set_handle,
-        160, // min. adv. interval (milliseconds * 1.6)
-        160, // max. adv. interval (milliseconds * 1.6)
-        0,   // adv. duration
-        0);  // max. num. adv. events
-      app_assert_status(sc);
-      // Start advertising and enable connections.
-      sc = sl_bt_legacy_advertiser_start(advertising_set_handle,
-                                         sl_bt_advertiser_connectable_scannable);
-      app_assert_status(sc);
-      break;
+        // i3_log(LOG_MASK_BLE, "sl_bt_evt_system_boot_id 0x%x", SL_BT_MSG_ID(evt->header));
+        // Extract unique ID from BT Address.
+        sc = sl_bt_system_get_identity_address(&address, &address_type);
+        app_assert_status(sc);
+
+        // Pad and reverse unique ID to get System ID.
+        sysId[0] = address.addr[5];
+        sysId[1] = address.addr[4];
+        sysId[2] = address.addr[3];
+        sysId[3] = 0xFF;
+        sysId[4] = 0xFE;
+        sysId[5] = address.addr[2];
+        sysId[6] = address.addr[1];
+        sysId[7] = address.addr[0];
+
+
+        sc = sl_bt_gatt_server_write_attribute_value(gattdb_system_id, 0,
+                                                     sizeof(sysId),
+                                                     sysId);
+        app_assert_status(sc);
+
+
+
+        extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
+        snprintf((char*)(gattdb_attribute_field_10.data),
+                 gattdb_attribute_field_10.max_len,
+                 "Reach %02X", sysId[7]);
+        i3_log(LOG_MASK_ALWAYS, "Advertise name %s", gattdb_attribute_field_10.data);
+        i3_log(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X", 
+               sysId[0], sysId[1], sysId[2], sysId[5], sysId[6], sysId[7]);
+
+        sc = sl_bt_advertiser_create_set(&advertising_set_handle);
+        app_assert_status(sc);
+        // Generate data for advertising
+        sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
+                                                   sl_bt_advertiser_general_discoverable);
+        app_assert_status(sc);
+
+        // Set advertising interval to 100ms.
+        sc = sl_bt_advertiser_set_timing(advertising_set_handle, 
+                                         160, // min. adv. interval (milliseconds * 1.6)
+                                         160, // max. adv. interval (milliseconds * 1.6)
+                                         0,   // adv. duration
+                                         0);  // max. num. adv. events
+        app_assert_status(sc);
+        // Start advertising and enable connections.
+        sc = sl_bt_legacy_advertiser_start(advertising_set_handle, sl_bt_advertiser_connectable_scannable);
+        app_assert_status(sc);
+
+        break;
+    }
 
     // -------------------------------
     // This event indicates that a new connection was opened.
