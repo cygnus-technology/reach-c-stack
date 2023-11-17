@@ -19,6 +19,9 @@
 #ifndef _REACH_BLE_PROTO_SIZES_H
 #define _REACH_BLE_PROTO_SIZES_H
 
+// size with headers added, due to BLE.
+#define REACH_MAX_RESPONSE_SIZE               244
+
 // payload before header is added
 #define REACH_MESSAGE_PAYLOAD_MAX             208
 #define REACH_BIG_DATA_BUFFER_LEN             194

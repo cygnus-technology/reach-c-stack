@@ -538,6 +538,7 @@ void cr_test_sizes()
     rval += checkSize(sizeof(cr_ParameterInfo), MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
     
     affirm(sizeof(reach_sizes_t) == REACH_SIZE_STRUCT_SIZE);
+    affirm(REACH_MAX_RESPONSE_SIZE == CR_CODED_BUFFER_SIZE);
 
   #ifdef VERBOSE_SIZES
     i3_log(LOG_MASK_ALWAYS, "\n");
