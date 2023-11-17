@@ -386,12 +386,12 @@ void cr_report_error(int error_code, const char *fmt, ...)
 
     va_start(args, fmt);
     int ptr = snprintf(err->result_string,
-                       cr_StaticBufferSize_BIG_DATA_BUFFER_LEN,
+                       REACH_BYTES_IN_A_FILE_PACKET,
                        "Error %d: ", error_code);
     vsnprintf(&err->result_string[ptr],
-              cr_StaticBufferSize_BIG_DATA_BUFFER_LEN-ptr, fmt, args);
+              REACH_BYTES_IN_A_FILE_PACKET-ptr, fmt, args);
     // force termination
-    err->result_string[cr_StaticBufferSize_BIG_DATA_BUFFER_LEN-1] = 0;
+    err->result_string[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
     va_end(args);
     // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
 
@@ -537,7 +537,7 @@ void cr_test_sizes()
     rval += checkSize(sizeof(cr_FileTransferData), MAX_RAW_SZ, "sizeof(cr_FileTransferData)");
     rval += checkSize(sizeof(cr_ParameterInfo), MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
     
-    
+    affirm(sizeof(reach_sizes_t) == REACH_SIZE_STRUCT_SIZE);
 
   #ifdef VERBOSE_SIZES
     i3_log(LOG_MASK_ALWAYS, "\n");
@@ -718,6 +718,28 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 // Most individual handle functions expect to construct the un-encoded buffer 
 // in memory provided by the caller.
 
+static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
+{
+    reach_sizes_t sizes_struct; 
+
+    sizes_struct.max_message_size             = 244;  // biggest BLE message
+    sizes_struct.big_data_buffer_size         = REACH_BIG_DATA_BUFFER_LEN;
+    sizes_struct.parameter_buffer_count       = REACH_COUNT_PARAM_IDS;
+    sizes_struct.num_medium_structs_in_msg    = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
+    sizes_struct.device_info_len              = REACH_DEVICE_INFO_LEN;
+    sizes_struct.long_string_len              = REACH_LONG_STRING_LEN;
+    sizes_struct.count_param_ids              = REACH_COUNT_PARAM_IDS;
+    sizes_struct.medium_string_len            = REACH_MEDIUM_STRING_LEN;
+    sizes_struct.short_string_len             = REACH_SHORT_STRING_LEN;
+    sizes_struct.param_info_enum_count        = REACH_PARAM_INFO_ENUM_COUNT;
+    sizes_struct.services_count               = REACH_SERVICES_COUNT;
+    sizes_struct.pi_enum_count                = REACH_PI_ENUM_COUNT;
+    sizes_struct.num_commands_in_response     = REACH_NUM_COMMANDS_IN_RESPONSE;
+    sizes_struct.count_param_desc_in_response = REACH_COUNT_PARAM_DESC_IN_RESPONSE;
+    dir->sizes_struct.size = sizeof(reach_sizes_t);
+    memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
+}
+
 static int 
 handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
                        cr_DeviceInfoResponse     *response)  // out
@@ -727,6 +749,8 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
     crcb_device_get_info(response);
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
+    response->proto_version = cr_ReachProtoVersion_CURRENT_VERSION;
+    populate_device_info_sizes(response);
     return 0;
 }
 
@@ -1175,7 +1199,7 @@ static int handle_discover_files(const cr_DiscoverFiles *request,
     return 0;
 }
 
-typedef PB_BYTES_ARRAY_T(cr_StaticBufferSize_BIG_DATA_BUFFER_LEN) cr_FileTransferStateMachine_message_data_t;
+typedef PB_BYTES_ARRAY_T(REACH_BYTES_IN_A_FILE_PACKET) cr_FileTransferStateMachine_message_data_t;
 typedef struct _cr_FileTransferStateMachine {
     cr_FileTransferState    state;
     uint32_t                transfer_id;    // determined on init
@@ -1332,15 +1356,15 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
     }
     response->transfer_id = dataTransfer->transfer_id;
     int bytes_to_write = dataTransfer->message_data.size;
-    if (bytes_to_write > cr_StaticBufferSize_BIG_DATA_BUFFER_LEN)
+    if (bytes_to_write > REACH_BYTES_IN_A_FILE_PACKET)
     {
-        LOG_ERROR("Requested write of %d bytes > cr_StaticBufferSize_BIG_DATA_BUFFER_LEN (%d).",
-                  bytes_to_write, cr_StaticBufferSize_BIG_DATA_BUFFER_LEN);
+        LOG_ERROR("Requested write of %d bytes > REACH_BYTES_IN_A_FILE_PACKET (%d).",
+                  bytes_to_write, REACH_BYTES_IN_A_FILE_PACKET);
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
         response->result = CR_ERROR_INVALID_PARAMETER;
         cr_report_error(CR_ERROR_INVALID_PARAMETER, 
-                        "%s: Requested xfer of %d bytes > cr_StaticBufferSize_BIG_DATA_BUFFER_LEN (%d).",
-                        __FUNCTION__, bytes_to_write, cr_StaticBufferSize_BIG_DATA_BUFFER_LEN);
+                        "%s: Requested xfer of %d bytes > REACH_BYTES_IN_A_FILE_PACKET (%d).",
+                        __FUNCTION__, bytes_to_write, REACH_BYTES_IN_A_FILE_PACKET);
         scr_end_timeout_watchdog();
         return CR_ERROR_INVALID_PARAMETER;
     }
@@ -1530,8 +1554,8 @@ static int handle_transfer_data_notification(
 
     size_t 
         bytes_requested = 
-            (bytes_remaining_to_read >= cr_StaticBufferSize_BIG_DATA_BUFFER_LEN)
-                ? cr_StaticBufferSize_BIG_DATA_BUFFER_LEN : bytes_remaining_to_read;
+            (bytes_remaining_to_read >= REACH_BYTES_IN_A_FILE_PACKET)
+                ? REACH_BYTES_IN_A_FILE_PACKET : bytes_remaining_to_read;
 
     i3_log(LOG_MASK_FILES, "file read %d, %d remaining of %d.", bytes_requested,
            bytes_remaining_to_read, sCr_file_xfer_state.transfer_length);
@@ -1605,12 +1629,12 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     {
         // this is just because I'm lazy.  Write it if you need it.
         i3_log(LOG_MASK_WARN, "%s: Found %d commands.  Will only report first %d.", 
-                  __FUNCTION__, num_commands, cr_StaticBufferSize_NUM_COMMANDS_IN_RESPONSE);
+                  __FUNCTION__, num_commands, REACH_NUM_COMMANDS_IN_RESPONSE);
         num_commands = 6;
     }
     crcb_command_discover_reset(0);  // index, not really cid.
     response->available_commands_count = num_commands;
-    for (int i=0; i<cr_StaticBufferSize_NUM_COMMANDS_IN_RESPONSE; i++)
+    for (int i=0; i<REACH_NUM_COMMANDS_IN_RESPONSE; i++)
     {
         rval = crcb_command_discover_next(&response->available_commands[i]);
         if (rval != 0)

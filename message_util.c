@@ -197,14 +197,10 @@ char *message_util_get_device_info_response_json(
     cJSON_AddStringToObject(json1, key_type_firmware_version, response->firmware_version);
     cJSON_AddStringToObject(json1, key_type_manufacturer, response->manufacturer);
     cJSON_AddStringToObject(json1, key_type_device_description, response->device_description);
-    cJSON_AddNumberToObject(json1, key_type_file_max_message_length, response->max_message_size);
     cJSON_AddNumberToObject(json1, key_type_services, response->services);
     cJSON_AddNumberToObject(json1, key_type_hash, response->parameter_metadata_hash);
     // not yet: application_identifier
     cJSON_AddNumberToObject(json1, key_type_endpoints, response->endpoints);
-    cJSON_AddNumberToObject(json1, key_type_parameter_buffer_count, response->parameter_buffer_count);
-    cJSON_AddNumberToObject(json1, key_type_num_medium_structs_in_msg, response->num_medium_structs_in_msg);
-    cJSON_AddNumberToObject(json1, key_type_big_data_buffer_size, response->big_data_buffer_size);
     cJSON_AddItemToObject(json, message_type_get_device_info, json1);
 
     // convert the cJSON object to a JSON string
