@@ -750,7 +750,7 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
     crcb_device_get_info(response);
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
-    response->proto_version = cr_ReachProtoVersion_CURRENT_VERSION;
+    response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
     populate_device_info_sizes(response);
     return 0;
 }
