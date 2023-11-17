@@ -359,16 +359,16 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
                                                      sizeof(sysId),
                                                      sysId);
         app_assert_status(sc);
-
-
-
-        extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
-        snprintf((char*)(gattdb_attribute_field_10.data),
-                 gattdb_attribute_field_10.max_len,
-                 "Reach %02X", sysId[7]);
-        i3_log(LOG_MASK_ALWAYS, "Advertise name %s", gattdb_attribute_field_10.data);
-        i3_log(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X", 
+        i3_log(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X",
                sysId[0], sysId[1], sysId[2], sysId[5], sysId[6], sysId[7]);
+
+        // Rewrite name
+        extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
+        gattdb_attribute_field_10.len =
+            snprintf((char*)(gattdb_attribute_field_10.data),
+                     gattdb_attribute_field_10.max_len,
+                     "Reach %02X-%02X", sysId[6], sysId[7]);
+        i3_log(LOG_MASK_ALWAYS, "Advertise name %s", gattdb_attribute_field_10.data);
 
         sc = sl_bt_advertiser_create_set(&advertising_set_handle);
         app_assert_status(sc);
@@ -385,7 +385,8 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
                                          0);  // max. num. adv. events
         app_assert_status(sc);
         // Start advertising and enable connections.
-        sc = sl_bt_legacy_advertiser_start(advertising_set_handle, sl_bt_advertiser_connectable_scannable);
+        sc = sl_bt_legacy_advertiser_start(advertising_set_handle, 
+                                           sl_bt_advertiser_connectable_scannable);
         app_assert_status(sc);
 
         break;
