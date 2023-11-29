@@ -31,6 +31,9 @@
 #include "gatt_db.h"
 #include "app.h"
 
+// When defined we attempt to advertise a longer name.
+// It doesn't yet do what is required.
+// #define EXTENDED_ADVERTISING
 
 static uint8_t  sRsl_ble_connection = 0;
 static uint16_t sRsl_ble_characteristic = 0;
@@ -272,17 +275,10 @@ void rsl_app_init(void)
 {
     sl_status_t status;
 
-#if 1
     // this clears a line between runs.
     // init_cygnus_cli() prints a banner.
     i3_log(LOG_MASK_ALWAYS, "\n\n**\n");
-#else
-    i3_log(LOG_MASK_ALWAYS, "\n\n**");
-    i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "Cygnus Reach Device v%d.%d.%d",
-           MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION);
-    i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "Built %s, %s", __DATE__, __TIME__);
-    i3_log(LOG_MASK_ALWAYS, "**\n");
-#endif
+
     // Add the CLI commands implemented in cli_functions.c
     extern void init_cygnus_cli();
     init_cygnus_cli();
@@ -309,6 +305,86 @@ void rsl_app_process_action(void)
     cr_process(time_since_startup * UPDATE_APP_TIMER_MS);
 }
 
+#ifdef EXTENDED_ADVERTISING
+
+// CUSTOM_ADVERTISING data
+#define UUID_LEN 16
+#define NAME_LEN 16
+typedef struct
+{
+    uint8_t flags_len;            // Length of the Flags field.
+    uint8_t flags_type;           // Type of the Flags field.
+    uint8_t flags;                // Flags field.
+    uint8_t longname_len;         // Length of the Name field.
+    uint8_t longname_type;        // Type of the long Name field.
+    char    longname[NAME_LEN];   // Name field.
+    uint8_t len_uuid;
+    uint8_t type_uuid;
+    uint8_t uuid[UUID_LEN];
+
+} adv_data_s;
+
+adv_data_s sAdv_data =
+{
+    // Flag bits - See Bluetooth 4.0 Core Specification , Volume 3, Appendix C, 18.1 for more details on flags.
+    2,      // Length of field.
+    0x01,   // Type of field.
+    0x06,   // Flags: LE General Discoverable Mode, BR/EDR is disabled.
+
+    // Long Name
+    14,     // Length of field. (strlen+1)
+    0x09,   // Type of field:  LOCAL_NAME
+    "Advertisement",
+
+    // Reach characteristic UUID
+    0x11,   // Length of field.
+    0x07,   // complete List of 128-bit Service Class UUIDs
+    #define REACH_UUID "edd59269-79b3-4ec2-a6a2-89bfb640f930"  // Reach ID
+    {0x30,0xF9,0x40,0xB6,0xBF,0x89,0xA2,0x26,
+    0xC2,0x0E,0xB3,0x79,0x69,0x92,0xD5,0xED},
+};
+
+#define TEST_EXT_ELE_LENGTH 200
+void setup_ext_adv(uint8_t handle)
+{
+  sl_status_t sc;
+
+  // Set advertising data
+  sc = sl_bt_extended_advertiser_set_data(handle, sizeof(sAdv_data), (uint8_t*)&sAdv_data);
+  app_assert(sc == SL_STATUS_OK,
+                      "[E: 0x%04x] Failed to set advertising data\n",
+                      (int)sc);
+}
+
+void setup_start_ext_adv(uint8_t handle)
+{
+  sl_status_t sc;
+  // Set advertising interval to 100ms.
+  sc = sl_bt_advertiser_set_timing(
+    handle,
+    160, // min. adv. interval (milliseconds * 1.6)
+    160, // max. adv. interval (milliseconds * 1.6)
+    0,   // adv. duration
+    0);  // max. num. adv. events
+  app_assert(sc == SL_STATUS_OK,
+                "[E: 0x%04x] Failed to set advertising timing\n",
+                (int)sc);
+
+  setup_ext_adv(handle);
+
+  sc = sl_bt_extended_advertiser_start(
+      handle,
+      sl_bt_extended_advertiser_connectable,
+      // sl_bt_extended_advertiser_non_connectable,
+      0);
+  app_assert(sc == SL_STATUS_OK,
+                  "[E: 0x%04x] Failed to start advertising\n",
+                  (int)sc);
+  /* Start general advertising and enable connections. */
+  i3_log(LOG_MASK_ALWAYS, "Start advertising.\r\n");
+}
+#endif // def EXTENDED_ADVERTISING
+
 /**************************************************************************//**
  * Bluetooth stack event handler.
  *
@@ -333,7 +409,6 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
     // This event indicates the device has started and the radio is ready.
     // Do not call any stack command before receiving this boot event!
     case sl_bt_evt_system_boot_id:
-
     {
         bd_addr address;
         uint8_t address_type;
@@ -354,7 +429,6 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         sysId[6] = address.addr[1];
         sysId[7] = address.addr[0];
 
-
         sc = sl_bt_gatt_server_write_attribute_value(gattdb_system_id, 0,
                                                      sizeof(sysId),
                                                      sysId);
@@ -362,16 +436,34 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         i3_log(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X",
                sysId[0], sysId[1], sysId[2], sysId[5], sysId[6], sysId[7]);
 
+      
+      #ifdef EXTENDED_ADVERTISING
+        // most devices don't see such an extended advertisement.
+        // We need to make the long name scannable.
         // Rewrite name
+        sAdv_data.longname_len = 1 +
+            snprintf((char *)(sAdv_data.longname),
+                     NAME_LEN,
+                     "Reacher %02X-%02X", sysId[6], sysId[7]);
+        i3_log(LOG_MASK_ALWAYS, TEXT_MAGENTA "Advertise extended name %s", sAdv_data.longname);
+
+        sc = sl_bt_advertiser_create_set(&advertising_set_handle);
+        app_assert_status(sc);
+
+        setup_start_ext_adv(advertising_set_handle);
+      #else
+        // Relies on setup from gatt database.
+        // seem to only be capable of 8 chars
         extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
         gattdb_attribute_field_10.len =
             snprintf((char*)(gattdb_attribute_field_10.data),
                      gattdb_attribute_field_10.max_len,
-                     "Reach %02X-%02X", sysId[6], sysId[7]);
-        i3_log(LOG_MASK_ALWAYS, "Advertise name %s", gattdb_attribute_field_10.data);
+                     "Reach %02X", sysId[6]);
+        i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Advertise non-extended name %s", gattdb_attribute_field_10.data);
 
         sc = sl_bt_advertiser_create_set(&advertising_set_handle);
         app_assert_status(sc);
+
         // Generate data for advertising
         sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
                                                    sl_bt_advertiser_general_discoverable);
@@ -388,6 +480,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         sc = sl_bt_legacy_advertiser_start(advertising_set_handle, 
                                            sl_bt_advertiser_connectable_scannable);
         app_assert_status(sc);
+      #endif  // def EXTENDED_ADVERTISING
 
         break;
     }
@@ -409,10 +502,11 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // This event indicates that a connection was closed.
     case sl_bt_evt_connection_closed_id:
-      i3_log(LOG_MASK_ALWAYS, "Device disconnected from BLE");
+      i3_log(LOG_MASK_ALWAYS, "Device disconnected from BLE, restart advertising");
+
       // Generate data for advertising
       sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
-                                                 sl_bt_advertiser_general_discoverable);
+                                                 advertiser_general_discoverable);
       app_assert_status(sc);
 
       // Restart advertising after client has disconnected.
