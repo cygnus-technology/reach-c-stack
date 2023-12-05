@@ -300,7 +300,7 @@ int __attribute__((weak)) crcb_file_discover_reset(const uint8_t fid)
     return CR_ERROR_NOT_IMPLEMENTED;
 }
 
-int __attribute__((weak)) crcb_file_get_description(int32_t fid, 
+int __attribute__((weak)) crcb_file_get_description(uint32_t fid, 
                                                   cr_FileInfo *file_desc)
 {
     (void)fid;

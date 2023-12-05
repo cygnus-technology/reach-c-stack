@@ -246,7 +246,7 @@ int crcb_command_execute(const uint8_t cid);
 int crcb_file_discover_next(cr_FileInfo *file_desc);
 int crcb_file_discover_reset(const uint8_t fid);
 int crcb_file_get_file_count();
-int crcb_file_get_description(int32_t fid, cr_FileInfo *file_desc);
+int crcb_file_get_description(uint32_t fid, cr_FileInfo *file_desc);
 int crcb_file_get_preferred_ack_rate(int is_write);
 
 // Attempts to read the specified file.
