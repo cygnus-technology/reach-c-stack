@@ -143,6 +143,20 @@ int __attribute__((weak)) crcb_cli_respond(char *cli)
     return CR_ERROR_NOT_IMPLEMENTED;
 }
 
+
+// store the command line to be parsed elsewhere
+const char *sSaveIns = NULL;
+void __attribute__((weak)) crcb_set_command_line(const char *ins)
+{
+    sSaveIns = ins;
+}
+
+const char *__attribute__((weak)) crcb_get_command_line()
+{
+    return sSaveIns;
+}
+
+
 //*************************************************************************
 //  Parameter Service
 //*************************************************************************

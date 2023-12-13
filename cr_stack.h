@@ -175,6 +175,9 @@ int crcb_cli_respond(char *cli);
 
 int crcb_notify_error(cr_ErrorReport *err);
 
+// store the command line to be parsed elsewhere
+void crcb_set_command_line(const char *ins);
+const char *crcb_get_command_line();
 
 //*************************************************************************
 //  Parameter Service

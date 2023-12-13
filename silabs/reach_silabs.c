@@ -104,84 +104,42 @@ void rsl_init()
 
 int crcb_cli_enter(const char *ins)
 {
-    bool handled = false;
     if (*ins == 0xA)
     {
-        handled = true;
+        i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI ">");
+        return 0;
     }
-    else if ((*ins == '?') || (!strncmp("help", ins, 4)))
+
+    if ((*ins == '?') || (!strncmp("help", ins, 4)) )
     {
         i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Cygnus Reach Server, built %s, %s", __DATE__, __TIME__);
         i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Version %d.%d.%d", MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION);
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "Commands:");
-        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  ? or help to see this command.");
-        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  lm <x> to change the log mask (hex).");
-        handled = true;
+        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  ver : Print versions");
+        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  /   : Display status");
+        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  lm  : Log Mask: lm 0xXXX");
+        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  rcli: Remote CLI <on|off>");
+        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  phy : phy <1|2> BLE PHY 1M or 2M");
+        i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI ">");
+        return 0;
     }
-    else if (!strncmp("rcli", ins, 4))
-    {
-      #ifndef ENABLE_REMOTE_CLI
-        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "rcli: Remote CLI is not enabled at compile time.");
-      #else
-        if (!strncmp("rcli on", ins, 7))
-        {
-            i3_log(LOG_MASK_ALWAYS, TEXT_CLI "rcli: Enabled remote CLI echo.");
-            i3_log_set_remote_cli_enable(true);
-        }
-        else if (!strncmp("rcli off", ins, 7))
-        {
-            i3_log(LOG_MASK_ALWAYS, TEXT_CLI "rcli: Disabled remote CLI echo.");
-            i3_log_set_remote_cli_enable(false);
-        }
-        else
-        {
-            i3_log(LOG_MASK_ALWAYS, TEXT_CLI "rcli: Remote CLI echo is %s.",
-                   i3_log_get_remote_cli_enable() ? "ENABLED" : "DISABLED");
-            
-        }
-      #endif
-        handled = true;
-    }
+
+    crcb_set_command_line(ins);
+    // step through remote_command_table and execute if matching
+    if (!strncmp("ver", ins, 3))
+        print_versions();
+    else if (!strncmp("/", ins, 1))
+        slash(NULL);
     else if (!strncmp("lm", ins, 2))
-    {
-        unsigned int logMask = i3_log_get_mask();
-        int numRead = sscanf(&ins[3], "%x", &logMask);
-        if (numRead == 1)
-        {
-            i3_log_set_mask(logMask);
-            i3_log(LOG_MASK_ALWAYS, TEXT_CLI "Log mask/Trace level set to 0x%x", logMask);
-        }
-        else
-        {
-            i3_log(LOG_MASK_ALWAYS, TEXT_CLI "rx %s, numRead is %d", ins, numRead);
-            i3_log(LOG_MASK_ALWAYS, TEXT_CLI "Log mask/Trace level is 0x%x", logMask);
-            i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  ALWAYS, ERROR and WARN are enabled");
-            if (logMask & LOG_MASK_WEAK) 
-                i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  mask 0x%x: WEAK is enabled", LOG_MASK_WEAK);
-            else
-                i3_log(LOG_MASK_ALWAYS, "    mask 0x%x: WEAK is disabled", LOG_MASK_WEAK);
-            if (logMask & LOG_MASK_WIRE) 
-                i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  mask 0x%x: WIRE is enabled", LOG_MASK_WIRE);
-            else
-                i3_log(LOG_MASK_ALWAYS, "  mask 0x%x: WIRE is disabled", LOG_MASK_WIRE);
-            if (logMask & LOG_MASK_REACH) 
-                i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  mask 0x%x: REACH is enabled", LOG_MASK_REACH);
-            else
-                i3_log(LOG_MASK_ALWAYS, "    mask 0x%x: REACH is disabled", LOG_MASK_REACH);
-            if (logMask & LOG_MASK_PARAMS) 
-                i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  mask 0x%x: PARAMS is enabled", LOG_MASK_PARAMS);
-            else
-                i3_log(LOG_MASK_ALWAYS, "    mask 0x%x: PARAMS is disabled", LOG_MASK_PARAMS);
-            if (logMask & LOG_MASK_FILES) 
-                i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  mask 0x%x: FILES is enabled", LOG_MASK_FILES);
-            else
-                i3_log(LOG_MASK_ALWAYS, "    mask 0x%x: FILES is disabled", LOG_MASK_FILES);
-        }
-        handled = true;
-    }
-    if (!handled)
+        cli_lm(NULL);
+    else if (!strncmp("rcli", ins, 4))
+        cli_rcli(NULL);
+    else if (!strncmp("phy", ins, 3))
+        cli_phy(NULL);
+    else
         i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI 
                "CLI command '%s' not recognized (0x%x).", ins, *ins);
+
     i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI ">");
     return 0;
 }
