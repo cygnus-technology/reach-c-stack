@@ -264,8 +264,12 @@ void rsl_app_init(void)
  *****************************************************************************/
 void rsl_app_process_action(void)
 {
+    extern void generate_data_for_notify(uint32_t timestamp);
+
+    uint32_t timestamp = time_since_startup * UPDATE_APP_TIMER_MS;
+    generate_data_for_notify(timestamp);
     // process reach stack
-    cr_process(time_since_startup * UPDATE_APP_TIMER_MS);
+    cr_process(timestamp);
 }
 
 #ifdef EXTENDED_ADVERTISING
