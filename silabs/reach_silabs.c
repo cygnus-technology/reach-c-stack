@@ -346,7 +346,19 @@ void setup_start_ext_adv(uint8_t handle)
   /* Start general advertising and enable connections. */
   i3_log(LOG_MASK_ALWAYS, "Start advertising.\r\n");
 }
+#else
+  extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
 #endif // def EXTENDED_ADVERTISING
+
+const char *rsl_get_advertised_name() 
+{
+  #ifdef EXTENDED_ADVERTISING
+    return sAdv_data.longname;
+  #else
+    return (char*)(gattdb_attribute_field_10.data);
+  #endif // def EXTENDED_ADVERTISING
+}
+
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
@@ -417,7 +429,6 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
       #else
         // Relies on setup from gatt database.
         // seem to only be capable of 8 chars
-        extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
         gattdb_attribute_field_10.len =
             snprintf((char*)(gattdb_attribute_field_10.data),
                      gattdb_attribute_field_10.max_len,
