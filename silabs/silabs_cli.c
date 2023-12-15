@@ -20,12 +20,14 @@
 #include "sl_cli_handles.h"
 #include "sl_cli_command.h"
 #include "sl_bluetooth.h"
+#include "nvm3_default.h"
 
 #include "app.h"
 #include "i3_log.h"
 #include "version.h"
 #include "cr_stack.h"
 #include "reach_silabs.h"
+
 
 /******************************************************************************
  *************************** CLI callback functions ***************************
@@ -185,6 +187,71 @@ void cli_phy(sl_cli_command_arg_t *args)
     }
 }
 
+void cli_nvm(sl_cli_command_arg_t *args)
+{
+  int action = 0;  // nvm dump.  1 for clear.
+  // nvm dump
+  // nvm clear
+  sl_cli_command_arg_t *arguments;
+  const char *argStr;
+
+  if (args)
+  {
+    arguments = (sl_cli_command_arg_t *)args;
+    argStr = sl_cli_get_argument_string(arguments, 0);
+    if (!strncmp(argStr, "clear", 6))
+      action = 1;
+    if (!strncmp(argStr, "init", 6))
+      action = 2;
+  }
+  else
+  {
+      argStr = crcb_get_command_line();
+      if (!strncmp(argStr, "nvm clear", 9))
+        action = 1;
+      if (!strncmp(argStr, "nvm init", 9))
+        action = 2;
+  }
+  if (action == 1)
+  {
+      Ecode_t eCode = nvm3_eraseAll(nvm3_defaultHandle);
+      i3_log(LOG_MASK_ALWAYS, "nvm3_eraseAll() returned 0x%x", eCode);
+      return;
+  }
+  if (action == 2)
+  {
+      Ecode_t eCode = nvm3_eraseAll(nvm3_defaultHandle);
+      i3_log(LOG_MASK_ALWAYS, "nvm3_eraseAll() returned 0x%x", eCode);
+      init_param_repo();
+      return;
+  }
+
+  // dump what is there
+  size_t numObj = nvm3_enumObjects(nvm3_defaultHandle, NULL, 0, NVM3_KEY_MIN, NVM3_KEY_MAX);
+  i3_log(LOG_MASK_ALWAYS, "Found %d NVM3 objects.", numObj);
+  numObj = nvm3_enumDeletedObjects(nvm3_defaultHandle, NULL, 0, NVM3_KEY_MIN, NVM3_KEY_MAX);
+  i3_log(LOG_MASK_ALWAYS, "Found %d deleted NVM3 objects.", numObj);
+
+  #define NUM_KEYS  32
+  nvm3_ObjectKey_t keyList[NUM_KEYS];  // uint32's
+  int found = 0;
+  numObj = nvm3_enumObjects(nvm3_defaultHandle, keyList, NUM_KEYS, NVM3_KEY_MIN, 128);
+  for (int i=NVM3_KEY_MIN; i<NUM_KEYS; i++) {
+      size_t dataLen;
+      uint32_t objectType;
+
+      nvm3_getObjectInfo(nvm3_defaultHandle, keyList[i], &objectType, &dataLen);
+      if ( (objectType == NVM3_OBJECTTYPE_DATA) && (dataLen>0) ) {
+          i3_log(LOG_MASK_ALWAYS, " Key %d is present, size %d.", keyList[i], dataLen);
+          found++;
+          if (found>= numObj) {
+              break;
+          }
+      }
+  }
+  return;
+}
+
 
 
 /******************************************************************************
@@ -223,7 +290,12 @@ SL_CLI_COMMAND(
     "1 (default) or 2 (fast)",
     { SL_CLI_ARG_UINT32, SL_CLI_ARG_END });
 
-
+static const sl_cli_command_info_t cmd__nvm =
+SL_CLI_COMMAND(
+    cli_nvm,
+    "Manage non volatile memory",
+    "nvm ?: (summarize), nvm clear (erase all)",
+    { SL_CLI_ARG_STRING, SL_CLI_ARG_END });
 
 /******************************************************************************
  ***************************** CLI command table ******************************
@@ -234,6 +306,7 @@ static sl_cli_command_entry_t command_table[] = {
   { "lm",           &cmd__lm,                     false},
   { "rcli",         &cmd__rcli,                   false},
   { "phy",          &cmd__phy,                    false},
+  { "nvm",          &cmd__nvm,                    false},
   { NULL,           NULL,                         false }, };
 
 // Create the command group at the top level

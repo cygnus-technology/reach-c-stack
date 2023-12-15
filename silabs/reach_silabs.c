@@ -43,6 +43,7 @@ static uint32_t sNotifyCount = 0;
 static uint32_t sNotifyDelay = 0;
 static uint32_t sNotifyMaxDelay = 0;
 
+
 void rsl_inform_connection(uint8_t connection, uint16_t characteristic)
 {
   sRsl_ble_connection = connection;
@@ -101,7 +102,8 @@ void rsl_init()
     i3_log(LOG_MASK_ALWAYS, "Enter 'help' to see available commands.");
 }
 
-
+// This CLI handler for remote access mirrors that found in silabs_cli.c for local access.
+// It calls the same functions but uses a different parser.
 int crcb_cli_enter(const char *ins)
 {
     if (*ins == 0xA)
@@ -120,6 +122,7 @@ int crcb_cli_enter(const char *ins)
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  lm  : Log Mask: lm 0xXXX");
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  rcli: Remote CLI <on|off>");
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  phy : phy <1|2> BLE PHY 1M or 2M");
+        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  nvm : nvm <?|clear|init>");
         i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI ">");
         return 0;
     }
@@ -136,6 +139,8 @@ int crcb_cli_enter(const char *ins)
         cli_rcli(NULL);
     else if (!strncmp("phy", ins, 3))
         cli_phy(NULL);
+    else if (!strncmp("nvm", ins, 3))
+        cli_nvm(NULL);
     else
         i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI 
                "CLI command '%s' not recognized (0x%x).", ins, *ins);
@@ -240,7 +245,7 @@ void rsl_app_init(void)
     // Add the CLI commands implemented in cli_functions.c
     extern void init_cygnus_cli();
     init_cygnus_cli();
-
+    
     // Add a timer for Reach
     sl_sleeptimer_init();
     uint32_t timer_timeout = UPDATE_APP_TIMER_MS;
