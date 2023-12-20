@@ -220,6 +220,7 @@ void cli_nvm(sl_cli_command_arg_t *args)
   }
   if (action == 2)
   {
+      extern void init_param_repo();
       Ecode_t eCode = nvm3_eraseAll(nvm3_defaultHandle);
       i3_log(LOG_MASK_ALWAYS, "nvm3_eraseAll() returned 0x%x", eCode);
       init_param_repo();
@@ -234,7 +235,7 @@ void cli_nvm(sl_cli_command_arg_t *args)
 
   #define NUM_KEYS  32
   nvm3_ObjectKey_t keyList[NUM_KEYS];  // uint32's
-  int found = 0;
+  size_t found = 0;
   numObj = nvm3_enumObjects(nvm3_defaultHandle, keyList, NUM_KEYS, NVM3_KEY_MIN, 128);
   for (int i=NVM3_KEY_MIN; i<NUM_KEYS; i++) {
       size_t dataLen;

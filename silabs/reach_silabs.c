@@ -182,7 +182,7 @@ int crcb_send_coded_response(const uint8_t *respBuf, size_t respSize)
     if (respSize == 0)
     {
         i3_log(LOG_MASK_REACH, "%s: No bytes to send.  ", __FUNCTION__);
-        return CR_ERROR_NONE;
+        return cr_ErrorCodes_NO_ERROR;
     }
     int rval = 0;
     i3_log(LOG_MASK_REACH, TEXT_GREEN "%s: send %d bytes.", __FUNCTION__, respSize);
@@ -199,21 +199,21 @@ int crcb_send_coded_response(const uint8_t *respBuf, size_t respSize)
             break;
         case SL_STATUS_COMMAND_TOO_LONG:
             LOG_ERROR("Response of %d bytes is too long. Return %d", 
-                      respSize, CR_ERROR_BUFFER_TOO_SMALL);
-            rval = CR_ERROR_BUFFER_TOO_SMALL;
+                      respSize, cr_ErrorCodes_BUFFER_TOO_SMALL);
+            rval = cr_ErrorCodes_BUFFER_TOO_SMALL;
             break;
         case SL_STATUS_INVALID_HANDLE:
-            LOG_ERROR("Invalid Handle. Return %d", CR_ERROR_INVALID_PARAMETER);
-            rval = CR_ERROR_INVALID_PARAMETER;
+            LOG_ERROR("Invalid Handle. Return %d", cr_ErrorCodes_INVALID_PARAMETER);
+            rval = cr_ErrorCodes_INVALID_PARAMETER;
             break;
         default:
             LOG_ERROR("Response of %d bytes failed with status 0x%x.\n", 
                              respSize, s1);
-            rval = CR_ERROR_INVALID_PARAMETER;
+            rval = cr_ErrorCodes_INVALID_PARAMETER;
         }
         return rval;
     }
-    return CR_ERROR_NONE;
+    return cr_ErrorCodes_NO_ERROR;
 }
 
 // The advertising set handle allocated from Bluetooth stack.

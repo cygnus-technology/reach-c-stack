@@ -35,8 +35,8 @@
 //  is already where it belongs.
 // The len variable must specify the number of valid bytes in the supplied prompt.
 // crcb_get_coded_prompt() must not block as that would disable any notifications.
-// Return CR_ERROR_NONE if prompt data is supplied.
-// Return CR_ERROR_NO_DATA if no data is available.
+// Return cr_ErrorCodes_NO_ERROR if prompt data is supplied.
+// Return cr_ErrorCodes_NO_DATA if no data is available.
 // A message larger than CR_CODED_BUFFER_SIZE is fatal.
 int __attribute__((weak)) crcb_get_coded_prompt(uint8_t *prompt, size_t *len)
 {
@@ -46,8 +46,8 @@ int __attribute__((weak)) crcb_get_coded_prompt(uint8_t *prompt, size_t *len)
     affirm(*len <= CR_CODED_BUFFER_SIZE);
     // i3_log(LOG_MASK_WEAK, "%s: weak default assumes cr_store_coded_prompt().\n", __FUNCTION__);
     if (*len != 0)
-        return CR_ERROR_NONE;
-    return CR_ERROR_NO_DATA;
+        return cr_ErrorCodes_NO_ERROR;
+    return cr_ErrorCodes_NO_DATA;
 }
 
 
@@ -76,7 +76,7 @@ int __attribute__((weak)) crcb_send_coded_response(const uint8_t *response, size
     }
     printf("\n\n");
 
-    return CR_ERROR_NO_DATA;
+    return cr_ErrorCodes_NO_DATA;
   #endif
 }
 
@@ -88,7 +88,7 @@ int __attribute__((weak)) crcb_notify_error(cr_ErrorReport *err)
 {
     (void)err;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -106,7 +106,7 @@ int __attribute__((weak)) crcb_device_get_info(cr_DeviceInfoResponse *pDi)
 {
     (void)pDi;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -117,7 +117,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int32_t *rssi)
 {
     (void)rssi;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -131,7 +131,7 @@ int __attribute__((weak)) crcb_cli_enter(const char *cli)
 {
     (void)cli;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 // When the device supports a CLI it is expected to share anything printed 
@@ -140,7 +140,7 @@ int __attribute__((weak)) crcb_cli_respond(char *cli)
 {
     (void)cli;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -172,7 +172,7 @@ int __attribute__((weak)) crcb_parameter_discover_next(cr_ParameterInfo **desc)
 {
     (void)desc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 // returns the number of parameters supported by the system.
@@ -189,7 +189,7 @@ int __attribute__((weak)) crcb_parameter_discover_reset(const uint32_t pid)
 {
     (void)pid;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -199,7 +199,7 @@ int __attribute__((weak)) crcb_parameter_ex_discover_next(cr_ParamExInfoResponse
 {
     (void)pDesc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 // returns the number of extension parameters supported by the pid.
@@ -218,7 +218,7 @@ int __attribute__((weak)) crcb_parameter_ex_discover_reset(const int32_t pid)
 {
     (void)pid;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -227,22 +227,22 @@ int __attribute__((weak)) crcb_parameter_ex_discover_reset(const int32_t pid)
 // specifying the size and type of the data is known both by the app and the 
 // stack.
 // The data is copied into a structure provided by the app.
-// Might return cr_ErrorCodes_READ_FAILED or CR_ERROR_PERMISSION_DENIED
+// Might return cr_ErrorCodes_READ_FAILED or cr_ErrorCodes_PERMISSION_DENIED
 int __attribute__((weak)) crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
 {
     (void)pid;
     (void)data;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
-// Might return CR_ERROR_WRITE_FAILED
+// Might return cr_ErrorCodes_WRITE_FAILED
 int __attribute__((weak)) crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
 {
     (void)pid;
     (void)data;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 // return a number that changes if the parameter descriptions have changed.
@@ -273,14 +273,14 @@ int __attribute__((weak)) crcb_command_discover_next(cr_CommandInfo *cmd_desc)
 {
     (void)cmd_desc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 int __attribute__((weak)) crcb_command_discover_reset(const uint32_t pid)
 {
     (void)pid;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 // actually execute the command
@@ -288,7 +288,7 @@ int __attribute__((weak)) crcb_command_execute(const uint8_t cid)
 {
     (void)cid;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 //*************************************************************************
@@ -304,14 +304,14 @@ int __attribute__((weak)) crcb_file_discover_next(cr_FileInfo *file_desc)
 {
     (void)file_desc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 int __attribute__((weak)) crcb_file_discover_reset(const uint8_t fid)
 {
     (void)fid;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 int __attribute__((weak)) crcb_file_get_description(uint32_t fid, 
@@ -320,7 +320,7 @@ int __attribute__((weak)) crcb_file_get_description(uint32_t fid,
     (void)fid;
     (void)file_desc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 // Could override the requested ack rate using this.
@@ -347,7 +347,7 @@ int __attribute__((weak)) crcb_read_file(const uint32_t fid,            // which
     (void)pData,
     (void)bytes_read;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -362,7 +362,7 @@ int __attribute__((weak)) crcb_write_file(const uint32_t fid,   // which file
     (void)bytes;
     (void)pData;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -371,7 +371,7 @@ int __attribute__((weak)) crcb_erase_file(const uint32_t fid)
 {
     (void)fid;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -382,14 +382,14 @@ int __attribute__((weak)) crcb_OTA_discover_next(cr_OTA_s *OTA_desc)
 {
     (void)OTA_desc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 int __attribute__((weak)) crcb_OTA_discover_reset(uint8_t OTA_id)
 {
     (void)OTA_id;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -402,14 +402,14 @@ int __attribute__((weak)) crcb_log_discover_next(cr_log_s *log_desc)
 {
     (void)log_desc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 int __attribute__((weak)) crcb_log_discover_reset(uint8_t  log_id)
 {
     (void)log_id;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -422,14 +422,14 @@ int __attribute__((weak)) crcb_time_get(uint64_t *utc_seconds)
 {
     (void)utc_seconds;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 int __attribute__((weak)) crcb_time_set(uint64_t utc_seconds)
 {
     (void)utc_seconds;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -445,14 +445,14 @@ int __attribute__((weak)) crcb_stream_discover_next(cr_stream_s *stream_desc)
 {
     (void)stream_desc;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 int __attribute__((weak)) crcb_stream_discover_reset(uint8_t  stream_id)
 {
     (void)stream_id;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 
@@ -467,7 +467,7 @@ int __attribute__((weak)) crcb_stream_send_packet(const uint8_t stream_id,
     (void)data;
     (void)num_packets;
     i3_log(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return CR_ERROR_NOT_IMPLEMENTED;
+    return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
 

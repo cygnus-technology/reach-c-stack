@@ -206,7 +206,7 @@ static int handle_continued_transactions()
     if (sCr_continued_message_type == cr_ReachMessageTypes_INVALID)
     {
         // i3_log(LOG_MASK_REACH, "%s(): No continued transactions.", __FUNCTION__);
-        return CR_ERROR_NO_DATA;  // no continued transaction.
+        return cr_ErrorCodes_NO_DATA;  // no continued transaction.
     }
 
     cr_ReachMessageTypes encode_message_type = sCr_continued_message_type;
@@ -236,7 +236,7 @@ static int handle_continued_transactions()
     default:
         LOG_ERROR("Continued type %d not written.", sCr_continued_message_type);
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return CR_ERROR_NO_DATA;
+        return cr_ErrorCodes_NO_DATA;
     }
 
     if (rval != 0)
@@ -262,7 +262,7 @@ static int handle_continued_transactions()
 
 int cr_init() 
 {
-  return CR_ERROR_NONE;
+  return cr_ErrorCodes_NO_ERROR;
 }
 
 // allows the application to store the prompt where the Reach stack can see it.
@@ -280,9 +280,9 @@ int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len)
     *pResponse = sCr_encoded_response_buffer;
     *len = sCr_encoded_response_size;
     if (sCr_encoded_response_size == 0)
-        return CR_ERROR_NO_DATA;
+        return cr_ErrorCodes_NO_DATA;
     sCr_encoded_response_size = 0;
-    return CR_ERROR_NONE;
+    return cr_ErrorCodes_NO_ERROR;
 }
 
 // static uint32_t lastTick = 0;
@@ -334,17 +334,17 @@ int cr_process(uint32_t ticks)
 
     // Support for continued transactions:
     //   zero indicates valid data was produced.
-    //   CR_ERROR_NO_DATA indicates no data was produced.
+    //   cr_ErrorCodes_NO_DATA indicates no data was produced.
     //   Other non-zero values indicate an error report was produced.
     int rval = handle_continued_transactions();
-    if (rval == CR_ERROR_NO_DATA)
+    if (rval == cr_ErrorCodes_NO_DATA)
     {
         // Gets the encoded buffer from the app.
         rval = crcb_get_coded_prompt(sCr_encoded_message_buffer, &sCr_encoded_message_size);
-        if (rval == CR_ERROR_NO_DATA)
+        if (rval == cr_ErrorCodes_NO_DATA)
         {
             sCr_encoded_message_size = 0;
-            return CR_ERROR_NO_DATA;
+            return cr_ErrorCodes_NO_DATA;
         }
 
 
@@ -354,7 +354,7 @@ int cr_process(uint32_t ticks)
         sCr_encoded_message_size = 0;
 
         // these two cases require no response/reply
-        if ((rval == CR_ERROR_NO_DATA) || (rval == CR_ERROR_NO_RESPONSE))
+        if ((rval == cr_ErrorCodes_NO_DATA) || (rval == cr_ErrorCodes_NO_RESPONSE))
             return rval;
 
         if (rval && !sCR_error_reported)
@@ -369,7 +369,7 @@ int cr_process(uint32_t ticks)
 
     // use ticks to decide whether to notify.
 
-    return CR_ERROR_NONE;
+    return cr_ErrorCodes_NO_ERROR;
 }
 
 uint32_t cr_get_current_ticks()
@@ -434,8 +434,8 @@ static int handle_coded_prompt()
                              (pb_byte_t *)sCr_encoded_message_buffer, 
                              sCr_encoded_message_size))
     {
-        cr_report_error(CR_ERROR_DECODING_FAILED, "%s:Reach header Decode failed", __FUNCTION__);
-        return CR_ERROR_DECODING_FAILED;
+        cr_report_error(cr_ErrorCodes_DECODING_FAILED, "%s:Reach header Decode failed", __FUNCTION__);
+        return cr_ErrorCodes_DECODING_FAILED;
     }
 
     cr_ReachMessageHeader *hdr = &msgPtr->header;
@@ -574,9 +574,9 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                               sCr_decoded_prompt_buffer,
                               coded_data, size))
     {
-        cr_report_error(CR_ERROR_DECODING_FAILED, "%s: decode payload %d failed.", 
+        cr_report_error(cr_ErrorCodes_DECODING_FAILED, "%s: decode payload %d failed.", 
                         __FUNCTION__, message_type);
-        return CR_ERROR_DECODING_FAILED;
+        return cr_ErrorCodes_DECODING_FAILED;
     }
 
     sCr_num_continued_objects = 0;  // default
@@ -630,7 +630,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         // file write:
         rval = handle_transfer_data((cr_FileTransferData *)sCr_decoded_prompt_buffer,
                              (cr_FileTransferDataNotification *)sCr_uncoded_response_buffer);
-        // returns CR_ERROR_NO_RESPONSE and hence no error when no response is desired.
+        // returns cr_ErrorCodes_NO_RESPONSE and hence no error when no response is desired.
         // when zero is returned we need to ack with a notification.
         if (rval == cr_ErrorCodes_NO_ERROR)
             encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION;
@@ -679,9 +679,9 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                                  (cr_CLIData *)sCr_uncoded_response_buffer);
         break;
     default:
-        cr_report_error(CR_ERROR_NOT_IMPLEMENTED, "Unhandled message type %d.", message_type);
+        cr_report_error(cr_ErrorCodes_NOT_IMPLEMENTED, "Unhandled message type %d.", message_type);
         LOG_ERROR("Unhandled message type %d.", message_type);
-        rval = CR_ERROR_NOT_IMPLEMENTED; 
+        rval = cr_ErrorCodes_NOT_IMPLEMENTED; 
         break;
     }
     if (rval != 0)
@@ -697,8 +697,8 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                              &msg_header);
     if (rval != 0)
     {
-        cr_report_error(CR_ERROR_ENCODING_FAILED, "Reach encode failed (%d).", rval);
-        return CR_ERROR_ENCODING_FAILED;
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "Reach encode failed (%d).", rval);
+        return cr_ErrorCodes_ENCODING_FAILED;
     }
     return 0;
 }
@@ -821,13 +821,13 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
         {
             cr_ParameterInfo *pParamInfo;
             rval = crcb_parameter_discover_next(&pParamInfo);
-            if (rval != CR_ERROR_NONE) 
+            if (rval != cr_ErrorCodes_NO_ERROR) 
             {   // there are no more params.  clear on last.
                 sCr_num_remaining_objects = 0;
                 if (i==0)
                 {
                     i3_log(LOG_MASK_PARAMS, "No data on i=0.");
-                    return CR_ERROR_NO_DATA; 
+                    return cr_ErrorCodes_NO_DATA; 
                 }
                 i3_log(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
                 return 0;
@@ -841,7 +841,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
         if (response->parameter_infos_count == 0)
         {
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            return CR_ERROR_NO_DATA; 
+            return cr_ErrorCodes_NO_DATA; 
         }
         i3_log(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
         return 0;
@@ -869,7 +869,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
         crcb_parameter_discover_reset(sCr_requested_param_array[sCr_requested_param_index]);
         rval = crcb_parameter_discover_next(&pParamInfo);
         sCr_requested_param_array[sCr_requested_param_index] = -1;
-        if (rval != CR_ERROR_NONE) {
+        if (rval != cr_ErrorCodes_NO_ERROR) {
             // we've done them all.
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             sCr_requested_param_info_count = 0;
@@ -884,7 +884,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
     if (response->parameter_infos_count == 0)
     {
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return CR_ERROR_NO_DATA; 
+        return cr_ErrorCodes_NO_DATA; 
     }
     return 0;
 }
@@ -1060,14 +1060,14 @@ static int handle_read_param(const cr_ParameterRead *request,
         for (int i=0; i<REACH_COUNT_PARAM_READ_VALUES; i++) {
             cr_ParameterInfo *pParamInfo;
             rval = crcb_parameter_discover_next(&pParamInfo);
-            if (rval != CR_ERROR_NONE) 
+            if (rval != cr_ErrorCodes_NO_ERROR) 
             {   // there are no more params.  clear on last.
                 sCr_num_remaining_objects = 0;
                 if (i==0)
                 {
                     i3_log(LOG_MASK_PARAMS, "No read data on i=0.");
                     sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-                    return CR_ERROR_NO_DATA; 
+                    return cr_ErrorCodes_NO_DATA; 
                 }
                 i3_log(LOG_MASK_PARAMS, "Added read %d.", response->values_count);
                 return 0;
@@ -1083,7 +1083,7 @@ static int handle_read_param(const cr_ParameterRead *request,
         if (response->values_count == 0)
         {
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            return CR_ERROR_NO_DATA; 
+            return cr_ErrorCodes_NO_DATA; 
         }
         i3_log(LOG_MASK_PARAMS, "Read added %d.", response->values_count);
         return 0;
@@ -1108,7 +1108,7 @@ static int handle_read_param(const cr_ParameterRead *request,
                sCr_requested_param_index, sCr_requested_param_read_count);
         cr_ParameterValue paramVal;
         rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], &paramVal);
-        if (rval != CR_ERROR_NONE) {
+        if (rval != cr_ErrorCodes_NO_ERROR) {
             // we've done them all.
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             sCr_requested_param_read_count = 0;
@@ -1124,7 +1124,7 @@ static int handle_read_param(const cr_ParameterRead *request,
     if (response->values_count == 0)
     {
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return CR_ERROR_NO_DATA; 
+        return cr_ErrorCodes_NO_DATA; 
     }
     return 0;
 }
@@ -1144,8 +1144,8 @@ static int handle_write_param(const cr_ParameterWrite *request,
     case 4:
         break;
     default:
-        cr_report_error(CR_ERROR_INVALID_PARAMETER, "Invalid values_count param write.");
-        return CR_ERROR_INVALID_PARAMETER; 
+        cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Invalid values_count param write.");
+        return cr_ErrorCodes_INVALID_PARAMETER; 
     }
 
     // we are supplied a list of params.
@@ -1153,9 +1153,9 @@ static int handle_write_param(const cr_ParameterWrite *request,
     {
         i3_log(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
         rval = crcb_parameter_write(request->values[i].parameter_id, &request->values[i]);
-        if (rval != CR_ERROR_NONE) {
-            cr_report_error(CR_ERROR_WRITE_FAILED, "Parameter write of ID %d failed.", request->values[i].parameter_id);
-            return CR_ERROR_WRITE_FAILED;
+        if (rval != cr_ErrorCodes_NO_ERROR) {
+            cr_report_error(cr_ErrorCodes_WRITE_FAILED, "Parameter write of ID %d failed.", request->values[i].parameter_id);
+            return cr_ErrorCodes_WRITE_FAILED;
         }
     }
     return 0;
@@ -1184,13 +1184,13 @@ static int handle_discover_files(const cr_DiscoverFiles *request,
     for (int i=0; i<REACH_COUNT_PARAM_READ_VALUES; i++)
     {
         rval = crcb_file_discover_next(&response->file_infos[i]);
-        if (rval != CR_ERROR_NONE) 
+        if (rval != cr_ErrorCodes_NO_ERROR) 
         {   // there are no more params.  clear on last.
             sCr_num_remaining_objects = 0;
             if (i==0)
             {
                 i3_log(LOG_MASK_FILES, "No files with i=0.");
-                return CR_ERROR_NO_DATA; 
+                return cr_ErrorCodes_NO_DATA; 
             }
             return 0;
         }
@@ -1230,7 +1230,7 @@ static int handle_transfer_init(const cr_FileTransferInit *request,
     if (rval != 0)
     {
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
-        cr_report_error(CR_ERROR_BAD_FILE, 
+        cr_report_error(cr_ErrorCodes_BAD_FILE, 
                         "%s No file description for fid %d.", 
                         __FUNCTION__, request->file_id);
         response->result = rval;
@@ -1241,19 +1241,19 @@ static int handle_transfer_init(const cr_FileTransferInit *request,
     default:
     case cr_AccessLevel_NO_ACCESS:
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
-        cr_report_error(CR_ERROR_PERMISSION_DENIED, 
+        cr_report_error(cr_ErrorCodes_PERMISSION_DENIED, 
                         "%s File ID %d access permission denied.", 
                         __FUNCTION__, request->file_id);
-        response->result = CR_ERROR_PERMISSION_DENIED;
+        response->result = cr_ErrorCodes_PERMISSION_DENIED;
         return rval;
     case cr_AccessLevel_READ:
         if (request->read_write)    // 1 for write
         {
             sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
-            cr_report_error(CR_ERROR_PERMISSION_DENIED, 
+            cr_report_error(cr_ErrorCodes_PERMISSION_DENIED, 
                             "%s File ID %d write permission denied.", 
                             __FUNCTION__, request->file_id);
-            response->result = CR_ERROR_PERMISSION_DENIED;
+            response->result = cr_ErrorCodes_PERMISSION_DENIED;
             return rval;
         }
         break;
@@ -1261,10 +1261,10 @@ static int handle_transfer_init(const cr_FileTransferInit *request,
         if (!request->read_write)   // 0 for read
         {
             sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
-            cr_report_error(CR_ERROR_PERMISSION_DENIED, 
+            cr_report_error(cr_ErrorCodes_PERMISSION_DENIED, 
                             "%s File ID %d read permission denied.", 
                             __FUNCTION__, request->file_id);
-            response->result = CR_ERROR_PERMISSION_DENIED;
+            response->result = cr_ErrorCodes_PERMISSION_DENIED;
         }
         break;
     case cr_AccessLevel_READ_WRITE:
@@ -1313,7 +1313,7 @@ static int handle_transfer_init(const cr_FileTransferInit *request,
 // handle_transfer_data(() is used with file write.
 // We should respond either with cr_FileTransferDataNotification or nothing.
 // Notify if message counter is zero or file is complete.
-// Return CR_ERROR_NO_RESPONSE if no ack is expected, or 0 to ack.
+// Return cr_ErrorCodes_NO_RESPONSE if no ack is expected, or 0 to ack.
 static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
                                     cr_FileTransferDataNotification *response) 
 {
@@ -1324,25 +1324,25 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
     default:
     case cr_FileTransferState_FILE_TRANSFER_INVALID:
         LOG_ERROR("State invalid");
-        cr_report_error(CR_ERROR_INVALID_STATE, 
+        cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                         "%s should not be called in state invalid.", __FUNCTION__);
-        response->result = CR_ERROR_INVALID_STATE;
+        response->result = cr_ErrorCodes_INVALID_STATE;
         scr_end_timeout_watchdog();
-        return CR_ERROR_INVALID_STATE;
+        return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_IDLE:
         LOG_ERROR("In idle state is not right");
-        cr_report_error(CR_ERROR_INVALID_STATE, 
+        cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                         "%s should not be called in state idle.", __FUNCTION__);
-        response->result = CR_ERROR_INVALID_STATE;
+        response->result = cr_ErrorCodes_INVALID_STATE;
         scr_end_timeout_watchdog();
-        return CR_ERROR_INVALID_STATE;
+        return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_COMPLETE:
         LOG_ERROR("In complete state is not right");
-        cr_report_error(CR_ERROR_INVALID_STATE, 
+        cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                         "%s should not be called in state complete.", __FUNCTION__);
-        response->result = CR_ERROR_INVALID_STATE;
+        response->result = cr_ErrorCodes_INVALID_STATE;
         scr_end_timeout_watchdog();
-        return CR_ERROR_INVALID_STATE;
+        return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_INIT:
     case cr_FileTransferState_DATA:
         break;
@@ -1352,7 +1352,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         // the transfer_id is not rigorously enforced (yet)
         i3_log(LOG_MASK_WARN, "Unmatched transfer_id (%d not %d)", 
                   dataTransfer->transfer_id, sCr_file_xfer_state.transfer_id);
-        // response->result = CR_ERROR_INVALID_PARAMETER;
+        // response->result = cr_ErrorCodes_INVALID_PARAMETER;
         // return 0;
     }
     response->transfer_id = dataTransfer->transfer_id;
@@ -1362,12 +1362,12 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         LOG_ERROR("Requested write of %d bytes > REACH_BYTES_IN_A_FILE_PACKET (%d).",
                   bytes_to_write, REACH_BYTES_IN_A_FILE_PACKET);
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
-        response->result = CR_ERROR_INVALID_PARAMETER;
-        cr_report_error(CR_ERROR_INVALID_PARAMETER, 
+        response->result = cr_ErrorCodes_INVALID_PARAMETER;
+        cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, 
                         "%s: Requested xfer of %d bytes > REACH_BYTES_IN_A_FILE_PACKET (%d).",
                         __FUNCTION__, bytes_to_write, REACH_BYTES_IN_A_FILE_PACKET);
         scr_end_timeout_watchdog();
-        return CR_ERROR_INVALID_PARAMETER;
+        return cr_ErrorCodes_INVALID_PARAMETER;
     }
 
     sCr_file_xfer_state.bytes_transfered += bytes_to_write;
@@ -1384,12 +1384,12 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
     {
         LOG_ERROR("File write of %d bytes to fid %d failed with error %d", 
                   bytes_to_write, sCr_file_xfer_state.file_id, rval);
-        response->result = CR_ERROR_WRITE_FAILED;
-        cr_report_error(CR_ERROR_WRITE_FAILED, 
+        response->result = cr_ErrorCodes_WRITE_FAILED;
+        cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
                         "%s: Requested write of %d bytes for fid %d failed.",
                         __FUNCTION__, bytes_to_write, sCr_file_xfer_state.transfer_id);
         scr_end_timeout_watchdog();
-        return CR_ERROR_WRITE_FAILED;
+        return cr_ErrorCodes_WRITE_FAILED;
     }
 
     // update these before checking for message mismatch
@@ -1414,7 +1414,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
                 (int)dataTransfer->message_number,
                 (int)sCr_file_xfer_state.message_number);
         /*
-        cr_report_error(CR_ERROR_WRITE_FAILED, 
+        cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
                         "%s: At %d, message number mismatch. Got %d, not %d", 
                         __FUNCTION__, sCr_file_xfer_state.bytes_transfered,
                         dataTransfer->message_number, sCr_file_xfer_state.message_number);
@@ -1422,7 +1422,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         // if we don't stop this lets me see on error per mismatch
         sCr_file_xfer_state.message_number = dataTransfer->message_number;
         scr_stroke_timeout_watchdog(sCurrentTicks);
-        return 0; // CR_ERROR_WRITE_FAILED;
+        return 0; // cr_ErrorCodes_WRITE_FAILED;
     }
 
 
@@ -1456,7 +1456,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
                sCr_file_xfer_state.message_number);
          */
         scr_stroke_timeout_watchdog(sCurrentTicks);
-        return CR_ERROR_NO_RESPONSE;
+        return cr_ErrorCodes_NO_RESPONSE;
     }
     // here we want to ack, also reset the counters.
     i3_log(LOG_MASK_FILES, "ACK file write.  per ack: %d.  num %d.", 
@@ -1482,18 +1482,18 @@ static int handle_transfer_data_notification(
         default:
         case cr_FileTransferState_FILE_TRANSFER_INVALID:
             LOG_ERROR("State invalid");
-            cr_report_error(CR_ERROR_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s should not be called in state invalid.", __FUNCTION__);
-            dataTransfer->result = CR_ERROR_INVALID_STATE;
+            dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
             scr_end_timeout_watchdog();
-            return CR_ERROR_INVALID_STATE;
+            return cr_ErrorCodes_INVALID_STATE;
         case cr_FileTransferState_IDLE:
             LOG_ERROR("In idle state is not right");
-            cr_report_error(CR_ERROR_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s should not be called in state idle.", __FUNCTION__);
-            dataTransfer->result = CR_ERROR_INVALID_STATE;
+            dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
             scr_end_timeout_watchdog();
-            return CR_ERROR_INVALID_STATE;
+            return cr_ErrorCodes_INVALID_STATE;
         case cr_FileTransferState_COMPLETE:
             if (request->is_complete)
             {
@@ -1509,11 +1509,11 @@ static int handle_transfer_data_notification(
             }
 
             LOG_ERROR("In complete state is not right");
-            cr_report_error(CR_ERROR_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s should not be called in state complete.", __FUNCTION__);
-            dataTransfer->result = CR_ERROR_INVALID_STATE;
+            dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
             scr_end_timeout_watchdog();
-            return CR_ERROR_INVALID_STATE;
+            return cr_ErrorCodes_INVALID_STATE;
         case cr_FileTransferState_INIT:
         case cr_FileTransferState_DATA:
             break;
@@ -1522,11 +1522,11 @@ static int handle_transfer_data_notification(
         if (sCr_file_xfer_state.read_write)
         {   // expecting read
             LOG_ERROR("Expecting read, not write");
-            cr_report_error(CR_ERROR_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s Expecting read, not write.", __FUNCTION__);
-            dataTransfer->result = CR_ERROR_WRITE_FAILED;
+            dataTransfer->result = cr_ErrorCodes_WRITE_FAILED;
             scr_end_timeout_watchdog();
-            return CR_ERROR_WRITE_FAILED;
+            return cr_ErrorCodes_WRITE_FAILED;
         }
         if (request->is_complete)
         {
@@ -1572,15 +1572,15 @@ static int handle_transfer_data_notification(
                             &bytes_read);
     if (rval != 0)
     {
-        dataTransfer->result = CR_ERROR_READ_FAILED;
-        cr_report_error(CR_ERROR_READ_FAILED, 
+        dataTransfer->result = cr_ErrorCodes_READ_FAILED;
+        cr_report_error(cr_ErrorCodes_READ_FAILED, 
                         "%s: File read of %d bytes from fid %d failed with error %d", 
                         __FUNCTION__, bytes_requested, sCr_file_xfer_state.file_id, rval);
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         sCr_num_remaining_objects = 0;
         sCr_num_continued_objects = 0;
         scr_end_timeout_watchdog();
-        return CR_ERROR_READ_FAILED;
+        return cr_ErrorCodes_READ_FAILED;
     }
     dataTransfer->message_data.size = bytes_read;
     sCr_file_xfer_state.bytes_transfered += bytes_read;
@@ -1866,7 +1866,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       break;
   default:
       LOG_ERROR("No encoder for %d", message_type);
-      status = CR_ERROR_NO_DATA;
+      status = cr_ErrorCodes_NO_DATA;
       break;
   }
 
@@ -1914,8 +1914,8 @@ static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
                               sizeof(sCr_encoded_payload_buffer),
                               &sCr_encoded_payload_size))
     {
-        cr_report_error(CR_ERROR_ENCODING_FAILED, "encode payload %d failed.", message_type);
-        return CR_ERROR_ENCODING_FAILED;
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
+        return cr_ErrorCodes_ENCODING_FAILED;
     }
 
     // build the message envelope
@@ -1938,8 +1938,8 @@ static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
                               sizeof(sCr_encoded_response_buffer),
                               &sCr_encoded_response_size))
     {
-        cr_report_error(CR_ERROR_ENCODING_FAILED, "encode message %d failed.", message_type);
-        return CR_ERROR_ENCODING_FAILED;
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode message %d failed.", message_type);
+        return cr_ErrorCodes_ENCODING_FAILED;
     }
     return 0;
 }

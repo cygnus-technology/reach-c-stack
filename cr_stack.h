@@ -63,24 +63,6 @@ extern "C" {
 //----------------------------------------------------------------------------
 
 // Error codes are defined in the proto file so that the client can see them.
-#define CR_ERROR_NONE               cr_ErrorCodes_NO_ERROR          // 0
-#define CR_ERROR_NO_DATA            cr_ErrorCodes_NO_DATA           // 1
-#define CR_ERROR_READ_FAILED        cr_ErrorCodes_READ_FAILED       // 2
-#define CR_ERROR_WRITE_FAILED       cr_ErrorCodes_WRITE_FAILED      // 3
-#define CR_ERROR_NOT_IMPLEMENTED    cr_ErrorCodes_NOT_IMPLEMENTED   // 4
-#define CR_ERROR_MALFORMED_MESSAGE  cr_ErrorCodes_MALFORMED_MESSAGE // 5
-#define CR_ERROR_NO_SERVICE         cr_ErrorCodes_NO_SERVICE        // 6                             
-#define CR_ERROR_PERMISSION_DENIED  cr_ErrorCodes_PERMISSION_DENIED // 7
-#define CR_ERROR_BUFFER_TOO_SMALL   cr_ErrorCodes_BUFFER_TOO_SMALL  // 8
-#define CR_ERROR_INVALID_PARAMETER  cr_ErrorCodes_INVALID_PARAMETER // 9
-#define CR_ERROR_CHECKSUM_MISMATCH  cr_ErrorCodes_CHECKSUM_MISMATCH // 10
-#define CR_ERROR_DECODING_FAILED    cr_ErrorCodes_DECODING_FAILED   // 11
-#define CR_ERROR_ENCODING_FAILED    cr_ErrorCodes_ENCODING_FAILED   // 12
-#define CR_ERROR_INVALID_STATE      cr_ErrorCodes_INVALID_STATE     // 13
-#define CR_ERROR_NO_RESPONSE        cr_ErrorCodes_NO_RESPONSE       // 14
-#define CR_ERROR_BAD_FILE           cr_ErrorCodes_BAD_FILE          // 15
-#define CR_ERROR_PACKET_COUNT_ERR   cr_ErrorCodes_PACKET_COUNT_ERR  // 16
-
     
 // an arbitary minimum size for the buffers
 // #define CR_MINIMUM_MESSAGE_BUFFER_SIZE  72
@@ -122,8 +104,8 @@ int cr_process(uint32_t ticks);
 //  is already where it belongs.
 // The len variable must specify the number of valid bytes in the supplied prompt.
 // crcb_get_coded_prompt() must not block as that would disable any notifications.
-// Return CR_ERROR_NONE if prompt data is supplied.
-// Return CR_ERROR_NO_DATA if no data is available.
+// Return cr_ErrorCodes_NO_ERROR if prompt data is supplied.
+// Return cr_ErrorCodes_NO_DATA if no data is available.
 // A message larger than CR_CODED_BUFFER_SIZE is fatal.
 int crcb_get_coded_prompt(uint8_t *prompt, size_t *len);
 
@@ -217,10 +199,10 @@ int crcb_parameter_ex_discover_reset(const int32_t pid);
 // specifying the size and type of the data is known both by the app and the 
 // stack.
 // The data is copied into a structure provided by the app.
-// Might return CR_ERROR_READ_FAILED or CR_ERROR_PERMISSION_DENIED
+// Might return cr_ErrorCodes_READ_FAILED or cr_ErrorCodes_PERMISSION_DENIED
 int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data);
 
-// Might return CR_ERROR_WRITE_FAILED
+// Might return cr_ErrorCodes_WRITE_FAILED
 int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data); 
 
 // return a number that changes if the parameter descriptions have changed.
