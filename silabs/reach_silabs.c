@@ -29,6 +29,7 @@
 #include "app_assert.h"
 #include "em_cmu.h"
 #include "gatt_db.h"
+#include "nvm3_default.h"
 #include "app.h"
 
 // When defined we attempt to advertise a longer name.
@@ -141,6 +142,8 @@ int crcb_cli_enter(const char *ins)
         cli_phy(NULL);
     else if (!strncmp("nvm", ins, 3))
         cli_nvm(NULL);
+    else if (!strncmp("sn", ins, 2))
+        cli_sn(NULL);
     else
         i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI 
                "CLI command '%s' not recognized (0x%x).", ins, *ins);
@@ -669,5 +672,29 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         i3_log(LOG_MASK_ERROR, "Event 0x%x", SL_BT_MSG_ID(evt->header));
         break;
     }
+}
+
+int rsl_read_serial_number(uint32_t *sn)
+{
+    size_t dataLen;
+    uint32_t objectType;
+    Ecode_t eCode;
+
+    nvm3_getObjectInfo(nvm3_defaultHandle, REACH_SN_KEY, &objectType, &dataLen);
+    if (objectType != NVM3_OBJECTTYPE_DATA) {
+        i3_log(LOG_MASK_WARN, "NVM object type of SN key 0x%x failed, SN not read.", REACH_SN_KEY);
+        return -1;
+    }
+    if (dataLen != 4) {
+        i3_log(LOG_MASK_WARN, "dataLen of SN is %d, not 4.", dataLen);
+    }
+    eCode = nvm3_readData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t *)sn, 4);
+    if (ECODE_NVM3_OK != eCode) {
+        i3_log(LOG_MASK_ERROR, "NVM Read of SN key 0x%x failed with 0x%x.", 
+           REACH_SN_KEY, eCode);
+        return -2;
+    }
+    return 0;
+
 }
 

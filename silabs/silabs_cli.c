@@ -199,9 +199,9 @@ void cli_nvm(sl_cli_command_arg_t *args)
   {
     arguments = (sl_cli_command_arg_t *)args;
     argStr = sl_cli_get_argument_string(arguments, 0);
-    if (!strncmp(argStr, "clear", 6))
+    if (!strncmp(argStr, "clear", 5))
       action = 1;
-    if (!strncmp(argStr, "init", 6))
+    if (!strncmp(argStr, "init", 4))
       action = 2;
   }
   else
@@ -209,7 +209,7 @@ void cli_nvm(sl_cli_command_arg_t *args)
       argStr = crcb_get_command_line();
       if (!strncmp(argStr, "nvm clear", 9))
         action = 1;
-      if (!strncmp(argStr, "nvm init", 9))
+      if (!strncmp(argStr, "nvm init", 8))
         action = 2;
   }
   if (action == 1)
@@ -250,9 +250,113 @@ void cli_nvm(sl_cli_command_arg_t *args)
           }
       }
   }
+
+  // check for serial number
+  numObj = nvm3_enumObjects(nvm3_defaultHandle, keyList, NUM_KEYS, REACH_SN_KEY, REACH_SN_KEY);
+  if (numObj != 0) {
+      size_t dataLen;
+      uint32_t objectType;
+
+      nvm3_getObjectInfo(nvm3_defaultHandle, keyList[0], &objectType, &dataLen);
+      if ( (objectType == NVM3_OBJECTTYPE_DATA) && (dataLen>0) )
+          i3_log(LOG_MASK_ALWAYS, " Key %d is present, size %d.", keyList[0], dataLen);
+  }
+
   return;
 }
 
+void cli_sn(sl_cli_command_arg_t *args)
+{
+    // "sn ?: (display), sn clear (erase), sn N (write N as serial number)",
+    int numRead, rval, action = 0;  // 0 for display, 1 for erase, 2 for write.
+    size_t dataLen;
+    uint32_t objectType, sn = 0;
+    Ecode_t eCode;
+
+    sl_cli_command_arg_t *arguments;
+    const char *argStr;
+
+    if (args)
+    {
+      arguments = (sl_cli_command_arg_t *)args;
+      argStr = sl_cli_get_argument_string(arguments, 0);
+      if (!strncmp(argStr, "clear", 5))
+        action = 1;
+      else 
+      {
+          numRead = sscanf(&argStr[0], "%u", &sn);
+          if (numRead != 1) {
+              action = 0;
+          }
+          else if (sn == 0) {
+              i3_log(LOG_MASK_WARN, "Serial number zero is not valid for writing.");
+              return;
+          }
+          else
+              action = 2;
+      }
+    }
+    else
+    {
+        argStr = crcb_get_command_line();
+        if (!strncmp(argStr, "sn clear", 8))
+          action = 1;
+        else 
+        {
+            numRead = sscanf(&argStr[3], "%u", &sn);
+            if (numRead != 1) {
+                action = 0;
+            }
+            else if (sn == 0) {
+                i3_log(LOG_MASK_WARN, "Serial number zero is not valid for writing.");
+                return;
+            }
+            else
+                action = 2;
+        }
+    }
+    switch (action) {
+    default:
+    case 0:  // read and display
+        rval = rsl_read_serial_number(&sn);
+        if (rval == 0) {
+            i3_log(LOG_MASK_ALWAYS, "Serial number read as %d (0x%x).", sn, sn);
+            return;
+        }
+        i3_log(LOG_MASK_ALWAYS, "Valid commands are sn ?, sn clear, sn N (to write).");
+        return;
+
+    case 1: // erase
+        nvm3_getObjectInfo(nvm3_defaultHandle, REACH_SN_KEY, &objectType, &dataLen);
+        if (objectType != NVM3_OBJECTTYPE_DATA) {
+            i3_log(LOG_MASK_ALWAYS, "NVM object type of SN key 0x%x failed, SN already erased.", REACH_SN_KEY);
+            return;
+        }
+        nvm3_deleteObject(nvm3_defaultHandle, REACH_SN_KEY);
+        i3_log(LOG_MASK_ALWAYS, "Reach serial number erased.");
+        return;
+
+    case 2: // write
+        eCode = nvm3_writeData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t*)&sn, 4);
+        if (ECODE_NVM3_OK != eCode) {
+            i3_log(LOG_MASK_ERROR, "%s: NVM Write of SN %u at key 0x%x failed with 0x%x.", 
+               sn, REACH_SN_KEY, eCode);
+            return;
+        }
+
+        // Do repacking if needed
+        if (nvm3_repackNeeded(nvm3_defaultHandle)) {
+            i3_log(LOG_MASK_ALWAYS, "Repacking NVM");
+            eCode = nvm3_repack(nvm3_defaultHandle);
+            if (eCode != ECODE_NVM3_OK) {
+                i3_log(LOG_MASK_ERROR, "%s: Error 0x%x repacking", __FUNCTION__, eCode);
+            }
+        }
+        i3_log(LOG_MASK_ALWAYS, "Wrote serial number %u at key 0x%x", sn, REACH_SN_KEY);
+        break;
+    }
+    return;
+}
 
 
 /******************************************************************************
@@ -298,6 +402,13 @@ SL_CLI_COMMAND(
     "nvm ?: (summarize), nvm clear (erase all)",
     { SL_CLI_ARG_STRING, SL_CLI_ARG_END });
 
+static const sl_cli_command_info_t cmd__sn =
+SL_CLI_COMMAND(
+    cli_sn,
+    "Read or set serial number in NVM",
+    "sn ?: (display), sn clear (erase), sn N (write N)",
+    { SL_CLI_ARG_STRING, SL_CLI_ARG_END });
+
 /******************************************************************************
  ***************************** CLI command table ******************************
  ******************************************************************************/
@@ -308,6 +419,7 @@ static sl_cli_command_entry_t command_table[] = {
   { "rcli",         &cmd__rcli,                   false},
   { "phy",          &cmd__phy,                    false},
   { "nvm",          &cmd__nvm,                    false},
+  { "sn",           &cmd__sn,                     false},
   { NULL,           NULL,                         false }, };
 
 // Create the command group at the top level
