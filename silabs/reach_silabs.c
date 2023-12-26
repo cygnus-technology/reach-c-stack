@@ -61,7 +61,7 @@ uint8_t rsl_get_connection(void)
 
 int rsl_get_rssi(void)
 {
-    return sRsl_rssi;
+    return (int)sRsl_rssi;
 }
 
 void rsl_inform_subscribed(bool subscribed)
@@ -695,7 +695,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
     }
 }
 
-int rsl_read_serial_number(uint32_t *sn)
+int rsl_read_serial_number(unsigned int *sn)
 {
     size_t dataLen;
     uint32_t objectType;
@@ -706,10 +706,10 @@ int rsl_read_serial_number(uint32_t *sn)
         i3_log(LOG_MASK_WARN, "NVM object type of SN key 0x%x failed, SN not read.", REACH_SN_KEY);
         return -1;
     }
-    if (dataLen != 4) {
-        i3_log(LOG_MASK_WARN, "dataLen of SN is %d, not 4.", dataLen);
+    if (dataLen != sizeof(unsigned int)) {
+        i3_log(LOG_MASK_WARN, "dataLen of SN is %d, not %d.", dataLen, sizeof(unsigned int));
     }
-    eCode = nvm3_readData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t *)sn, 4);
+    eCode = nvm3_readData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t *)sn, sizeof(unsigned int));
     if (ECODE_NVM3_OK != eCode) {
         i3_log(LOG_MASK_ERROR, "NVM Read of SN key 0x%x failed with 0x%x.", 
            REACH_SN_KEY, eCode);

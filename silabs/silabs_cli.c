@@ -270,7 +270,8 @@ void cli_sn(sl_cli_command_arg_t *args)
     // "sn ?: (display), sn clear (erase), sn N (write N as serial number)",
     int numRead, rval, action = 0;  // 0 for display, 1 for erase, 2 for write.
     size_t dataLen;
-    uint32_t objectType, sn = 0;
+    uint32_t objectType;
+    unsigned int sn = 0;
     Ecode_t eCode;
 
     sl_cli_command_arg_t *arguments;
@@ -337,7 +338,7 @@ void cli_sn(sl_cli_command_arg_t *args)
         return;
 
     case 2: // write
-        eCode = nvm3_writeData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t*)&sn, 4);
+        eCode = nvm3_writeData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t*)&sn, sizeof(unsigned int));
         if (ECODE_NVM3_OK != eCode) {
             i3_log(LOG_MASK_ERROR, "%s: NVM Write of SN %u at key 0x%x failed with 0x%x.", 
                sn, REACH_SN_KEY, eCode);
