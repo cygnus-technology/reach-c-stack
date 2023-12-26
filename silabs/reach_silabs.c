@@ -39,6 +39,7 @@
 static uint8_t  sRsl_ble_connection = 0;
 static uint16_t sRsl_ble_characteristic = 0;
 static bool     sRsl_ble_subscribed = false;
+static int8_t   sRsl_rssi = 0;
 
 static uint32_t sNotifyCount = 0;
 static uint32_t sNotifyDelay = 0;
@@ -51,6 +52,16 @@ void rsl_inform_connection(uint8_t connection, uint16_t characteristic)
   sRsl_ble_characteristic = characteristic;
   if (connection == 0)
       sRsl_ble_subscribed = false;
+}
+
+uint8_t rsl_get_connection(void)
+{
+    return sRsl_ble_connection; 
+}
+
+int rsl_get_rssi(void)
+{
+    return sRsl_rssi;
 }
 
 void rsl_inform_subscribed(bool subscribed)
@@ -469,16 +480,17 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     // This event indicates that a new connection was opened.
     case sl_bt_evt_connection_opened_id:
-        {
-            extern char gPhy;
+    {
+        extern char gPhy;
 
-            sl_bt_connection_set_preferred_phy(evt->data.evt_connection_opened.connection, gPhy, gPhy);
-            i3_log(LOG_MASK_ALWAYS, "Device connected to BLE with connection ID %u. %dM Phy requested",
-                   evt->data.evt_connection_opened.connection, gPhy);
+        sl_bt_connection_set_preferred_phy(evt->data.evt_connection_opened.connection, gPhy, gPhy);
+        i3_log(LOG_MASK_ALWAYS, "Device connected to BLE with connection ID %u. %dM Phy requested",
+               evt->data.evt_connection_opened.connection, gPhy);
 
-            rsl_inform_connection(evt->data.evt_connection_opened.connection, REACH_BLE_CHARICTERISTIC_ID);
-            break;
-        }
+        rsl_inform_connection(evt->data.evt_connection_opened.connection, REACH_BLE_CHARICTERISTIC_ID);
+        sl_bt_connection_get_rssi(evt->data.evt_connection_opened.connection);
+        break;
+    }
 
     // -------------------------------
     // This event indicates that a connection was closed.
@@ -667,6 +679,15 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_data_length_id:
         // normal when phy changes to 2M.
         break;
+
+    case sl_bt_evt_connection_rssi_id: 
+    {
+        // RSSI was requested, this is the response
+        sl_bt_evt_connection_rssi_t *data =  &evt->data.evt_connection_rssi;
+        // i3_log(LOG_MASK_WARN, "RSSI reports %d.",  data->rssi);
+        sRsl_rssi = data->rssi;   // overwrite the previous value
+        break;
+    }
 
     default:
         i3_log(LOG_MASK_ERROR, "Event 0x%x", SL_BT_MSG_ID(evt->header));
