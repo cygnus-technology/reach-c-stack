@@ -50,7 +50,7 @@
 // The response is a generated payload.
 
 // the fully encoded message is received here.
-static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE];
+static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_message_size = 0;
 
 // The message header is decoded into this buffer containing an encoded payload buffer: 
@@ -61,20 +61,20 @@ static cr_ReachMessage sCr_uncoded_message_structure;
 #define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
 // A decoded prompt payload.
-static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE];
+static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
 // An uncoded response payload.
 // The sCr_uncoded_response_buffer is available to be used by the app.
-static uint8_t sCr_uncoded_response_buffer[UNCODED_PAYLOAD_SIZE];
+static uint8_t sCr_uncoded_response_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
 // The response payload is encoded into sCr_encoded_payload_buffer[]. 
-static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE]; 
+static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
 static size_t sCr_encoded_payload_size; 
  
 // The response payload is copied into the sCr_uncoded_message_structure
 
 // The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
-static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE];
+static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_response_size = 0;
 
 //----------------------------------------------------------------------------
