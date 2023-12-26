@@ -258,6 +258,39 @@ static int handle_continued_transactions()
     return rval;
 }
 
+static bool sCr_challenge_key_valid = true;
+static bool test_challenge_key_is_valid(uint32_t challenge_key)
+{
+    #ifndef APP_REQUIRED_CHALLENGE_KEY 
+        (void)challenge_key;
+        return true;
+        sCr_challenge_key_valid = true;
+    #else
+        if (challenge_key == APP_REQUIRED_CHALLENGE_KEY) 
+        {
+            sCr_challenge_key_valid = true;
+            return true;
+        }
+        sCr_challenge_key_valid = false;
+        cr_report_error(cr_ErrorCodes_CHALLENGE_FAILED, 
+                        "Requred challenge key does not match.");
+        return false;
+    #endif
+}
+
+static bool challenge_key_is_valid(void)
+{
+    #ifndef APP_REQUIRED_CHALLENGE_KEY 
+        return true;
+    #else
+        if (!sCr_challenge_key_valid) {
+            cr_report_error(cr_ErrorCodes_CHALLENGE_FAILED, 
+                            "Challenge failed.");
+        }
+        return sCr_challenge_key_valid;
+    #endif
+}
+
 // Public API
 
 int cr_init() 
@@ -748,6 +781,11 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     (void)request;
 
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
+
+    if (!test_challenge_key_is_valid(request->challenge_key)) {
+        return cr_ErrorCodes_NO_DATA;
+    }
+
     crcb_device_get_info(response);
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
@@ -770,6 +808,19 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
                            cr_ParameterInfoResponse *response) 
 {
     int rval;
+
+    if (!challenge_key_is_valid()) {
+        sCr_requested_param_info_count = 0;
+        sCr_num_continued_objects = response->parameter_infos_count = 0;
+        return cr_ErrorCodes_NO_DATA;
+    }
+
+    #ifdef APP_REQUIRED_PARAMETER_KEY
+      #error No support yet for the paramter_key
+    // To Do:  Handle parameter_key.
+    // If specified, not all parameters may be available.
+    #endif
+
     if (request != NULL) {
         // request will be null on repeated calls.
         // Here implies we are responding to the initial request.
@@ -896,6 +947,18 @@ static int
 handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
                               cr_ParamExInfoResponse *response) 
 {
+    if (!challenge_key_is_valid()) {
+        sCr_requested_param_info_count = 0;
+        sCr_num_continued_objects = response->enumerations_count = 0;
+        return cr_ErrorCodes_NO_DATA;
+    }
+
+    #ifdef APP_REQUIRED_PARAMETER_KEY
+    // No support yet for the paramter_key
+    // To Do:  Handle parameter_key.
+    // If specified, not all parameters may be available.
+    #endif
+
     int rval;
     if (request != NULL) 
     {
@@ -1010,6 +1073,20 @@ handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
 static int handle_read_param(const cr_ParameterRead *request,
                                  cr_ParameterReadResult *response) 
 {
+    if (!challenge_key_is_valid()) {
+        sCr_num_continued_objects = 
+                sCr_num_remaining_objects = 0;
+        memset(response, 0, sizeof(cr_ParameterReadResult));
+        sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        return cr_ErrorCodes_NO_DATA; 
+    }
+
+    #ifdef APP_REQUIRED_PARAMETER_KEY
+    // No support yet for the paramter_key
+    // To Do:  Handle parameter_key.
+    // If specified, not all parameters may be available.
+    #endif
+
     int rval;
     if (request != NULL) {
         // request will be null on repeated calls.
@@ -1132,6 +1209,20 @@ static int handle_read_param(const cr_ParameterRead *request,
 static int handle_write_param(const cr_ParameterWrite *request,
                               cr_ParameterWriteResult *response) 
 {
+    if (!challenge_key_is_valid()) {
+        sCr_num_continued_objects = 
+                sCr_num_remaining_objects = 0;
+        memset(response, 0, sizeof(cr_ParameterWriteResult));
+        sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        return cr_ErrorCodes_NO_DATA; 
+    }
+
+    #ifdef APP_REQUIRED_PARAMETER_KEY
+    // No support yet for the paramter_key
+    // To Do:  Handle parameter_key.
+    // If specified, not all parameters may be available.
+    #endif
+
     int rval;
     affirm(request);
     affirm(response);
@@ -1164,6 +1255,13 @@ static int handle_write_param(const cr_ParameterWrite *request,
 static int handle_discover_files(const cr_DiscoverFiles *request,
                                      cr_DiscoverFilesReply *response) 
 {
+    if (!challenge_key_is_valid()) {
+        sCr_num_continued_objects = sCr_num_remaining_objects = 0;
+        memset(response, 0, sizeof(cr_DiscoverFilesReply));
+        sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        return cr_ErrorCodes_NO_DATA; 
+    }
+
     int rval;
     if (request != NULL) {
         // request will be null on repeated calls.
@@ -1221,6 +1319,13 @@ cr_FileTransferStateMachine sCr_file_xfer_state;
 static int handle_transfer_init(const cr_FileTransferInit *request,
                                     cr_FileTransferInitReply *response) 
 {
+    if (!challenge_key_is_valid()) {
+        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
+        response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+        sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        return cr_ErrorCodes_NO_DATA; 
+    }
+
     cr_FileInfo file_desc;
     memset(response, 0, sizeof(cr_FileTransferInitReply));
     response->transfer_id = request->transfer_id;
@@ -1317,6 +1422,13 @@ static int handle_transfer_init(const cr_FileTransferInit *request,
 static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
                                     cr_FileTransferDataNotification *response) 
 {
+    if (!challenge_key_is_valid()) {
+        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
+        response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+        sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        return cr_ErrorCodes_NO_DATA; 
+    }
+
     // we receive this on write.
     memset(response, 0, sizeof(cr_FileTransferDataNotification));
     switch (sCr_file_xfer_state.state)
@@ -1473,6 +1585,12 @@ static int handle_transfer_data_notification(
         const cr_FileTransferDataNotification *request,
         cr_FileTransferData *dataTransfer) 
 {
+    if (!challenge_key_is_valid()) {
+        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
+        sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        return cr_ErrorCodes_NO_DATA; 
+    }
+
     // We receive this in the case of read file.
     // And it can generate repeated responses.
     if (request)
@@ -1623,6 +1741,13 @@ static int
 handle_discover_commands(const cr_DiscoverCommands *request,
                          cr_DiscoverCommandsResult *response)
 {
+    if (!challenge_key_is_valid()) {
+        sCr_num_remaining_objects = 0;
+        sCr_num_continued_objects = 0;
+        sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        return cr_ErrorCodes_NO_DATA; 
+    }
+
     (void)request;
     int num_commands = crcb_file_get_command_count();
     int rval;
@@ -1658,6 +1783,11 @@ handle_discover_commands(const cr_DiscoverCommands *request,
 static int handle_send_command(const cr_SendCommand *request,
                                    cr_SendCommandResult *response) 
 {
+    if (!challenge_key_is_valid()) {
+        response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+        return 0;
+    }
+
     response->result = crcb_command_execute(request->command_id);
     return 0;
 }
