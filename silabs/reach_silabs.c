@@ -76,8 +76,8 @@ int rsl_stats()
     extern char gRfLoop;
 
     int avg = sNotifyDelay/sNotifyCount;
-    i3_log(LOG_MASK_BLE, "  wf: %d bytes, %d packets.", gBytesWritten, gWfPacketCount);
-    i3_log(LOG_MASK_BLE, "  rf: %d notifications, in groups of %d, retries avg %d, max %d\n",
+    I3_LOG(LOG_MASK_BLE, "  wf: %d bytes, %d packets.", gBytesWritten, gWfPacketCount);
+    I3_LOG(LOG_MASK_BLE, "  rf: %d notifications, in groups of %d, retries avg %d, max %d\n",
                  sNotifyCount, gRfLoop, avg, sNotifyMaxDelay);
 
     sNotifyCount = 0;
@@ -167,7 +167,7 @@ int rsl_notify_client(uint8_t *data, size_t len)
 {
     sl_status_t rval;
 
-    i3_log(LOG_MASK_BLE, "%s(%d)", __FUNCTION__, len);
+    I3_LOG(LOG_MASK_BLE, "%s(%d)", __FUNCTION__, len);
     sNotifyCount++;
     uint32_t loopCount = 0;
     do
@@ -195,20 +195,20 @@ int crcb_send_coded_response(const uint8_t *respBuf, size_t respSize)
 {
     if (respSize == 0)
     {
-        i3_log(LOG_MASK_REACH, "%s: No bytes to send.  ", __FUNCTION__);
+        I3_LOG(LOG_MASK_REACH, "%s: No bytes to send.  ", __FUNCTION__);
         return cr_ErrorCodes_NO_ERROR;
     }
     int rval = 0;
-    i3_log(LOG_MASK_REACH, TEXT_GREEN "%s: send %d bytes.", __FUNCTION__, respSize);
+    I3_LOG(LOG_MASK_REACH, TEXT_GREEN "%s: send %d bytes.", __FUNCTION__, respSize);
 
     if (sRsl_ble_subscribed)
     {   int s1;
-        i3_log(LOG_MASK_BLE, "%s: call rsl_notify_client() with %d bytes", __FUNCTION__, respSize);
+        I3_LOG(LOG_MASK_BLE, "%s: call rsl_notify_client() with %d bytes", __FUNCTION__, respSize);
         s1 = rsl_notify_client((uint8_t*)respBuf, respSize);
         switch (s1)
         {
         case SL_STATUS_OK:  // 0
-            i3_log(LOG_MASK_BLE, "Sent notification %d bytes, OK.", respSize);
+            I3_LOG(LOG_MASK_BLE, "Sent notification %d bytes, OK.", respSize);
             rval = 0;
             break;
         case SL_STATUS_COMMAND_TOO_LONG:
@@ -407,7 +407,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         uint8_t address_type;
         uint8_t sysId[8];
 
-        // i3_log(LOG_MASK_BLE, "sl_bt_evt_system_boot_id 0x%x", SL_BT_MSG_ID(evt->header));
+        // I3_LOG(LOG_MASK_BLE, "sl_bt_evt_system_boot_id 0x%x", SL_BT_MSG_ID(evt->header));
         // Extract unique ID from BT Address.
         sc = sl_bt_system_get_identity_address(&address, &address_type);
         app_assert_status(sc);
@@ -426,7 +426,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
                                                      sizeof(sysId),
                                                      sysId);
         app_assert_status(sc);
-        i3_log(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X",
+        I3_LOG(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X",
                sysId[0], sysId[1], sysId[2], sysId[5], sysId[6], sysId[7]);
 
       
@@ -518,7 +518,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
     case sl_bt_evt_gatt_server_user_read_request_id:
         {
             sl_bt_evt_gatt_server_user_read_request_t *data = &evt->data.evt_gatt_server_user_read_request;
-            i3_log(LOG_MASK_BLE, "sl_bt_evt_gatt_server_user_read_request_id %d", data->characteristic);
+            I3_LOG(LOG_MASK_BLE, "sl_bt_evt_gatt_server_user_read_request_id %d", data->characteristic);
 
             if (data->characteristic == REACH_BLE_CHARICTERISTIC_ID)
             {
@@ -526,7 +526,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
                 size_t resp_len;
 
                 cr_get_coded_response_buffer(&resp_buf, &resp_len);
-                i3_log(LOG_MASK_BLE, "Read request for reach. %d.", resp_len);
+                I3_LOG(LOG_MASK_BLE, "Read request for reach. %d.", resp_len);
 
                 int rval = sl_bt_gatt_server_send_user_read_response(data->connection,
                                                                      data->characteristic,
@@ -559,7 +559,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
                     }
                     else
                     {
-                        i3_log(LOG_MASK_BLE, "sl_bt_evt_gatt_server_characteristic_status_id: Unsubscribed from REACH notifications");
+                        I3_LOG(LOG_MASK_BLE, "sl_bt_evt_gatt_server_characteristic_status_id: Unsubscribed from REACH notifications");
                         rsl_inform_subscribed(false);
                     }
                 }
@@ -587,7 +587,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         {
             sl_bt_evt_connection_parameters_t *data = &evt->data.evt_connection_parameters;
 
-            i3_log(LOG_MASK_BLE, "connection %d. interval %d. latency %d. timeout %d. secure %d, txsize %d",
+            I3_LOG(LOG_MASK_BLE, "connection %d. interval %d. latency %d. timeout %d. secure %d, txsize %d",
                    data->connection,    /**< Connection handle */
                    data->interval,      /**< Connection interval. Time = Value x 1.25 ms */
                    data->latency,       /**< Peripheral latency (how many connection intervals the peripheral can skip) */
@@ -626,10 +626,10 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
             break;
         }
     case sl_bt_evt_connection_remote_used_features_id:
-        // i3_log(LOG_MASK_BLE, "sl_bt_evt_connection_remote_used_features_id 0x%x", SL_BT_MSG_ID(evt->header));
+        // I3_LOG(LOG_MASK_BLE, "sl_bt_evt_connection_remote_used_features_id 0x%x", SL_BT_MSG_ID(evt->header));
         break;
     case sl_bt_evt_gatt_mtu_exchanged_id:
-        // i3_log(LOG_MASK_BLE, "sl_bt_evt_gatt_mtu_exchanged_id 0x%x", SL_BT_MSG_ID(evt->header));
+        // I3_LOG(LOG_MASK_BLE, "sl_bt_evt_gatt_mtu_exchanged_id 0x%x", SL_BT_MSG_ID(evt->header));
         break;
 
     case sl_bt_evt_gatt_server_attribute_value_id:
@@ -637,7 +637,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
             sl_bt_evt_gatt_server_attribute_value_t *data = &evt->data.evt_gatt_server_attribute_value;
             if (data->attribute == REACH_BLE_CHARICTERISTIC_ID)  // reach
             {
-                i3_log(LOG_MASK_BLE, "Attribute Write to reach.  Len %d", data->value.len);
+                I3_LOG(LOG_MASK_BLE, "Attribute Write to reach.  Len %d", data->value.len);
                 cr_store_coded_prompt(data->value.data, data->value.len);
                 break;
             }
@@ -652,13 +652,13 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         }
   #if 1
     case sl_bt_evt_gatt_procedure_completed_id:
-        i3_log(LOG_MASK_BLE, "sl_bt_evt_gatt_procedure_completed_id 0x%x", SL_BT_MSG_ID(evt->header));
+        I3_LOG(LOG_MASK_BLE, "sl_bt_evt_gatt_procedure_completed_id 0x%x", SL_BT_MSG_ID(evt->header));
         break;
     case sl_bt_evt_user_message_to_host_id:
-        i3_log(LOG_MASK_BLE, "sl_bt_evt_user_message_to_host_id 0x%x", SL_BT_MSG_ID(evt->header));
+        I3_LOG(LOG_MASK_BLE, "sl_bt_evt_user_message_to_host_id 0x%x", SL_BT_MSG_ID(evt->header));
         break;
     case sl_bt_cmd_gatt_server_send_notification_id:
-        i3_log(LOG_MASK_BLE, "sl_bt_cmd_gatt_server_send_notification_id 0x%x", SL_BT_MSG_ID(evt->header));
+        I3_LOG(LOG_MASK_BLE, "sl_bt_cmd_gatt_server_send_notification_id 0x%x", SL_BT_MSG_ID(evt->header));
         break;
   #endif
         // -------------------------------

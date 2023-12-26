@@ -361,7 +361,7 @@ char *message_util_transfer_data_notification_json(
 
 char *message_util_param_info_json(const cr_ParameterInfoRequest *request) {
 
-  // i3_log(LOG_MASK_REACH, "message_util_param_info_json\n");
+  // I3_LOG(LOG_MASK_REACH, "message_util_param_info_json\n");
 
   cJSON *json = cJSON_CreateObject();
   cJSON *jsonArray = cJSON_CreateArray();
@@ -557,7 +557,7 @@ char * message_util_cli_notification_json(const cr_CLIData *payload) {
 /** Params */
 char *message_util_read_param_json(const cr_ParameterRead *request) {
 
-  // // i3_log(LOG_MASK_REACH, "message_util_read_param_json\n");
+  // // I3_LOG(LOG_MASK_REACH, "message_util_read_param_json\n");
 
   cJSON *json = cJSON_CreateObject();
   cJSON *jsonArray = cJSON_CreateArray();
@@ -581,7 +581,7 @@ char *message_util_read_param_json(const cr_ParameterRead *request) {
 char *
 message_util_read_param_response_json(const cr_ParameterReadResult *response) {
 
-  // // i3_log(LOG_MASK_REACH,
+  // // I3_LOG(LOG_MASK_REACH,
   // "message_util_read_param_response_json\n");
 
   cJSON *json = cJSON_CreateObject();
@@ -643,7 +643,7 @@ message_util_read_param_response_json(const cr_ParameterReadResult *response) {
                   response->values[i].value.bytes_value.size : 32;
               cJSON_AddNumberToObject(json_1, typeStr,
                                       response->values[i].value.bytes_value.size);
-              i3_log(LOG_MASK_REACH, "JSON shows number of bytes as %d.", response->values[i].value.bytes_value.size);
+              I3_LOG(LOG_MASK_REACH, "JSON shows number of bytes as %d.", response->values[i].value.bytes_value.size);
               i3_log_dump_buffer(LOG_MASK_REACH, "bytes", 
                                 response->values[i].value.bytes_value.bytes, numBytes);
           }
@@ -669,7 +669,7 @@ message_util_read_param_response_json(const cr_ParameterReadResult *response) {
 
 char *message_util_write_param_json(const cr_ParameterWrite *payload) {
 
-  // i3_log(LOG_MASK_REACH, "message_util_write_param_json\n");
+  // I3_LOG(LOG_MASK_REACH, "message_util_write_param_json\n");
 
   cJSON *json = cJSON_CreateObject();
   if (payload->values_count > 0) {

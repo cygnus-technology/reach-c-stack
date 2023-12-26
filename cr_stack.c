@@ -205,7 +205,7 @@ static int handle_continued_transactions()
 
     if (sCr_continued_message_type == cr_ReachMessageTypes_INVALID)
     {
-        // i3_log(LOG_MASK_REACH, "%s(): No continued transactions.", __FUNCTION__);
+        // I3_LOG(LOG_MASK_REACH, "%s(): No continued transactions.", __FUNCTION__);
         return cr_ErrorCodes_NO_DATA;  // no continued transaction.
     }
 
@@ -213,23 +213,23 @@ static int handle_continued_transactions()
     switch (sCr_continued_message_type)
     {
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
-        i3_log(LOG_MASK_REACH, "%s(): Continued dp.", __FUNCTION__);
+        I3_LOG(LOG_MASK_REACH, "%s(): Continued dp.", __FUNCTION__);
         rval = 
             handle_discover_parameters(NULL, 
                                        (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
-        i3_log(LOG_MASK_REACH, "%s(): Continued dpx.", __FUNCTION__);
+        I3_LOG(LOG_MASK_REACH, "%s(): Continued dpx.", __FUNCTION__);
         rval = 
             handle_discover_parameters_ex(NULL, 
                                        (cr_ParamExInfoResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_READ_PARAMETERS:
-        i3_log(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
+        I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
         rval = handle_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_TRANSFER_DATA:
-        i3_log(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
+        I3_LOG(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
         rval = handle_transfer_data_notification(NULL, (cr_FileTransferData *)sCr_uncoded_response_buffer);
         encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
@@ -381,7 +381,7 @@ int cr_process(uint32_t ticks)
         }
 
 
-        i3_log(LOG_MASK_REACH, TEXT_MAGENTA "Got a new prompt" TEXT_RESET);
+        I3_LOG(LOG_MASK_REACH, TEXT_MAGENTA "Got a new prompt" TEXT_RESET);
         i3_log_dump_buffer(LOG_MASK_WIRE, "Rcvd prompt", sCr_encoded_message_buffer, sCr_encoded_message_size);
         rval = handle_coded_prompt(); // in case of error the reply is the error report
         sCr_encoded_message_size = 0;
@@ -475,11 +475,11 @@ static int handle_coded_prompt()
     uint8_t *coded_data = (uint8_t *)msgPtr->payload.bytes;
     sCr_transaction_id = hdr->transaction_id;
 
-    i3_log(LOG_MASK_REACH, "Message type: \t%s",
+    I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
            get_message_type(msgPtr->header.message_type));
     i3_log_dump_buffer(LOG_MASK_WIRE, "handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
-    i3_log(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d", 
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d", 
            msgPtr->payload.size, sCr_transaction_id);
 
     // further decode and process the message
@@ -826,7 +826,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
         // Here implies we are responding to the initial request.
         sCr_requested_param_index = 0;
         sCr_requested_param_info_count = request->parameter_ids_count;
-        i3_log(LOG_MASK_PARAMS, "discover params, count %d.", sCr_requested_param_info_count);
+        I3_LOG(LOG_MASK_PARAMS, "discover params, count %d.", sCr_requested_param_info_count);
 
         if (request->parameter_ids_count != 0) {
             sCr_requested_param_index = 0;
@@ -851,7 +851,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
         if (sCr_num_remaining_objects > REACH_COUNT_PARAM_DESC_IN_RESPONSE)
         {
             sCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
-            i3_log(LOG_MASK_PARAMS, "discover params, Too many for one.");
+            I3_LOG(LOG_MASK_PARAMS, "discover params, Too many for one.");
         }
     }
 
@@ -877,13 +877,13 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
                 sCr_num_remaining_objects = 0;
                 if (i==0)
                 {
-                    i3_log(LOG_MASK_PARAMS, "No data on i=0.");
+                    I3_LOG(LOG_MASK_PARAMS, "No data on i=0.");
                     return cr_ErrorCodes_NO_DATA; 
                 }
-                i3_log(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
+                I3_LOG(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
                 return 0;
             }
-            i3_log(LOG_MASK_PARAMS, "Add param %d.", sCr_requested_param_index);
+            I3_LOG(LOG_MASK_PARAMS, "Add param %d.", sCr_requested_param_index);
             sCr_requested_param_index++;
             sCr_num_remaining_objects--;
             response->parameter_infos[i] = *pParamInfo;
@@ -894,12 +894,12 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
-        i3_log(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
+        I3_LOG(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
         return 0;
     }
 
     // we are supplied a list of params.
-    i3_log(LOG_MASK_PARAMS, "%s: Supplied a list.", __FUNCTION__);
+    I3_LOG(LOG_MASK_PARAMS, "%s: Supplied a list.", __FUNCTION__);
     response->parameter_infos_count = 0;
     for (int i=0; i<REACH_COUNT_PARAM_DESC_IN_RESPONSE; i++)
     {
@@ -915,7 +915,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             break;
         }
-        i3_log(LOG_MASK_PARAMS, "Add param %d from list of %d", 
+        I3_LOG(LOG_MASK_PARAMS, "Add param %d from list of %d", 
                sCr_requested_param_index, sCr_requested_param_info_count);
         crcb_parameter_discover_reset(sCr_requested_param_array[sCr_requested_param_index]);
         rval = crcb_parameter_discover_next(&pParamInfo);
@@ -968,7 +968,7 @@ handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
         sCr_requested_param_index = 0;
         sCr_requested_param_info_count = request->parameter_ids_count;
         sCr_num_ex_this_pid = 0;
-        i3_log(LOG_MASK_PARAMS, "discover params ex, param count %d.", sCr_requested_param_info_count);
+        I3_LOG(LOG_MASK_PARAMS, "discover params ex, param count %d.", sCr_requested_param_info_count);
 
         if (request->parameter_ids_count != 0) 
         {
@@ -988,7 +988,7 @@ handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
             {   // there is no ex data
                 sCr_num_remaining_objects = 0;
                 response->enumerations_count = 0;
-                i3_log(LOG_MASK_PARAMS, "dpx: %d params, no ex.", 
+                I3_LOG(LOG_MASK_PARAMS, "dpx: %d params, no ex.", 
                        request->parameter_ids_count);
                 return 0;
             }
@@ -1005,7 +1005,7 @@ handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
                 sCr_num_remaining_objects = crcb_parameter_ex_get_count(-1);
         }
         // one object in each response.
-        i3_log(LOG_MASK_PARAMS, "discover params ex, object count %d.", sCr_num_continued_objects);
+        I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.", sCr_num_continued_objects);
 
         // here we've found at least one so use it.
         rval = crcb_parameter_ex_discover_next(response);
@@ -1043,7 +1043,7 @@ handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
     if (sCr_requested_param_index >= sCr_requested_param_info_count)
     {
         sCr_num_continued_objects = 0;
-        i3_log(LOG_MASK_PARAMS, "No more params.");
+        I3_LOG(LOG_MASK_PARAMS, "No more params.");
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         return cr_ErrorCodes_NO_DATA;
     }
@@ -1061,7 +1061,7 @@ handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
         sCr_num_ex_this_pid = 0;
         return 0;
     }
-    i3_log(LOG_MASK_PARAMS, "End of %s?", __FUNCTION__);
+    I3_LOG(LOG_MASK_PARAMS, "End of %s?", __FUNCTION__);
     sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
     return cr_ErrorCodes_NO_DATA;
 }
@@ -1092,7 +1092,7 @@ static int handle_read_param(const cr_ParameterRead *request,
         // request will be null on repeated calls.
         // Here implies we are responding to the initial request.
         sCr_requested_param_read_count = request->parameter_ids_count;
-        i3_log(LOG_MASK_PARAMS, "read params, count %d.", sCr_requested_param_info_count);
+        I3_LOG(LOG_MASK_PARAMS, "read params, count %d.", sCr_requested_param_info_count);
 
         if (request->parameter_ids_count != 0) {
             // init them all to -1 meaning invalid.
@@ -1111,14 +1111,14 @@ static int handle_read_param(const cr_ParameterRead *request,
         else
         {
             sCr_requested_param_index = 0;
-            i3_log(LOG_MASK_PARAMS, "READ all PARAMETERS.");
+            I3_LOG(LOG_MASK_PARAMS, "READ all PARAMETERS.");
             sCr_num_continued_objects = 
                 sCr_num_remaining_objects = crcb_parameter_get_count();
         }
         if (sCr_num_remaining_objects > REACH_COUNT_PARAM_READ_VALUES)
         {
             sCr_continued_message_type = cr_ReachMessageTypes_READ_PARAMETERS;
-            i3_log(LOG_MASK_PARAMS, "read params, Too many for one.");
+            I3_LOG(LOG_MASK_PARAMS, "read params, Too many for one.");
         }
     }
 
@@ -1142,16 +1142,16 @@ static int handle_read_param(const cr_ParameterRead *request,
                 sCr_num_remaining_objects = 0;
                 if (i==0)
                 {
-                    i3_log(LOG_MASK_PARAMS, "No read data on i=0.");
+                    I3_LOG(LOG_MASK_PARAMS, "No read data on i=0.");
                     sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                     return cr_ErrorCodes_NO_DATA; 
                 }
-                i3_log(LOG_MASK_PARAMS, "Added read %d.", response->values_count);
+                I3_LOG(LOG_MASK_PARAMS, "Added read %d.", response->values_count);
                 return 0;
             }
             cr_ParameterValue paramVal;
             crcb_parameter_read(pParamInfo->id, &paramVal);
-            i3_log(LOG_MASK_PARAMS, "Add param read %d.", sCr_requested_param_index);
+            I3_LOG(LOG_MASK_PARAMS, "Add param read %d.", sCr_requested_param_index);
             response->values[i] = paramVal;
             sCr_requested_param_index++;
             sCr_num_remaining_objects--;
@@ -1162,7 +1162,7 @@ static int handle_read_param(const cr_ParameterRead *request,
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
-        i3_log(LOG_MASK_PARAMS, "Read added %d.", response->values_count);
+        I3_LOG(LOG_MASK_PARAMS, "Read added %d.", response->values_count);
         return 0;
     }
 
@@ -1181,7 +1181,7 @@ static int handle_read_param(const cr_ParameterRead *request,
             sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             break;
         }
-        i3_log(LOG_MASK_PARAMS, "Read param %d from list of %d", 
+        I3_LOG(LOG_MASK_PARAMS, "Read param %d from list of %d", 
                sCr_requested_param_index, sCr_requested_param_read_count);
         cr_ParameterValue paramVal;
         rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], &paramVal);
@@ -1242,7 +1242,7 @@ static int handle_write_param(const cr_ParameterWrite *request,
     // we are supplied a list of params.
     for (int i=0; i<request->values_count; i++)
     {
-        i3_log(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
+        I3_LOG(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
         rval = crcb_parameter_write(request->values[i].parameter_id, &request->values[i]);
         if (rval != cr_ErrorCodes_NO_ERROR) {
             cr_report_error(cr_ErrorCodes_WRITE_FAILED, "Parameter write of ID %d failed.", request->values[i].parameter_id);
@@ -1271,10 +1271,10 @@ static int handle_discover_files(const cr_DiscoverFiles *request,
         if (sCr_num_remaining_objects > REACH_COUNT_PARAM_READ_VALUES)
         {
             sCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_FILES;
-            i3_log(LOG_MASK_PARAMS, "discover files, Too many for one.");
+            I3_LOG(LOG_MASK_PARAMS, "discover files, Too many for one.");
         }
         // sCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_FILES;
-        i3_log(LOG_MASK_PARAMS, "discover files, count %d.", sCr_num_remaining_objects);
+        I3_LOG(LOG_MASK_PARAMS, "discover files, count %d.", sCr_num_remaining_objects);
     }
 
     
@@ -1287,12 +1287,12 @@ static int handle_discover_files(const cr_DiscoverFiles *request,
             sCr_num_remaining_objects = 0;
             if (i==0)
             {
-                i3_log(LOG_MASK_FILES, "No files with i=0.");
+                I3_LOG(LOG_MASK_FILES, "No files with i=0.");
                 return cr_ErrorCodes_NO_DATA; 
             }
             return 0;
         }
-        i3_log(LOG_MASK_PARAMS, "Added file %d.", response->file_infos_count);
+        I3_LOG(LOG_MASK_PARAMS, "Added file %d.", response->file_infos_count);
         response->file_infos_count++;
     }
     return 0;
@@ -1485,7 +1485,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
     sCr_file_xfer_state.bytes_transfered += bytes_to_write;
     int bytes_remaining_to_write = 
         sCr_file_xfer_state.transfer_length - sCr_file_xfer_state.bytes_transfered; 
-    // i3_log(LOG_MASK_FILES, "fwtd %d bytes, %d remaining of %d.", bytes_to_write,
+    // I3_LOG(LOG_MASK_FILES, "fwtd %d bytes, %d remaining of %d.", bytes_to_write,
     //        bytes_remaining_to_write, sCr_file_xfer_state.transfer_length);
 
     int rval = crcb_write_file(sCr_file_xfer_state.file_id,
@@ -1539,11 +1539,11 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
 
 
 
-    /*i3_log(LOG_MASK_FILES, "fwtd, rem %d. until ack: %d.  num %d.", 
+    /*I3_LOG(LOG_MASK_FILES, "fwtd, rem %d. until ack: %d.  num %d.", 
                bytes_remaining_to_write, sCr_file_xfer_state.messages_until_ack,
                sCr_file_xfer_state.message_number);*/
 
-    i3_log(LOG_MASK_FILES, "fwtd, msg %d. until ack: %d.  num %d.", 
+    I3_LOG(LOG_MASK_FILES, "fwtd, msg %d. until ack: %d.  num %d.", 
            dataTransfer->message_number, 
            sCr_file_xfer_state.messages_until_ack,
            sCr_file_xfer_state.message_number);
@@ -1563,7 +1563,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
     if (sCr_file_xfer_state.messages_until_ack != 0)
     {
         /*
-        i3_log(LOG_MASK_FILES, "file write, no ACK. per ack: %d.  until ack: %d.  num %d.", 
+        I3_LOG(LOG_MASK_FILES, "file write, no ACK. per ack: %d.  until ack: %d.  num %d.", 
                sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.messages_until_ack,
                sCr_file_xfer_state.message_number);
          */
@@ -1571,7 +1571,7 @@ static int handle_transfer_data(const cr_FileTransferData *dataTransfer,
         return cr_ErrorCodes_NO_RESPONSE;
     }
     // here we want to ack, also reset the counters.
-    i3_log(LOG_MASK_FILES, "ACK file write.  per ack: %d.  num %d.", 
+    I3_LOG(LOG_MASK_FILES, "ACK file write.  per ack: %d.  num %d.", 
                sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.message_number);
 
     sCr_file_xfer_state.messages_until_ack = sCr_file_xfer_state.messages_per_ack;
@@ -1621,7 +1621,7 @@ static int handle_transfer_data_notification(
                 sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                 sCr_num_remaining_objects = 0;
                 sCr_num_continued_objects = 0;
-                i3_log(LOG_MASK_FILES, "Completing the file read.");
+                I3_LOG(LOG_MASK_FILES, "Completing the file read.");
                 scr_end_timeout_watchdog();
                 return 0;
             }
@@ -1676,9 +1676,9 @@ static int handle_transfer_data_notification(
             (bytes_remaining_to_read >= REACH_BYTES_IN_A_FILE_PACKET)
                 ? REACH_BYTES_IN_A_FILE_PACKET : bytes_remaining_to_read;
 
-    i3_log(LOG_MASK_FILES, "file read %d, %d remaining of %d.", bytes_requested,
+    I3_LOG(LOG_MASK_FILES, "file read %d, %d remaining of %d.", bytes_requested,
            bytes_remaining_to_read, sCr_file_xfer_state.transfer_length);
-    i3_log(LOG_MASK_FILES, " per ack: %d.  until ack: %d.  num %d.", 
+    I3_LOG(LOG_MASK_FILES, " per ack: %d.  until ack: %d.  num %d.", 
            sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.messages_until_ack,
            sCr_file_xfer_state.message_number);
 
@@ -1711,7 +1711,7 @@ static int handle_transfer_data_notification(
     
     if (sCr_file_xfer_state.messages_until_ack == 0)
     {
-        i3_log(LOG_MASK_FILES, "file read wait for ACK now.");
+        I3_LOG(LOG_MASK_FILES, "file read wait for ACK now.");
     }
     
     sCr_num_remaining_objects = sCr_file_xfer_state.messages_until_ack;
@@ -1848,7 +1848,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       if (status) {
         *encode_size = os_stream.bytes_written;
         // cr_ErrorReport *er = (cr_ErrorReport *)data;
-        // i3_log(LOG_MASK_REACH, "Error Report: %s", er->result_string);
+        // I3_LOG(LOG_MASK_REACH, "Error Report: %s", er->result_string);
       }
       break;
   case cr_ReachMessageTypes_PING:
@@ -2036,7 +2036,7 @@ static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
                              const void *payload,                  // in:  to be encoded
                              cr_ReachMessageHeader *hdr)           // in
 {
-    // i3_log(LOG_MASK_REACH, "%s(): hdr: type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
+    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
     //        hdr->message_type, hdr->number_of_objects, hdr->remaining_objects, hdr->transaction_id);
 
     if (!encode_reach_payload(message_type, payload,
@@ -2056,7 +2056,7 @@ static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
            sCr_encoded_payload_size);
     sCr_uncoded_message_structure.payload.size = sCr_encoded_payload_size;  
 
-    i3_log(LOG_MASK_REACH, "%s(): type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
+    I3_LOG(LOG_MASK_REACH, "%s(): type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
            sCr_uncoded_message_structure.header.message_type, 
            sCr_uncoded_message_structure.header.number_of_objects, 
            sCr_uncoded_message_structure.header.remaining_objects, 

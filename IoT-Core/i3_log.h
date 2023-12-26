@@ -63,10 +63,11 @@ extern "C"
     #define I3_LOG(m, f, ...)
     #define LOG_REACH(format, ...)
     #define LOG_ERROR(format, ...)
+    #define LOG_DUMP_WIRE(banner, buf, len)
 #else
-    #define I3_LOG(m, f, ...)     i3_log(m, f, __VA_ARGS__)
+    #define I3_LOG(m, f, ...)     i3_log(m, f, ##__VA_ARGS__)
     #define LOG_REACH(format, ...)                                                 \
-        i3_log(LOG_MASK_REACH, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
+        I3_LOG(LOG_MASK_REACH, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
     #define LOG_ERROR(format, ...)                                                 \
         i3_log(LOG_MASK_ERROR, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
     #define LOG_DUMP_WIRE(banner, buf, len)                                        \
