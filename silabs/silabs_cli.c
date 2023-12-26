@@ -413,7 +413,7 @@ SL_CLI_COMMAND(
 /******************************************************************************
  ***************************** CLI command table ******************************
  ******************************************************************************/
-static sl_cli_command_entry_t command_table[] = {
+static const sl_cli_command_entry_t command_table[] = {
   { "ver",          &cmd__ver,                    false},
   { "/",            &cmd__slash,                  false},
   { "lm",           &cmd__lm,                     false},
@@ -424,7 +424,7 @@ static sl_cli_command_entry_t command_table[] = {
   { NULL,           NULL,                         false }, };
 
 // Create the command group at the top level
-static sl_cli_command_group_t main_group =
+static const sl_cli_command_group_t main_group =
 {
     { NULL },
     false, command_table 
