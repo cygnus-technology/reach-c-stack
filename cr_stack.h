@@ -83,7 +83,7 @@ extern "C" {
  
 */
 
-#define ALIGN_TO_WORD   __attribute__((align(4)))
+#define ALIGN_TO_WORD   __attribute__((aligned(4)))
 
 //----------------------------------------------------------------------------
 // To be called once before cr_process is called.
