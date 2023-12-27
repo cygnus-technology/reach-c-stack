@@ -23,7 +23,7 @@
 #define REACH_MAX_RESPONSE_SIZE               244
 
 // payload before header is added
-#define REACH_MESSAGE_PAYLOAD_MAX             208
+#define REACH_MESSAGE_PAYLOAD_MAX             230
 #define REACH_BIG_DATA_BUFFER_LEN             194
 #define REACH_DEVICE_INFO_LEN                  48
 #define REACH_LONG_STRING_LEN                  32 
