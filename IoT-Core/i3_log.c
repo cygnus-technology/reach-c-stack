@@ -98,7 +98,8 @@ void i3_log(const uint32_t mask, const char *fmt, ...)
 
 #include "reach-server.h"  // for remote buffer size
 
-static bool sUseRemoteCLI = false;  // you have to turn it on explicitly
+// If false, you have to turn it on explicitly.  See reach-server.h
+static bool sUseRemoteCLI = REMOTE_CLI_ECHO_ON_DEFAULT;  
 int i3_log_set_remote_cli_enable(bool enable)
 {
     sUseRemoteCLI = enable;
