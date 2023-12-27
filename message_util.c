@@ -644,8 +644,7 @@ message_util_read_param_response_json(const cr_ParameterReadResult *response) {
               cJSON_AddNumberToObject(json_1, typeStr,
                                       response->values[i].value.bytes_value.size);
               I3_LOG(LOG_MASK_REACH, "JSON shows number of bytes as %d.", response->values[i].value.bytes_value.size);
-              i3_log_dump_buffer(LOG_MASK_REACH, "bytes", 
-                                response->values[i].value.bytes_value.bytes, numBytes);
+              LOG_DUMP_MASK(LOG_MASK_REACH, "bytes", response->values[i].value.bytes_value.bytes, numBytes);
           }
           break;
       default:

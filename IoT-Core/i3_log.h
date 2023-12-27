@@ -58,12 +58,13 @@ extern "C"
 // Higher bits can be defined and used by the application
 // #include "app_log_masks.h"
 
-// #define NO_LOGGING
+//#define NO_LOGGING
 #ifdef NO_LOGGING
     #define I3_LOG(m, f, ...)
     #define LOG_REACH(format, ...)
     #define LOG_ERROR(format, ...)
     #define LOG_DUMP_WIRE(banner, buf, len)
+    #define LOG_DUMP_MASK(mask, banner, buf, len)
 #else
     #define I3_LOG(m, f, ...)     i3_log(m, f, ##__VA_ARGS__)
     #define LOG_REACH(format, ...)                                                 \
@@ -72,6 +73,8 @@ extern "C"
         i3_log(LOG_MASK_ERROR, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
     #define LOG_DUMP_WIRE(banner, buf, len)                                        \
         i3_log_dump_buffer(LOG_MASK_WIRE, banner, buf, len)
+    #define LOG_DUMP_MASK(mask, banner, buf, len)                                  \
+        i3_log_dump_buffer(mask, banner, buf, len)
 #endif  // def NO_LOGGING
 
 // Set and get the mask that control output per module

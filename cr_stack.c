@@ -382,7 +382,7 @@ int cr_process(uint32_t ticks)
 
 
         I3_LOG(LOG_MASK_REACH, TEXT_MAGENTA "Got a new prompt" TEXT_RESET);
-        i3_log_dump_buffer(LOG_MASK_WIRE, "Rcvd prompt", sCr_encoded_message_buffer, sCr_encoded_message_size);
+        LOG_DUMP_WIRE("Rcvd prompt", sCr_encoded_message_buffer, sCr_encoded_message_size);
         rval = handle_coded_prompt(); // in case of error the reply is the error report
         sCr_encoded_message_size = 0;
 
@@ -477,7 +477,7 @@ static int handle_coded_prompt()
 
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
            get_message_type(msgPtr->header.message_type));
-    i3_log_dump_buffer(LOG_MASK_WIRE, "handle_coded_prompt (message): ",
+    LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
     I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d", 
            msgPtr->payload.size, sCr_transaction_id);
@@ -1933,8 +1933,8 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
           *encode_size = os_stream.bytes_written;
           cr_FileTransferData *td = (cr_FileTransferData *)data;
           LOG_REACH(" Transfer Data encoded: \n%s\n", message_util_transfer_data_json(td));
-          i3_log_dump_buffer(LOG_MASK_REACH, "Data Sent", 
-                             td->message_data.bytes, td->message_data.size);
+          LOG_DUMP_MASK(LOG_MASK_REACH, "Data Sent", 
+                        td->message_data.bytes, td->message_data.size);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION:
