@@ -52,7 +52,7 @@
     #define TEXT_BOLD_BRIGHT_CYAN       TEXT_BOLD TEXT_BRIGHT_CYAN    // Bold Bright Cyan
     #define TEXT_BOLD_BRIGHT_WHITE      TEXT_BOLD TEXT_BRIGHT_WHITE   // Bold Bright White
 
-  #define WHITE_BACKGROUND
+  // #define WHITE_BACKGROUND
   #ifdef WHITE_BACKGROUND
     #define TEXT_CLI   TEXT_BOLDBLACK
   #else
