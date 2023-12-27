@@ -48,6 +48,7 @@
 // A message has a header and a payload.
 // The prompt is a received payload.
 // The response is a generated payload.
+// A file "transfer" is a series of messages terminated by an ACK.
 
 // the fully encoded message is received here.
 static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
@@ -61,7 +62,9 @@ static cr_ReachMessage sCr_uncoded_message_structure;
 #define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
 // A decoded prompt payload.
-static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+// This can be reused from the encoded message buffer.
+// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
 // An uncoded response payload.
 // The sCr_uncoded_response_buffer is available to be used by the app.
@@ -75,6 +78,7 @@ static size_t sCr_encoded_payload_size;
 
 // The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
+// static uint8_t *sCr_encoded_response_buffer = sCr_uncoded_response_buffer;
 static size_t  sCr_encoded_response_size = 0;
 
 //----------------------------------------------------------------------------
@@ -342,12 +346,10 @@ int cr_process(uint32_t ticks)
     }*/
 
     // clear buffers of previous data
-    // memset(sCr_encoded_message_buffer,      0, sizeof(sCr_encoded_message_buffer));
     memset(&sCr_uncoded_message_structure,  0, sizeof(cr_ReachMessage));
-    memset(sCr_decoded_prompt_buffer,       0, sizeof(sCr_decoded_prompt_buffer));
     memset(sCr_uncoded_response_buffer,     0, sizeof(sCr_uncoded_response_buffer));
     memset(sCr_encoded_payload_buffer,      0, sizeof(sCr_encoded_payload_buffer));
-    memset(sCr_encoded_response_buffer,     0, sizeof(sCr_encoded_response_buffer));
+    // memset(sCr_encoded_response_buffer,     0, sizeof(sCr_encoded_response_buffer));
 
   // #define TEST_ERROR_REPORT
   #ifdef TEST_ERROR_REPORT
