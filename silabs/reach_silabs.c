@@ -32,10 +32,6 @@
 #include "nvm3_default.h"
 #include "app.h"
 
-// When defined we attempt to advertise a longer name.
-// It doesn't yet do what is required.
-// #define EXTENDED_ADVERTISING
-
 static uint8_t  sRsl_ble_connection = 0;
 static uint16_t sRsl_ble_characteristic = 0;
 static bool     sRsl_ble_subscribed = false;
@@ -44,7 +40,6 @@ static int8_t   sRsl_rssi = 0;
 static uint32_t sNotifyCount = 0;
 static uint32_t sNotifyDelay = 0;
 static uint32_t sNotifyMaxDelay = 0;
-
 
 void rsl_inform_connection(uint8_t connection, uint16_t characteristic)
 {
@@ -286,95 +281,11 @@ void rsl_app_process_action(void)
     cr_process(timestamp);
 }
 
-#ifdef EXTENDED_ADVERTISING
-
-// CUSTOM_ADVERTISING data
-#define UUID_LEN 16
-#define NAME_LEN 16
-typedef struct
-{
-    uint8_t flags_len;            // Length of the Flags field.
-    uint8_t flags_type;           // Type of the Flags field.
-    uint8_t flags;                // Flags field.
-    uint8_t longname_len;         // Length of the Name field.
-    uint8_t longname_type;        // Type of the long Name field.
-    char    longname[NAME_LEN];   // Name field.
-    uint8_t len_uuid;
-    uint8_t type_uuid;
-    uint8_t uuid[UUID_LEN];
-
-} adv_data_s;
-
-adv_data_s sAdv_data =
-{
-    // Flag bits - See Bluetooth 4.0 Core Specification , Volume 3, Appendix C, 18.1 for more details on flags.
-    2,      // Length of field.
-    0x01,   // Type of field.
-    0x06,   // Flags: LE General Discoverable Mode, BR/EDR is disabled.
-
-    // Long Name
-    14,     // Length of field. (strlen+1)
-    0x09,   // Type of field:  LOCAL_NAME
-    "Advertisement",
-
-    // Reach characteristic UUID
-    0x11,   // Length of field.
-    0x07,   // complete List of 128-bit Service Class UUIDs
-    #define REACH_UUID "edd59269-79b3-4ec2-a6a2-89bfb640f930"  // Reach ID
-    {0x30,0xF9,0x40,0xB6,0xBF,0x89,0xA2,0x26,
-    0xC2,0x0E,0xB3,0x79,0x69,0x92,0xD5,0xED},
-};
-
-#define TEST_EXT_ELE_LENGTH 200
-void setup_ext_adv(uint8_t handle)
-{
-  sl_status_t sc;
-
-  // Set advertising data
-  sc = sl_bt_extended_advertiser_set_data(handle, sizeof(sAdv_data), (uint8_t*)&sAdv_data);
-  app_assert(sc == SL_STATUS_OK,
-                      "[E: 0x%04x] Failed to set advertising data\n",
-                      (int)sc);
-}
-
-void setup_start_ext_adv(uint8_t handle)
-{
-  sl_status_t sc;
-  // Set advertising interval to 100ms.
-  sc = sl_bt_advertiser_set_timing(
-    handle,
-    160, // min. adv. interval (milliseconds * 1.6)
-    160, // max. adv. interval (milliseconds * 1.6)
-    0,   // adv. duration
-    0);  // max. num. adv. events
-  app_assert(sc == SL_STATUS_OK,
-                "[E: 0x%04x] Failed to set advertising timing\n",
-                (int)sc);
-
-  setup_ext_adv(handle);
-
-  sc = sl_bt_extended_advertiser_start(
-      handle,
-      sl_bt_extended_advertiser_connectable,
-      // sl_bt_extended_advertiser_non_connectable,
-      0);
-  app_assert(sc == SL_STATUS_OK,
-                  "[E: 0x%04x] Failed to start advertising\n",
-                  (int)sc);
-  /* Start general advertising and enable connections. */
-  i3_log(LOG_MASK_ALWAYS, "Start advertising.\r\n");
-}
-#else
-  extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
-#endif // def EXTENDED_ADVERTISING
+extern sli_bt_gattdb_attribute_chrvalue_t gattdb_attribute_field_10;
 
 const char *rsl_get_advertised_name() 
 {
-  #ifdef EXTENDED_ADVERTISING
-    return sAdv_data.longname;
-  #else
     return (char*)(gattdb_attribute_field_10.data);
-  #endif // def EXTENDED_ADVERTISING
 }
 
 
@@ -429,29 +340,26 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         I3_LOG(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X",
                sysId[0], sysId[1], sysId[2], sysId[5], sysId[6], sysId[7]);
 
-      
-      #ifdef EXTENDED_ADVERTISING
-        // most devices don't see such an extended advertisement.
-        // We need to make the long name scannable.
-        // Rewrite name
-        sAdv_data.longname_len = 1 +
-            snprintf((char *)(sAdv_data.longname),
-                     NAME_LEN,
-                     "Reacher %02X-%02X", sysId[6], sysId[7]);
-        i3_log(LOG_MASK_ALWAYS, TEXT_MAGENTA "Advertise extended name %s", sAdv_data.longname);
 
-        sc = sl_bt_advertiser_create_set(&advertising_set_handle);
-        app_assert_status(sc);
-
-        setup_start_ext_adv(advertising_set_handle);
-      #else
-        // Relies on setup from gatt database.
-        // seem to only be capable of 8 chars
-        gattdb_attribute_field_10.len =
-            snprintf((char*)(gattdb_attribute_field_10.data),
-                     gattdb_attribute_field_10.max_len,
-                     "Reach %02X", sysId[6]);
-        i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Advertise non-extended name %s", gattdb_attribute_field_10.data);
+        memset(gattdb_attribute_field_10.data, 0, gattdb_attribute_field_10.max_len);
+        unsigned int sn = 0;
+        int rval = rsl_read_serial_number(&sn);
+        if (rval != 0) {
+            gattdb_attribute_field_10.len =
+                snprintf((char*)(gattdb_attribute_field_10.data),
+                         gattdb_attribute_field_10.max_len,
+                         "Reacher %02X:%02X:%02X", sysId[5], sysId[6], sysId[7]);
+        }
+        else {
+            gattdb_attribute_field_10.len =
+                snprintf((char*)(gattdb_attribute_field_10.data),
+                         gattdb_attribute_field_10.max_len,
+                         "Reacher SN-%u", sn);
+        }
+        i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Advertise non-extended name %s, len %d of %d", 
+               gattdb_attribute_field_10.data, 
+               gattdb_attribute_field_10.len, 
+               gattdb_attribute_field_10.max_len);
 
         sc = sl_bt_advertiser_create_set(&advertising_set_handle);
         app_assert_status(sc);
@@ -472,7 +380,6 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         sc = sl_bt_legacy_advertiser_start(advertising_set_handle, 
                                            sl_bt_advertiser_connectable_scannable);
         app_assert_status(sc);
-      #endif  // def EXTENDED_ADVERTISING
 
         break;
     }
