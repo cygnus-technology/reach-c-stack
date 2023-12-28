@@ -398,7 +398,8 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
                evt->data.evt_connection_opened.connection, gPhy);
 
         rsl_inform_connection(evt->data.evt_connection_opened.connection, REACH_BLE_CHARICTERISTIC_ID);
-        sl_bt_connection_get_rssi(evt->data.evt_connection_opened.connection);
+        sl_bt_connection_get_median_rssi(evt->data.evt_connection_opened.connection, &sRsl_rssi);
+        // sl_bt_connection_get_rssi(evt->data.evt_connection_opened.connection);
         break;
     }
 
@@ -409,7 +410,7 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
 
       // Generate data for advertising
       sc = sl_bt_legacy_advertiser_generate_data(advertising_set_handle,
-                                                 advertiser_general_discoverable);
+                                                 sl_bt_advertiser_general_discoverable);
       app_assert_status(sc);
 
       // Restart advertising after client has disconnected.
@@ -460,9 +461,9 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
 
             if (data->characteristic == REACH_BLE_CHARICTERISTIC_ID)
             {
-                if (data->status_flags == gatt_server_client_config)
+                if (data->status_flags == sl_bt_gatt_server_client_config)
                 {
-                    if (data->client_config_flags == gatt_notification)
+                    if (data->client_config_flags == sl_bt_gatt_notification)
                     {
                         i3_log(LOG_MASK_ALWAYS, "Subscribed to REACH notifications");
                         rsl_inform_subscribed(true);
