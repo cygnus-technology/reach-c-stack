@@ -137,7 +137,7 @@ int __attribute__((weak)) crcb_device_get_info(cr_DeviceInfoResponse *pDi)
 //*************************************************************************
 //  Link (ping) Service
 //*************************************************************************
-int __attribute__((weak)) crcb_ping_get_signal_strength(int32_t *rssi)
+int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
 {
     (void)rssi;
     I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);

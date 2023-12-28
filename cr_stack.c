@@ -764,15 +764,19 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 // handle_ping attempts to reuse the encoded prompt
 static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response) {
 
-  if (request->echo_data.size > 0) {
-    response->echo_data.size = request->echo_data.size;
-    i3_log(LOG_MASK_ALWAYS, "ping data size %d", request->echo_data.size);
-    memcpy(response->echo_data.bytes, request->echo_data.bytes,
-           request->echo_data.size);
-  }
-  crcb_ping_get_signal_strength(&response->signal_strength);
-  return 0;
+    int8_t rssi;
+
+    if (request->echo_data.size > 0) {
+        response->echo_data.size = request->echo_data.size;
+        i3_log(LOG_MASK_ALWAYS, "ping data size %d", request->echo_data.size);
+        memcpy(response->echo_data.bytes, request->echo_data.bytes,
+               request->echo_data.size);
+    }
+    crcb_ping_get_signal_strength(&rssi);
+    response->signal_strength = rssi;
+    return 0;
 }
+
 
 // Most individual handle functions expect to construct the un-encoded buffer 
 // in memory provided by the caller.
@@ -830,7 +834,7 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 // returns non-zero if there is no data.
 static int 
 handle_discover_parameters(const cr_ParameterInfoRequest *request,
-                           cr_ParameterInfoResponse *response) 
+                           cr_ParameterInfoResponse *response)
 {
     int rval;
 
@@ -892,6 +896,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
             // default on first.
             sCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
         }
+        // GCC 12 produces a warning here, google it to see controversy.
         response->parameter_infos_count = 0;
         for (int i=0; i<REACH_COUNT_PARAM_DESC_IN_RESPONSE; i++) 
         {
