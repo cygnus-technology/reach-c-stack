@@ -50,11 +50,12 @@
 // The response is a generated payload.
 // A file "transfer" is a series of messages terminated by an ACK.
 
-// the fully encoded message is received here.
+// the fully encoded prompt message is received here.
 static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_message_size = 0;
 
-// The message header is decoded into this buffer containing an encoded payload buffer: 
+// This structure is used both to decode and to encode.
+// On encoding, the buffer is reused as the payload encode target.
 static cr_ReachMessage sCr_uncoded_message_structure;
 
 // The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
@@ -78,7 +79,6 @@ static size_t sCr_encoded_payload_size;
 
 // The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
-// This reuse does not work.
 // static uint8_t *sCr_encoded_response_buffer = sCr_uncoded_response_buffer;
 static size_t  sCr_encoded_response_size = 0;
 
@@ -107,7 +107,7 @@ static bool sCR_error_reported = false;
 static int handle_coded_prompt();
 
 static int 
-handle_message(const cr_ReachMessageHeader *hdr, uint8_t *data, size_t size);
+handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *data, size_t size);
 
 static int handle_ping(const cr_PingRequest *, cr_PingResponse *);
 
@@ -164,7 +164,8 @@ static int handle_cli_notification(const cr_CLIData *request, cr_CLIData *);
 // The caller must populate the header
 static
 int cr_encode_message(cr_ReachMessageTypes message_type,        // in
-                      const void *payload);                     // in:  to be encoded
+                      const void *payload,                      // in:  to be encoded
+                      cr_ReachMessageHeader *hdr);              // in
 
 // Internal encode functions, to be deprecated.  Use cr_encode_message.
 static
@@ -206,7 +207,6 @@ int scr_check_timeout_watchdog(uint32_t ticks);
 static int handle_continued_transactions()
 {
     int rval = 0;
-    uint8_t *uncoded = sCr_uncoded_message_structure.payload.bytes;
 
     if (sCr_continued_message_type == cr_ReachMessageTypes_INVALID)
     {
@@ -221,21 +221,21 @@ static int handle_continued_transactions()
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dp.", __FUNCTION__);
         rval = 
             handle_discover_parameters(NULL, 
-                                       (cr_ParameterInfoResponse *)uncoded);
+                                       (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dpx.", __FUNCTION__);
         rval = 
             handle_discover_parameters_ex(NULL, 
-                                       (cr_ParamExInfoResponse *)uncoded);
+                                       (cr_ParamExInfoResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_READ_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
-        rval = handle_read_param(NULL, (cr_ParameterReadResult *)uncoded);
+        rval = handle_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_TRANSFER_DATA:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
-        rval = handle_transfer_data_notification(NULL, (cr_FileTransferData *)uncoded);
+        rval = handle_transfer_data_notification(NULL, (cr_FileTransferData *)sCr_uncoded_response_buffer);
         encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
     default:
@@ -247,15 +247,16 @@ static int handle_continued_transactions()
     if (rval != 0)
         return rval;
 
-    cr_ReachMessageHeader *pmsg_header = &sCr_uncoded_message_structure.header;
-    pmsg_header->message_type      = encode_message_type;
-    pmsg_header->endpoint_id       = 0;
-    pmsg_header->number_of_objects = sCr_num_continued_objects;
-    pmsg_header->remaining_objects = sCr_num_remaining_objects;
-    pmsg_header->transaction_id    = sCr_transaction_id;
-    sCr_uncoded_message_structure.has_header = true;
-
-    rval = cr_encode_message(encode_message_type, uncoded);
+    cr_ReachMessageHeader msg_header;
+    memset(&msg_header, 0, sizeof(msg_header));
+    msg_header.message_type      = encode_message_type;
+    msg_header.endpoint_id       = 0;
+    msg_header.number_of_objects = sCr_num_continued_objects;
+    msg_header.remaining_objects = sCr_num_remaining_objects;
+    msg_header.transaction_id    = sCr_transaction_id;
+    rval = cr_encode_message(encode_message_type,          // in
+                             sCr_uncoded_response_buffer,  // in:  to be encoded
+                             &msg_header);
 
     if (sCr_num_remaining_objects == 0)
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -430,9 +431,30 @@ void cr_report_error(int error_code, const char *fmt, ...)
     va_end(args);
     // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
 
+  #define ASYNC_ERROR_NOTIFCATION
+  #ifdef ASYNC_ERROR_NOTIFCATION
     crcb_notify_error(err);
     i3_log(LOG_MASK_WARN, "Logged Error report:");
     i3_log(LOG_MASK_ERROR, "%s", err->result_string);
+  #else
+    cr_ReachMessageHeader msg_header;
+    msg_header.message_type      = cr_ReachMessageTypes_ERROR_REPORT;
+    msg_header.number_of_objects = 0;
+    msg_header.remaining_objects = 0;
+    msg_header.transaction_id    = 0;
+    int rval = cr_encode_message(cr_ReachMessageTypes_ERROR_REPORT, // in
+                                 sCr_uncoded_response_buffer,       // in:  to be encoded
+                                 &msg_header);                      // in
+    if (0 != rval)
+    {
+        i3_log(LOG_MASK_ERROR, "Error Encoding an error report:\r\n"
+                               "%s", err->result_string);
+        return;
+    }
+    i3_log(LOG_MASK_WARN, "Logged Error report:");
+    i3_log(LOG_MASK_ERROR, "%s", err->result_string);
+    sCR_error_reported = true;
+  #endif
 }
 
 // 
@@ -470,7 +492,7 @@ static int handle_coded_prompt()
 }
 
 
-#define VERBOSE_SIZES
+// #define VERBOSE_SIZES
 static size_t sMaxBufferSize = 0;
 static int checkSize(size_t test, size_t limit, char *name)
 {
@@ -576,12 +598,10 @@ void cr_test_sizes()
   *   Finally the encoded payload is added to a message which is encoded.
   */
 static int
-handle_message(const cr_ReachMessageHeader *hdr, uint8_t *coded_data, size_t size)
+handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size_t size)
 {
-    // coded_data here is the buffer in the cr_ReachMessage structure.
     affirm(hdr);
     affirm(coded_data);
-    uint8_t *uncoded = sCr_uncoded_message_structure.payload.bytes;
 
     cr_ReachMessageTypes message_type = (cr_ReachMessageTypes)hdr->message_type;
     cr_ReachMessageTypes encode_message_type = message_type; // default 
@@ -603,49 +623,49 @@ handle_message(const cr_ReachMessageHeader *hdr, uint8_t *coded_data, size_t siz
     {
     case cr_ReachMessageTypes_PING:
         rval = handle_ping((cr_PingRequest *)sCr_decoded_prompt_buffer,
-                    (cr_PingResponse *)uncoded);
+                    (cr_PingResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_GET_DEVICE_INFO:
         rval = handle_get_device_info((cr_DeviceInfoRequest *)sCr_decoded_prompt_buffer,
-                               (cr_DeviceInfoResponse *)uncoded);
+                               (cr_DeviceInfoResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
         rval = handle_discover_parameters((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
-                                   (cr_ParameterInfoResponse *)uncoded);
+                                   (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
         rval = handle_discover_parameters_ex((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
-                                   (cr_ParamExInfoResponse *)uncoded);
+                                   (cr_ParamExInfoResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_READ_PARAMETERS:
         rval = handle_read_param((cr_ParameterRead *)sCr_decoded_prompt_buffer,
-                          (cr_ParameterReadResult *)uncoded);
+                          (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
 
         break;
 
     case cr_ReachMessageTypes_WRITE_PARAMETERS:
         rval = handle_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
-                           (cr_ParameterWriteResult *)uncoded);
+                           (cr_ParameterWriteResult *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_DISCOVER_FILES:
         rval = handle_discover_files((cr_DiscoverFiles *)sCr_decoded_prompt_buffer,
-                              (cr_DiscoverFilesReply *)uncoded);
+                              (cr_DiscoverFilesReply *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_INIT:
         rval = handle_transfer_init((cr_FileTransferInit *)sCr_decoded_prompt_buffer,
-                             (cr_FileTransferInitReply *)uncoded);
+                             (cr_FileTransferInitReply *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_DATA:
         // file write:
         rval = handle_transfer_data((cr_FileTransferData *)sCr_decoded_prompt_buffer,
-                             (cr_FileTransferDataNotification *)uncoded);
+                             (cr_FileTransferDataNotification *)sCr_uncoded_response_buffer);
         // returns cr_ErrorCodes_NO_RESPONSE and hence no error when no response is desired.
         // when zero is returned we need to ack with a notification.
         if (rval == cr_ErrorCodes_NO_ERROR)
@@ -657,7 +677,7 @@ handle_message(const cr_ReachMessageHeader *hdr, uint8_t *coded_data, size_t siz
         cr_FileTransferDataNotification *request = 
             (cr_FileTransferDataNotification *)sCr_decoded_prompt_buffer;
         rval = handle_transfer_data_notification(request,
-                                          (cr_FileTransferData *)uncoded);
+                                          (cr_FileTransferData *)sCr_uncoded_response_buffer);
         // for continuing transactions we need more data.
         if (!request->is_complete)
             encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
@@ -665,34 +685,34 @@ handle_message(const cr_ReachMessageHeader *hdr, uint8_t *coded_data, size_t siz
     }
     case cr_ReachMessageTypes_DISCOVER_STREAMS:
         // rval = handle_discover_streams( (cr_StreamsRequest *)sCr_decoded_prompt_buffer,
-        //                        (cr_StreamsResponse *)uncoded);
+        //                        (cr_StreamsResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_OPEN_STREAM:
         // rval = handle_open_stream( (cr_StreamsRequest *)sCr_decoded_prompt_buffer,
-        //                            (cr_StreamsResponse *)uncoded);
+        //                            (cr_StreamsResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_CLOSE_STREAM:
         // rval = handle_close_stream( (cr_StreamsRequest *)sCr_decoded_prompt_buffer,
-        //                            (cr_StreamsResponse *)uncoded);
+        //                            (cr_StreamsResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_STREAM_DATA_NOTIFICATION:
         // rval = handle_streams_notification( (cr_StreamsRequest *)sCr_decoded_prompt_buffer,
-        //                            (cr_StreamsResponse *)uncoded);
+        //                            (cr_StreamsResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_DISCOVER_COMMANDS:
         rval = handle_discover_commands((cr_DiscoverCommands *)sCr_decoded_prompt_buffer,
-                                 (cr_DiscoverCommandsResult *)uncoded);
+                                 (cr_DiscoverCommandsResult *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_SEND_COMMAND:
         rval = handle_send_command((cr_SendCommand *)sCr_decoded_prompt_buffer,
-                            (cr_SendCommandResult *)uncoded);
+                            (cr_SendCommandResult *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_CLI_NOTIFICATION:
         rval = handle_cli_notification((cr_CLIData *)sCr_decoded_prompt_buffer,
-                                 (cr_CLIData *)uncoded);
+                                 (cr_CLIData *)sCr_uncoded_response_buffer);
         break;
     default:
         cr_report_error(cr_ErrorCodes_NOT_IMPLEMENTED, "Unhandled message type %d.", message_type);
@@ -703,15 +723,14 @@ handle_message(const cr_ReachMessageHeader *hdr, uint8_t *coded_data, size_t siz
     if (rval != 0)
         return rval;
 
-    cr_ReachMessageHeader *pmsg_header = &sCr_uncoded_message_structure.header;
-    pmsg_header->message_type      = encode_message_type;
-    pmsg_header->endpoint_id       = 0;
-    pmsg_header->number_of_objects = sCr_num_continued_objects;
-    pmsg_header->remaining_objects = sCr_num_remaining_objects;
-    pmsg_header->transaction_id    = sCr_transaction_id;
-    sCr_uncoded_message_structure.has_header = true;
-
-    rval = cr_encode_message(encode_message_type, uncoded);
+    cr_ReachMessageHeader msg_header;
+    msg_header.message_type      = encode_message_type;
+    msg_header.number_of_objects = sCr_num_continued_objects;
+    msg_header.remaining_objects = sCr_num_remaining_objects;
+    msg_header.transaction_id    = sCr_transaction_id;
+    rval = cr_encode_message(encode_message_type,
+                             sCr_uncoded_response_buffer,
+                             &msg_header);
     if (rval != 0)
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "Reach encode failed (%d).", rval);
@@ -1175,8 +1194,7 @@ static int handle_read_param(const cr_ParameterRead *request,
             sCr_requested_param_read_count = 0;
             break;
         }
-        memcpy(&response->values[i], &paramVal, sizeof(cr_ParameterValue));
-        // response->values[i] = paramVal;
+        response->values[i] = paramVal;  // replace with memcpy to avoid alighnment issues
         sCr_requested_param_array[sCr_requested_param_index] = -1;
         sCr_requested_param_index++;
         sCr_num_remaining_objects--;
@@ -2018,21 +2036,27 @@ bool encode_reach_message(const cr_ReachMessage *message,   // in:  message to b
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
 static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
-                             const void *payload)                  // in:  to be encoded
+                             const void *payload,                  // in:  to be encoded
+                             cr_ReachMessageHeader *hdr)           // in
 {
     // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
     //        hdr->message_type, hdr->number_of_objects, hdr->remaining_objects, hdr->transaction_id);
 
     if (!encode_reach_payload(message_type, payload,
-                              sCr_uncoded_message_structure.payload.bytes,
-                              REACH_MESSAGE_PAYLOAD_MAX,
+                              sCr_encoded_payload_buffer,
+                              sizeof(sCr_encoded_payload_buffer),
                               &sCr_encoded_payload_size))
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
 
-    // the message envelope was built by the caller.
+    // build the message envelope
+    sCr_uncoded_message_structure.header     = *hdr;
+    sCr_uncoded_message_structure.has_header = true;
+    memcpy(sCr_uncoded_message_structure.payload.bytes,
+           sCr_encoded_payload_buffer,
+           sCr_encoded_payload_size);
     sCr_uncoded_message_structure.payload.size = sCr_encoded_payload_size;  
 
     I3_LOG(LOG_MASK_REACH, "%s(): type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
