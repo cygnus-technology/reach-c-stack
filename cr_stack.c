@@ -78,7 +78,6 @@ static size_t sCr_encoded_payload_size;
 
 // The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
-// static uint8_t *sCr_encoded_response_buffer = sCr_uncoded_response_buffer;
 static size_t  sCr_encoded_response_size = 0;
 
 //----------------------------------------------------------------------------

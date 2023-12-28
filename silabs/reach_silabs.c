@@ -130,6 +130,7 @@ int crcb_cli_enter(const char *ins)
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  rcli: Remote CLI <on|off>");
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  phy : phy <1|2> BLE PHY 1M or 2M");
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  nvm : nvm <?|clear|init>");
+        i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  sn  : read or set serial number in NVM. sn <?|clear|N>");
         i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI ">");
         return 0;
     }
