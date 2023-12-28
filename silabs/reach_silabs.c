@@ -340,7 +340,9 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         I3_LOG(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X",
                sysId[0], sysId[1], sysId[2], sysId[5], sysId[6], sysId[7]);
 
-
+        // Give the device a unique name:
+        // gattdb_attribute_field_10 holds the device name.
+        // Check advertise in the generic access service to enable the long name.
         memset(gattdb_attribute_field_10.data, 0, gattdb_attribute_field_10.max_len);
         unsigned int sn = 0;
         int rval = rsl_read_serial_number(&sn);
