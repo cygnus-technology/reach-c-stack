@@ -464,6 +464,6 @@ static const sl_cli_command_group_t main_group =
 void
 init_cygnus_cli ()
 {
-  sl_cli_command_add_command_group (sl_cli_cli_handle, &main_group);
+  sl_cli_command_add_command_group (sl_cli_inst_handle, &main_group);
 }
 
