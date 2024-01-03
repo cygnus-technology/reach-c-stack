@@ -384,6 +384,7 @@ int cr_process(uint32_t ticks)
                         "lay rotting on the slimy thoroughfare, "
                         "Fleas the size of rats sucked on rats the size of cats "
                         "and ten thousand peoploids split into small tribes...\n");
+        // Credit to David Bowie for the text...
         crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
         return 0;
     }
