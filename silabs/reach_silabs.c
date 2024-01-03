@@ -313,6 +313,30 @@ const char *rsl_get_advertised_name()
     return (char*)(gattdb_attribute_field_10.data);
 }
 
+int rsl_set_advertised_name(unsigned int sn)
+{
+    // Give the device a unique name:
+    // gattdb_attribute_field_10 holds the device name.
+    // Check advertise in the generic access service to enable the long name.
+    memset(gattdb_attribute_field_10.data, 0, gattdb_attribute_field_10.max_len);
+    int rval = rsl_read_serial_number(&sn);
+    if (rval != 0) {
+        // SN not set. 
+        rsl_write_serial_number (sn);
+        i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Serial number not previously set.  Written as %u (%x:%x)", 
+               sn, sn >> 8, sn & 0xFF);
+    }
+    gattdb_attribute_field_10.len =
+            snprintf((char*)(gattdb_attribute_field_10.data),
+                     gattdb_attribute_field_10.max_len,
+                     "Reacher SN-%u", sn);
+
+    i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Advertise non-extended name %s, len %d of max %d", 
+           gattdb_attribute_field_10.data, 
+           gattdb_attribute_field_10.len, 
+           gattdb_attribute_field_10.max_len);
+}
+
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
@@ -365,28 +389,8 @@ void rsl_bt_on_event(sl_bt_msg_t *evt)
         I3_LOG(LOG_MASK_BLE, "BLE system ID %02X:%02X:%02X:%02X:%02X:%02X",
                sysId[0], sysId[1], sysId[2], sysId[5], sysId[6], sysId[7]);
 
-        // Give the device a unique name:
-        // gattdb_attribute_field_10 holds the device name.
-        // Check advertise in the generic access service to enable the long name.
-        memset(gattdb_attribute_field_10.data, 0, gattdb_attribute_field_10.max_len);
-        unsigned int sn = 0;
-        int rval = rsl_read_serial_number(&sn);
-        if (rval != 0) {
-            gattdb_attribute_field_10.len =
-                snprintf((char*)(gattdb_attribute_field_10.data),
-                         gattdb_attribute_field_10.max_len,
-                         "Reacher %02X:%02X:%02X", sysId[5], sysId[6], sysId[7]);
-        }
-        else {
-            gattdb_attribute_field_10.len =
-                snprintf((char*)(gattdb_attribute_field_10.data),
-                         gattdb_attribute_field_10.max_len,
-                         "Reacher SN-%u", sn);
-        }
-        i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Advertise non-extended name %s, len %d of %d", 
-               gattdb_attribute_field_10.data, 
-               gattdb_attribute_field_10.len, 
-               gattdb_attribute_field_10.max_len);
+        // the sysId becomes the default serial number if not otherwise set.
+        rsl_set_advertised_name((sysId[6]<<8) + sysId[7]);
 
         sc = sl_bt_advertiser_create_set(&advertising_set_handle);
         app_assert_status(sc);
@@ -638,11 +642,11 @@ int rsl_read_serial_number(unsigned int *sn)
 
     nvm3_getObjectInfo(nvm3_defaultHandle, REACH_SN_KEY, &objectType, &dataLen);
     if (objectType != NVM3_OBJECTTYPE_DATA) {
-        i3_log(LOG_MASK_WARN, "NVM object type of SN key 0x%x failed, SN not read.", REACH_SN_KEY);
+        i3_log(LOG_MASK_WARN, "Serial number key 0x%x not found in NVM.", REACH_SN_KEY);
         return -1;
     }
     if (dataLen != sizeof(unsigned int)) {
-        i3_log(LOG_MASK_WARN, "dataLen of SN is %d, not %d.", dataLen, sizeof(unsigned int));
+        i3_log(LOG_MASK_WARN, "Serial number key has wrong size, %d, not %d.", dataLen, sizeof(unsigned int));
     }
     eCode = nvm3_readData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t *)sn, sizeof(unsigned int));
     if (ECODE_NVM3_OK != eCode) {
@@ -651,6 +655,11 @@ int rsl_read_serial_number(unsigned int *sn)
         return -2;
     }
     return 0;
+}
 
+int rsl_write_serial_number(unsigned int sn)
+{
+    nvm3_writeData(nvm3_defaultHandle, REACH_SN_KEY, (uint8_t *)&sn, sizeof(unsigned int));
+    return 0;
 }
 
