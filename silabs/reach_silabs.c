@@ -335,6 +335,7 @@ int rsl_set_advertised_name(unsigned int sn)
            gattdb_attribute_field_10.data, 
            gattdb_attribute_field_10.len, 
            gattdb_attribute_field_10.max_len);
+    return 0;
 }
 
 
