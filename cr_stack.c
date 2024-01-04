@@ -1831,7 +1831,7 @@ static int handle_cli_notification(const cr_CLIData *request,
                                     cr_CLIData *response)
 {
     (void)response;
-    i3_log(LOG_MASK_ALWAYS, "Remote command:");
+    i3_log(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
     crcb_cli_enter(request->message_data);
     return cr_ErrorCodes_NO_RESPONSE;
 }
