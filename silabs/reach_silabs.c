@@ -295,6 +295,8 @@ void rsl_app_init(void)
     CMU_ClockEnable(cmuClock_RTCC, true);
     
     rsl_init();
+
+    cr_init();
 }
 
 /**************************************************************************//**

@@ -236,6 +236,8 @@ void scr_end_timeout_watchdog();
 int scr_check_timeout_watchdog(uint32_t ticks);
 
 
+static void sCr_handle_notification(void);
+
 
 
 static int handle_continued_transactions()
@@ -334,7 +336,7 @@ static bool challenge_key_is_valid(void)
 
 int cr_init() 
 {
-  #define TEST_NOTIFICATION
+  // #define TEST_NOTIFICATION
   #ifdef TEST_NOTIFICATION
     // Test notification
     sCr_param_notify_list[0].parameter_id = 69;  // [11]
@@ -429,6 +431,10 @@ int cr_process(uint32_t ticks)
         if (rval == cr_ErrorCodes_NO_DATA)
         {
             sCr_encoded_message_size = 0;
+
+            // check notifications when nothing else is happening.
+            sCr_handle_notification();
+
             return cr_ErrorCodes_NO_DATA;
         }
 
@@ -452,6 +458,16 @@ int cr_process(uint32_t ticks)
     }
     crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
 
+    return cr_ErrorCodes_NO_ERROR;
+}
+
+uint32_t cr_get_current_ticks()
+{
+    return sCurrentTicks;
+}
+
+static void sCr_handle_notification()
+{
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     for (int idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ )
     {
@@ -462,7 +478,7 @@ int cr_process(uint32_t ticks)
         float delta;
         bool needToNotify = false;
         bool checkedDelta = false;
-        uint32_t  timeSinceLastNotify = ticks - sCr_last_param_values[idx].timestamp;
+        uint32_t  timeSinceLastNotify = sCurrentTicks - sCr_last_param_values[idx].timestamp;
 
         if (timeSinceLastNotify < sCr_param_notify_list[idx].minimum_notification_period)
             continue;
@@ -540,16 +556,10 @@ int cr_process(uint32_t ticks)
 
             // save it for next time
             sCr_last_param_values[idx] = curVal;
+            sCr_last_param_values[idx].timestamp = sCurrentTicks;
         }
     }
   #endif  // NUM_SUPPORTED_PARAM_NOTIFY != 0
-
-    return cr_ErrorCodes_NO_ERROR;
-}
-
-uint32_t cr_get_current_ticks()
-{
-    return sCurrentTicks;
 }
 
 
