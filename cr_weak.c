@@ -276,12 +276,16 @@ uint32_t __attribute__((weak)) crcb_compute_parameter_hash(void)
     return 0;
 }
 
-
+#if NUM_SUPPORTED_PARAM_NOTIFY >= 0
 // parameter notifications are handled by the Reach stack.
 // The stack will use the read parameters to be notified on an appropriate
 // timescale and send notifications if enough changes.
-// We're considering using a feature of the parameter repository for notifications.
-                                                       
+int __attribute__((weak)) crcb_notify_param(cr_ParameterValue *param)
+{
+    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+    return 0;
+}
+#endif // NUM_SUPPORTED_PARAM_NOTIFY >= 0
 
 //*************************************************************************
 //  Command Service

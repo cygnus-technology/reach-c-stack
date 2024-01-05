@@ -121,6 +121,13 @@ static uint8_t sCr_requested_param_read_count = 0;
 
 static bool sCR_error_reported = false;
 
+#if NUM_SUPPORTED_PARAM_NOTIFY != 0
+  // check these params for notification
+  static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
+  // storage of the previous value
+  static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
+#endif
+
 
 //----------------------------------------------------------------------------
 // static (private) "member" functions
@@ -148,9 +155,10 @@ static int handle_read_param(const cr_ParameterRead *,
                              cr_ParameterReadResult *);
 static int handle_write_param(const cr_ParameterWrite *, 
                               cr_ParameterWriteResult *);
+#if NUM_SUPPORTED_PARAM_NOTIFY != 0
 static int handle_config_param_notify(const cr_ParameterNotifyConfig *,
                                       cr_ParameterNotifyConfigResult *);
-
+#endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
 
 // Files
 static int handle_discover_files(const cr_DiscoverFiles *,
@@ -326,7 +334,21 @@ static bool challenge_key_is_valid(void)
 
 int cr_init() 
 {
-  return cr_ErrorCodes_NO_ERROR;
+  #define TEST_NOTIFICATION
+  #ifdef TEST_NOTIFICATION
+    // Test notification
+    sCr_param_notify_list[0].parameter_id = 69;  // [11]
+    sCr_param_notify_list[0].enabled = true;
+    sCr_param_notify_list[0].minimum_notification_period = 1000;
+    sCr_param_notify_list[0].maximum_notification_period = 100000;
+    sCr_param_notify_list[0].minimum_delta = 5.0;
+    sCr_last_param_values[0].parameter_id = 69;
+    sCr_last_param_values[0].timestamp = 0;
+    sCr_last_param_values[0].which_value = cr_ParameterDataType_INT32;
+    sCr_last_param_values[0].value.sint32_value = 1;
+  #endif  // def TEST_NOTIFICATION
+
+    return cr_ErrorCodes_NO_ERROR;
 }
 
 // allows the application to store the prompt where the Reach stack can see it.
@@ -430,7 +452,97 @@ int cr_process(uint32_t ticks)
     }
     crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
 
-    // use ticks to decide whether to notify.
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    for (int idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ )
+    {
+        if (!sCr_param_notify_list[idx].enabled)
+            continue;
+
+        cr_ParameterValue curVal;
+        float delta;
+        bool needToNotify = false;
+        bool checkedDelta = false;
+        uint32_t  timeSinceLastNotify = ticks - sCr_last_param_values[idx].timestamp;
+
+        if (timeSinceLastNotify < sCr_param_notify_list[idx].minimum_notification_period)
+            continue;
+
+        if (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period)
+            needToNotify = true;
+
+        crcb_parameter_read(sCr_param_notify_list[idx].parameter_id, &curVal);
+        switch (curVal.which_value) {
+        case cr_ParameterDataType_UINT32:
+        case cr_ParameterDataType_ENUMERATION:
+        case cr_ParameterDataType_BIT_FIELD:
+            delta = abs(curVal.value.uint32_value - sCr_last_param_values[idx].value.uint32_value);
+            checkedDelta = true;
+            break;
+        case cr_ParameterDataType_INT32:
+            delta = abs(curVal.value.sint32_value - sCr_last_param_values[idx].value.sint32_value);
+            checkedDelta = true;
+            break;
+        case cr_ParameterDataType_FLOAT32:
+            delta = fabs(curVal.value.float32_value - sCr_last_param_values[idx].value.float32_value);
+            checkedDelta = true;
+            break;
+        case cr_ParameterDataType_UINT64:
+            delta = abs(curVal.value.uint64_value - sCr_last_param_values[idx].value.uint64_value);
+            checkedDelta = true;
+            break;
+        case cr_ParameterDataType_INT64:
+            delta = abs(curVal.value.sint64_value - sCr_last_param_values[idx].value.sint64_value);
+            checkedDelta = true;
+            break;
+        case cr_ParameterDataType_FLOAT64:
+            delta = fabs(curVal.value.float64_value - sCr_last_param_values[idx].value.float64_value);
+            checkedDelta = true;
+            break;
+        case cr_ParameterDataType_BOOL:
+            delta = abs(curVal.value.bool_value - sCr_last_param_values[idx].value.bool_value);
+            checkedDelta = true;
+            break;
+        case cr_ParameterDataType_STRING:
+        case cr_ParameterDataType_BYTE_ARRAY:
+        default:
+            checkedDelta = false;
+            break;
+        }
+        if (checkedDelta && (delta > sCr_param_notify_list[idx].minimum_delta))
+        {
+            i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on delta %.1f" TEXT_RESET,
+                   sCr_param_notify_list[idx].parameter_id, delta);
+            needToNotify = true;
+        }
+
+        if (curVal.which_value == cr_ParameterDataType_STRING) {
+            if (strncmp(curVal.value.string_value, sCr_last_param_values[idx].value.string_value, REACH_PVAL_STRING_LEN))
+                needToNotify = true;
+        }
+        if (curVal.which_value == cr_ParameterDataType_BYTE_ARRAY) {
+            if (memcmp(curVal.value.bytes_value.bytes, 
+                       sCr_last_param_values[idx].value.bytes_value.bytes, 
+                       curVal.value.bytes_value.size))
+                needToNotify = true;
+        }
+
+        if ((sCr_param_notify_list[idx].maximum_notification_period !=0) &&
+            (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period) )
+        {
+            i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on max period" TEXT_RESET,
+                   sCr_param_notify_list[idx].parameter_id);
+            needToNotify = true;
+        }
+
+        if (needToNotify)
+        {
+            crcb_notify_param(&curVal);
+
+            // save it for next time
+            sCr_last_param_values[idx] = curVal;
+        }
+    }
+  #endif  // NUM_SUPPORTED_PARAM_NOTIFY != 0
 
     return cr_ErrorCodes_NO_ERROR;
 }
@@ -678,11 +790,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                            (cr_ParameterWriteResult *)sCr_uncoded_response_buffer);
         break;
 
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
         rval = handle_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
                            (cr_ParameterNotifyConfigResult *)sCr_uncoded_response_buffer);
         break;
-
+  #endif
     case cr_ReachMessageTypes_DISCOVER_FILES:
         rval = handle_discover_files((cr_DiscoverFiles *)sCr_decoded_prompt_buffer,
                               (cr_DiscoverFilesReply *)sCr_uncoded_response_buffer);
@@ -1292,13 +1405,62 @@ static int handle_write_param(const cr_ParameterWrite *request,
     return 0;
 }
 
+#if NUM_SUPPORTED_PARAM_NOTIFY != 0
+
+static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
+
 static int handle_config_param_notify(const cr_ParameterNotifyConfig *pnc,
                                       cr_ParameterNotifyConfigResult *pncr)
 {
-    // TBI
-    return 0;
-}
+    int idx;
 
+    if (!pnc->enabled) {
+        // try to disable.
+        for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
+            if (pnc->parameter_id == sCr_param_notify_list[idx].parameter_id)
+            {
+                sCr_param_notify_list[idx].enabled = false;
+                i3_log(LOG_MASK_PARAMS, "Disabled notification on PID %d", pnc->parameter_id);
+                pncr->result = cr_ErrorCodes_NO_ERROR;
+                return cr_ErrorCodes_NO_ERROR;
+            }
+        }
+        if (idx >= NUM_SUPPORTED_PARAM_NOTIFY) {
+            // No match enabled
+            pncr->result = cr_ErrorCodes_NO_ERROR;
+            i3_log(LOG_MASK_WARN, "Requested disable of notify on %d, but not enabled.", 
+                   pnc->parameter_id);
+        }
+        return cr_ErrorCodes_NO_ERROR;
+    }
+
+    // reject enable on non-existing PID's.
+    int rval = crcb_parameter_discover_reset(pnc->parameter_id);
+    if (rval != cr_ErrorCodes_NO_ERROR) {
+        cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Notificaiton: PID %d not found.", 
+                        pnc->parameter_id);
+        pncr->result = cr_ErrorCodes_INVALID_PARAMETER;
+        return cr_ErrorCodes_INVALID_PARAMETER;
+    }
+
+    // Find an open entry
+    for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
+        if (!sCr_param_notify_list[idx].enabled)
+            break;
+    }
+    if (idx >= NUM_SUPPORTED_PARAM_NOTIFY) {
+        // All notifications are in use.  
+        pncr->result = cr_ErrorCodes_NO_RESOURCE;
+        cr_report_error(cr_ErrorCodes_NO_RESOURCE, "No notificaiton slot available for PID %d.", pnc->parameter_id);
+        return cr_ErrorCodes_NO_RESOURCE;
+    }
+    sCr_param_notify_list[idx] = *pnc;
+    // store the index of the param with this PID.
+    i3_log(LOG_MASK_PARAMS, "Enabled notification on PID %d", pnc->parameter_id);
+    pncr->result = cr_ErrorCodes_NO_ERROR;
+    return cr_ErrorCodes_NO_ERROR;
+}
+#endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
 
 static int handle_discover_files(const cr_DiscoverFiles *request,
                                      cr_DiscoverFilesReply *response) 
@@ -1947,6 +2109,18 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
           LOG_ERROR("pb_encode() failed for write params.");
       }
       break;
+
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+  case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
+      status = pb_encode(&os_stream, cr_ParameterNotifyConfigResult_fields, data);
+      if (status) {
+        *encode_size = os_stream.bytes_written;
+        LOG_REACH("parameter notify config response: \n%s\n",
+                  message_util_write_param_response_json(
+                      (cr_ParameterNotifyConfigResult *)data));
+      }
+  #endif
+
   case cr_ReachMessageTypes_GET_DEVICE_INFO:
       status = pb_encode(&os_stream, cr_DeviceInfoResponse_fields, data);
       if (status) {

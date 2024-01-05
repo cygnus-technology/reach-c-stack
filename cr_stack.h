@@ -238,7 +238,7 @@ uint32_t crcb_compute_parameter_hash(void);
 // parameter notifications are handled by the Reach stack.
 // The stack will use the read parameters to be notified on an appropriate
 // timescale and send notifications if enough changes.
-// We're considering using a feature of the parameter repository for notifications.
+int crcb_notify_param(cr_ParameterValue *param);
                                                        
 
 //*************************************************************************
