@@ -488,38 +488,39 @@ static void sCr_handle_notification()
 
         crcb_parameter_read(sCr_param_notify_list[idx].parameter_id, &curVal);
         switch (curVal.which_value) {
-        case cr_ParameterDataType_UINT32:
-        case cr_ParameterDataType_ENUMERATION:
-        case cr_ParameterDataType_BIT_FIELD:
+        // To match the apps and protobufs, must use _value_tags!
+        case cr_ParameterValue_uint32_value_tag:
+        case cr_ParameterValue_enum_value_tag:
+        case cr_ParameterValue_bitfield_value_tag:
             delta = abs(curVal.value.uint32_value - sCr_last_param_values[idx].value.uint32_value);
             checkedDelta = true;
             break;
-        case cr_ParameterDataType_INT32:
+        case cr_ParameterValue_sint32_value_tag:
             delta = abs(curVal.value.sint32_value - sCr_last_param_values[idx].value.sint32_value);
             checkedDelta = true;
             break;
-        case cr_ParameterDataType_FLOAT32:
+        case cr_ParameterValue_float32_value_tag:
             delta = fabs(curVal.value.float32_value - sCr_last_param_values[idx].value.float32_value);
             checkedDelta = true;
             break;
-        case cr_ParameterDataType_UINT64:
+        case cr_ParameterValue_uint64_value_tag:
             delta = abs(curVal.value.uint64_value - sCr_last_param_values[idx].value.uint64_value);
             checkedDelta = true;
             break;
-        case cr_ParameterDataType_INT64:
+        case cr_ParameterValue_sint64_value_tag:
             delta = abs(curVal.value.sint64_value - sCr_last_param_values[idx].value.sint64_value);
             checkedDelta = true;
             break;
-        case cr_ParameterDataType_FLOAT64:
+        case cr_ParameterValue_float64_value_tag:
             delta = fabs(curVal.value.float64_value - sCr_last_param_values[idx].value.float64_value);
             checkedDelta = true;
             break;
-        case cr_ParameterDataType_BOOL:
+        case cr_ParameterValue_bool_value_tag:
             delta = abs(curVal.value.bool_value - sCr_last_param_values[idx].value.bool_value);
             checkedDelta = true;
             break;
-        case cr_ParameterDataType_STRING:
-        case cr_ParameterDataType_BYTE_ARRAY:
+        case cr_ParameterValue_string_value_tag:
+        case cr_ParameterValue_bytes_value_tag:
         default:
             checkedDelta = false;
             break;
@@ -531,11 +532,11 @@ static void sCr_handle_notification()
             needToNotify = true;
         }
 
-        if (curVal.which_value == cr_ParameterDataType_STRING) {
+        if (curVal.which_value == cr_ParameterValue_string_value_tag) {
             if (strncmp(curVal.value.string_value, sCr_last_param_values[idx].value.string_value, REACH_PVAL_STRING_LEN))
                 needToNotify = true;
         }
-        if (curVal.which_value == cr_ParameterDataType_BYTE_ARRAY) {
+        if (curVal.which_value == cr_ParameterValue_bytes_value_tag) {
             if (memcmp(curVal.value.bytes_value.bytes, 
                        sCr_last_param_values[idx].value.bytes_value.bytes, 
                        curVal.value.bytes_value.size))

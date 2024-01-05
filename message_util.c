@@ -617,6 +617,8 @@ message_util_read_param_response_json(const cr_ParameterReadResult *response) {
                               response->values[i].parameter_id);
 
       char typeStr[16];
+      // To match the apps and protobufs, must use _value_tags!
+      // That's why the -3 here.
       sprintf(typeStr, "value (%d)", response->values[i].which_value-3);
 
       switch (response->values[i].which_value)
