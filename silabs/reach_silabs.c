@@ -117,7 +117,7 @@ void rsl_init()
     i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! (c) 2023 i3 Product Design, All Rights Reserved");
     i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Built %s, %s. Version %d.%d.%d", 
            __DATE__, __TIME__, MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION);
-  #ifdef ENABLE_REMOTE_CLI
+  #ifdef INCLUDE_CLI_SERVICE
     i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Remote CLI support built in.");
   #else
     i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "!!! Remote CLI support EXCLUDED from the build.");
@@ -133,6 +133,7 @@ void rsl_init()
     i3_log(LOG_MASK_ALWAYS, "Enter 'help' to see available commands.");
 }
 
+#ifdef INCLUDE_CLI_SERVICE
 // This CLI handler for remote access mirrors that found in silabs_cli.c for local access.
 // It calls the same functions but uses a different parser.
 int crcb_cli_enter(const char *ins)
@@ -167,8 +168,10 @@ int crcb_cli_enter(const char *ins)
         slash(NULL);
     else if (!strncmp("lm", ins, 2))
         cli_lm(NULL);
+  #ifdef INCLUDE_CLI_SERVICE
     else if (!strncmp("rcli", ins, 4))
         cli_rcli(NULL);
+  #endif  // def INCLUDE_CLI_SERVICE
     else if (!strncmp("phy", ins, 3))
         cli_phy(NULL);
     else if (!strncmp("nvm", ins, 3))
@@ -182,6 +185,7 @@ int crcb_cli_enter(const char *ins)
     i3_log(LOG_MASK_ALWAYS | LOG_MASK_BARE, TEXT_CLI ">");
     return 0;
 }
+#endif // def INCLUDE_CLI_SERVICE
 
 int rsl_notify_client(uint8_t *data, size_t len)
 {

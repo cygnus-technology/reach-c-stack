@@ -77,7 +77,7 @@ void cli_lm(sl_cli_command_arg_t *args)
   sl_cli_command_arg_t *arguments;
   const char *argStr;
   uint32_t logMask = i3_log_get_mask();
-  int numRead;
+  int numRead = 0;
 
   if (args)
   {
@@ -85,11 +85,13 @@ void cli_lm(sl_cli_command_arg_t *args)
     argStr = sl_cli_get_argument_string(arguments, 0);
     numRead = sscanf(argStr, "%x", (unsigned int*)&logMask);
   }
+ #ifdef INCLUDE_CLI_SERVICE
   else
   {
       argStr = crcb_get_command_line();
       numRead = sscanf(argStr, "lm %x", (unsigned int*)&logMask);
   }
+ #endif // def INCLUDE_CLI_SERVICE
   if (numRead != 1)
   {
     i3_log(LOG_MASK_ALWAYS, "Log mask not commanded.");
@@ -129,13 +131,9 @@ void cli_lm(sl_cli_command_arg_t *args)
   i3_log(LOG_MASK_ALWAYS, "The log mask is set to  0x%x", logMask);
 }
 
+#ifdef INCLUDE_CLI_SERVICE
 void cli_rcli(sl_cli_command_arg_t *args)
 {
-   #ifndef ENABLE_REMOTE_CLI
-    (void*)arguments;
-    i3_log(LOG_MASK_ALWAYS, TEXT_CLI "rcli: Remote CLI is not enabled at compile time.");
-    return;
-  #else
     sl_cli_command_arg_t *arguments;
     const char *argStr;
     int enable = i3_log_get_remote_cli_enable();
@@ -176,9 +174,8 @@ void cli_rcli(sl_cli_command_arg_t *args)
     }
     i3_log(LOG_MASK_ALWAYS, TEXT_CLI "rcli: Disabled remote CLI echo.");
     i3_log_set_remote_cli_enable(false);
-  #endif
 }
-
+#endif // def INCLUDE_CLI_SERVICE
 
 // In recent tests the 1M Phy is faster than the 2M Phy.
 // Going faster probably requires more tuning.
@@ -186,21 +183,21 @@ char gPhy = 1;
 void cli_phy(sl_cli_command_arg_t *args)
 {
     sl_cli_command_arg_t *arguments;
-    const char *argStr;
     if (args)
     {
       arguments = (sl_cli_command_arg_t *)args;
-      argStr = sl_cli_get_argument_string(arguments, 0);
       gPhy = sl_cli_get_argument_uint32(arguments, 0);
     }
+  #ifdef INCLUDE_CLI_SERVICE
     else
     {
-        argStr = crcb_get_command_line();
+        const char *argStr = crcb_get_command_line();
         if (argStr[1] == '2') 
             gPhy = 2;
         else 
             gPhy = 1;
     }
+   #endif // def INCLUDE_CLI_SERVICE
 
     if (gPhy == 2)
         i3_log(LOG_MASK_ALWAYS, "Requesting 2M PHY");
@@ -228,6 +225,7 @@ void cli_nvm(sl_cli_command_arg_t *args)
     if (!strncmp(argStr, "init", 4))
       action = 2;
   }
+ #ifdef INCLUDE_CLI_SERVICE
   else
   {
       argStr = crcb_get_command_line();
@@ -236,6 +234,8 @@ void cli_nvm(sl_cli_command_arg_t *args)
       if (!strncmp(argStr, "nvm init", 8))
         action = 2;
   }
+ #endif  // def INCLUDE_CLI_SERVICE
+
   if (action == 1)
   {
       Ecode_t eCode = nvm3_eraseAll(nvm3_defaultHandle);
@@ -321,6 +321,8 @@ void cli_sn(sl_cli_command_arg_t *args)
               action = 2;
       }
     }
+
+  #ifdef INCLUDE_CLI_SERVICE
     else
     {
         argStr = crcb_get_command_line();
@@ -340,6 +342,8 @@ void cli_sn(sl_cli_command_arg_t *args)
                 action = 2;
         }
     }
+  #endif  // def INCLUDE_CLI_SERVICE
+ 
     switch (action) {
     default:
     case 0:  // read and display
@@ -406,13 +410,14 @@ SL_CLI_COMMAND(
     "log mask, hex number",
     { SL_CLI_ARG_STRING, SL_CLI_ARG_END });
 
+#ifdef INCLUDE_CLI_SERVICE
 static const sl_cli_command_info_t cmd__rcli =
 SL_CLI_COMMAND(
     cli_rcli,
     "Enable or disable remote CLI echo,",
     "1 or 0",
     { SL_CLI_ARG_STRING, SL_CLI_ARG_END });
-
+#endif  // def INCLUDE_CLI_SERVICE
 static const sl_cli_command_info_t cmd__phy =
 SL_CLI_COMMAND(
     cli_phy,
@@ -441,7 +446,9 @@ static const sl_cli_command_entry_t command_table[] = {
   { "ver",          &cmd__ver,                    false},
   { "/",            &cmd__slash,                  false},
   { "lm",           &cmd__lm,                     false},
+#ifdef INCLUDE_CLI_SERVICE
   { "rcli",         &cmd__rcli,                   false},
+#endif
   { "phy",          &cmd__phy,                    false},
   { "nvm",          &cmd__nvm,                    false},
   { "sn",           &cmd__sn,                     false},

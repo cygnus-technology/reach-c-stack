@@ -144,10 +144,12 @@ static int handle_discover_parameters(const cr_ParameterInfoRequest *,
 static int handle_discover_parameters_ex(const cr_ParameterInfoRequest *,
                                           cr_ParamExInfoResponse *);
 
-static int handle_read_param(const cr_ParameterRead *, cr_ParameterReadResult *);
-
-static int handle_write_param(const cr_ParameterWrite *,
-                                  cr_ParameterWriteResult *);
+static int handle_read_param(const cr_ParameterRead *, 
+                             cr_ParameterReadResult *);
+static int handle_write_param(const cr_ParameterWrite *, 
+                              cr_ParameterWriteResult *);
+static int handle_config_param_notify(const cr_ParameterNotifyConfig *,
+                                      cr_ParameterNotifyConfigResult *);
 
 
 // Files
@@ -179,8 +181,10 @@ static int handle_discover_commands(const cr_DiscoverCommands *,
 
 static int handle_send_command(const cr_SendCommand *, cr_SendCommandResult *);
 
+#ifdef INCLUDE_CLI_SERVICE
 // CLI
 static int handle_cli_notification(const cr_CLIData *request, cr_CLIData *);
+#endif // def INCLUDE_CLI_SERVICE
 
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
@@ -565,8 +569,8 @@ void cr_test_sizes()
     rval += checkSize(cr_ParameterInfoResponse_size, MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
     rval += checkSize(cr_ParameterInfo_size, MAX_BLE_SZ, "cr_ParameterInfo_size");
     rval += checkSize(cr_ParameterNotification_size, MAX_BLE_SZ, "cr_ParameterNotification_size");
-    rval += checkSize(cr_ParameterNotifyResult_size, MAX_BLE_SZ, "cr_ParameterNotifyResult_size");
-    rval += checkSize(cr_ParameterNotify_size, MAX_BLE_SZ, "cr_ParameterNotify_size");
+    rval += checkSize(cr_ParameterNotifyConfigResult_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResult_size");
+    rval += checkSize(cr_ParameterNotifyConfig_size, MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
     rval += checkSize(cr_ParameterReadResult_size, MAX_BLE_SZ, "cr_ParameterReadResult_size");
     rval += checkSize(cr_ParameterRead_size, MAX_BLE_SZ, "cr_ParameterRead_size");
     rval += checkSize(cr_ParameterValue_size, MAX_BLE_SZ, "cr_ParameterValue_size");
@@ -587,9 +591,9 @@ void cr_test_sizes()
     rval += checkSize(sizeof(cr_ErrorReport), MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
     rval += checkSize(sizeof(cr_ParameterReadResult), MAX_RAW_SZ, "sizeof(cr_ParameterReadResult)");
     rval += checkSize(sizeof(cr_ParameterWrite), MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
-    rval += checkSize(sizeof(cr_ParameterNotify), MAX_RAW_SZ, "sizeof(cr_ParameterNotify)");
+    rval += checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
     rval += checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
-    rval += checkSize(sizeof(cr_ParameterNotifyResult), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyResult)");
+    rval += checkSize(sizeof(cr_ParameterNotifyConfigResult), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfigResult)");
     rval += checkSize(sizeof(cr_ParameterValue), MAX_RAW_SZ, "sizeof(cr_ParameterValue)");
     rval += checkSize(sizeof(cr_CLIData), MAX_RAW_SZ, "sizeof(cr_CLI_Data)");
     rval += checkSize(sizeof(cr_ParameterRead), MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
@@ -667,12 +671,16 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     case cr_ReachMessageTypes_READ_PARAMETERS:
         rval = handle_read_param((cr_ParameterRead *)sCr_decoded_prompt_buffer,
                           (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
-
         break;
 
     case cr_ReachMessageTypes_WRITE_PARAMETERS:
         rval = handle_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
                            (cr_ParameterWriteResult *)sCr_uncoded_response_buffer);
+        break;
+
+    case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
+        rval = handle_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
+                           (cr_ParameterNotifyConfigResult *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_DISCOVER_FILES:
@@ -732,11 +740,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         rval = handle_send_command((cr_SendCommand *)sCr_decoded_prompt_buffer,
                             (cr_SendCommandResult *)sCr_uncoded_response_buffer);
         break;
-
+  #ifdef INCLUDE_CLI_SERVICE
     case cr_ReachMessageTypes_CLI_NOTIFICATION:
         rval = handle_cli_notification((cr_CLIData *)sCr_decoded_prompt_buffer,
                                  (cr_CLIData *)sCr_uncoded_response_buffer);
         break;
+  #endif // def INCLUDE_CLI_SERVICE
     default:
         cr_report_error(cr_ErrorCodes_NOT_IMPLEMENTED, "Unhandled message type %d.", message_type);
         LOG_ERROR("Unhandled message type %d.", message_type);
@@ -1283,6 +1292,14 @@ static int handle_write_param(const cr_ParameterWrite *request,
     return 0;
 }
 
+static int handle_config_param_notify(const cr_ParameterNotifyConfig *pnc,
+                                      cr_ParameterNotifyConfigResult *pncr)
+{
+    // TBI
+    return 0;
+}
+
+
 static int handle_discover_files(const cr_DiscoverFiles *request,
                                      cr_DiscoverFilesReply *response) 
 {
@@ -1823,7 +1840,7 @@ static int handle_send_command(const cr_SendCommand *request,
     return 0;
 }
 
-
+#ifdef INCLUDE_CLI_SERVICE
 //*************************************************************************
 //  CLI Service
 //*************************************************************************
@@ -1835,7 +1852,7 @@ static int handle_cli_notification(const cr_CLIData *request,
     crcb_cli_enter(request->message_data);
     return cr_ErrorCodes_NO_RESPONSE;
 }
-
+#endif // def INCLUDE_CLI_SERVICE
 
 
 
@@ -2015,16 +2032,16 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                       (cr_SendCommandResult *)data));
       }
       break;
+#ifdef INCLUDE_CLI_SERVICE
   case cr_ReachMessageTypes_CLI_NOTIFICATION:
       status = pb_encode(&os_stream, cr_CLIData_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-     #ifndef ENABLE_REMOTE_CLI
         LOG_REACH("CLI Notification response: \n%s\n",
                   message_util_cli_notification_json((cr_CLIData *)data));
-     #endif
       }
       break;
+#endif  // def INCLUDE_CLI_SERVICE
   default:
       LOG_ERROR("No encoder for %d", message_type);
       status = cr_ErrorCodes_NO_DATA;

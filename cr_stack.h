@@ -168,23 +168,25 @@ int crcb_device_get_info(cr_DeviceInfoResponse *pDi);
 //*************************************************************************
 int crcb_ping_get_signal_strength(int8_t *rssi);
 
-//*************************************************************************
-//  CLI Service
-//*************************************************************************
+#ifdef INCLUDE_CLI_SERVICE
+    //*************************************************************************
+    //  CLI Service
+    //*************************************************************************
 
-// When the CLI service is active, the stack can provide the device with 
-// remotely entered CLI input by calling crcb_cli_enter().
-int crcb_cli_enter(const char *cli);
+    // When the CLI service is active, the stack can provide the device with 
+    // remotely entered CLI input by calling crcb_cli_enter().
+    int crcb_cli_enter(const char *cli);
 
-// When the device supports a CLI it is expected to share anything printed 
-// to the CLI back to the stack for remote display using crcb_cli_respond()
-int crcb_cli_respond(char *cli);
+    // When the device supports a CLI it is expected to share anything printed 
+    // to the CLI back to the stack for remote display using crcb_cli_respond()
+    int crcb_cli_respond(char *cli);
 
-int crcb_notify_error(cr_ErrorReport *err);
+    int crcb_notify_error(cr_ErrorReport *err);
 
-// store the command line to be parsed elsewhere
-void crcb_set_command_line(const char *ins);
-const char *crcb_get_command_line();
+    // store the command line to be parsed elsewhere
+    void crcb_set_command_line(const char *ins);
+    const char *crcb_get_command_line();
+#endif // def INCLUDE_CLI_SERVICE
 
 //*************************************************************************
 //  Parameter Service

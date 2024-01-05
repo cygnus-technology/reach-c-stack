@@ -144,7 +144,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
 
-
+#ifdef INCLUDE_CLI_SERVICE
 //*************************************************************************
 //  CLI Service
 //*************************************************************************
@@ -179,7 +179,7 @@ const char *__attribute__((weak)) crcb_get_command_line()
 {
     return sSaveIns;
 }
-
+#endif  // def INCLUDE_CLI_SERVICE
 
 //*************************************************************************
 //  Parameter Service
