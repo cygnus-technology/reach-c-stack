@@ -156,4 +156,10 @@ char *message_util_write_param_response_json(const cr_ParameterWriteResult *);
 
 char *message_util_write_param_request_json(const cr_ParameterWrite *);
 
+#ifdef INCLUDE_TIME_SERVICE
+    // Time
+    char *message_util_time_set_response_json(const cr_TimeSetResult *payload);
+    char *message_util_time_get_response_json(const cr_TimeGetResult *payload);
+#endif // def INCLUDE_TIME_SERVICE
+
 #endif /* __MESSAGE_UTIL_H__ */

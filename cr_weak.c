@@ -181,322 +181,307 @@ const char *__attribute__((weak)) crcb_get_command_line()
 }
 #endif  // def INCLUDE_CLI_SERVICE
 
-//*************************************************************************
-//  Parameter Service
-//*************************************************************************
+#ifdef INCLUDE_PARAMETER_SERVICE
+    //*************************************************************************
+    //  Parameter Service
+    //*************************************************************************
 
-// Gets the parameter description for the next parameter.
-// Allows the stack to iterate through the parameter list.
-// Implies an order in the parameter list that is known by the application,
-// but not directly by the stack.  
-// Parameter ID's need not be continuous or in order.
-// The double pointer allows the app to provide a pointer to flash memory.
-// Returns zero if the description is valid.
-int __attribute__((weak)) crcb_parameter_discover_next(cr_ParameterInfo **desc)
-{
-    (void)desc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // Gets the parameter description for the next parameter.
+    // Allows the stack to iterate through the parameter list.
+    // Implies an order in the parameter list that is known by the application,
+    // but not directly by the stack.  
+    // Parameter ID's need not be continuous or in order.
+    // The double pointer allows the app to provide a pointer to flash memory.
+    // Returns zero if the description is valid.
+    int __attribute__((weak)) crcb_parameter_discover_next(cr_ParameterInfo **desc)
+    {
+        (void)desc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-// returns the number of parameters supported by the system.
-int __attribute__((weak)) crcb_parameter_get_count()
-{
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return 0;
-}
+    // returns the number of parameters supported by the system.
+    int __attribute__((weak)) crcb_parameter_get_count()
+    {
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
 
-// Resets the application's pointer into the parameter table such that 
-// the next call to crcb_parameter_discover_next() will return the
-// description of this parameter.
-int __attribute__((weak)) crcb_parameter_discover_reset(const uint32_t pid)
-{
-    (void)pid;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // Resets the application's pointer into the parameter table such that 
+    // the next call to crcb_parameter_discover_next() will return the
+    // description of this parameter.
+    int __attribute__((weak)) crcb_parameter_discover_reset(const uint32_t pid)
+    {
+        (void)pid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
+    // In parallel to the parameter discovery, use this to find out 
+    // about enumerations and bitfields
+    int __attribute__((weak)) crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
+    {
+        (void)pDesc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-// In parallel to the parameter discovery, use this to find out 
-// about enumerations and bitfields
-int __attribute__((weak)) crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
-{
-    (void)pDesc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // returns the number of extension parameters supported by the pid.
+    // a negative pid gets all.
+    int __attribute__((weak)) crcb_parameter_ex_get_count(const int32_t pid)
+    {
+        (void)pid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
 
-// returns the number of extension parameters supported by the pid.
-// a negative pid gets all.
-int __attribute__((weak)) crcb_parameter_ex_get_count(const int32_t pid)
-{
-    (void)pid;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return 0;
-}
+    // Resets the application's pointer into the parameter table such that 
+    // the next call to crcb_parameter_discover_next() will return the
+    // description of this parameter.
+    int __attribute__((weak)) crcb_parameter_ex_discover_reset(const int32_t pid)
+    {
+        (void)pid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-// Resets the application's pointer into the parameter table such that 
-// the next call to crcb_parameter_discover_next() will return the
-// description of this parameter.
-int __attribute__((weak)) crcb_parameter_ex_discover_reset(const int32_t pid)
-{
-    (void)pid;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // These read and write functions allow the stack to remotely access the
+    // parameter repository of the device.  The parameter descripion of this pid
+    // specifying the size and type of the data is known both by the app and the 
+    // stack.
+    // The data is copied into a structure provided by the app.
+    // Might return cr_ErrorCodes_READ_FAILED or cr_ErrorCodes_PERMISSION_DENIED
+    int __attribute__((weak)) crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
+    {
+        (void)pid;
+        (void)data;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
+    // Might return cr_ErrorCodes_WRITE_FAILED
+    int __attribute__((weak)) crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
+    {
+        (void)pid;
+        (void)data;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-// These read and write functions allow the stack to remotely access the
-// parameter repository of the device.  The parameter descripion of this pid
-// specifying the size and type of the data is known both by the app and the 
-// stack.
-// The data is copied into a structure provided by the app.
-// Might return cr_ErrorCodes_READ_FAILED or cr_ErrorCodes_PERMISSION_DENIED
-int __attribute__((weak)) crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
-{
-    (void)pid;
-    (void)data;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // return a number that changes if the parameter descriptions have changed.
+    uint32_t __attribute__((weak)) crcb_compute_parameter_hash(void)
+    {
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
 
-// Might return cr_ErrorCodes_WRITE_FAILED
-int __attribute__((weak)) crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
-{
-    (void)pid;
-    (void)data;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+  #if NUM_SUPPORTED_PARAM_NOTIFY >= 0
+    // parameter notifications are handled by the Reach stack.
+    // The stack will use the read parameters to be notified on an appropriate
+    // timescale and send notifications if enough changes.
+    int __attribute__((weak)) crcb_notify_param(cr_ParameterValue *param)
+    {
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
+  #endif // NUM_SUPPORTED_PARAM_NOTIFY >= 0
+#endif // INCLUDE_PARAMETER_SERVICE
 
-// return a number that changes if the parameter descriptions have changed.
-uint32_t __attribute__((weak)) crcb_compute_parameter_hash(void)
-{
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return 0;
-}
+#ifdef INCLUDE_COMMAND_SERVICE
+    //*************************************************************************
+    //  Command Service
+    //*************************************************************************
 
-#if NUM_SUPPORTED_PARAM_NOTIFY >= 0
-// parameter notifications are handled by the Reach stack.
-// The stack will use the read parameters to be notified on an appropriate
-// timescale and send notifications if enough changes.
-int __attribute__((weak)) crcb_notify_param(cr_ParameterValue *param)
-{
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return 0;
-}
-#endif // NUM_SUPPORTED_PARAM_NOTIFY >= 0
+    int __attribute__((weak)) crcb_file_get_command_count()
+    {
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
 
-//*************************************************************************
-//  Command Service
-//*************************************************************************
+    int __attribute__((weak)) crcb_command_discover_next(cr_CommandInfo *cmd_desc)
+    {
+        (void)cmd_desc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-int __attribute__((weak)) crcb_file_get_command_count()
-{
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return 0;
-}
+    int __attribute__((weak)) crcb_command_discover_reset(const uint32_t pid)
+    {
+        (void)pid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-int __attribute__((weak)) crcb_command_discover_next(cr_CommandInfo *cmd_desc)
-{
-    (void)cmd_desc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // actually execute the command
+    int __attribute__((weak)) crcb_command_execute(const uint8_t cid)
+    {
+        (void)cid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+#endif  // def INCLUDE_COMMAND_SERVICE
 
-int __attribute__((weak)) crcb_command_discover_reset(const uint32_t pid)
-{
-    (void)pid;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+#ifdef INCLUDE_FILES_SERVICE
+    //*************************************************************************
+    //  File Service
+    //*************************************************************************
+    int __attribute__((weak)) crcb_file_get_file_count()
+    {
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
 
-// actually execute the command
-int __attribute__((weak)) crcb_command_execute(const uint8_t cid)
-{
-    (void)cid;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    int __attribute__((weak)) crcb_file_discover_next(cr_FileInfo *file_desc)
+    {
+        (void)file_desc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-//*************************************************************************
-//  File Service
-//*************************************************************************
-int __attribute__((weak)) crcb_file_get_file_count()
-{
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return 0;
-}
+    int __attribute__((weak)) crcb_file_discover_reset(const uint8_t fid)
+    {
+        (void)fid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-int __attribute__((weak)) crcb_file_discover_next(cr_FileInfo *file_desc)
-{
-    (void)file_desc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    int __attribute__((weak)) crcb_file_get_description(uint32_t fid, 
+                                                      cr_FileInfo *file_desc)
+    {
+        (void)fid;
+        (void)file_desc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-int __attribute__((weak)) crcb_file_discover_reset(const uint8_t fid)
-{
-    (void)fid;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
-
-int __attribute__((weak)) crcb_file_get_description(uint32_t fid, 
-                                                  cr_FileInfo *file_desc)
-{
-    (void)fid;
-    (void)file_desc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
-
-// Could override the requested ack rate using this.
-// 0 does not override.
-int __attribute__((weak)) crcb_file_get_preferred_ack_rate(int is_write)
-{
-    (void)is_write;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return 0;
-}
-
-
-// Attempts to read the specified file.
-// returns zero or an error code
-int __attribute__((weak)) crcb_read_file(const uint32_t fid,            // which file
-                 const int offset,              // offset, negative value specifies current location.
-                 const size_t bytes_requested,  // how many bytes to read
-                 uint8_t *pData,                // where the data goes
-                 int *bytes_read)               // bytes actually read, negative for errors.
-{
-    (void)fid;
-    (void)offset;
-    (void)bytes_requested;
-    (void)pData,
-    (void)bytes_read;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // Could override the requested ack rate using this.
+    // 0 does not override.
+    int __attribute__((weak)) crcb_file_get_preferred_ack_rate(int is_write)
+    {
+        (void)is_write;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
 
 
-// returns zero or an error code
-int __attribute__((weak)) crcb_write_file(const uint32_t fid,   // which file
-                 const int offset,      // offset, negative value specifies current location.
-                 const size_t bytes,    // how many bytes to write
-                 const uint8_t *pData)  // where to get the data from
-{
-    (void)fid;
-    (void)offset;
-    (void)bytes;
-    (void)pData;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // Attempts to read the specified file.
+    // returns zero or an error code
+    int __attribute__((weak)) crcb_read_file(const uint32_t fid,            // which file
+                     const int offset,              // offset, negative value specifies current location.
+                     const size_t bytes_requested,  // how many bytes to read
+                     uint8_t *pData,                // where the data goes
+                     int *bytes_read)               // bytes actually read, negative for errors.
+    {
+        (void)fid;
+        (void)offset;
+        (void)bytes_requested;
+        (void)pData,
+        (void)bytes_read;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
 
-// returns zero or an error code
-int __attribute__((weak)) crcb_erase_file(const uint32_t fid)
-{
-    (void)fid;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // returns zero or an error code
+    int __attribute__((weak)) crcb_write_file(const uint32_t fid,   // which file
+                     const int offset,      // offset, negative value specifies current location.
+                     const size_t bytes,    // how many bytes to write
+                     const uint8_t *pData)  // where to get the data from
+    {
+        (void)fid;
+        (void)offset;
+        (void)bytes;
+        (void)pData;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
 
-//*************************************************************************
-//  OTA Service
-//*************************************************************************
-int __attribute__((weak)) crcb_OTA_discover_next(cr_OTA_s *OTA_desc)
-{
-    (void)OTA_desc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    // returns zero or an error code
+    int __attribute__((weak)) crcb_erase_file(const uint32_t fid)
+    {
+        (void)fid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+#endif // def INCLUDE_FILES_SERVICE
 
-int __attribute__((weak)) crcb_OTA_discover_reset(uint8_t OTA_id)
-{
-    (void)OTA_id;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+#ifdef INCLUDE_TIME_SERVICE
+    //*************************************************************************
+    //  Time Service
+    //*************************************************************************
+    // Time is specified in UTC Epoch format, seconds since 1970.
+    // More than 32 bits are required to remain valid past 2030.
+    int __attribute__((weak)) crcb_time_get(uint64_t *utc_seconds)
+    {
+        (void)utc_seconds;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
+    int __attribute__((weak)) crcb_time_set(uint64_t utc_seconds)
+    {
+        (void)utc_seconds;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+#endif  // def INCLUDE_TIME_SERVICE
 
+#ifdef INCLUDE_OTA_SERVICE
+    //*************************************************************************
+    //  OTA Service
+    //*************************************************************************
+    int __attribute__((weak)) crcb_OTA_discover_next(cr_OTA_s *OTA_desc)
+    {
+        (void)OTA_desc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-//*************************************************************************
-//  Log Service
-//*************************************************************************
+    int __attribute__((weak)) crcb_OTA_discover_reset(uint8_t OTA_id)
+    {
+        (void)OTA_id;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+#endif // def INCLUDE_OTA_SERVICE
 
-int __attribute__((weak)) crcb_log_discover_next(cr_log_s *log_desc)
-{
-    (void)log_desc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+#ifdef INCLUDE_STREAM_SERVICE
+    //*************************************************************************
+    //  Stream Service
+    //  Unlike the other services, the spec says that streams can go in 
+    // either direction.  
+    // Here I only consider streaming from the device.
+    //*************************************************************************
 
-int __attribute__((weak)) crcb_log_discover_reset(uint8_t  log_id)
-{
-    (void)log_id;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    int __attribute__((weak)) crcb_stream_discover_next(cr_stream_s *stream_desc)
+    {
+        (void)stream_desc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
-
-//*************************************************************************
-//  Time Service
-//*************************************************************************
-// Time is specified in UTC Epoch format, seconds since 1970.
-// More than 32 bits are required to remain valid past 2030.
-int __attribute__((weak)) crcb_time_get(uint64_t *utc_seconds)
-{
-    (void)utc_seconds;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
-
-int __attribute__((weak)) crcb_time_set(uint64_t utc_seconds)
-{
-    (void)utc_seconds;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
-
-
-
-//*************************************************************************
-//  Stream Service
-//  Unlike the other services, the spec says that streams can go in 
-// either direction.  
-// Here I only consider streaming from the device.
-//*************************************************************************
-
-int __attribute__((weak)) crcb_stream_discover_next(cr_stream_s *stream_desc)
-{
-    (void)stream_desc;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
-
-int __attribute__((weak)) crcb_stream_discover_reset(uint8_t  stream_id)
-{
-    (void)stream_id;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
+    int __attribute__((weak)) crcb_stream_discover_reset(uint8_t  stream_id)
+    {
+        (void)stream_id;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
 
 
-// A stream is sent as an array of records.
-// The inclusion of message pack format records allows for arbitrarily
-// complex records in the stream.
-int __attribute__((weak)) crcb_stream_send_packet(const uint8_t stream_id,
-                          void *data,
-                          size_t num_packets)
-{
-    (void)stream_id;
-    (void)data;
-    (void)num_packets;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
-
+    // A stream is sent as an array of records.
+    // The inclusion of message pack format records allows for arbitrarily
+    // complex records in the stream.
+    int __attribute__((weak)) crcb_stream_send_packet(const uint8_t stream_id,
+                              void *data,
+                              size_t num_packets)
+    {
+        (void)stream_id;
+        (void)data;
+        (void)num_packets;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+#endif // INCLUDE_STREAM_SERVICE
 
 

@@ -41,6 +41,7 @@
  ********************************************************************************************/
 #include <stdio.h>
 
+#include "reach-server.h"
 #include "message_util.h"
 #include "i3_log.h"
 #include "cJSON.h"
@@ -813,3 +814,19 @@ char *message_util_ping_response_json(const cr_PingResponse *payload) {
 
   return json_str;
 }
+
+#ifdef INCLUDE_TIME_SERVICE
+    char *message_util_time_set_response_json(const cr_TimeSetResult *payload) 
+    {
+        sprintf(sBuffer, "  Time set response result: %d", (int)payload->result);
+        return sBuffer;
+    }
+
+    char *message_util_time_get_response_json(const cr_TimeGetResult *payload) 
+    {
+        int ptr = 0;
+        ptr += sprintf(&sBuffer[ptr], "  Time get response result: %d\r\n", (int)payload->result);
+        ptr =  sprintf(&sBuffer[ptr], "  Time get response seconds: %lu\r\n", (int)payload->seconds_utc);
+        return sBuffer;
+    }
+#endif  // def INCLUDE_TIME_SERVICE

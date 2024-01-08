@@ -190,9 +190,17 @@ static int handle_discover_commands(const cr_DiscoverCommands *,
 static int handle_send_command(const cr_SendCommand *, cr_SendCommandResult *);
 
 #ifdef INCLUDE_CLI_SERVICE
-// CLI
-static int handle_cli_notification(const cr_CLIData *request, cr_CLIData *);
+    // CLI
+    static int handle_cli_notification(const cr_CLIData *request, cr_CLIData *);
 #endif // def INCLUDE_CLI_SERVICE
+
+
+#ifdef INCLUDE_TIME_SERVICE
+    static int handle_time_set(const cr_TimeSetRequest *request, 
+                               cr_TimeSetResult *response);
+    static int handle_time_get(const cr_TimeGetRequest *request, 
+                               cr_TimeGetResult *response);
+#endif  // def INCLUDE_TIME_SERVICE
 
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
@@ -236,7 +244,7 @@ void scr_end_timeout_watchdog();
 int scr_check_timeout_watchdog(uint32_t ticks);
 
 
-static void sCr_handle_notification(void);
+static void sCr_check_for_notifications(void);
 
 
 
@@ -341,8 +349,8 @@ int cr_init()
     // Test notification
     sCr_param_notify_list[0].parameter_id = 69;  // [11]
     sCr_param_notify_list[0].enabled = true;
-    sCr_param_notify_list[0].minimum_notification_period = 1000;
-    sCr_param_notify_list[0].maximum_notification_period = 100000;
+    sCr_param_notify_list[0].minimum_notification_period = SYS_TICK_RATE;
+    sCr_param_notify_list[0].maximum_notification_period = 100*SYS_TICK_RATE;
     sCr_param_notify_list[0].minimum_delta = 5.0;
     sCr_last_param_values[0].parameter_id = 69;
     sCr_last_param_values[0].timestamp = 0;
@@ -433,7 +441,7 @@ int cr_process(uint32_t ticks)
             sCr_encoded_message_size = 0;
 
             // check notifications when nothing else is happening.
-            sCr_handle_notification();
+            sCr_check_for_notifications();
 
             return cr_ErrorCodes_NO_DATA;
         }
@@ -463,10 +471,11 @@ int cr_process(uint32_t ticks)
 
 uint32_t cr_get_current_ticks()
 {
+    // a 32 bit number will roll over in 49 days at 1kHz.
     return sCurrentTicks;
 }
 
-static void sCr_handle_notification()
+static void sCr_check_for_notifications()
 {
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     for (int idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ )
@@ -562,7 +571,6 @@ static void sCr_handle_notification()
     }
   #endif  // NUM_SUPPORTED_PARAM_NOTIFY != 0
 }
-
 
 void cr_report_error(int error_code, const char *fmt, ...)
 {
@@ -838,6 +846,8 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
             encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
     }
+
+  #ifdef INCLUDE_STREAM_SERVICE
     case cr_ReachMessageTypes_DISCOVER_STREAMS:
         // rval = handle_discover_streams( (cr_StreamsRequest *)sCr_decoded_prompt_buffer,
         //                        (cr_StreamsResponse *)sCr_uncoded_response_buffer);
@@ -854,6 +864,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         // rval = handle_streams_notification( (cr_StreamsRequest *)sCr_decoded_prompt_buffer,
         //                            (cr_StreamsResponse *)sCr_uncoded_response_buffer);
         break;
+  #endif // def INCLUDE_STREAM_SERVICE
 
     case cr_ReachMessageTypes_DISCOVER_COMMANDS:
         rval = handle_discover_commands((cr_DiscoverCommands *)sCr_decoded_prompt_buffer,
@@ -870,6 +881,18 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                                  (cr_CLIData *)sCr_uncoded_response_buffer);
         break;
   #endif // def INCLUDE_CLI_SERVICE
+
+  #ifdef INCLUDE_TIME_SERVICE
+    case cr_ReachMessageTypes_SET_TIME:
+        rval = handle_time_set((cr_TimeSetRequest *)sCr_decoded_prompt_buffer, 
+                                (cr_TimeSetResult *)sCr_uncoded_response_buffer);
+        break;
+    case cr_ReachMessageTypes_GET_TIME:
+        rval = handle_time_get((cr_TimeGetRequest *)sCr_decoded_prompt_buffer, 
+                                (cr_TimeGetResult *)sCr_uncoded_response_buffer);
+        break;
+  #endif  // def INCLUDE_TIME_SERVICE
+
     default:
         cr_report_error(cr_ErrorCodes_NOT_IMPLEMENTED, "Unhandled message type %d.", message_type);
         LOG_ERROR("Unhandled message type %d.", message_type);
@@ -2014,19 +2037,47 @@ static int handle_send_command(const cr_SendCommand *request,
 }
 
 #ifdef INCLUDE_CLI_SERVICE
-//*************************************************************************
-//  CLI Service
-//*************************************************************************
-static int handle_cli_notification(const cr_CLIData *request, 
-                                    cr_CLIData *response)
-{
-    (void)response;
-    i3_log(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
-    crcb_cli_enter(request->message_data);
-    return cr_ErrorCodes_NO_RESPONSE;
-}
+    //*************************************************************************
+    //  CLI Service
+    //*************************************************************************
+    static int handle_cli_notification(const cr_CLIData *request, 
+                                        cr_CLIData *response)
+    {
+        (void)response;
+        i3_log(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
+        crcb_cli_enter(request->message_data);
+        return cr_ErrorCodes_NO_RESPONSE;
+    }
 #endif // def INCLUDE_CLI_SERVICE
 
+
+#ifdef INCLUDE_TIME_SERVICE
+    static int handle_time_set(const cr_TimeSetRequest *request, 
+                               cr_TimeSetResult *response)
+    {
+        if (!challenge_key_is_valid()) {
+            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+            return 0;
+        }
+
+        response->result = crcb_time_set(request->seconds_utc);
+        response->result_message[0] = 0;
+
+        return 0;
+    }
+
+    static int handle_time_get(const cr_TimeGetRequest *request, 
+                               cr_TimeGetResult *response)
+    {
+        if (!challenge_key_is_valid()) {
+            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+            return 0;
+        }
+        response->result = crcb_time_get(&response->seconds_utc);
+        return 0;
+    }
+
+#endif  // def INCLUDE_TIME_SERVICE
 
 
 // int32_t handle_discover_streams(const cr_StreamsRequest *,
@@ -2080,6 +2131,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                   message_util_ping_response_json((cr_PingResponse *)data));
       }
       break;
+#ifdef INCLUDE_PARAMETER_SERVICE
   case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
       status = pb_encode(&os_stream, cr_ParameterInfoResponse_fields, data);
       if (status) {
@@ -2131,6 +2183,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                       (cr_ParameterNotifyConfigResult *)data));
       }
   #endif
+#endif // def INCLUDE_PARAMETER_SERVICE
 
   case cr_ReachMessageTypes_GET_DEVICE_INFO:
       status = pb_encode(&os_stream, cr_DeviceInfoResponse_fields, data);
@@ -2141,6 +2194,8 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                       (cr_DeviceInfoResponse *)data));
       }
       break;
+
+#ifdef INCLUDE_FILES_SERVICE
   case cr_ReachMessageTypes_DISCOVER_FILES:
       status = pb_encode(&os_stream, cr_DiscoverFilesReply_fields, data);
       if (status) {
@@ -2180,6 +2235,9 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                       (cr_FileTransferDataNotification *)data));
       }
       break;
+#endif // def INCLUDE_FILES_SERVICE
+
+#ifdef INCLUDE_STREAM_SERVICE
   case cr_ReachMessageTypes_DISCOVER_STREAMS:
     // if (request) {
     //   status = pb_encode(&os_stream, cr_StreamsRequest_fields, data);
@@ -2199,6 +2257,9 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
     //   }
     // }
     break;
+#endif // def INCLUDE_STREAM_SERVICE 
+
+#ifdef INCLUDE_COMMAND_SERVICE
   case cr_ReachMessageTypes_DISCOVER_COMMANDS:
       status = pb_encode(&os_stream, cr_DiscoverCommandsResult_fields, data);
       if (status) {
@@ -2217,6 +2278,8 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                       (cr_SendCommandResult *)data));
       }
       break;
+#endif  // def INCLUDE_COMMAND_SERVICE
+
 #ifdef INCLUDE_CLI_SERVICE
   case cr_ReachMessageTypes_CLI_NOTIFICATION:
       status = pb_encode(&os_stream, cr_CLIData_fields, data);
@@ -2227,6 +2290,28 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       }
       break;
 #endif  // def INCLUDE_CLI_SERVICE
+
+#ifdef INCLUDE_TIME_SERVICE
+  case cr_ReachMessageTypes_SET_TIME:
+      status = pb_encode(&os_stream, cr_TimeSetResult_fields, data);
+      if (status) {
+        *encode_size = os_stream.bytes_written;
+        LOG_REACH("Time set response: \n%s\n",
+                  message_util_time_set_response_json(
+                      (cr_TimeSetResult *)data));
+      }
+      break;
+  case cr_ReachMessageTypes_GET_TIME:
+      status = pb_encode(&os_stream, cr_TimeGetResult_fields, data);
+      if (status) {
+        *encode_size = os_stream.bytes_written;
+        LOG_REACH("Time set response: \n%s\n",
+                  message_util_time_get_response_json(
+                      (cr_TimeGetResult *)data));
+      }
+      break;
+#endif  // def INCLUDE_TIME_SERVICE
+
   default:
       LOG_ERROR("No encoder for %d", message_type);
       status = cr_ErrorCodes_NO_DATA;

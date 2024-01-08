@@ -153,7 +153,7 @@ void cr_test_sizes();
 #define CR_PROTOCOL_VERSION    1
 
 //*************************************************************************
-//  Device Service
+//  Device Service (required)
 //*************************************************************************
 
 // The stack will call this function.  The device must override the weak 
@@ -164,7 +164,7 @@ int crcb_device_get_info(cr_DeviceInfoResponse *pDi);
 
 
 //*************************************************************************
-//  Link (ping) Service
+//  Link (ping) Service (required)
 //*************************************************************************
 int crcb_ping_get_signal_strength(int8_t *rssi);
 
@@ -188,174 +188,158 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     const char *crcb_get_command_line();
 #endif // def INCLUDE_CLI_SERVICE
 
-//*************************************************************************
-//  Parameter Service
-//*************************************************************************
+#ifdef INCLUDE_PARAMETER_SERVICE
+    //*************************************************************************
+    //  Parameter Service
+    //*************************************************************************
 
-#define MAX_NUM_PARAM_ID                32767 // 16 bits
-
-
-// Gets the parameter description for the next parameter.
-// Allows the stack to iterate through the parameter list.
-// Implies an order in the parameter list that is known by the application,
-// but not directly by the stack.  
-// Parameter ID's need not be continuous or in order.
-// The double pointer allows the app to provide a pointer to flash memory.
-// Returns zero if the description is valid.
-int crcb_parameter_discover_next(cr_ParameterInfo **desc);
-
-// returns the number of parameters supported by the system.
-int crcb_parameter_get_count();
-
-// Resets the application's pointer into the parameter table such that 
-// the next call to crcb_parameter_discover_next() will return the
-// description of this parameter.
-int crcb_parameter_discover_reset(const uint32_t pid);
-
-// In parallel to the parameter discovery, use this to find out 
-// about enumerations and bitfields
-// Only a single pointer since this gets the response directly.
-int crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc);
-// negative pid specifes all pids.
-int crcb_parameter_ex_get_count(const int32_t pid);
-int crcb_parameter_ex_discover_reset(const int32_t pid);
+    #define MAX_NUM_PARAM_ID                32767 // 16 bits
 
 
-// These read and write functions allow the stack to remotely access the
-// parameter repository of the device.  The parameter descripion of this pid
-// specifying the size and type of the data is known both by the app and the 
-// stack.
-// The data is copied into a structure provided by the app.
-// Might return cr_ErrorCodes_READ_FAILED or cr_ErrorCodes_PERMISSION_DENIED
-int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data);
+    // Gets the parameter description for the next parameter.
+    // Allows the stack to iterate through the parameter list.
+    // Implies an order in the parameter list that is known by the application,
+    // but not directly by the stack.  
+    // Parameter ID's need not be continuous or in order.
+    // The double pointer allows the app to provide a pointer to flash memory.
+    // Returns zero if the description is valid.
+    int crcb_parameter_discover_next(cr_ParameterInfo **desc);
 
-// Might return cr_ErrorCodes_WRITE_FAILED
-int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data); 
+    // returns the number of parameters supported by the system.
+    int crcb_parameter_get_count();
 
-// return a number that changes if the parameter descriptions have changed.
-uint32_t crcb_compute_parameter_hash(void);
+    // Resets the application's pointer into the parameter table such that 
+    // the next call to crcb_parameter_discover_next() will return the
+    // description of this parameter.
+    int crcb_parameter_discover_reset(const uint32_t pid);
 
-// parameter notifications are handled by the Reach stack.
-// The stack will use the read parameters to be notified on an appropriate
-// timescale and send notifications if enough changes.
-int crcb_notify_param(cr_ParameterValue *param);
-                                                       
-
-//*************************************************************************
-//  Command Service
-//*************************************************************************
-int crcb_file_get_command_count();
-int crcb_command_discover_next(cr_CommandInfo *cmd_desc);
-int crcb_command_discover_reset(const uint32_t pid);
-
-// actually execute the command
-int crcb_command_execute(const uint8_t cid);
-
-//*************************************************************************
-//  File Service
-//*************************************************************************
-
-int crcb_file_discover_next(cr_FileInfo *file_desc);
-int crcb_file_discover_reset(const uint8_t fid);
-int crcb_file_get_file_count();
-int crcb_file_get_description(uint32_t fid, cr_FileInfo *file_desc);
-int crcb_file_get_preferred_ack_rate(int is_write);
-
-// Attempts to read the specified file.
-// returns zero or an error code
-int crcb_read_file(const uint32_t fid,            // which file
-                 const int offset,              // offset, negative value specifies current location.
-                 const size_t bytes_requested,  // how many bytes to read
-                 uint8_t *pData,                // where the data goes
-                 int *bytes_read);              // bytes actually read, negative for errors.
-
-// returns zero or an error code
-int crcb_write_file(const uint32_t fid,   // which file
-                 const int offset,      // offset, negative value specifies current location.
-                 const size_t bytes,    // how many bytes to write
-                 const uint8_t *pData); // where to get the data from
-
-// returns zero or an error code
-int crcb_erase_file(const uint32_t fid);
+    // In parallel to the parameter discovery, use this to find out 
+    // about enumerations and bitfields
+    // Only a single pointer since this gets the response directly.
+    int crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc);
+    // negative pid specifes all pids.
+    int crcb_parameter_ex_get_count(const int32_t pid);
+    int crcb_parameter_ex_discover_reset(const int32_t pid);
 
 
+    // These read and write functions allow the stack to remotely access the
+    // parameter repository of the device.  The parameter descripion of this pid
+    // specifying the size and type of the data is known both by the app and the 
+    // stack.
+    // The data is copied into a structure provided by the app.
+    // Might return cr_ErrorCodes_READ_FAILED or cr_ErrorCodes_PERMISSION_DENIED
+    int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data);
 
-//*************************************************************************
-//  OTA Service
-//*************************************************************************
-typedef struct
-{
-    uint8_t     OTA_id;             // ID of this OTA object
-    uint8_t     OTA_file_id;        // Which file stores the OTA data
-    uint8_t     OTA_command_id;     // Which command triggers the OTA sequence
-} cr_OTA_s;
+    // Might return cr_ErrorCodes_WRITE_FAILED
+    int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data); 
 
-int crcb_OTA_discover_next(cr_OTA_s *OTA_desc);
-int crcb_OTA_discover_reset(uint8_t OTA_id);
+    // return a number that changes if the parameter descriptions have changed.
+    uint32_t crcb_compute_parameter_hash(void);
 
+    // parameter notifications are handled by the Reach stack.
+    // The stack will use the read parameters to be notified on an appropriate
+    // timescale and send notifications if enough changes.
+    int crcb_notify_param(cr_ParameterValue *param);
+#endif // def INCLUDE_PARAMETER_SERVICE
 
-//*************************************************************************
-//  Log Service
-//*************************************************************************
-typedef enum {
-    log_mp       = 0,  // message pack format
-    log_chart    = 1,  // graphable data
-    log_text     = 2,  // Text only with <CR> separator
-    log_reserved = 3   // for expansion
-} log_type_e;
+#ifdef INCLUDE_COMMAND_SERVICE
+    //*************************************************************************
+    //  Command Service
+    //*************************************************************************
+    int crcb_file_get_command_count();
+    int crcb_command_discover_next(cr_CommandInfo *cmd_desc);
+    int crcb_command_discover_reset(const uint32_t pid);
 
-typedef struct
-{
-    uint8_t     log_id;         // ID of this log object
-    uint8_t     log_file_id;    // Which file stores this log
-    log_type_e  format;         // Format of this log
-} cr_log_s;
+    // actually execute the command
+    int crcb_command_execute(const uint8_t cid);
+#endif // def INCLUDE_COMMAND_SERVICE
 
-int crcb_log_discover_next(cr_log_s *log_desc);
-int crcb_log_discover_reset(uint8_t  log_id);
+#ifdef INCLUDE_FILES_SERVICE
+    //*************************************************************************
+    //  File Service
+    //*************************************************************************
+    int crcb_file_discover_next(cr_FileInfo *file_desc);
+    int crcb_file_discover_reset(const uint8_t fid);
+    int crcb_file_get_file_count();
+    int crcb_file_get_description(uint32_t fid, cr_FileInfo *file_desc);
+    int crcb_file_get_preferred_ack_rate(int is_write);
 
+    // Attempts to read the specified file.
+    // returns zero or an error code
+    int crcb_read_file(const uint32_t fid,            // which file
+                     const int offset,              // offset, negative value specifies current location.
+                     const size_t bytes_requested,  // how many bytes to read
+                     uint8_t *pData,                // where the data goes
+                     int *bytes_read);              // bytes actually read, negative for errors.
 
-//*************************************************************************
-//  Time Service
-//*************************************************************************
-// Time is specified in UTC Epoch format, seconds since 1970.
-// More than 32 bits are required to remain valid past 2030.
-int crcb_time_get(uint64_t *utc_seconds);
-int crcb_time_set(uint64_t utc_seconds);
+    // returns zero or an error code
+    int crcb_write_file(const uint32_t fid,   // which file
+                     const int offset,      // offset, negative value specifies current location.
+                     const size_t bytes,    // how many bytes to write
+                     const uint8_t *pData); // where to get the data from
 
+    // returns zero or an error code
+    int crcb_erase_file(const uint32_t fid);
+#endif // def INCLUDE_FILES_SERVICE
 
-//*************************************************************************
-//  Stream Service
-//  Unlike the other services, the spec says that streams can go in 
-// either direction.  
-// Here I only consider streaming from the device.
-//*************************************************************************
+#ifdef INCLUDE_OTA_SERVICE
+    //*************************************************************************
+    //  OTA Service
+    //*************************************************************************
+    typedef struct
+    {
+        uint8_t     OTA_id;             // ID of this OTA object
+        uint8_t     OTA_file_id;        // Which file stores the OTA data
+        uint8_t     OTA_command_id;     // Which command triggers the OTA sequence
+    } cr_OTA_s;
 
-typedef enum {
-    str_number  = 0,  // Array of numbers of the same type
-    str_record  = 1,  // Array of objects, may include a timestamp
-    str_binary  = 2,  // binary data
-    str_string  = 3,  // string data
-    str_reserved      // for expansion
-} stream_type_e;
+    int crcb_OTA_discover_next(cr_OTA_s *OTA_desc);
+    int crcb_OTA_discover_reset(uint8_t OTA_id);
+#endif // def INCLUDE_OTA_SERVICE
 
-typedef struct
-{
-    uint8_t         stream_id;          // ID of this stream object
-    uint8_t         access_permissions; // read, write or both
-    char           *name;               // UTF-8 
-    stream_type_e  format;             // Format of this stream
-    char           *description;
-} cr_stream_s;
+#ifdef INCLUDE_TIME_SERVICE
+    //*************************************************************************
+    //  Time Service
+    //*************************************************************************
+    // Time is specified in UTC Epoch format, seconds since 1970.
+    // More than 32 bits are required to remain valid past 2030.
+    int crcb_time_get(uint64_t *utc_seconds);
+    int crcb_time_set(uint64_t utc_seconds);
+#endif // def INCLUDE_TIME_SERVICE
 
-int crcb_stream_discover_next(cr_stream_s *stream_desc);
-int crcb_stream_discover_reset(uint8_t  stream_id);
+#ifdef INCLUDE_STREAM_SERVICE
+    //*************************************************************************
+    //  Stream Service
+    //  Unlike the other services, the spec says that streams can go in 
+    // either direction.  
+    // Here I only consider streaming from the device.
+    //*************************************************************************
 
-// A stream is sent as an array of records.
-int crcb_stream_send_packet(const uint8_t stream_id,
-                          void *data,
-                          size_t num_packets);
+    typedef enum {
+        str_number  = 0,  // Array of numbers of the same type
+        str_record  = 1,  // Array of objects, may include a timestamp
+        str_binary  = 2,  // binary data
+        str_string  = 3,  // string data
+        str_reserved      // for expansion
+    } stream_type_e;
 
+    typedef struct
+    {
+        uint8_t         stream_id;          // ID of this stream object
+        uint8_t         access_permissions; // read, write or both
+        char           *name;               // UTF-8 
+        stream_type_e  format;             // Format of this stream
+        char           *description;
+    } cr_stream_s;
+
+    int crcb_stream_discover_next(cr_stream_s *stream_desc);
+    int crcb_stream_discover_reset(uint8_t  stream_id);
+
+    // A stream is sent as an array of records.
+    int crcb_stream_send_packet(const uint8_t stream_id,
+                              void *data,
+                              size_t num_packets);
+#endif // def INCLUDE_STREAM_SERVICE
 
 #ifdef __cplusplus
 }
