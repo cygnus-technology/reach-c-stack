@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 // H file provided by the app to configure the stack.
 #include "reach-server.h"
@@ -111,23 +112,22 @@ static size_t  sCr_encoded_response_size = 0;
 static cr_ReachMessageTypes sCr_continued_message_type;
 static uint32_t sCr_num_continued_objects = 0;
 static uint32_t sCr_num_remaining_objects = 0;
-static uint32_t sCr_num_ex_this_pid = 0;
 static int sCr_transaction_id = 0;
-
-static int16_t sCr_requested_param_array[REACH_COUNT_PARAMS_IN_REQUEST];
-static uint8_t sCr_requested_param_info_count = 0;
-static uint8_t sCr_requested_param_index = 0;
-static uint8_t sCr_requested_param_read_count = 0;
-
 static bool sCR_error_reported = false;
 
-#if NUM_SUPPORTED_PARAM_NOTIFY != 0
-  // check these params for notification
-  static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
-  // storage of the previous value
-  static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
-#endif
-
+#ifdef INCLUDE_PARAMETER_SERVICE
+    static uint32_t sCr_num_ex_this_pid = 0;
+    static int16_t sCr_requested_param_array[REACH_COUNT_PARAMS_IN_REQUEST];
+    static uint8_t sCr_requested_param_info_count = 0;
+    static uint8_t sCr_requested_param_index = 0;
+    static uint8_t sCr_requested_param_read_count = 0;
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    // check these params for notification
+    static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
+    // storage of the previous value
+    static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
+  #endif
+#endif // def INCLUDE_PARAMETER_SERVICE
 
 //----------------------------------------------------------------------------
 // static (private) "member" functions
@@ -144,56 +144,58 @@ static int handle_ping(const cr_PingRequest *, cr_PingResponse *);
 static int handle_get_device_info(const cr_DeviceInfoRequest *,
                                       cr_DeviceInfoResponse *);
 
-// Params
-static int handle_discover_parameters(const cr_ParameterInfoRequest *,
-                                          cr_ParameterInfoResponse *);
+static bool challenge_key_is_valid(void);
 
-static int handle_discover_parameters_ex(const cr_ParameterInfoRequest *,
-                                          cr_ParamExInfoResponse *);
+#ifdef INCLUDE_PARAMETER_SERVICE
+    // Params
+    static int handle_discover_parameters(const cr_ParameterInfoRequest *,
+                                              cr_ParameterInfoResponse *);
+    static int handle_discover_parameters_ex(const cr_ParameterInfoRequest *,
+                                              cr_ParamExInfoResponse *);
+    static int handle_read_param(const cr_ParameterRead *, 
+                                 cr_ParameterReadResult *);
+    static int handle_write_param(const cr_ParameterWrite *, 
+                                  cr_ParameterWriteResult *);
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    static int handle_config_param_notify(const cr_ParameterNotifyConfig *,
+                                          cr_ParameterNotifyConfigResult *);
+  #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
+#endif // def INCLUDE_PARAMETER_SERVICE
 
-static int handle_read_param(const cr_ParameterRead *, 
-                             cr_ParameterReadResult *);
-static int handle_write_param(const cr_ParameterWrite *, 
-                              cr_ParameterWriteResult *);
-#if NUM_SUPPORTED_PARAM_NOTIFY != 0
-static int handle_config_param_notify(const cr_ParameterNotifyConfig *,
-                                      cr_ParameterNotifyConfigResult *);
-#endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
+#ifdef INCLUDE_FILE_SERVICE
+    // Files
+    static int handle_discover_files(const cr_DiscoverFiles *,
+                                         cr_DiscoverFilesReply *);
+    static int handle_transfer_init(const cr_FileTransferInit *,
+                                        cr_FileTransferInitReply *);
+    static int handle_transfer_data(const cr_FileTransferData *,
+                                        cr_FileTransferDataNotification *);
+    static int
+    handle_transfer_data_notification(const cr_FileTransferDataNotification *,
+                                      cr_FileTransferData *);
+#endif // def INCLUDE_FILE_SERVICE
 
-// Files
-static int handle_discover_files(const cr_DiscoverFiles *,
-                                     cr_DiscoverFilesReply *);
-
-static int handle_transfer_init(const cr_FileTransferInit *,
-                                    cr_FileTransferInitReply *);
-
-static int handle_transfer_data(const cr_FileTransferData *,
-                                    cr_FileTransferDataNotification *);
-
-static int
-handle_transfer_data_notification(const cr_FileTransferDataNotification *,
-                                  cr_FileTransferData *);
-// Streams
-/*
-static int handle_discover_streams(const cr_StreamsRequest *,
+#ifdef INCLUDE_STREAM_SERVICE
+    // Streams
+    static int handle_discover_streams(const cr_StreamsRequest *,
                                        cr_StreamsResponse *);
 
-static int handle_stream_data_notification(uint8_t *, 
+    static int handle_stream_data_notification(uint8_t *,
                                                pb_size_t, uint8_t *,
                                                size_t *);
-*/
+#endif // def INCLUDE_STREAM_SERVICE
 
-// Commands 
-static int handle_discover_commands(const cr_DiscoverCommands *,
+#ifdef INCLUDE_COMMAND_SERVICE
+    // Commands 
+    static int handle_discover_commands(const cr_DiscoverCommands *,
                                         cr_DiscoverCommandsResult *);
-
-static int handle_send_command(const cr_SendCommand *, cr_SendCommandResult *);
+    static int handle_send_command(const cr_SendCommand *, cr_SendCommandResult *);
+#endif // def INCLUDE_COMMAND_SERVICE
 
 #ifdef INCLUDE_CLI_SERVICE
     // CLI
     static int handle_cli_notification(const cr_CLIData *request, cr_CLIData *);
 #endif // def INCLUDE_CLI_SERVICE
-
 
 #ifdef INCLUDE_TIME_SERVICE
     static int handle_time_set(const cr_TimeSetRequest *request, 
@@ -223,15 +225,15 @@ bool encode_reach_message(const cr_ReachMessage *message,       // in:  message 
                           size_t buffer_size,                   // in:  max size of encoded message
                           size_t *encode_size);                 // out: actual size of encoded message.
 
-// static int handle_remote_cli();
-
 
 // 
 // Timeout Watchdog interface
 // This is used in the file write sequences.
 // 
 // 0 ms disables watchdog.
-static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks);
+#ifdef INCLUDE_FILE_SERVICE
+  static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks);
+#endif  // def INCLUDE_FILE_SERVICE
 
 // resets the timeout period to original
 void scr_stroke_timeout_watchdog(uint32_t ticks);
@@ -243,9 +245,7 @@ void scr_end_timeout_watchdog();
 // return 1 if timeout occurred
 int scr_check_timeout_watchdog(uint32_t ticks);
 
-
 static void sCr_check_for_notifications(void);
-
 
 
 static int handle_continued_transactions()
@@ -261,6 +261,7 @@ static int handle_continued_transactions()
     cr_ReachMessageTypes encode_message_type = sCr_continued_message_type;
     switch (sCr_continued_message_type)
     {
+    #ifdef INCLUDE_PARAMETER_SERVICE
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dp.", __FUNCTION__);
         rval = 
@@ -277,11 +278,16 @@ static int handle_continued_transactions()
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
         rval = handle_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
         break;
+    #endif  // def INCLUDE_PARAMETER_SERVICE
+
+    #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_TRANSFER_DATA:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
         rval = handle_transfer_data_notification(NULL, (cr_FileTransferData *)sCr_uncoded_response_buffer);
         encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
+    #endif // def INCLUDE_FILE_SERVICE
+
     default:
         LOG_ERROR("Continued type %d not written.", sCr_continued_message_type);
         sCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -477,7 +483,7 @@ uint32_t cr_get_current_ticks()
 
 static void sCr_check_for_notifications()
 {
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+  #if (defined(INCLUDE_PARAMETER_SERVICE) && (NUM_SUPPORTED_PARAM_NOTIFY != 0) )
     for (int idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ )
     {
         if (!sCr_param_notify_list[idx].enabled)
@@ -501,9 +507,16 @@ static void sCr_check_for_notifications()
         case cr_ParameterValue_uint32_value_tag:
         case cr_ParameterValue_enum_value_tag:
         case cr_ParameterValue_bitfield_value_tag:
-            delta = abs(curVal.value.uint32_value - sCr_last_param_values[idx].value.uint32_value);
+        {
+            int64_t cur  = curVal.value.uint32_value;
+            int64_t last = sCr_last_param_values[idx].value.uint32_value;
+            if (cur>last)
+              delta = cur-last;
+            else
+              delta = last-cur;
             checkedDelta = true;
             break;
+        }
         case cr_ParameterValue_sint32_value_tag:
             delta = abs(curVal.value.sint32_value - sCr_last_param_values[idx].value.sint32_value);
             checkedDelta = true;
@@ -513,13 +526,27 @@ static void sCr_check_for_notifications()
             checkedDelta = true;
             break;
         case cr_ParameterValue_uint64_value_tag:
-            delta = abs(curVal.value.uint64_value - sCr_last_param_values[idx].value.uint64_value);
-            checkedDelta = true;
-            break;
+          {
+          int64_t cur  = curVal.value.uint64_value;
+          int64_t last = sCr_last_param_values[idx].value.uint64_value;
+          if (cur>last)
+            delta = (float)(cur-last);
+          else
+            delta = (float)(last-cur);
+          checkedDelta = true;
+          break;
+          }
         case cr_ParameterValue_sint64_value_tag:
-            delta = abs(curVal.value.sint64_value - sCr_last_param_values[idx].value.sint64_value);
+          {
+            int64_t cur  = curVal.value.sint64_value;
+            int64_t last = sCr_last_param_values[idx].value.sint64_value;
+            if (cur>last)
+              delta = (float)(cur-last);
+            else
+              delta = (float)(last-cur);
             checkedDelta = true;
             break;
+          }
         case cr_ParameterValue_float64_value_tag:
             delta = fabs(curVal.value.float64_value - sCr_last_param_values[idx].value.float64_value);
             checkedDelta = true;
@@ -788,7 +815,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         rval = handle_get_device_info((cr_DeviceInfoRequest *)sCr_decoded_prompt_buffer,
                                (cr_DeviceInfoResponse *)sCr_uncoded_response_buffer);
         break;
-
+  #ifdef INCLUDE_PARAMETER_SERVICE
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
         rval = handle_discover_parameters((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
                                    (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
@@ -809,12 +836,15 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                            (cr_ParameterWriteResult *)sCr_uncoded_response_buffer);
         break;
 
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
         rval = handle_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
                            (cr_ParameterNotifyConfigResult *)sCr_uncoded_response_buffer);
         break;
-  #endif
+    #endif
+  #endif // def INCLUDE_PARAMETER_SERVICE
+
+  #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_DISCOVER_FILES:
         rval = handle_discover_files((cr_DiscoverFiles *)sCr_decoded_prompt_buffer,
                               (cr_DiscoverFilesReply *)sCr_uncoded_response_buffer);
@@ -846,6 +876,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
             encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
     }
+  #endif // def INCLUDE_FILE_SERVICE
 
   #ifdef INCLUDE_STREAM_SERVICE
     case cr_ReachMessageTypes_DISCOVER_STREAMS:
@@ -866,6 +897,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         break;
   #endif // def INCLUDE_STREAM_SERVICE
 
+  #ifdef INCLUDE_COMMAND_SERVICE
     case cr_ReachMessageTypes_DISCOVER_COMMANDS:
         rval = handle_discover_commands((cr_DiscoverCommands *)sCr_decoded_prompt_buffer,
                                  (cr_DiscoverCommandsResult *)sCr_uncoded_response_buffer);
@@ -875,6 +907,8 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         rval = handle_send_command((cr_SendCommand *)sCr_decoded_prompt_buffer,
                             (cr_SendCommandResult *)sCr_uncoded_response_buffer);
         break;
+  #endif  // def INCLUDE_COMMAND_SERVICE
+
   #ifdef INCLUDE_CLI_SERVICE
     case cr_ReachMessageTypes_CLI_NOTIFICATION:
         rval = handle_cli_notification((cr_CLIData *)sCr_decoded_prompt_buffer,
@@ -919,9 +953,13 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 }
 
 // handle_ping attempts to reuse the encoded prompt
-static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response) {
-
+static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response) 
+{
     int8_t rssi;
+
+    if (!challenge_key_is_valid()) {
+        return cr_ErrorCodes_NO_DATA;
+    }
 
     if (request->echo_data.size > 0) {
         response->echo_data.size = request->echo_data.size;
@@ -973,17 +1011,19 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     }
 
     crcb_device_get_info(response);
+#ifdef INCLUDE_PARAMETER_SERVICE
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
+#endif  // def INCLUDE_PARAMETER_SERVICE
+
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
     populate_device_info_sizes(response);
     return 0;
 }
 
-
+#ifdef INCLUDE_PARAMETER_SERVICE
 /* ------------------------------------------------------
  Parameter Services
  ------------------------------------------------------ */
-
 
 // This can be called directly in response to the discovery request
 // or it can be called on a continuing basis to complete the 
@@ -997,7 +1037,8 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
 
     if (!challenge_key_is_valid()) {
         sCr_requested_param_info_count = 0;
-        sCr_num_continued_objects = response->parameter_infos_count = 0;
+        sCr_num_continued_objects = 0;
+        response->parameter_infos_count = 0;
         return cr_ErrorCodes_NO_DATA;
     }
 
@@ -1053,6 +1094,7 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
             // default on first.
             sCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
         }
+
         // GCC 12 produces a warning here, google it to see controversy.
         response->parameter_infos_count = 0;
         for (int i=0; i<REACH_COUNT_PARAM_DESC_IN_RESPONSE; i++) 
@@ -1073,7 +1115,8 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
             I3_LOG(LOG_MASK_PARAMS, "Add param %d.", sCr_requested_param_index);
             sCr_requested_param_index++;
             sCr_num_remaining_objects--;
-            response->parameter_infos[i] = *pParamInfo;
+            memcpy(&response->parameter_infos[i], pParamInfo, sizeof(cr_ParameterInfo));
+            // response->parameter_infos[i] = *pParamInfo;
             response->parameter_infos_count++;
         }
         if (response->parameter_infos_count == 0)
@@ -1113,7 +1156,8 @@ handle_discover_parameters(const cr_ParameterInfoRequest *request,
             sCr_requested_param_info_count = 0;
             break;
         }
-        response->parameter_infos[i] = *pParamInfo;
+        memcpy(&response->parameter_infos[i], pParamInfo, sizeof(cr_ParameterInfo));
+        // response->parameter_infos[i] = *pParamInfo;
         sCr_requested_param_index++;
         sCr_num_remaining_objects--;
         response->parameter_infos_count++;
@@ -1495,6 +1539,13 @@ static int handle_config_param_notify(const cr_ParameterNotifyConfig *pnc,
     return cr_ErrorCodes_NO_ERROR;
 }
 #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
+#endif // def INCLUDE_PARAMETER_SERVICE
+
+#ifdef INCLUDE_FILE_SERVICE
+//*************************************************************************
+//  File Service
+//*************************************************************************
+
 
 static int handle_discover_files(const cr_DiscoverFiles *request,
                                      cr_DiscoverFilesReply *response) 
@@ -1980,7 +2031,10 @@ static int handle_transfer_data_notification(
     scr_stroke_timeout_watchdog(sCurrentTicks);
     return 0;
 }
+#endif // def INCLUDE_FILE_SERVICE
 
+
+#ifdef INCLUDE_COMMAND_SERVICE
 static int 
 handle_discover_commands(const cr_DiscoverCommands *request,
                          cr_DiscoverCommandsResult *response)
@@ -2035,6 +2089,7 @@ static int handle_send_command(const cr_SendCommand *request,
     response->result = crcb_command_execute(request->command_id);
     return 0;
 }
+#endif // def INCLUDE_COMMAND_SERVICE
 
 #ifdef INCLUDE_CLI_SERVICE
     //*************************************************************************
@@ -2069,6 +2124,7 @@ static int handle_send_command(const cr_SendCommand *request,
     static int handle_time_get(const cr_TimeGetRequest *request, 
                                cr_TimeGetResult *response)
     {
+        (void)request;
         if (!challenge_key_is_valid()) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
@@ -2115,6 +2171,17 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
   /* Now we are ready to encode the message. */
   switch (message_type) 
   {
+
+  case cr_ReachMessageTypes_GET_DEVICE_INFO:
+      status = pb_encode(&os_stream, cr_DeviceInfoResponse_fields, data);
+      if (status) {
+        *encode_size = os_stream.bytes_written;
+        LOG_REACH("Get device info response: \n%s\n",
+                  message_util_get_device_info_response_json(
+                      (cr_DeviceInfoResponse *)data));
+      }
+      break;
+
   case cr_ReachMessageTypes_ERROR_REPORT:
       status = pb_encode(&os_stream, cr_ErrorReport_fields, data);
       if (status) {
@@ -2131,6 +2198,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                   message_util_ping_response_json((cr_PingResponse *)data));
       }
       break;
+
 #ifdef INCLUDE_PARAMETER_SERVICE
   case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
       status = pb_encode(&os_stream, cr_ParameterInfoResponse_fields, data);
@@ -2179,23 +2247,14 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("parameter notify config response: \n%s\n",
-                  message_util_write_param_response_json(
+                  message_util_config_notify_param_json(
                       (cr_ParameterNotifyConfigResult *)data));
       }
+      break;
   #endif
 #endif // def INCLUDE_PARAMETER_SERVICE
 
-  case cr_ReachMessageTypes_GET_DEVICE_INFO:
-      status = pb_encode(&os_stream, cr_DeviceInfoResponse_fields, data);
-      if (status) {
-        *encode_size = os_stream.bytes_written;
-        LOG_REACH("Get device info response: \n%s\n",
-                  message_util_get_device_info_response_json(
-                      (cr_DeviceInfoResponse *)data));
-      }
-      break;
-
-#ifdef INCLUDE_FILES_SERVICE
+#ifdef INCLUDE_FILE_SERVICE
   case cr_ReachMessageTypes_DISCOVER_FILES:
       status = pb_encode(&os_stream, cr_DiscoverFilesReply_fields, data);
       if (status) {
@@ -2235,7 +2294,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                       (cr_FileTransferDataNotification *)data));
       }
       break;
-#endif // def INCLUDE_FILES_SERVICE
+#endif // def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_STREAM_SERVICE
   case cr_ReachMessageTypes_DISCOVER_STREAMS:
@@ -2393,11 +2452,11 @@ static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
 }
 
 
+#ifdef INCLUDE_FILE_SERVICE
 // 
 // Timeout Watchdog interface
 // This is used in the file write sequences.
 // 
-
 static bool  sTimeoutWatchdog_is_active = false;
 static uint32_t sTimeoutWatchdog_period = 0;
 static uint32_t sTimeoutWatchdog_target = 0;
@@ -2449,5 +2508,30 @@ int scr_check_timeout_watchdog(uint32_t ticks)
     }
     return 0;
 }
+
+#else
+// dummy version when no FILE_SERVICE
+// static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks)
+// {   (void)msec;     (void)ticks;  }
+
+void scr_stroke_timeout_watchdog(uint32_t ticks)
+{
+    (void)ticks;
+}
+
+// disables the watchdog
+void scr_end_timeout_watchdog()
+{
+}
+
+// if active, compares ticks to expected timeout.
+// return 1 if timeout occurred
+int scr_check_timeout_watchdog(uint32_t ticks)
+{
+    (void)ticks;
+    return 0;
+}
+
+#endif  // def INCLUDE_FILE_SERVICE
 
 

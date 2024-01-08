@@ -281,6 +281,7 @@ const char *__attribute__((weak)) crcb_get_command_line()
     // timescale and send notifications if enough changes.
     int __attribute__((weak)) crcb_notify_param(cr_ParameterValue *param)
     {
+        (void)param;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return 0;
     }
@@ -321,7 +322,7 @@ const char *__attribute__((weak)) crcb_get_command_line()
     }
 #endif  // def INCLUDE_COMMAND_SERVICE
 
-#ifdef INCLUDE_FILES_SERVICE
+#ifdef INCLUDE_FILE_SERVICE
     //*************************************************************************
     //  File Service
     //*************************************************************************
@@ -404,7 +405,7 @@ const char *__attribute__((weak)) crcb_get_command_line()
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
-#endif // def INCLUDE_FILES_SERVICE
+#endif // def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_TIME_SERVICE
     //*************************************************************************

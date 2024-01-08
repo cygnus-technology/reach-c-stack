@@ -45,6 +45,7 @@
 #include "i3_log.h"
 #include "message_util.h"
 #include "reach_decode.h"
+#include "reach-server.h"
 
 static uint32_t sDecodeReach_current_transaction = 0;
 
@@ -82,6 +83,14 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
   bool status = false;
   /* Now we are ready to decode the message. */
   switch (message_type) {
+    case cr_ReachMessageTypes_GET_DEVICE_INFO:
+        status = pb_decode(&is_stream, cr_DeviceInfoRequest_fields, data);
+        if (status) {
+          LOG_REACH(
+              "Get device info request: \n%s\n",
+              message_util_get_device_info_json());
+        }
+        break;
   case cr_ReachMessageTypes_PING:
       status = pb_decode(&is_stream, cr_PingRequest_fields, data);
       if (status) {
@@ -89,6 +98,7 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                     message_util_ping_json((cr_PingRequest *)data));
       } 
       break;
+#ifdef INCLUDE_PARAMETER_SERVICE
   case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
       status = pb_decode(&is_stream, cr_ParameterInfoRequest_fields, data);
       if (status) {
@@ -119,14 +129,9 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                   message_util_write_param_json((cr_ParameterWrite *)data));
       }
       break;
-  case cr_ReachMessageTypes_GET_DEVICE_INFO:
-      status = pb_decode(&is_stream, cr_DeviceInfoRequest_fields, data);
-      if (status) {
-        LOG_REACH(
-            "Get device info request: \n%s\n",
-            message_util_get_device_info_json());
-      }
-      break;
+#endif  // def INCLUDE_PARAMETER_SERVICE
+
+#ifdef INCLUDE_FILE_SERVICE
   case cr_ReachMessageTypes_DISCOVER_FILES:
       status = pb_decode(&is_stream, cr_DiscoverFiles_fields, data);
       if (status) {
@@ -161,6 +166,9 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                       (cr_FileTransferDataNotification *)data));
       }
       break;
+#endif // def INCLUDE_FILE_SERVICE
+
+#ifdef INCLUDE_STREAM_SERVICE
   case cr_ReachMessageTypes_DISCOVER_STREAMS:
     //   status = pb_decode(&is_stream, cr_StreamsRequest_fields, data);
     //   if (status) {
@@ -169,6 +177,9 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
     //         message_util_discover_streams_json((cr_StreamsRequest *)data));
     //   }
     break;
+#endif  // def INCLUDE_STREAM_SERVICE
+
+#ifdef INCLUDE_COMMAND_SERVICE
   case cr_ReachMessageTypes_DISCOVER_COMMANDS:
       status = pb_decode(&is_stream, cr_DiscoverCommands_fields, data);
       if (status) {
@@ -184,6 +195,9 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                   message_util_send_command_json((cr_SendCommand *)data));
       }
       break;
+#endif  // def INCLUDE_COMMAND_SERVICE
+
+#ifdef INCLUDE_CLI_SERVICE
   case cr_ReachMessageTypes_CLI_NOTIFICATION:
       status = pb_decode(&is_stream, cr_CLIData_fields, data);
       if (status) {
@@ -191,6 +205,25 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                   message_util_cli_notification_json((cr_CLIData *)data));
       }
       break;
+#endif  // def INCLUDE_CLI_SERVICE
+
+#ifdef INCLUDE_TIME_SERVICE
+  case cr_ReachMessageTypes_GET_TIME:
+      status = pb_decode(&is_stream, cr_TimeGetRequest_fields, data);
+      if (status) {
+        LOG_REACH("Get Time request: \n%s\n",
+                  message_util_time_get_request_json((cr_TimeGetRequest *)data));
+      }
+      break;
+  case cr_ReachMessageTypes_SET_TIME:
+      status = pb_decode(&is_stream, cr_TimeSetRequest_fields, data);
+      if (status) {
+        LOG_REACH("Set Time request: \n%s\n",
+                  message_util_time_set_request_json((cr_TimeSetRequest *)data));
+      }
+      break;
+#endif  // def INCLUDE_CLI_SERVICE
+
   default:
       break;
   }

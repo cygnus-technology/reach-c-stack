@@ -163,7 +163,7 @@ int crcb_cli_enter(const char *ins)
     crcb_set_command_line(ins);
     // step through remote_command_table and execute if matching
     if (!strncmp("ver", ins, 3))
-        print_versions();
+        print_versions(NULL);
     else if (!strncmp("/", ins, 1))
         slash(NULL);
     else if (!strncmp("lm", ins, 2))

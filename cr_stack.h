@@ -44,7 +44,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-// reach-server.h defines the basic size of structures appropriate for the 
+// reach-server.h defines the build configuration of the Reach stack.
+// This includes which services, and the basic size of structures appropriate for the 
 // current transport means.  For example, BLE.
 #include "reach-server.h"
 
@@ -147,7 +148,11 @@ int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len);
 void cr_provide_debug_buffer(char *buf, size_t len);
 
 void cr_get_reply_buffer_and_size(char **ptr, size_t *sz);
+
+// error handling is always present
 void cr_report_error(int error_code, const char *fmt, ...);
+int crcb_notify_error(cr_ErrorReport *err);
+
 
 void cr_test_sizes();
 #define CR_PROTOCOL_VERSION    1
@@ -180,8 +185,6 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     // When the device supports a CLI it is expected to share anything printed 
     // to the CLI back to the stack for remote display using crcb_cli_respond()
     int crcb_cli_respond(char *cli);
-
-    int crcb_notify_error(cr_ErrorReport *err);
 
     // store the command line to be parsed elsewhere
     void crcb_set_command_line(const char *ins);
@@ -254,7 +257,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     int crcb_command_execute(const uint8_t cid);
 #endif // def INCLUDE_COMMAND_SERVICE
 
-#ifdef INCLUDE_FILES_SERVICE
+#ifdef INCLUDE_FILE_SERVICE
     //*************************************************************************
     //  File Service
     //*************************************************************************
@@ -280,7 +283,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
 
     // returns zero or an error code
     int crcb_erase_file(const uint32_t fid);
-#endif // def INCLUDE_FILES_SERVICE
+#endif // def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_OTA_SERVICE
     //*************************************************************************
