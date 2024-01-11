@@ -367,6 +367,20 @@ int cr_init()
     return cr_ErrorCodes_NO_ERROR;
 }
 
+char sCr_advertised_name[REACH_SHORT_STRING_LEN];
+int cr_set_advertised_name(char *name, int length)
+{
+    strncpy(sCr_advertised_name, name, REACH_SHORT_STRING_LEN);
+    if (length >= REACH_SHORT_STRING_LEN) 
+        return REACH_SHORT_STRING_LEN;
+    return 0;
+}
+
+const char *cr_get_advertised_name()
+{
+    return (const char *)sCr_advertised_name;
+}
+
 // allows the application to store the prompt where the Reach stack can see it.
 int cr_store_coded_prompt(uint8_t *data, size_t len)
 {

@@ -114,6 +114,12 @@ extern "C" {
 // To be called once before cr_process is called.
 int cr_init();
 
+// The application should set the name of the device to be advertised.
+// If the length exceeds the maximum, the max length will be returned.
+int cr_set_advertised_name(char *name, int length);
+
+// to be used by the transport code to get the name.
+const char *cr_get_advertised_name();
 
 // The application must call cr_process() regularly.  
 // ticks tells it approximately how many  milliseconds have passed since 

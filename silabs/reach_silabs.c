@@ -325,18 +325,21 @@ int rsl_set_advertised_name(unsigned int sn)
     // gattdb_attribute_field_10 holds the device name.
     // Check advertise in the generic access service to enable the long name.
     memset(gattdb_attribute_field_10.data, 0, gattdb_attribute_field_10.max_len);
-    int rval = rsl_read_serial_number(&sn);
-    if (rval != 0) {
-        // SN not set. 
-        rsl_write_serial_number (sn);
-        i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Serial number not previously set.  Written as %u (%x:%x)", 
-               sn, sn >> 8, sn & 0xFF);
+    const char *aName = cr_get_advertised_name();
+    if (aName[0] != 0) {
+        gattdb_attribute_field_10.len =
+                snprintf((char*)(gattdb_attribute_field_10.data),
+                         gattdb_attribute_field_10.max_len,
+                         "%s", aName);
     }
-    gattdb_attribute_field_10.len =
-            snprintf((char*)(gattdb_attribute_field_10.data),
-                     gattdb_attribute_field_10.max_len,
-                     "Reacher SN-%u", sn);
-
+    else {
+        i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Serial number not set.  Using %u (%x:%x)", 
+               sn, sn >> 8, sn & 0xFF);
+        gattdb_attribute_field_10.len =
+                snprintf((char*)(gattdb_attribute_field_10.data),
+                         gattdb_attribute_field_10.max_len,
+                         "Reacher %u", sn);
+    }
     i3_log(LOG_MASK_ALWAYS, TEXT_YELLOW "Advertise non-extended name %s, len %d of max %d", 
            gattdb_attribute_field_10.data, 
            gattdb_attribute_field_10.len, 
