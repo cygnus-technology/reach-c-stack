@@ -350,14 +350,14 @@ static bool challenge_key_is_valid(void)
 
 int cr_init() 
 {
-  // #define TEST_NOTIFICATION
+  #define TEST_NOTIFICATION
   #ifdef TEST_NOTIFICATION
     // Test notification
     sCr_param_notify_list[0].parameter_id = 69;  // [11]
     sCr_param_notify_list[0].enabled = true;
     sCr_param_notify_list[0].minimum_notification_period = SYS_TICK_RATE;
     sCr_param_notify_list[0].maximum_notification_period = 100*SYS_TICK_RATE;
-    sCr_param_notify_list[0].minimum_delta = 5.0;
+    sCr_param_notify_list[0].minimum_delta = 15.0;
     sCr_last_param_values[0].parameter_id = 69;
     sCr_last_param_values[0].timestamp = 0;
     sCr_last_param_values[0].which_value = cr_ParameterDataType_INT32;
@@ -575,7 +575,7 @@ static void sCr_check_for_notifications()
             checkedDelta = false;
             break;
         }
-        if (checkedDelta && (delta > sCr_param_notify_list[idx].minimum_delta))
+        if (checkedDelta && (delta >= sCr_param_notify_list[idx].minimum_delta))
         {
             i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on delta %.1f" TEXT_RESET,
                    sCr_param_notify_list[idx].parameter_id, delta);
