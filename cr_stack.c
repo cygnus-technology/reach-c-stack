@@ -60,6 +60,7 @@
 
 #include "message_util.h"
 #include "reach_decode.h"
+#include "reach_version.h"
 
 
 
@@ -381,11 +382,13 @@ int cr_process(uint32_t ticks)
     sCurrentTicks = ticks;   // store it so others can use it.
     sCallCount++;
 
-    int timeout = scr_check_timeout_watchdog(ticks);
+  #ifdef INCLUDE_FILE_SERVICE
+    int timeout = pvtCr_watchdog_check_timeout(ticks);
     if (timeout) {
         i3_log(LOG_MASK_ERROR, "Timeout watchdog expired.");
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
     }
+  #endif // def INCLUDE_FILE_SERVICE
 
     /*if (ticks - lastTick > 10001)
     {
@@ -1001,6 +1004,11 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
     populate_device_info_sizes(response);
     return 0;
+}
+
+const char *cr_get_reach_version()
+{
+    return REACH_VERSION_STRING;
 }
 
 #ifdef INCLUDE_PARAMETER_SERVICE

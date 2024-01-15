@@ -67,6 +67,22 @@ extern "C" {
                                              cr_FileTransferData *dataTransfer);
 
 
+    // The file service includes a timeout Watchdog
+    // 0 ms disables watchdog.
+    void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks);
+
+    // resets the timeout period to original
+    void pvtCr_watchdog_stroke_timeout(uint32_t ticks);
+
+    // disables the watchdog
+    void pvtCr_watchdog_end_timeout();
+
+    // if active, compares ticks to expected timeout.
+    // return 1 if timeout occurred
+    int pvtCr_watchdog_check_timeout(uint32_t ticks);
+
+
+
 
 #ifdef __cplusplus
 }

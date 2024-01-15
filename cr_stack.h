@@ -162,6 +162,7 @@ uint32_t cr_get_current_ticks();
 void cr_test_sizes();
 
 
+const char *cr_get_reach_version();
 
 //*************************************************************************
 //  Device Service (required)

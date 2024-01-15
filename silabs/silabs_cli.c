@@ -31,7 +31,7 @@
  *                           -----------------------------------
  *                      (c) Copyright 2022-2023, i3 Product Development
  *
- * \brief silabs_cli.h/.c provides 'standard' Reach command line handling for
+ * silabs_cli.h/.c provides 'standard' Reach command line handling for
  *      a SiLabs based Reach product.
  *
  * Original Authors: Chuck.Peplinski, Joseph Peplinski and Sushanth Rao
@@ -48,7 +48,7 @@
 
 #include "app.h"
 #include "i3_log.h"
-#include "version.h"
+#include "app_version.h"
 #include "cr_stack.h"
 #include "reach_silabs.h"
 

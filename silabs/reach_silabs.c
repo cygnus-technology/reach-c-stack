@@ -31,8 +31,8 @@
  *                           -----------------------------------
  *                        (c) Copyright 2023, i3 Product Development
  *
- * \brief reach_silabs.h/.c provides a SiLabs specific implementation of the required
- *      Reach functionality.
+ * reach_silabs.h/.c provides a SiLabs specific implementation of the required
+ *      Reach functionality. It is rather on the border between the C stack and the app.
  *
  * Original Author: Chuck.Peplinski
  *
@@ -46,7 +46,8 @@
 #include "reach-server.h"
 #include "cr_stack.h"
 #include "i3_log.h"
-#include "version.h"
+#include "app_version.h"
+#include "reach_version.h"
 
 #include "sl_bluetooth.h"
 #include "em_common.h"
@@ -116,7 +117,7 @@ void rsl_init()
     i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Cygnus Reach Protobuf Server");
     i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! (c) 2023 i3 Product Design, All Rights Reserved");
     i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Built %s, %s. Version %d.%d.%d", 
-           __DATE__, __TIME__, MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION);
+           __DATE__, __TIME__, APP_MAJOR_VERSION, APP_MINOR_VERSION, APP_PATCH_VERSION);
   #ifdef INCLUDE_CLI_SERVICE
     i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Remote CLI support built in.");
   #else
@@ -147,7 +148,7 @@ int crcb_cli_enter(const char *ins)
     if ((*ins == '?') || (!strncmp("help", ins, 4)) )
     {
         i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Cygnus Reach Server, built %s, %s", __DATE__, __TIME__);
-        i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! Version %d.%d.%d", MAJOR_VERSION, MINOR_VERSION, PATCH_VERSION);
+        i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "!!! App Version %d.%d.%d", APP_MAJOR_VERSION, APP_MINOR_VERSION, APP_PATCH_VERSION);
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "Commands:");
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  ver : Print versions");
         i3_log(LOG_MASK_ALWAYS, TEXT_CLI "  /   : Display status");

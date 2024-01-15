@@ -68,24 +68,6 @@
 
 
 #ifdef INCLUDE_FILE_SERVICE
-// 
-// Timeout Watchdog interface
-// This is used in the file write sequences.
-// 
-// 0 ms disables watchdog.
-  static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks);
-
-// resets the timeout period to original
-void scr_stroke_timeout_watchdog(uint32_t ticks);
-
-// disables the watchdog
-void scr_end_timeout_watchdog();
-
-// if active, compares ticks to expected timeout.
-// return 1 if timeout occurred
-int scr_check_timeout_watchdog(uint32_t ticks);
-
-
 //*************************************************************************
 //  File Service
 //*************************************************************************
@@ -249,7 +231,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
            request->file_id, request->request_offset, request->transfer_length,
            request->messages_per_ack);
 
-    scr_start_timeout_watchdog(REACH_TIMEOUT, cr_get_current_ticks());
+    pvtCr_watchdog_start_timeout(REACH_TIMEOUT, cr_get_current_ticks());
 
     return 0;
 }
@@ -278,21 +260,21 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                         "%s should not be called in state invalid.", __FUNCTION__);
         response->result = cr_ErrorCodes_INVALID_STATE;
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_IDLE:
         LOG_ERROR("In idle state is not right");
         cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                         "%s should not be called in state idle.", __FUNCTION__);
         response->result = cr_ErrorCodes_INVALID_STATE;
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_COMPLETE:
         LOG_ERROR("In complete state is not right");
         cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                         "%s should not be called in state complete.", __FUNCTION__);
         response->result = cr_ErrorCodes_INVALID_STATE;
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_INIT:
     case cr_FileTransferState_DATA:
@@ -317,7 +299,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, 
                         "%s: Requested xfer of %d bytes > REACH_BYTES_IN_A_FILE_PACKET (%d).",
                         __FUNCTION__, bytes_to_write, REACH_BYTES_IN_A_FILE_PACKET);
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_INVALID_PARAMETER;
     }
 
@@ -339,7 +321,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
                         "%s: Requested write of %d bytes for fid %d failed.",
                         __FUNCTION__, bytes_to_write, sCr_file_xfer_state.transfer_id);
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_WRITE_FAILED;
     }
 
@@ -372,7 +354,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         */
         // if we don't stop this lets me see on error per mismatch
         sCr_file_xfer_state.message_number = dataTransfer->message_number;
-        scr_stroke_timeout_watchdog(cr_get_current_ticks());
+        pvtCr_watchdog_stroke_timeout(cr_get_current_ticks());
         return 0; // cr_ErrorCodes_WRITE_FAILED;
     }
 
@@ -395,7 +377,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
             i3_log(LOG_MASK_WARN, "On file write, remaining bytes is below zero.");
         }
         response->is_complete = true;
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return 0;
     }
 
@@ -406,7 +388,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.messages_until_ack,
                sCr_file_xfer_state.message_number);
          */
-        scr_stroke_timeout_watchdog(cr_get_current_ticks());
+        pvtCr_watchdog_stroke_timeout(cr_get_current_ticks());
         return cr_ErrorCodes_NO_RESPONSE;
     }
     // here we want to ack, also reset the counters.
@@ -416,7 +398,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     sCr_file_xfer_state.messages_until_ack = sCr_file_xfer_state.messages_per_ack;
     sCr_file_xfer_state.message_number = 0;
     response->is_complete = false;
-    scr_stroke_timeout_watchdog(cr_get_current_ticks());
+    pvtCr_watchdog_stroke_timeout(cr_get_current_ticks());
     return 0;
 }
 
@@ -441,14 +423,14 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s should not be called in state invalid.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
-            scr_end_timeout_watchdog();
+            pvtCr_watchdog_end_timeout();
             return cr_ErrorCodes_INVALID_STATE;
         case cr_FileTransferState_IDLE:
             LOG_ERROR("In idle state is not right");
             cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s should not be called in state idle.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
-            scr_end_timeout_watchdog();
+            pvtCr_watchdog_end_timeout();
             return cr_ErrorCodes_INVALID_STATE;
         case cr_FileTransferState_COMPLETE:
             if (request->is_complete)
@@ -460,7 +442,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
                 pvtCr_num_remaining_objects = 0;
                 pvtCr_num_continued_objects = 0;
                 I3_LOG(LOG_MASK_FILES, "Completing the file read.");
-                scr_end_timeout_watchdog();
+                pvtCr_watchdog_end_timeout();
                 return 0;
             }
 
@@ -468,7 +450,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s should not be called in state complete.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
-            scr_end_timeout_watchdog();
+            pvtCr_watchdog_end_timeout();
             return cr_ErrorCodes_INVALID_STATE;
         case cr_FileTransferState_INIT:
         case cr_FileTransferState_DATA:
@@ -481,7 +463,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             cr_report_error(cr_ErrorCodes_INVALID_STATE, 
                             "%s Expecting read, not write.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_WRITE_FAILED;
-            scr_end_timeout_watchdog();
+            pvtCr_watchdog_end_timeout();
             return cr_ErrorCodes_WRITE_FAILED;
         }
         if (request->is_complete)
@@ -493,7 +475,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             pvtCr_num_remaining_objects = 0;
             pvtCr_num_continued_objects = 0;
             dataTransfer->result = 0;
-            scr_end_timeout_watchdog();
+            pvtCr_watchdog_end_timeout();
             return 0;
         }
 
@@ -535,7 +517,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         pvtCr_num_remaining_objects = 0;
         pvtCr_num_continued_objects = 0;
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_READ_FAILED;
     }
     dataTransfer->message_data.size = bytes_read;
@@ -567,11 +549,11 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
         pvtCr_num_remaining_objects = 0;
         sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        scr_end_timeout_watchdog();
+        pvtCr_watchdog_end_timeout();
         return 0;
     }
     sCr_file_xfer_state.state = cr_FileTransferState_DATA;
-    scr_stroke_timeout_watchdog(cr_get_current_ticks());
+    pvtCr_watchdog_stroke_timeout(cr_get_current_ticks());
     return 0;
 }
 
@@ -584,7 +566,7 @@ static uint32_t sTimeoutWatchdog_period = 0;
 static uint32_t sTimeoutWatchdog_target = 0;
 
 // 0 ms disables watchdog.
-static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks)
+void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks)
 {
     if (msec > 0) {
         sTimeoutWatchdog_is_active = true;
@@ -598,7 +580,7 @@ static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks)
 }
 
 // resets the timeout period to original
-void scr_stroke_timeout_watchdog(uint32_t ticks)
+void pvtCr_watchdog_stroke_timeout(uint32_t ticks)
 {
     if (sTimeoutWatchdog_is_active) {
         sTimeoutWatchdog_target = ticks + sTimeoutWatchdog_period;
@@ -610,7 +592,7 @@ void scr_stroke_timeout_watchdog(uint32_t ticks)
 }
 
 // disables the watchdog
-void scr_end_timeout_watchdog()
+void pvtCr_watchdog_end_timeout()
 {
     sTimeoutWatchdog_is_active = false;
     i3_log(LOG_MASK_TIMEOUT, "%s: End timeout.", __FUNCTION__);
@@ -618,7 +600,7 @@ void scr_end_timeout_watchdog()
 
 // if active, compares ticks to expected timeout.
 // return 1 if timeout occurred
-int scr_check_timeout_watchdog(uint32_t ticks)
+int pvtCr_watchdog_check_timeout(uint32_t ticks)
 {
     if (!sTimeoutWatchdog_is_active)
         return 0;
@@ -631,28 +613,6 @@ int scr_check_timeout_watchdog(uint32_t ticks)
     return 0;
 }
 
-#else
-// dummy version when no FILE_SERVICE
-// static void scr_start_timeout_watchdog(uint32_t msec, uint32_t ticks)
-// {   (void)msec;     (void)ticks;  }
-
-void scr_stroke_timeout_watchdog(uint32_t ticks)
-{
-    (void)ticks;
-}
-
-// disables the watchdog
-void scr_end_timeout_watchdog()
-{
-}
-
-// if active, compares ticks to expected timeout.
-// return 1 if timeout occurred
-int scr_check_timeout_watchdog(uint32_t ticks)
-{
-    (void)ticks;
-    return 0;
-}
 
 #endif  // def INCLUDE_FILE_SERVICE
 
