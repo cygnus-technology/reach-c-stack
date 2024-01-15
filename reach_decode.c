@@ -42,10 +42,10 @@
 
 #include <pb_decode.h>
 
+#include "reach-server.h"
 #include "i3_log.h"
 #include "message_util.h"
 #include "reach_decode.h"
-#include "reach-server.h"
 
 static uint32_t sDecodeReach_current_transaction = 0;
 
@@ -129,6 +129,14 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                   message_util_write_param_json((cr_ParameterWrite *)data));
       }
       break;
+    case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
+        status = pb_decode(&is_stream, cr_ParameterNotifyConfig_fields, data);
+        if (status) {
+          LOG_REACH("Parameter notify config: \n%s\n",
+                    message_util_config_notify_param_json((cr_ParameterNotifyConfigResult *)data));
+        }
+        break;
+
 #endif  // def INCLUDE_PARAMETER_SERVICE
 
 #ifdef INCLUDE_FILE_SERVICE
