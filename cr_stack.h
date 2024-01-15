@@ -92,8 +92,6 @@ extern "C" {
 // an arbitary minimum size for the buffers
 // #define CR_MINIMUM_MESSAGE_BUFFER_SIZE  72
 
-#define REACH_PROTOCOL_VERSION  0
-
 #define REACH_TIMEOUT   5000   // 5 seconds in ms
 /*
 //----------------------------------------------------------------------------

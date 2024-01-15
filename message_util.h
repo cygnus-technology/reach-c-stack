@@ -21,8 +21,6 @@
     #include "reach.pb.h"
     #include "reach-server.h"
 
-    #define MAX_BUFFER_SIZE 256
-
   // None of these message utilities are required without logging.
   #ifndef NO_REACH_LOGGING
     const char *msg_type_string(int32_t);
