@@ -350,7 +350,7 @@ static bool challenge_key_is_valid(void)
 
 int cr_init() 
 {
-  #define TEST_NOTIFICATION
+  // #define TEST_NOTIFICATION
   #ifdef TEST_NOTIFICATION
     // Test notification
     sCr_param_notify_list[0].parameter_id = 69;  // [11]
@@ -678,7 +678,7 @@ static int handle_coded_prompt()
     sCr_transaction_id = hdr->transaction_id;
 
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
-           get_message_type(msgPtr->header.message_type));
+           msg_type_string(msgPtr->header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
     I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d", 

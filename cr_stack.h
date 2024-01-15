@@ -159,9 +159,11 @@ void cr_get_reply_buffer_and_size(char **ptr, size_t *sz);
 void cr_report_error(int error_code, const char *fmt, ...);
 int crcb_notify_error(cr_ErrorReport *err);
 
+uint32_t cr_get_current_ticks();
 
 void cr_test_sizes();
-#define CR_PROTOCOL_VERSION    1
+
+
 
 //*************************************************************************
 //  Device Service (required)

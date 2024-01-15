@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "reach-server.h"  // excludes logging
 #include "i3_error.h"
 #include "text_colors.h"
 
@@ -58,8 +59,8 @@ extern "C"
 // Higher bits can be defined and used by the application
 // #include "app_log_masks.h"
 
-//#define NO_LOGGING
-#ifdef NO_LOGGING
+//#define NO_REACH_LOGGING in reach-server.h if you wish to completely eliminate logging.
+#ifdef NO_REACH_LOGGING
     #define I3_LOG(m, f, ...)
     #define LOG_REACH(format, ...)
     #define LOG_ERROR(format, ...)

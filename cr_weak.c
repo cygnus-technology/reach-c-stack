@@ -104,9 +104,6 @@ int __attribute__((weak)) crcb_send_coded_response(const uint8_t *response, size
   #endif
 }
 
-
-#define CR_PROTOCOL_VERSION    1
-
 // Async error report
 int __attribute__((weak)) crcb_notify_error(cr_ErrorReport *err)
 {
