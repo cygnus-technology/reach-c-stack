@@ -481,10 +481,13 @@ static void sCr_check_for_notifications()
         bool checkedDelta = false;
         uint32_t  timeSinceLastNotify = sCurrentTicks - sCr_last_param_values[idx].timestamp;
 
+        // 0 will cause this to be ignored.
         if (timeSinceLastNotify < sCr_param_notify_list[idx].minimum_notification_period)
             continue;
 
-        if (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period)
+        // 0 will cause this to be ignored.
+        if ((sCr_param_notify_list[idx].maximum_notification_period != 0) &&
+            (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period))
             needToNotify = true;
 
         crcb_parameter_read(sCr_param_notify_list[idx].parameter_id, &curVal);
@@ -1483,19 +1486,22 @@ static int handle_config_param_notify(const cr_ParameterNotifyConfig *pnc,
 {
     int idx;
 
-    if (!pnc->enabled) {
+    if (!pnc->enabled) 
+    {
+        bool disabledOne = false;
         // try to disable.
         for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
             if (pnc->parameter_id == sCr_param_notify_list[idx].parameter_id)
             {
                 sCr_param_notify_list[idx].enabled = false;
-                i3_log(LOG_MASK_PARAMS, "Disabled notification on PID %d", pnc->parameter_id);
+                i3_log(LOG_MASK_PARAMS, "Disabled notification %d on PID %d", idx, pnc->parameter_id);
                 pncr->result = cr_ErrorCodes_NO_ERROR;
-                return cr_ErrorCodes_NO_ERROR;
+                disabledOne = true;
+                // Don't return, check for others
             }
         }
-        if (idx >= NUM_SUPPORTED_PARAM_NOTIFY) {
-            // No match enabled
+        if (!disabledOne) {
+            // No enabled match found
             pncr->result = cr_ErrorCodes_NO_ERROR;
             i3_log(LOG_MASK_WARN, "Requested disable of notify on %d, but not enabled.", 
                    pnc->parameter_id);
@@ -1512,6 +1518,19 @@ static int handle_config_param_notify(const cr_ParameterNotifyConfig *pnc,
         return cr_ErrorCodes_INVALID_PARAMETER;
     }
 
+    // see if an active notification already exists
+    for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
+        if (!sCr_param_notify_list[idx].enabled)
+            continue;
+        if (pnc->parameter_id == sCr_param_notify_list[idx].parameter_id) {
+            sCr_param_notify_list[idx] = *pnc;
+            // store the index of the param with this PID.
+            i3_log(LOG_MASK_PARAMS, "Updated notification %d on PID %d", idx, pnc->parameter_id);
+            pncr->result = cr_ErrorCodes_NO_ERROR;
+            return cr_ErrorCodes_NO_ERROR;
+        }
+    }
+
     // Find an open entry
     for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
         if (!sCr_param_notify_list[idx].enabled)
@@ -1525,7 +1544,7 @@ static int handle_config_param_notify(const cr_ParameterNotifyConfig *pnc,
     }
     sCr_param_notify_list[idx] = *pnc;
     // store the index of the param with this PID.
-    i3_log(LOG_MASK_PARAMS, "Enabled notification on PID %d", pnc->parameter_id);
+    i3_log(LOG_MASK_PARAMS, "Enabled notification %d on PID %d", idx, pnc->parameter_id);
     pncr->result = cr_ErrorCodes_NO_ERROR;
     return cr_ErrorCodes_NO_ERROR;
 }
