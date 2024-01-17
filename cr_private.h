@@ -65,9 +65,9 @@ extern "C" {
     /// </summary>
     bool pvtCr_challenge_key_is_valid(void);
 
-    /// <summary>
-    /// pvtCrFile_ functions support the (optional) files service.
-    /// </summary>
+    ///  
+    /// pvtCrFile_ functions support the (optional) files service. 
+    ///  
     int pvtCrFile_discover(const cr_DiscoverFiles *request,
                               cr_DiscoverFilesReply *response);
     int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
@@ -93,9 +93,10 @@ extern "C" {
     // return 1 if timeout occurred
     int pvtCr_watchdog_check_timeout(uint32_t ticks);
 
-    bool pvtCr_challenge_key_is_valid(void);
-
-    /// Parameter Things
+    ///  
+    /// pvtCrParam_ functions support the (optional) parameters 
+    /// service. 
+    ///  
     void pvtCrParam_clear_notifications(void);
 
     int pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *,

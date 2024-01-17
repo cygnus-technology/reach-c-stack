@@ -870,9 +870,14 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 }
 
 
-// Most individual handle functions expect to construct the un-encoded buffer 
-// in memory provided by the caller.
-
+/// <summary>
+/// Fill in the structure that communicates buffer sizes to the 
+/// Reach client.  Comments on the BufferSizes message in the
+/// reach.proto file give more description of the meaning of 
+/// each entry. 
+/// </summary>
+/// <param name="dir">Pointer to a device info response 
+/// structure into which the sizes data will be copied</param> 
 static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
 {
     reach_sizes_t sizes_struct; 
@@ -895,6 +900,18 @@ static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
 }
 
+/// <summary>
+/// In response to a request for device info, get the raw data 
+/// from the app via a crcb function, then update the provided 
+/// pointer with the latest accurate data. 
+/// </summary>
+/// <param name="request"> A pointer to the request 
+/// which may include a challenge key.</param> 
+/// <param name="response">A pointer to memory where the 
+/// complete device info response will be composed.</param> 
+/// <returns>0 on success.  cr_ErrorCodes_NO_DATA if 
+/// the device was built to require a challenge key 
+/// and the provided key does not match.</returns> 
 static int 
 handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
                        cr_DeviceInfoResponse     *response)  // out
@@ -935,7 +952,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     }
 
     (void)request;
-    int num_commands = crcb_file_get_command_count();
+    int num_commands = crcb_get_command_count();
     int rval;
     if (num_commands >= REACH_NUM_COMMANDS_IN_RESPONSE)
     {

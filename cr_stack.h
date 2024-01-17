@@ -260,7 +260,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     //*************************************************************************
     //  Command Service
     //*************************************************************************
-    int crcb_file_get_command_count();
+    int crcb_get_command_count();
     int crcb_command_discover_next(cr_CommandInfo *cmd_desc);
     int crcb_command_discover_reset(const uint32_t pid);
 
@@ -276,7 +276,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     int crcb_file_discover_reset(const uint8_t fid);
     int crcb_file_get_file_count();
     int crcb_file_get_description(uint32_t fid, cr_FileInfo *file_desc);
-    int crcb_file_get_preferred_ack_rate(int is_write);
+    int crcb_file_get_preferred_ack_rate(bool is_write);
 
     // Attempts to read the specified file.
     // returns zero or an error code
