@@ -95,6 +95,25 @@ extern "C" {
 
     bool pvtCr_challenge_key_is_valid(void);
 
+    /// Parameter Things
+    void pvtCrParam_clear_notifications(void);
+
+    int pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *,
+                                       cr_ParameterInfoResponse *);
+    int pvtCrParam_discover_parameters_ex(const cr_ParameterInfoRequest *,
+                                          cr_ParamExInfoResponse *);
+    int pvtCrParam_read_param(const cr_ParameterRead *, 
+                              cr_ParameterReadResult *);
+    int pvtCrParam_write_param(const cr_ParameterWrite *, 
+                               cr_ParameterWriteResult *);
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *,
+                                       cr_ParameterNotifyConfigResult *);
+  #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
+    
+    void pvtCrParam_check_for_notifications(void);
+
+
 #ifdef __cplusplus
 }
 #endif

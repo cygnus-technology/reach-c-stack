@@ -117,20 +117,6 @@ uint32_t pvtCr_num_remaining_objects = 0;
 static int sCr_transaction_id = 0;
 static bool sCR_error_reported = false;
 
-#ifdef INCLUDE_PARAMETER_SERVICE
-    static uint32_t sCr_num_ex_this_pid = 0;
-    static int16_t sCr_requested_param_array[REACH_COUNT_PARAMS_IN_REQUEST];
-    static uint8_t sCr_requested_param_info_count = 0;
-    static uint8_t sCr_requested_param_index = 0;
-    static uint8_t sCr_requested_param_read_count = 0;
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    /// check these params for notification
-    static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
-    /// storage of the previous value
-    static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
-  #endif
-#endif // def INCLUDE_PARAMETER_SERVICE
-
 ///----------------------------------------------------------------------------
 /// static (private) "member" functions
 ///----------------------------------------------------------------------------
@@ -168,22 +154,6 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 /// <returns></returns>
 static int handle_get_device_info(const cr_DeviceInfoRequest *request,
                                       cr_DeviceInfoResponse *response);
-
-#ifdef INCLUDE_PARAMETER_SERVICE
-    // Params
-    static int handle_discover_parameters(const cr_ParameterInfoRequest *,
-                                              cr_ParameterInfoResponse *);
-    static int handle_discover_parameters_ex(const cr_ParameterInfoRequest *,
-                                              cr_ParamExInfoResponse *);
-    static int handle_read_param(const cr_ParameterRead *, 
-                                 cr_ParameterReadResult *);
-    static int handle_write_param(const cr_ParameterWrite *, 
-                                  cr_ParameterWriteResult *);
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    static int handle_config_param_notify(const cr_ParameterNotifyConfig *,
-                                          cr_ParameterNotifyConfigResult *);
-  #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
-#endif // def INCLUDE_PARAMETER_SERVICE
 
 #ifdef INCLUDE_STREAM_SERVICE
     // Streams
@@ -235,10 +205,6 @@ bool encode_reach_message(const cr_ReachMessage *message,       // in:  message 
                           size_t buffer_size,                   // in:  max size of encoded message
                           size_t *encode_size);                 // out: actual size of encoded message.
 
-
-static void sCr_check_for_notifications(void);
-
-
 static int handle_continued_transactions()
 {
     int rval = 0;
@@ -256,18 +222,18 @@ static int handle_continued_transactions()
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dp.", __FUNCTION__);
         rval = 
-            handle_discover_parameters(NULL, 
+            pvtCrParam_discover_parameters(NULL, 
                                        (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dpx.", __FUNCTION__);
         rval = 
-            handle_discover_parameters_ex(NULL, 
+            pvtCrParam_discover_parameters_ex(NULL, 
                                        (cr_ParamExInfoResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_READ_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
-        rval = handle_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
+        rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
         break;
     #endif  // def INCLUDE_PARAMETER_SERVICE
 
@@ -458,7 +424,7 @@ int cr_process(uint32_t ticks)
             sCr_encoded_message_size = 0;
 
             // check notifications when nothing else is happening.
-            sCr_check_for_notifications();
+            pvtCrParam_check_for_notifications();
 
             return cr_ErrorCodes_NO_DATA;
         }
@@ -514,10 +480,7 @@ uint32_t cr_get_current_ticks()
        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
        pvtCr_num_continued_objects = 0; 
        pvtCr_num_remaining_objects = 0;
-     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-       memset(sCr_param_notify_list, 0, sizeof(sCr_param_notify_list));
-       memset(sCr_last_param_values, 0, sizeof(sCr_last_param_values));
-     #endif
+       pvtCrParam_clear_notifications();
      #ifdef APP_REQUIRED_CHALLENGE_KEY
        sCr_challenge_key_valid = false;
      #endif 
@@ -532,131 +495,6 @@ uint32_t cr_get_current_ticks()
  { 
    return sCr_ble_is_connected;
  } 
-
-/// <summary>
-/// A local function called in cr_process() to determine whether
-/// any parameter notifications need to be generated. 
-/// </summary>
-static void sCr_check_for_notifications()
-{
-  #if (defined(INCLUDE_PARAMETER_SERVICE) && (NUM_SUPPORTED_PARAM_NOTIFY != 0) )
-    for (int idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ )
-    {
-        if (!sCr_param_notify_list[idx].enabled)
-            continue;
-
-        cr_ParameterValue curVal;
-        float delta;
-        bool needToNotify = false;
-        bool checkedDelta = false;
-        uint32_t  timeSinceLastNotify = sCurrentTicks - sCr_last_param_values[idx].timestamp;
-
-        // 0 will cause this to be ignored.
-        if (timeSinceLastNotify < sCr_param_notify_list[idx].minimum_notification_period)
-            continue;
-
-        // 0 will cause this to be ignored.
-        if ((sCr_param_notify_list[idx].maximum_notification_period != 0) &&
-            (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period))
-            needToNotify = true;
-
-        crcb_parameter_read(sCr_param_notify_list[idx].parameter_id, &curVal);
-        switch (curVal.which_value) {
-        // To match the apps and protobufs, must use _value_tags!
-        case cr_ParameterValue_uint32_value_tag:
-        case cr_ParameterValue_enum_value_tag:
-        case cr_ParameterValue_bitfield_value_tag:
-        {
-            int64_t cur  = curVal.value.uint32_value;
-            int64_t last = sCr_last_param_values[idx].value.uint32_value;
-            if (cur>last)
-              delta = cur-last;
-            else
-              delta = last-cur;
-            checkedDelta = true;
-            break;
-        }
-        case cr_ParameterValue_sint32_value_tag:
-            delta = abs(curVal.value.sint32_value - sCr_last_param_values[idx].value.sint32_value);
-            checkedDelta = true;
-            break;
-        case cr_ParameterValue_float32_value_tag:
-            delta = fabs(curVal.value.float32_value - sCr_last_param_values[idx].value.float32_value);
-            checkedDelta = true;
-            break;
-        case cr_ParameterValue_uint64_value_tag:
-          {
-          int64_t cur  = curVal.value.uint64_value;
-          int64_t last = sCr_last_param_values[idx].value.uint64_value;
-          if (cur>last)
-            delta = (float)(cur-last);
-          else
-            delta = (float)(last-cur);
-          checkedDelta = true;
-          break;
-          }
-        case cr_ParameterValue_sint64_value_tag:
-          {
-            int64_t cur  = curVal.value.sint64_value;
-            int64_t last = sCr_last_param_values[idx].value.sint64_value;
-            if (cur>last)
-              delta = (float)(cur-last);
-            else
-              delta = (float)(last-cur);
-            checkedDelta = true;
-            break;
-          }
-        case cr_ParameterValue_float64_value_tag:
-            delta = fabs(curVal.value.float64_value - sCr_last_param_values[idx].value.float64_value);
-            checkedDelta = true;
-            break;
-        case cr_ParameterValue_bool_value_tag:
-            delta = abs(curVal.value.bool_value - sCr_last_param_values[idx].value.bool_value);
-            checkedDelta = true;
-            break;
-        case cr_ParameterValue_string_value_tag:
-        case cr_ParameterValue_bytes_value_tag:
-        default:
-            checkedDelta = false;
-            break;
-        }
-        if (checkedDelta && (delta >= sCr_param_notify_list[idx].minimum_delta))
-        {
-            i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on delta %.1f" TEXT_RESET,
-                   sCr_param_notify_list[idx].parameter_id, delta);
-            needToNotify = true;
-        }
-
-        if (curVal.which_value == cr_ParameterValue_string_value_tag) {
-            if (strncmp(curVal.value.string_value, sCr_last_param_values[idx].value.string_value, REACH_PVAL_STRING_LEN))
-                needToNotify = true;
-        }
-        if (curVal.which_value == cr_ParameterValue_bytes_value_tag) {
-            if (memcmp(curVal.value.bytes_value.bytes, 
-                       sCr_last_param_values[idx].value.bytes_value.bytes, 
-                       curVal.value.bytes_value.size))
-                needToNotify = true;
-        }
-
-        if ((sCr_param_notify_list[idx].maximum_notification_period !=0) &&
-            (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period) )
-        {
-            i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on max period" TEXT_RESET,
-                   sCr_param_notify_list[idx].parameter_id);
-            needToNotify = true;
-        }
-
-        if (needToNotify)
-        {
-            crcb_notify_param(&curVal);
-
-            // save it for next time
-            sCr_last_param_values[idx] = curVal;
-            sCr_last_param_values[idx].timestamp = sCurrentTicks;
-        }
-    }
-  #endif  // NUM_SUPPORTED_PARAM_NOTIFY != 0
-}
 
 void cr_report_error(int error_code, const char *fmt, ...)
 {
@@ -876,28 +714,28 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         break;
   #ifdef INCLUDE_PARAMETER_SERVICE
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
-        rval = handle_discover_parameters((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
+        rval = pvtCrParam_discover_parameters((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
                                    (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
-        rval = handle_discover_parameters_ex((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
+        rval = pvtCrParam_discover_parameters_ex((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
                                    (cr_ParamExInfoResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_READ_PARAMETERS:
-        rval = handle_read_param((cr_ParameterRead *)sCr_decoded_prompt_buffer,
+        rval = pvtCrParam_read_param((cr_ParameterRead *)sCr_decoded_prompt_buffer,
                           (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_WRITE_PARAMETERS:
-        rval = handle_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
+        rval = pvtCrParam_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
                            (cr_ParameterWriteResult *)sCr_uncoded_response_buffer);
         break;
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-        rval = handle_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
+        rval = pvtCrParam_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
                            (cr_ParameterNotifyConfigResult *)sCr_uncoded_response_buffer);
         break;
     #endif
@@ -1083,543 +921,6 @@ const char *cr_get_reach_version()
 {
     return REACH_VERSION_STRING;
 }
-
-#ifdef INCLUDE_PARAMETER_SERVICE
-/* ------------------------------------------------------
- Parameter Services
- ------------------------------------------------------ */
-
-// This can be called directly in response to the discovery request
-// or it can be called on a continuing basis to complete the 
-// discovery transaction.  
-// returns non-zero if there is no data.
-static int 
-handle_discover_parameters(const cr_ParameterInfoRequest *request,
-                           cr_ParameterInfoResponse *response)
-{
-    int rval;
-
-    if (!pvtCr_challenge_key_is_valid()) {
-        sCr_requested_param_info_count = 0;
-        pvtCr_num_continued_objects = 0;
-        response->parameter_infos_count = 0;
-        return cr_ErrorCodes_NO_DATA;
-    }
-
-    #ifdef APP_REQUIRED_PARAMETER_KEY
-      #error No support yet for the paramter_key
-    // To Do:  Handle parameter_key.
-    // If specified, not all parameters may be available.
-    #endif
-
-    if (request != NULL) {
-        // request will be null on repeated calls.
-        // Here implies we are responding to the initial request.
-        sCr_requested_param_index = 0;
-        sCr_requested_param_info_count = request->parameter_ids_count;
-        I3_LOG(LOG_MASK_PARAMS, "discover params, count %d.", sCr_requested_param_info_count);
-
-        if (request->parameter_ids_count != 0) {
-            sCr_requested_param_index = 0;
-            // init them all to -1 meaning invalid.
-            memset(sCr_requested_param_array, -1, sizeof(sCr_requested_param_array));
-            // copy the requested numbers
-            for (int i=0; i < request->parameter_ids_count; i++) {
-                affirm(request->parameter_ids[i] < MAX_NUM_PARAM_ID);
-                sCr_requested_param_array[i] = request->parameter_ids[i];
-            }
-            sCr_requested_param_index = 0;
-            // default on first.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
-            pvtCr_num_continued_objects = 
-                pvtCr_num_remaining_objects = request->parameter_ids_count;
-        }
-        else
-        {
-            pvtCr_num_continued_objects = 
-                pvtCr_num_remaining_objects = crcb_parameter_get_count();
-        }
-        if (pvtCr_num_remaining_objects > REACH_COUNT_PARAM_DESC_IN_RESPONSE)
-        {
-            pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
-            I3_LOG(LOG_MASK_PARAMS, "discover params, Too many for one.");
-        }
-    }
-
-    // here this could be the first response or a continued response.
-    if (sCr_requested_param_info_count == 0)
-    {
-        if (request != NULL)
-        {   // first time
-            crcb_parameter_discover_reset(0);
-            sCr_requested_param_info_count = 0;
-            pvtCr_num_continued_objects =  
-                pvtCr_num_remaining_objects = crcb_parameter_get_count();
-            // default on first.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
-        }
-
-        // GCC 12 produces a warning here, google it to see controversy.
-        response->parameter_infos_count = 0;
-        for (int i=0; i<REACH_COUNT_PARAM_DESC_IN_RESPONSE; i++) 
-        {
-            cr_ParameterInfo *pParamInfo;
-            rval = crcb_parameter_discover_next(&pParamInfo);
-            if (rval != cr_ErrorCodes_NO_ERROR) 
-            {   // there are no more params.  clear on last.
-                pvtCr_num_remaining_objects = 0;
-                if (i==0)
-                {
-                    I3_LOG(LOG_MASK_PARAMS, "No data on i=0.");
-                    return cr_ErrorCodes_NO_DATA; 
-                }
-                I3_LOG(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
-                return 0;
-            }
-            I3_LOG(LOG_MASK_PARAMS, "Add param %d.", sCr_requested_param_index);
-            sCr_requested_param_index++;
-            pvtCr_num_remaining_objects--;
-            memcpy(&response->parameter_infos[i], pParamInfo, sizeof(cr_ParameterInfo));
-            // response->parameter_infos[i] = *pParamInfo;
-            response->parameter_infos_count++;
-        }
-        if (response->parameter_infos_count == 0)
-        {
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            return cr_ErrorCodes_NO_DATA; 
-        }
-        I3_LOG(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
-        return 0;
-    }
-
-    // we are supplied a list of params.
-    I3_LOG(LOG_MASK_PARAMS, "%s: Supplied a list.", __FUNCTION__);
-    response->parameter_infos_count = 0;
-    for (int i=0; i<REACH_COUNT_PARAM_DESC_IN_RESPONSE; i++)
-    {
-        cr_ParameterInfo *pParamInfo;
-        affirm(sCr_requested_param_index < REACH_PARAM_BUFFER_COUNT);
-        if (sCr_requested_param_index >= sCr_requested_param_info_count) {
-            // we've done them all.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            break;
-        }
-        if (sCr_requested_param_array[sCr_requested_param_index] < 0) {
-            // we've done them all.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            break;
-        }
-        I3_LOG(LOG_MASK_PARAMS, "Add param %d from list of %d", 
-               sCr_requested_param_index, sCr_requested_param_info_count);
-        crcb_parameter_discover_reset(sCr_requested_param_array[sCr_requested_param_index]);
-        rval = crcb_parameter_discover_next(&pParamInfo);
-        sCr_requested_param_array[sCr_requested_param_index] = -1;
-        if (rval != cr_ErrorCodes_NO_ERROR) {
-            // we've done them all.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            sCr_requested_param_info_count = 0;
-            break;
-        }
-        memcpy(&response->parameter_infos[i], pParamInfo, sizeof(cr_ParameterInfo));
-        // response->parameter_infos[i] = *pParamInfo;
-        sCr_requested_param_index++;
-        pvtCr_num_remaining_objects--;
-        response->parameter_infos_count++;
-    }
-
-    if (response->parameter_infos_count == 0)
-    {
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-    return 0;
-}
-
-
-// Handles extended parameter data describing enums and bitfields.
-
-static int 
-handle_discover_parameters_ex(const cr_ParameterInfoRequest *request,
-                              cr_ParamExInfoResponse *response) 
-{
-    if (!pvtCr_challenge_key_is_valid()) {
-        sCr_requested_param_info_count = 0;
-        pvtCr_num_continued_objects = response->enumerations_count = 0;
-        return cr_ErrorCodes_NO_DATA;
-    }
-
-    #ifdef APP_REQUIRED_PARAMETER_KEY
-    // No support yet for the paramter_key
-    // To Do:  Handle parameter_key.
-    // If specified, not all parameters may be available.
-    #endif
-
-    int rval;
-    if (request != NULL) 
-    {
-        // request will be null on repeated calls.
-        // Here implies we are responding to the initial request.
-        // set up to call next().
-        sCr_requested_param_index = 0;
-        sCr_requested_param_info_count = request->parameter_ids_count;
-        sCr_num_ex_this_pid = 0;
-        I3_LOG(LOG_MASK_PARAMS, "discover params ex, param count %d.", sCr_requested_param_info_count);
-
-        if (request->parameter_ids_count != 0) 
-        {
-            sCr_num_ex_this_pid = crcb_parameter_ex_get_count(request->parameter_ids[0]);
-            sCr_requested_param_index = 0;
-            // init them all to -1 meaning invalid.
-            memset(sCr_requested_param_array, -1, sizeof(sCr_requested_param_array));
-            pvtCr_num_continued_objects = 0;
-            // copy the requested numbers
-            for (int i=0; i < request->parameter_ids_count; i++) {
-                affirm(request->parameter_ids[i] < MAX_NUM_PARAM_ID);
-                sCr_requested_param_array[i] = request->parameter_ids[i];
-                pvtCr_num_continued_objects += crcb_parameter_ex_get_count(
-                    request->parameter_ids[i]);
-            }
-            if (pvtCr_num_continued_objects == 0)
-            {   // there is no ex data
-                pvtCr_num_remaining_objects = 0;
-                response->enumerations_count = 0;
-                I3_LOG(LOG_MASK_PARAMS, "dpx: %d params, no ex.", 
-                       request->parameter_ids_count);
-                return 0;
-            }
-            sCr_requested_param_index = 0;
-            // default on first.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAM_EX;
-            pvtCr_num_remaining_objects = pvtCr_num_continued_objects;
-        }
-        else
-        {
-            // count is zero, so setup for all
-            crcb_parameter_ex_discover_reset(-1);
-            pvtCr_num_continued_objects = 
-                pvtCr_num_remaining_objects = crcb_parameter_ex_get_count(-1);
-        }
-        // one object in each response.
-        I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.", pvtCr_num_continued_objects);
-
-        // here we've found at least one so use it.
-        rval = crcb_parameter_ex_discover_next(response);
-        pvtCr_num_remaining_objects--;
-        if (pvtCr_num_remaining_objects == 0)
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        else
-            pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAM_EX;
-        return 0;
-    }
-
-    // here this could be the first response or a continued response.
-    // determine if there is another.
-    if (pvtCr_num_remaining_objects == 0)
-    {
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA;
-    }
-    rval = crcb_parameter_ex_discover_next(response);
-    if (rval == 0)
-    {   // there was another for this param.
-        pvtCr_num_remaining_objects--;
-        pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAM_EX;
-        sCr_num_ex_this_pid = 0;
-        return 0;
-    }
-    if (sCr_requested_param_info_count == 0)
-    {
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA;
-    }
-
-    // Need to reset for the next param.
-    sCr_requested_param_index++;
-    if (sCr_requested_param_index >= sCr_requested_param_info_count)
-    {
-        pvtCr_num_continued_objects = 0;
-        I3_LOG(LOG_MASK_PARAMS, "No more params.");
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA;
-    }
-
-    if (sCr_num_ex_this_pid == 0)
-    {
-        sCr_num_ex_this_pid = crcb_parameter_ex_get_count(sCr_requested_param_array[sCr_requested_param_index]);
-        crcb_parameter_ex_discover_reset(sCr_requested_param_array[sCr_requested_param_index]);
-    }
-    rval = crcb_parameter_ex_discover_next(response);
-    if (rval == 0)
-    {   // there was another for this param.
-        pvtCr_num_remaining_objects--;
-        pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAM_EX;
-        sCr_num_ex_this_pid = 0;
-        return 0;
-    }
-    I3_LOG(LOG_MASK_PARAMS, "End of %s?", __FUNCTION__);
-    pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-    return cr_ErrorCodes_NO_DATA;
-}
-
-
-// This can be called directly in response to the read request
-// or it can be called on a continuing basis to complete the 
-// read transaction.  
-static int handle_read_param(const cr_ParameterRead *request,
-                                 cr_ParameterReadResult *response) 
-{
-    if (!pvtCr_challenge_key_is_valid()) {
-        pvtCr_num_continued_objects = 
-                pvtCr_num_remaining_objects = 0;
-        memset(response, 0, sizeof(cr_ParameterReadResult));
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-
-    #ifdef APP_REQUIRED_PARAMETER_KEY
-    // No support yet for the paramter_key
-    // To Do:  Handle parameter_key.
-    // If specified, not all parameters may be available.
-    #endif
-
-    int rval;
-    if (request != NULL) {
-        // request will be null on repeated calls.
-        // Here implies we are responding to the initial request.
-        sCr_requested_param_read_count = request->parameter_ids_count;
-        I3_LOG(LOG_MASK_PARAMS, "read params, count %d.", sCr_requested_param_info_count);
-
-        if (request->parameter_ids_count != 0) {
-            // init them all to -1 meaning invalid.
-            sCr_requested_param_index = 0;
-            memset(sCr_requested_param_array, -1, sizeof(sCr_requested_param_array));
-            // copy the requested numbers
-            for (int i=0; i < request->parameter_ids_count; i++) {
-                affirm(request->parameter_ids[i] < MAX_NUM_PARAM_ID);
-                sCr_requested_param_array[i] = request->parameter_ids[i];
-            }
-            // default on first.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_READ_PARAMETERS;
-            pvtCr_num_continued_objects = 
-                pvtCr_num_remaining_objects = request->parameter_ids_count;
-        }
-        else
-        {
-            sCr_requested_param_index = 0;
-            I3_LOG(LOG_MASK_PARAMS, "READ all PARAMETERS.");
-            pvtCr_num_continued_objects = 
-                pvtCr_num_remaining_objects = crcb_parameter_get_count();
-        }
-        if (pvtCr_num_remaining_objects > REACH_COUNT_PARAM_READ_VALUES)
-        {
-            pvtCr_continued_message_type = cr_ReachMessageTypes_READ_PARAMETERS;
-            I3_LOG(LOG_MASK_PARAMS, "read params, Too many for one.");
-        }
-    }
-
-    // here this could be the first response or a continued response.
-    if (sCr_requested_param_read_count == 0)
-    {
-        if (request != NULL)
-        {   // first time
-            crcb_parameter_discover_reset(0);
-            pvtCr_num_continued_objects =  
-                pvtCr_num_remaining_objects = crcb_parameter_get_count();
-            // default on first.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_READ_PARAMETERS;
-        }
-        response->values_count = 0;
-        for (int i=0; i<REACH_COUNT_PARAM_READ_VALUES; i++) {
-            cr_ParameterInfo *pParamInfo;
-            rval = crcb_parameter_discover_next(&pParamInfo);
-            if (rval != cr_ErrorCodes_NO_ERROR) 
-            {   // there are no more params.  clear on last.
-                pvtCr_num_remaining_objects = 0;
-                if (i==0)
-                {
-                    I3_LOG(LOG_MASK_PARAMS, "No read data on i=0.");
-                    pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-                    return cr_ErrorCodes_NO_DATA; 
-                }
-                I3_LOG(LOG_MASK_PARAMS, "Added read %d.", response->values_count);
-                return 0;
-            }
-            cr_ParameterValue paramVal;
-            crcb_parameter_read(pParamInfo->id, &paramVal);
-            I3_LOG(LOG_MASK_PARAMS, "Add param read %d.", sCr_requested_param_index);
-            response->values[i] = paramVal;
-            sCr_requested_param_index++;
-            pvtCr_num_remaining_objects--;
-            response->values_count++;
-        }
-        if (response->values_count == 0)
-        {
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            return cr_ErrorCodes_NO_DATA; 
-        }
-        I3_LOG(LOG_MASK_PARAMS, "Read added %d.", response->values_count);
-        return 0;
-    }
-
-    // we are supplied a list of params.
-    response->values_count = 0;
-    for (int i=0; i<REACH_COUNT_PARAM_READ_VALUES; i++)
-    {
-        affirm(sCr_requested_param_index < REACH_PARAM_BUFFER_COUNT);
-        if (sCr_requested_param_index >= sCr_requested_param_read_count) {
-            // we've done them all.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            break;
-        }
-        if (sCr_requested_param_array[sCr_requested_param_index] < 0) {
-            // we've done them all.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            break;
-        }
-        I3_LOG(LOG_MASK_PARAMS, "Read param %d from list of %d", 
-               sCr_requested_param_index, sCr_requested_param_read_count);
-        cr_ParameterValue paramVal;
-        rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], &paramVal);
-        if (rval != cr_ErrorCodes_NO_ERROR) {
-            // we've done them all.
-            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            sCr_requested_param_read_count = 0;
-            break;
-        }
-        response->values[i] = paramVal;
-        sCr_requested_param_array[sCr_requested_param_index] = -1;
-        sCr_requested_param_index++;
-        pvtCr_num_remaining_objects--;
-        response->values_count++;
-    }
-
-    if (response->values_count == 0)
-    {
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-    return 0;
-}
-
-static int handle_write_param(const cr_ParameterWrite *request,
-                              cr_ParameterWriteResult *response) 
-{
-    if (!pvtCr_challenge_key_is_valid()) {
-        pvtCr_num_continued_objects = 
-                pvtCr_num_remaining_objects = 0;
-        memset(response, 0, sizeof(cr_ParameterWriteResult));
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-
-    #ifdef APP_REQUIRED_PARAMETER_KEY
-    // No support yet for the paramter_key
-    // To Do:  Handle parameter_key.
-    // If specified, not all parameters may be available.
-    #endif
-
-    int rval;
-    affirm(request);
-    affirm(response);
-    response->result = 0;
-    switch (request->values_count)
-    {
-    case 1: // see NUM_PARAM_WRITE_IN_REQUEST
-    case 2:
-    case 3:
-    case 4:
-        break;
-    default:
-        cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Invalid values_count param write.");
-        return cr_ErrorCodes_INVALID_PARAMETER; 
-    }
-
-    // we are supplied a list of params.
-    for (int i=0; i<request->values_count; i++)
-    {
-        I3_LOG(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
-        rval = crcb_parameter_write(request->values[i].parameter_id, &request->values[i]);
-        if (rval != cr_ErrorCodes_NO_ERROR) {
-            cr_report_error(cr_ErrorCodes_WRITE_FAILED, "Parameter write of ID %d failed.", request->values[i].parameter_id);
-            return cr_ErrorCodes_WRITE_FAILED;
-        }
-    }
-    return 0;
-}
-
-#if NUM_SUPPORTED_PARAM_NOTIFY != 0
-
-static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
-
-static int handle_config_param_notify(const cr_ParameterNotifyConfig *pnc,
-                                      cr_ParameterNotifyConfigResult *pncr)
-{
-    int idx;
-
-    if (!pnc->enabled) 
-    {
-        bool disabledOne = false;
-        // try to disable.
-        for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
-            if (pnc->parameter_id == sCr_param_notify_list[idx].parameter_id)
-            {
-                sCr_param_notify_list[idx].enabled = false;
-                i3_log(LOG_MASK_PARAMS, "Disabled notification %d on PID %d", idx, pnc->parameter_id);
-                pncr->result = cr_ErrorCodes_NO_ERROR;
-                disabledOne = true;
-                // Don't return, check for others
-            }
-        }
-        if (!disabledOne) {
-            // No enabled match found
-            pncr->result = cr_ErrorCodes_NO_ERROR;
-            i3_log(LOG_MASK_WARN, "Requested disable of notify on %d, but not enabled.", 
-                   pnc->parameter_id);
-        }
-        return cr_ErrorCodes_NO_ERROR;
-    }
-
-    // reject enable on non-existing PID's.
-    int rval = crcb_parameter_discover_reset(pnc->parameter_id);
-    if (rval != cr_ErrorCodes_NO_ERROR) {
-        cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Notificaiton: PID %d not found.", 
-                        pnc->parameter_id);
-        pncr->result = cr_ErrorCodes_INVALID_PARAMETER;
-        return cr_ErrorCodes_INVALID_PARAMETER;
-    }
-
-    // see if an active notification already exists
-    for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
-        if (!sCr_param_notify_list[idx].enabled)
-            continue;
-        if (pnc->parameter_id == sCr_param_notify_list[idx].parameter_id) {
-            sCr_param_notify_list[idx] = *pnc;
-            // store the index of the param with this PID.
-            i3_log(LOG_MASK_PARAMS, "Updated notification %d on PID %d", idx, pnc->parameter_id);
-            pncr->result = cr_ErrorCodes_NO_ERROR;
-            return cr_ErrorCodes_NO_ERROR;
-        }
-    }
-
-    // Find an open entry
-    for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
-        if (!sCr_param_notify_list[idx].enabled)
-            break;
-    }
-    if (idx >= NUM_SUPPORTED_PARAM_NOTIFY) {
-        // All notifications are in use.  
-        pncr->result = cr_ErrorCodes_NO_RESOURCE;
-        cr_report_error(cr_ErrorCodes_NO_RESOURCE, "No notificaiton slot available for PID %d.", pnc->parameter_id);
-        return cr_ErrorCodes_NO_RESOURCE;
-    }
-    sCr_param_notify_list[idx] = *pnc;
-    // store the index of the param with this PID.
-    i3_log(LOG_MASK_PARAMS, "Enabled notification %d on PID %d", idx, pnc->parameter_id);
-    pncr->result = cr_ErrorCodes_NO_ERROR;
-    return cr_ErrorCodes_NO_ERROR;
-}
-#endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
-#endif // def INCLUDE_PARAMETER_SERVICE
 
 #ifdef INCLUDE_COMMAND_SERVICE
 static int 
