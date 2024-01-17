@@ -51,12 +51,23 @@
 extern "C" {
 #endif
 
+    /// <summary>
+    /// Private variables controlling the sort of continuing 
+    /// transactions used by file transfers, etc. 
+    /// </summary>
     extern cr_ReachMessageTypes pvtCr_continued_message_type;
     extern uint32_t             pvtCr_num_continued_objects;
     extern uint32_t             pvtCr_num_remaining_objects;
 
+    /// <summary>
+    /// Returns the state of the challenge key which may block 
+    /// access to the Reach interface 
+    /// </summary>
     bool pvtCr_challenge_key_is_valid(void);
 
+    /// <summary>
+    /// pvtCrFile_ functions support the (optional) files service.
+    /// </summary>
     int pvtCrFile_discover(const cr_DiscoverFiles *request,
                               cr_DiscoverFilesReply *response);
     int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
@@ -66,9 +77,10 @@ extern "C" {
     int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *request,
                                              cr_FileTransferData *dataTransfer);
 
-
-    // The file service includes a timeout Watchdog
-    // 0 ms disables watchdog.
+    /// <summary>
+    /// The file service includes a timeout Watchdog. 
+    /// 0 ms disables watchdog. 
+    /// </summary> 
     void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks);
 
     // resets the timeout period to original
@@ -81,8 +93,7 @@ extern "C" {
     // return 1 if timeout occurred
     int pvtCr_watchdog_check_timeout(uint32_t ticks);
 
-
-
+    bool pvtCr_challenge_key_is_valid(void);
 
 #ifdef __cplusplus
 }

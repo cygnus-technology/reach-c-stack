@@ -47,7 +47,7 @@
 #include <time.h>
 #include <math.h>
 
-// H file provided by the app to configure the stack.
+/// H file provided by the app to configure the stack.
 #include "reach-server.h"
 
 #include "cr_stack.h"
@@ -64,51 +64,51 @@
 
 
 
-//----------------------------------------------------------------------------
-// static buffers used and reused by the reach stack.
-// This is private data.
-//----------------------------------------------------------------------------
+///----------------------------------------------------------------------------
+/// static buffers used and reused by the reach stack.
+/// This is private data.
+///----------------------------------------------------------------------------
 
-// terminology
-// A transaction is a series of messages.
-// A message has a header and a payload.
-// The prompt is a received payload.
-// The response is a generated payload.
-// A file "transfer" is a series of messages terminated by an ACK.
+/// terminology
+/// A transaction is a series of messages.
+/// A message has a header and a payload.
+/// The prompt is a received payload.
+/// The response is a generated payload.
+/// A file "transfer" is a series of messages terminated by an ACK.
 
-// the fully encoded message is received here.
+/// the fully encoded message is received in the 
+/// sCr_encoded_message_buffer. 
 static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_message_size = 0;
 
-// The message header is decoded into this buffer containing an encoded payload buffer: 
+/// The message header is decoded into this buffer containing an encoded payload buffer: 
 static cr_ReachMessage sCr_uncoded_message_structure;
 
-// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
-// so that the header can be added.
+/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
+/// so that the header can be added.
 #define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
-// A decoded prompt payload.
-// This can be reused from the encoded message buffer.
-// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+/// A decoded prompt payload.
+/// This can be reused from the encoded message buffer.
+/// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
-// An uncoded response payload.
-// The sCr_uncoded_response_buffer is available to be used by the app.
+/// An uncoded response payload.
 static uint8_t sCr_uncoded_response_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
-// The response payload is encoded into sCr_encoded_payload_buffer[]. 
+/// The response payload is encoded into sCr_encoded_payload_buffer[]. 
 static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
 static size_t sCr_encoded_payload_size; 
  
-// The response payload is copied into the sCr_uncoded_message_structure
+/// The response payload is copied into the sCr_uncoded_message_structure
 
-// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
+/// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_response_size = 0;
 
-//----------------------------------------------------------------------------
-// static (private) "member" variables
-//----------------------------------------------------------------------------
+///----------------------------------------------------------------------------
+/// static (private) "member" variables
+///----------------------------------------------------------------------------
 
 cr_ReachMessageTypes pvtCr_continued_message_type;
 uint32_t pvtCr_num_continued_objects = 0;
@@ -124,29 +124,50 @@ static bool sCR_error_reported = false;
     static uint8_t sCr_requested_param_index = 0;
     static uint8_t sCr_requested_param_read_count = 0;
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    // check these params for notification
+    /// check these params for notification
     static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
-    // storage of the previous value
+    /// storage of the previous value
     static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
   #endif
 #endif // def INCLUDE_PARAMETER_SERVICE
 
-//----------------------------------------------------------------------------
-// static (private) "member" functions
-//----------------------------------------------------------------------------
+///----------------------------------------------------------------------------
+/// static (private) "member" functions
+///----------------------------------------------------------------------------
 
+/// <summary> Decodes and responds to the coded prompt provided
+/// to the Reach core. Calls handle_message() 
+/// </summary>
+/// <returns>0 on success or an error</returns>
 static int handle_coded_prompt();
 
+/// <summary> Decodes the payload and calls the appropriate 
+/// handler function. 
+/// </summary>
+/// <param name="hdr"> Includes type of message</param>
+/// <param name="data">The actual message</param>
+/// <param name="size">in bytes</param>
+/// <returns>0 on success or an error</returns>
 static int 
 handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *data, size_t size);
 
-static int handle_ping(const cr_PingRequest *, cr_PingResponse *);
+/// <summary>
+/// Respond to a ping request
+/// </summary>
+/// <param name="request"> The triggering message</param>
+/// <param name="response">Response delivered here</param>
+/// <returns></returns>
+static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response);
 
 
-static int handle_get_device_info(const cr_DeviceInfoRequest *,
-                                      cr_DeviceInfoResponse *);
-
-bool pvtCr_challenge_key_is_valid(void);
+/// <summary>
+/// Respond to a request for device info
+/// </summary>
+/// <param name="request"> The triggering message</param>
+/// <param name="response">Response delivered here</param>
+/// <returns></returns>
+static int handle_get_device_info(const cr_DeviceInfoRequest *request,
+                                      cr_DeviceInfoResponse *response);
 
 #ifdef INCLUDE_PARAMETER_SERVICE
     // Params
@@ -381,6 +402,10 @@ int cr_process(uint32_t ticks)
 {
     sCurrentTicks = ticks;   // store it so others can use it.
     sCallCount++;
+
+    if (!cr_get_ble_connected())
+        return cr_ErrorCodes_NO_ERROR;
+
 
   #ifdef INCLUDE_FILE_SERVICE
     int timeout = pvtCr_watchdog_check_timeout(ticks);
