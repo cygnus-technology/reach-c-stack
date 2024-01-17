@@ -461,12 +461,57 @@ int cr_process(uint32_t ticks)
     return cr_ErrorCodes_NO_ERROR;
 }
 
+/// <summary>
+/// The tick count is passed in to cr_process().  This function 
+/// gives other Reach functions access to that value. 
+/// </summary>
+/// <returns> the 32 bit tick count passed in to 
+/// cr_process() </returns> 
 uint32_t cr_get_current_ticks()
 {
     // a 32 bit number will roll over in 49 days at 1kHz.
     return sCurrentTicks;
 }
 
+ /// <summary>
+ ///  The BLE stack must inform the Reach stack of the status of
+ ///  the BLE connection.  The Reach loop only runs when BLE is
+ ///  connected.  All parameter notifications are cleared when
+ ///  a BLE connection is established. The client must reenable
+ ///  notifications on each connection.
+ /// </summary>
+ static bool sCr_ble_is_connected = false;
+ void cr_set_ble_connected(bool connected)
+ { 
+   if (!sCr_ble_is_connected && connected)
+   {
+       // we are newly connected, so clear any stale data.
+       pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+       pvtCr_num_continued_objects = 0; 
+       pvtCr_num_remaining_objects = 0;
+     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+       memset(sCr_param_notify_list, 0, sizeof(sCr_param_notify_list));
+       memset(sCr_last_param_values, 0, sizeof(sCr_last_param_values));
+     #endif
+     #ifdef APP_REQUIRED_CHALLENGE_KEY
+       sCr_challenge_key_valid = false;
+     #endif 
+     #ifdef APP_REQUIRED_PARAMETER_KEY
+       sCr_parameter_key_valid = false;
+     #endif
+   }
+   sCr_ble_is_connected = connected;
+ } 
+
+ bool cr_get_ble_connected(void)
+ { 
+   return sCr_ble_is_connected;
+ } 
+
+/// <summary>
+/// A local function called in cr_process() to determine whether
+/// any parameter notifications need to be generated. 
+/// </summary>
 static void sCr_check_for_notifications()
 {
   #if (defined(INCLUDE_PARAMETER_SERVICE) && (NUM_SUPPORTED_PARAM_NOTIFY != 0) )

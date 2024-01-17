@@ -157,9 +157,13 @@ void cr_get_reply_buffer_and_size(char **ptr, size_t *sz);
 void cr_report_error(int error_code, const char *fmt, ...);
 int crcb_notify_error(cr_ErrorReport *err);
 
+void cr_set_ble_connected(bool connected);
+bool cr_get_ble_connected(void);
+
 uint32_t cr_get_current_ticks();
 
 void cr_test_sizes();
+
 
 
 const char *cr_get_reach_version();
