@@ -158,8 +158,7 @@ pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *request,
         response->parameter_infos_count = 0;
         for (int i=0; i<REACH_COUNT_PARAM_DESC_IN_RESPONSE; i++) 
         {
-            cr_ParameterInfo *pParamInfo;
-            rval = crcb_parameter_discover_next(&pParamInfo);
+            rval = crcb_parameter_discover_next(&response->parameter_infos[i]);
             if (rval != cr_ErrorCodes_NO_ERROR) 
             {   // there are no more params.  clear on last.
                 pvtCr_num_remaining_objects = 0;
@@ -174,8 +173,6 @@ pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *request,
             I3_LOG(LOG_MASK_PARAMS, "Add param %d.", sCr_requested_param_index);
             sCr_requested_param_index++;
             pvtCr_num_remaining_objects--;
-            memcpy(&response->parameter_infos[i], pParamInfo, sizeof(cr_ParameterInfo));
-            // response->parameter_infos[i] = *pParamInfo;
             response->parameter_infos_count++;
         }
         if (response->parameter_infos_count == 0)
@@ -192,7 +189,6 @@ pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *request,
     response->parameter_infos_count = 0;
     for (int i=0; i<REACH_COUNT_PARAM_DESC_IN_RESPONSE; i++)
     {
-        cr_ParameterInfo *pParamInfo;
         affirm(sCr_requested_param_index < REACH_PARAM_BUFFER_COUNT);
         if (sCr_requested_param_index >= sCr_requested_param_info_count) {
             // we've done them all.
@@ -207,7 +203,7 @@ pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *request,
         I3_LOG(LOG_MASK_PARAMS, "Add param %d from list of %d", 
                sCr_requested_param_index, sCr_requested_param_info_count);
         crcb_parameter_discover_reset(sCr_requested_param_array[sCr_requested_param_index]);
-        rval = crcb_parameter_discover_next(&pParamInfo);
+        rval = crcb_parameter_discover_next(&response->parameter_infos[i]);
         sCr_requested_param_array[sCr_requested_param_index] = -1;
         if (rval != cr_ErrorCodes_NO_ERROR) {
             // we've done them all.
@@ -215,8 +211,6 @@ pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *request,
             sCr_requested_param_info_count = 0;
             break;
         }
-        memcpy(&response->parameter_infos[i], pParamInfo, sizeof(cr_ParameterInfo));
-        // response->parameter_infos[i] = *pParamInfo;
         sCr_requested_param_index++;
         pvtCr_num_remaining_objects--;
         response->parameter_infos_count++;
@@ -424,9 +418,12 @@ int pvtCrParam_read_param(const cr_ParameterRead *request,
             pvtCr_continued_message_type = cr_ReachMessageTypes_READ_PARAMETERS;
         }
         response->values_count = 0;
-        for (int i=0; i<REACH_COUNT_PARAM_READ_VALUES; i++) {
-            cr_ParameterInfo *pParamInfo;
-            rval = crcb_parameter_discover_next(&pParamInfo);
+        for (int i=0; i<REACH_COUNT_PARAM_READ_VALUES; i++) 
+        {
+            // Would use less stack if we got a pointer into flash instead of the actual data.
+            // But that makes other calls more complicated. 
+            cr_ParameterInfo paramInfo;
+            rval = crcb_parameter_discover_next(&paramInfo);
             if (rval != cr_ErrorCodes_NO_ERROR) 
             {   // there are no more params.  clear on last.
                 pvtCr_num_remaining_objects = 0;
@@ -439,10 +436,8 @@ int pvtCrParam_read_param(const cr_ParameterRead *request,
                 I3_LOG(LOG_MASK_PARAMS, "Added read %d.", response->values_count);
                 return 0;
             }
-            cr_ParameterValue paramVal;
-            crcb_parameter_read(pParamInfo->id, &paramVal);
+            crcb_parameter_read(paramInfo.id, &response->values[i]);
             I3_LOG(LOG_MASK_PARAMS, "Add param read %d.", sCr_requested_param_index);
-            response->values[i] = paramVal;
             sCr_requested_param_index++;
             pvtCr_num_remaining_objects--;
             response->values_count++;

@@ -273,14 +273,14 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @note    The overriding implementation must post-increment its pointer into 
     *          the parameter table.  Parameter ID's need not be continuous or in
     *          order.
-    * @param   desc The double pointer allows the app to provide a pointer to a 
-    *               description in flash memory.
+    * @param   pDesc Stack provided memory into which the description must be 
+    *                copied.
     * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
     *          if the last parameter has already been returned.
     */
-    int __attribute__((weak)) crcb_parameter_discover_next(cr_ParameterInfo **desc)
+    int __attribute__((weak)) crcb_parameter_discover_next(cr_ParameterInfo *pDesc)
     {
-        (void)desc;
+        (void)pDesc;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }

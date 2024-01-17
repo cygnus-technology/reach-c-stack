@@ -217,7 +217,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     // Parameter ID's need not be continuous or in order.
     // The double pointer allows the app to provide a pointer to flash memory.
     // Returns zero if the description is valid.
-    int crcb_parameter_discover_next(cr_ParameterInfo **desc);
+    int crcb_parameter_discover_next(cr_ParameterInfo *desc);
 
     // returns the number of parameters supported by the system.
     int crcb_parameter_get_count();
