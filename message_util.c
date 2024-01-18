@@ -39,6 +39,14 @@
  * @date    2023-08-21
  *
  ********************************************************************************************/
+
+/**
+ * @file      message_util.c
+ * @brief     Utility functions to print out Reach messages in a human readable 
+ *            format.
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ */
+
 #include <stdio.h>
 
 #include "reach-server.h"

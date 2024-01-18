@@ -40,6 +40,14 @@
  *
  ********************************************************************************************/
 
+
+/**
+ * @file      reach_decode.c
+ * @brief     Support for protobuf decoding.
+ * 
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ */
+
 #include <pb_decode.h>
 
 #include "reach-server.h"

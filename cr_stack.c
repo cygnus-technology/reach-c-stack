@@ -37,6 +37,15 @@
  *
  ********************************************************************************************/
 
+/**
+ * @file      cr_stack.c
+ * @brief     Contains the core of the Cygnus Reach firmware stack.
+ * @author    Chuck Peplinski
+ * @date      2024-01-18
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ * The Cygngus Reach firmware stack is shared under an MIT license.
+ */
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -47,7 +56,7 @@
 #include <time.h>
 #include <math.h>
 
-/// H file provided by the app to configure the stack.
+// H file provided by the app to configure the stack.
 #include "reach-server.h"
 
 #include "cr_stack.h"
@@ -64,94 +73,97 @@
 
 
 
-///----------------------------------------------------------------------------
-/// static buffers used and reused by the reach stack.
-/// This is private data.
-///----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// static buffers used and reused by the reach stack.
+// This is private data.
+//----------------------------------------------------------------------------
 
-/// terminology
-/// A transaction is a series of messages.
-/// A message has a header and a payload.
-/// The prompt is a received payload.
-/// The response is a generated payload.
-/// A file "transfer" is a series of messages terminated by an ACK.
+// terminology
+// A transaction is a series of messages.
+// A message has a header and a payload.
+// The prompt is a received payload.
+// The response is a generated payload.
+// A file "transfer" is a series of messages terminated by an ACK.
 
-/// the fully encoded message is received in the 
-/// sCr_encoded_message_buffer. 
+// the fully encoded message is received in the 
+// sCr_encoded_message_buffer. 
 static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_message_size = 0;
 
-/// The message header is decoded into this buffer containing an encoded payload buffer: 
+// The message header is decoded into this buffer containing an encoded payload buffer: 
 static cr_ReachMessage sCr_uncoded_message_structure;
 
-/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
-/// so that the header can be added.
+// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
+// so that the header can be added.
 #define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
-/// A decoded prompt payload.
-/// This can be reused from the encoded message buffer.
-/// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+// A decoded prompt payload.
+// This can be reused from the encoded message buffer.
+// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
-/// An uncoded response payload.
+// An uncoded response payload.
 static uint8_t sCr_uncoded_response_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
-/// The response payload is encoded into sCr_encoded_payload_buffer[]. 
+// The response payload is encoded into sCr_encoded_payload_buffer[]. 
 static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
 static size_t sCr_encoded_payload_size; 
  
-/// The response payload is copied into the sCr_uncoded_message_structure
+// The response payload is copied into the sCr_uncoded_message_structure
 
-/// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
+// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_response_size = 0;
 
-///----------------------------------------------------------------------------
-/// static (private) "member" variables
-///----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------
+// private but global variables shared with the Reach stack
+//----------------------------------------------------------------------------
 cr_ReachMessageTypes pvtCr_continued_message_type;
 uint32_t pvtCr_num_continued_objects = 0;
 uint32_t pvtCr_num_remaining_objects = 0;
 
+//----------------------------------------------------------------------------
+// static (private) "member" variables
+//----------------------------------------------------------------------------
 static int sCr_transaction_id = 0;
 static bool sCR_error_reported = false;
 
-///----------------------------------------------------------------------------
-/// static (private) "member" functions
-///----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// static (private) "member" functions
+//----------------------------------------------------------------------------
 
-/// <summary> Decodes and responds to the coded prompt provided
-/// to the Reach core. Calls handle_message() 
-/// </summary>
-/// <returns>0 on success or an error</returns>
+// <summary> Decodes and responds to the coded prompt provided
+// to the Reach core. Calls handle_message() 
+// </summary>
+// <returns>0 on success or an error</returns>
 static int handle_coded_prompt();
 
-/// <summary> Decodes the payload and calls the appropriate 
-/// handler function. 
-/// </summary>
-/// <param name="hdr"> Includes type of message</param>
-/// <param name="data">The actual message</param>
-/// <param name="size">in bytes</param>
-/// <returns>0 on success or an error</returns>
+// <summary> Decodes the payload and calls the appropriate 
+// handler function. 
+// </summary>
+// <param name="hdr"> Includes type of message</param>
+// <param name="data">The actual message</param>
+// <param name="size">in bytes</param>
+// <returns>0 on success or an error</returns>
 static int 
 handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *data, size_t size);
 
-/// <summary>
-/// Respond to a ping request
-/// </summary>
-/// <param name="request"> The triggering message</param>
-/// <param name="response">Response delivered here</param>
-/// <returns></returns>
+// <summary>
+// Respond to a ping request
+// </summary>
+// <param name="request"> The triggering message</param>
+// <param name="response">Response delivered here</param>
+// <returns></returns>
 static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response);
 
 
-/// <summary>
-/// Respond to a request for device info
-/// </summary>
-/// <param name="request"> The triggering message</param>
-/// <param name="response">Response delivered here</param>
-/// <returns></returns>
+// <summary>
+// Respond to a request for device info
+// </summary>
+// <param name="request"> The triggering message</param>
+// <param name="response">Response delivered here</param>
+// <returns></returns>
 static int handle_get_device_info(const cr_DeviceInfoRequest *request,
                                       cr_DeviceInfoResponse *response);
 
@@ -303,8 +315,12 @@ bool pvtCr_challenge_key_is_valid(void)
     #endif
 }
 
-// Public API
-
+/**
+* @brief   cr_init
+* @details To be called before starting the stack.
+* @note    Not much happens here yet.
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
+*/
 int cr_init() 
 {
   // #define TEST_NOTIFICATION
@@ -324,19 +340,41 @@ int cr_init()
     return cr_ErrorCodes_NO_ERROR;
 }
 
+/**
+* @brief   cr_set_advertised_name
+* @details Set the name of the device that should be advertised before 
+*          connecting.  Used in BLE.
+* @note    Just store the string up to length REACH_SHORT_STRING_LEN.  The code 
+*          setting up the link can retrieve this using cr_get_advertised_name()
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
+*/
 char sCr_advertised_name[REACH_SHORT_STRING_LEN];
 int cr_set_advertised_name(char *name, int length)
 {
     strncpy(sCr_advertised_name, name, REACH_SHORT_STRING_LEN);
     if (length >= REACH_SHORT_STRING_LEN) 
         return REACH_SHORT_STRING_LEN;
-    return 0;
+    return cr_ErrorCodes_NO_ERROR;
 }
 
+/**
+* @brief   cr_get_advertised_name
+* @details Retrieves the name stored by cr_set_advertised_name().
+* @return  pointer to a string of length REACH_SHORT_STRING_LEN.
+*/
 const char *cr_get_advertised_name()
 {
     return (const char *)sCr_advertised_name;
 }
+
+/**
+* @brief   cr_set_advertised_name
+* @details Set the name of the device that should be advertised before 
+*          connecting.  Used in BLE.
+* @note    Just store the string up to length REACH_SHORT_STRING_LEN.  The code 
+*          setting up the link can retrieve this using cr_get_advertised_name()
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
+*/
 
 // allows the application to store the prompt where the Reach stack can see it.
 int cr_store_coded_prompt(uint8_t *data, size_t len)
@@ -452,25 +490,25 @@ int cr_process(uint32_t ticks)
     return cr_ErrorCodes_NO_ERROR;
 }
 
-/// <summary>
-/// The tick count is passed in to cr_process().  This function 
-/// gives other Reach functions access to that value. 
-/// </summary>
-/// <returns> the 32 bit tick count passed in to 
-/// cr_process() </returns> 
+// <summary>
+// The tick count is passed in to cr_process().  This function 
+// gives other Reach functions access to that value. 
+// </summary>
+// <returns> the 32 bit tick count passed in to 
+// cr_process() </returns> 
 uint32_t cr_get_current_ticks()
 {
     // a 32 bit number will roll over in 49 days at 1kHz.
     return sCurrentTicks;
 }
 
- /// <summary>
- ///  The BLE stack must inform the Reach stack of the status of
- ///  the BLE connection.  The Reach loop only runs when BLE is
- ///  connected.  All parameter notifications are cleared when
- ///  a BLE connection is established. The client must reenable
- ///  notifications on each connection.
- /// </summary>
+ // <summary>
+ //  The BLE stack must inform the Reach stack of the status of
+ //  the BLE connection.  The Reach loop only runs when BLE is
+ //  connected.  All parameter notifications are cleared when
+ //  a BLE connection is established. The client must reenable
+ //  notifications on each connection.
+ // </summary>
  static bool sCr_ble_is_connected = false;
  void cr_set_ble_connected(bool connected)
  { 
@@ -870,14 +908,14 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 }
 
 
-/// <summary>
-/// Fill in the structure that communicates buffer sizes to the 
-/// Reach client.  Comments on the BufferSizes message in the
-/// reach.proto file give more description of the meaning of 
-/// each entry. 
-/// </summary>
-/// <param name="dir">Pointer to a device info response 
-/// structure into which the sizes data will be copied</param> 
+// <summary>
+// Fill in the structure that communicates buffer sizes to the 
+// Reach client.  Comments on the BufferSizes message in the
+// reach.proto file give more description of the meaning of 
+// each entry. 
+// </summary>
+// <param name="dir">Pointer to a device info response 
+// structure into which the sizes data will be copied</param> 
 static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
 {
     reach_sizes_t sizes_struct; 
@@ -900,18 +938,18 @@ static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
 }
 
-/// <summary>
-/// In response to a request for device info, get the raw data 
-/// from the app via a crcb function, then update the provided 
-/// pointer with the latest accurate data. 
-/// </summary>
-/// <param name="request"> A pointer to the request 
-/// which may include a challenge key.</param> 
-/// <param name="response">A pointer to memory where the 
-/// complete device info response will be composed.</param> 
-/// <returns>0 on success.  cr_ErrorCodes_NO_DATA if 
-/// the device was built to require a challenge key 
-/// and the provided key does not match.</returns> 
+// <summary>
+// In response to a request for device info, get the raw data 
+// from the app via a crcb function, then update the provided 
+// pointer with the latest accurate data. 
+// </summary>
+// <param name="request"> A pointer to the request 
+// which may include a challenge key.</param> 
+// <param name="response">A pointer to memory where the 
+// complete device info response will be composed.</param> 
+// <returns>0 on success.  cr_ErrorCodes_NO_DATA if 
+// the device was built to require a challenge key 
+// and the provided key does not match.</returns> 
 static int 
 handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
                        cr_DeviceInfoResponse     *response)  // out

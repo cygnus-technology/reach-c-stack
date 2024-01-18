@@ -16,6 +16,14 @@
  *
  ********************************************************************************************/
 
+/**
+ * @file      reach_decode.h
+ * @brief     Support for protobuf decoding.
+ * 
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ */
+
+
 #ifndef __REACH_DECODE_H__
 #define __REACH_DECODE_H__
 

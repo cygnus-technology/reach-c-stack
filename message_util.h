@@ -14,6 +14,12 @@
  * @date    2023-08-21
  *
  ********************************************************************************************/
+/**
+ * @file      message_util.h
+ * @brief     Utility functions to print out Reach messages in a human readable 
+ *            format.
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ */
 
 #ifndef __MESSAGE_UTIL_H__
 #define __MESSAGE_UTIL_H__

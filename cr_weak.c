@@ -38,15 +38,24 @@
  *
  ********************************************************************************************/
 
+/**
+ * @file      cr_weak.c
+ * @brief     The Reach stack relies on these callback functions being 
+ *            implemented by the device. The gcc supported "weak" keyword allows
+ *            us to build without having real implementations..
+ * @author    Chuck Peplinski
+ * @date      2024-01-17
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ * The Cygngus Reach firmware stack is shared under an MIT license.
+ */
+
+
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "cr_stack.h"
 #include "i3_log.h"
 
-/// The Reach stack relies on these callback functions being implemented by the device.
-/// The gcc supported "weak" keyword allows us to build without having real implementations.
- 
  
 /**
 * @brief   crcb_get_coded_prompt

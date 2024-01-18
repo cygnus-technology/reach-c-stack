@@ -37,6 +37,13 @@
  *
  ********************************************************************************************/
 
+/**
+ * @file      cr_provate.h
+ * @brief     defines things internal to the Reach stack.
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ * The Cygngus Reach firmware stack is shared under an MIT license.
+ */
+
 #ifndef _CR_PRIVATE_H
 #define _CR_PRIVATE_H
 

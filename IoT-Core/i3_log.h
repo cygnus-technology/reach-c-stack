@@ -20,6 +20,14 @@
 #ifndef LOG_H_
 #define LOG_H_
 
+/**
+ * @file      i3_log.h
+ * @brief     Public API to the i3_log module. By convention the functions here 
+ *            are documented with their source in the .c file.
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ * The Cygngus Reach firmware stack is shared under an MIT license.
+ */
+
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -32,23 +40,26 @@ extern "C"
 {
 #endif
 
-// The "mask" concept here is chosen over the "level" concept so that masks
-// can be assigned to specific features.  Turning on all of the masks is
-// likely to be too much information.  You can turn on the logging from
-// only the modules that you want to debug.
-// Reach uses a few bits.  You can assign your own bits.
+/**
+ * The logging system used by Reach relies on a "mask" to control the amount of 
+ * logging. The "mask" concept here is chosen over the "level" concept so that 
+ * masks can be assigned to specific features.  Turning on all of the masks is 
+ * likely to be too much information.  You can turn on the logging from only the 
+ * modules that you want to debug. Reach uses a few bits.  You can assign your 
+ * own bits. 
+ */
 
-//  The lowest nibble is reserved to system things.
-#define LOG_MASK_ALWAYS     0x01    // Cannot be supressed
-#define LOG_MASK_ERROR      0x02    // Prints red, cannot be supressed
-#define LOG_MASK_WARN       0x04    // Prints yellow, cannot be supressed
-#define LOG_MASK_BARE       0x08    // trailing \n is omitted
-#define LOG_MASK_REMOTE     0x10    // Set this to indicate that a message should be shared remotely.
+///  The lowest nibble is reserved to system things.
+#define LOG_MASK_ALWAYS     0x01    /// Cannot be supressed
+#define LOG_MASK_ERROR      0x02    /// Prints red, cannot be supressed
+#define LOG_MASK_WARN       0x04    /// Prints yellow, cannot be supressed
+#define LOG_MASK_BARE       0x08    /// trailing \n is omitted
+#define LOG_MASK_REMOTE     0x10    /// Set this to indicate that a message should be shared remotely.
 
-// Thes used by Reach features.  Enable them to debug and understand.
-#define LOG_MASK_WEAK       0x20    // print in weak functions
-#define LOG_MASK_WIRE       0x40    // show what is on the wire
-#define LOG_MASK_REACH      0x80    // show reach protocol exchanges
+/// These used by Reach features.  Enable them to debug and understand.
+#define LOG_MASK_WEAK       0x20    /// print in weak functions
+#define LOG_MASK_WIRE       0x40    /// show what is on the wire
+#define LOG_MASK_REACH      0x80    /// show reach protocol exchanges
 #define LOG_MASK_PARAMS     0x100
 #define LOG_MASK_FILES      0x200
 #define LOG_MASK_BLE        0x400
@@ -56,10 +67,11 @@ extern "C"
 #define LOG_MASK_DEBUG     0x8000
 #define LOG_MASK_TIMEOUT  0x10000
 
-// Higher bits can be defined and used by the application
-// #include "app_log_masks.h"
+/// Higher bits can be defined and used by the application
+/// #include "app_log_masks.h"
 
-//#define NO_REACH_LOGGING in reach-server.h if you wish to completely eliminate logging.
+/// Logging can be completely excluded from the build by defining
+///NO_REACH_LOGGING in reach-server.h.
 #ifdef NO_REACH_LOGGING
     #define I3_LOG(m, f, ...)
     #define LOG_REACH(format, ...)

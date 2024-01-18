@@ -2,19 +2,20 @@
 //          i3pd.com, a Helios company.
 // 
 // reach_ble_proto_sizes.h
-// 
-// Structure sizes defining reach.options for BLE usage
-// These sizes are based on the 240 byte BLE packet
-// and are tuned to fit in all cases.
-// Hence there is no need for a separate packetizing layer.
-//
-// These values are used to populate reach.options for nanopb.
-// cr_stack.h uses these to define more specific buffer sizes.
-// 
-// If you have a reason to change these, consider the effect in:
-//   cr_stack.h, where you could use a different common size.
-//   reach.options.prototype
-//   the DeviceInfoResponse message in reach.proto
+
+/**
+ * @file      reach_ble_proto_sizes.h
+ * @brief     This file contains structure sizes defining reach.options for BLE 
+ *            usage These sizes are based on the 240 byte BLE packetand are
+ *            tuned to fit in all cases. Hence there is no need for a separate
+ *            packetizing layer. These values are used to populate reach.options
+ *            for nanopb. cr_stack.h uses these to define more specific buffer
+ *            sizes. If you have a reason to change these, consider the effect
+ *            in cr_stack.h, where you could use a different common size and
+ *            reach.options.prototype and the DeviceInfoResponse message in
+ *            reach.proto.
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ */
 
 #ifndef _REACH_BLE_PROTO_SIZES_H
 #define _REACH_BLE_PROTO_SIZES_H

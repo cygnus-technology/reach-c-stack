@@ -37,6 +37,19 @@
  *
  ********************************************************************************************/
 
+/**
+ * @file      cr_files.c
+ * @brief     Contains the private parts of the Cygnus Reach firmware stack 
+ *            supporting the file service.
+ * @note      Functions that are not static are prefixed with pvtCrFile_.  The 
+ *            entire contents can be excluded from the build when
+ *            INCLUDE_FILE_SERVICE is not defined.
+ * @author    Chuck Peplinski
+ * @date      2024-01-17
+ * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ * The Cygngus Reach firmware stack is shared under an MIT license.
+ */
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
