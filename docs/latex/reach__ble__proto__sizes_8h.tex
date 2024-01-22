@@ -1,0 +1,149 @@
+\doxysection{reach\+\_\+ble\+\_\+proto\+\_\+sizes.\+h File Reference}
+\hypertarget{reach__ble__proto__sizes_8h}{}\label{reach__ble__proto__sizes_8h}\index{reach\_ble\_proto\_sizes.h@{reach\_ble\_proto\_sizes.h}}
+
+
+This file contains structure sizes defining reach.\+options for BLE usage These sizes are based on the 240 byte BLE packetand are tuned to fit in all cases. Hence there is no need for a separate packetizing layer. These values are used to populate reach.\+options for nanopb. \doxylink{cr__stack_8h_source}{cr\+\_\+stack.\+h} uses these to define more specific buffer sizes. If you have a reason to change these, consider the effect in \doxylink{cr__stack_8h_source}{cr\+\_\+stack.\+h}, where you could use a different common size and reach.\+options.\+prototype and the Device\+Info\+Response message in reach.\+proto.  
+
+
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structreach__sizes__t}{reach\+\_\+sizes\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a71cc43877e7ff9c92f755aeea41f4ffc}\label{reach__ble__proto__sizes_8h_a71cc43877e7ff9c92f755aeea41f4ffc} 
+\#define {\bfseries REACH\+\_\+\+MAX\+\_\+\+RESPONSE\+\_\+\+SIZE}~244
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a1e078fd95e7653e63cc072a3dc4ad2ad}\label{reach__ble__proto__sizes_8h_a1e078fd95e7653e63cc072a3dc4ad2ad} 
+\#define {\bfseries REACH\+\_\+\+MESSAGE\+\_\+\+PAYLOAD\+\_\+\+MAX}~208
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a1c96b5f035388e6941104905bfb61284}\label{reach__ble__proto__sizes_8h_a1c96b5f035388e6941104905bfb61284} 
+\#define {\bfseries REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN}~194
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a40bf34a0598c603ac4c76fa0386792cf}\label{reach__ble__proto__sizes_8h_a40bf34a0598c603ac4c76fa0386792cf} 
+\#define {\bfseries REACH\+\_\+\+DEVICE\+\_\+\+INFO\+\_\+\+LEN}~48
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a27c4c80f90f2ef9ba9008620311c961b}\label{reach__ble__proto__sizes_8h_a27c4c80f90f2ef9ba9008620311c961b} 
+\#define {\bfseries REACH\+\_\+\+LONG\+\_\+\+STRING\+\_\+\+LEN}~32
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_af5a6cfb26eb8307067d6f5d7572abbc3}\label{reach__ble__proto__sizes_8h_af5a6cfb26eb8307067d6f5d7572abbc3} 
+\#define {\bfseries REACH\+\_\+\+COUNT\+\_\+\+PARAM\+\_\+\+IDS}~32
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a5dc61dfe94159655aaef2d889993e240}\label{reach__ble__proto__sizes_8h_a5dc61dfe94159655aaef2d889993e240} 
+\#define {\bfseries REACH\+\_\+\+MEDIUM\+\_\+\+STRING\+\_\+\+LEN}~24
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a1df95f7eee082cb49d8b22f8741a0f00}\label{reach__ble__proto__sizes_8h_a1df95f7eee082cb49d8b22f8741a0f00} 
+\#define {\bfseries REACH\+\_\+\+SHORT\+\_\+\+STRING\+\_\+\+LEN}~16
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a38e0400d6db4524f3f2f2da90ff005e4}\label{reach__ble__proto__sizes_8h_a38e0400d6db4524f3f2f2da90ff005e4} 
+\#define {\bfseries REACH\+\_\+\+PARAM\+\_\+\+INFO\+\_\+\+ENUM\+\_\+\+COUNT}~12
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a369b517135577802e019789f5bd00227}\label{reach__ble__proto__sizes_8h_a369b517135577802e019789f5bd00227} 
+\#define {\bfseries REACH\+\_\+\+SERVICES\+\_\+\+COUNT}~8
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a3ec7a90c22a91392558beebc0a0978db}\label{reach__ble__proto__sizes_8h_a3ec7a90c22a91392558beebc0a0978db} 
+\#define {\bfseries REACH\+\_\+\+PI\+\_\+\+ENUM\+\_\+\+COUNT}~8
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_ab79e5f69362e5a2562e155de30c8a233}\label{reach__ble__proto__sizes_8h_ab79e5f69362e5a2562e155de30c8a233} 
+\#define {\bfseries REACH\+\_\+\+NUM\+\_\+\+COMMANDS\+\_\+\+IN\+\_\+\+RESPONSE}~6
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a5ec3dc4c2edde7a59c2cd349cf5e0866}\label{reach__ble__proto__sizes_8h_a5ec3dc4c2edde7a59c2cd349cf5e0866} 
+\#define {\bfseries REACH\+\_\+\+NUM\+\_\+\+MEDIUM\+\_\+\+STRUCTS\+\_\+\+IN\+\_\+\+MESSAGE}~4
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a4033cced4762bee01033d701e220ee4d}\label{reach__ble__proto__sizes_8h_a4033cced4762bee01033d701e220ee4d} 
+\#define {\bfseries REACH\+\_\+\+COUNT\+\_\+\+PARAM\+\_\+\+DESC\+\_\+\+IN\+\_\+\+RESPONSE}~2
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a5db1325ea2214d4b5a2e5cd910baf672}\label{reach__ble__proto__sizes_8h_a5db1325ea2214d4b5a2e5cd910baf672} 
+\#define {\bfseries REACH\+\_\+\+ERROR\+\_\+\+BUFFER\+\_\+\+LEN}~REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a15d8ea336ee45a620c816ed66e221740}\label{reach__ble__proto__sizes_8h_a15d8ea336ee45a620c816ed66e221740} 
+\#define {\bfseries REACH\+\_\+\+PING\+\_\+\+ECHO\+\_\+\+LEN}~REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a2a637dce8c6c6c3ede484128632755ff}\label{reach__ble__proto__sizes_8h_a2a637dce8c6c6c3ede484128632755ff} 
+\#define {\bfseries REACH\+\_\+\+BYTES\+\_\+\+IN\+\_\+\+A\+\_\+\+FILE\+\_\+\+PACKET}~REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_af0f15e8a4b1d6604293b766c8f775648}\label{reach__ble__proto__sizes_8h_af0f15e8a4b1d6604293b766c8f775648} 
+\#define {\bfseries REACH\+\_\+\+BYTES\+\_\+\+IN\+\_\+\+AN\+\_\+\+ERROR\+\_\+\+MSG}~REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a17b407c49de1c06e960c03d1ece8ff8b}\label{reach__ble__proto__sizes_8h_a17b407c49de1c06e960c03d1ece8ff8b} 
+\#define {\bfseries REACH\+\_\+\+STREAM\+\_\+\+DATA\+\_\+\+LEN}~REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a5fc6a92786d63967d38fb4633df09503}\label{reach__ble__proto__sizes_8h_a5fc6a92786d63967d38fb4633df09503} 
+\#define {\bfseries REACH\+\_\+\+COMMAND\+\_\+\+RES\+\_\+\+LEN}~REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a911a6c98afccc5354f0ec34de39cdb42}\label{reach__ble__proto__sizes_8h_a911a6c98afccc5354f0ec34de39cdb42} 
+\#define {\bfseries REACH\+\_\+\+CLI\+\_\+\+MSG\+\_\+\+LEN}~REACH\+\_\+\+BIG\+\_\+\+DATA\+\_\+\+BUFFER\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_ae22c4f4c68533c1a687dfdfcff460909}\label{reach__ble__proto__sizes_8h_ae22c4f4c68533c1a687dfdfcff460909} 
+\#define {\bfseries REACH\+\_\+\+COUNT\+\_\+\+PARAMS\+\_\+\+IN\+\_\+\+REQUEST}~REACH\+\_\+\+COUNT\+\_\+\+PARAM\+\_\+\+IDS
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a6f25e851c057c9a1a0a78cfb04766818}\label{reach__ble__proto__sizes_8h_a6f25e851c057c9a1a0a78cfb04766818} 
+\#define {\bfseries REACH\+\_\+\+COUNT\+\_\+\+FAILED\+\_\+\+PARAM\+\_\+\+IDS}~REACH\+\_\+\+COUNT\+\_\+\+PARAM\+\_\+\+IDS
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_ae620af252c06554acf5f7554372c1b57}\label{reach__ble__proto__sizes_8h_ae620af252c06554acf5f7554372c1b57} 
+\#define {\bfseries REACH\+\_\+\+PVAL\+\_\+\+STRING\+\_\+\+LEN}~REACH\+\_\+\+LONG\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_add6ff0d8d778419992652d8fa584695f}\label{reach__ble__proto__sizes_8h_add6ff0d8d778419992652d8fa584695f} 
+\#define {\bfseries REACH\+\_\+\+PVAL\+\_\+\+BYTES\+\_\+\+LEN}~REACH\+\_\+\+LONG\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a46ee6878396d44044181adec31d2975d}\label{reach__ble__proto__sizes_8h_a46ee6878396d44044181adec31d2975d} 
+\#define {\bfseries REACH\+\_\+\+PARAM\+\_\+\+INFO\+\_\+\+DESCRIPTION\+\_\+\+LEN}~REACH\+\_\+\+LONG\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_acfca0bf5f5a24d1c727bc1eaa661e5cd}\label{reach__ble__proto__sizes_8h_acfca0bf5f5a24d1c727bc1eaa661e5cd} 
+\#define {\bfseries REACH\+\_\+\+DEVICE\+\_\+\+NAME\+\_\+\+LEN}~REACH\+\_\+\+MEDIUM\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_adecc0815e4e9b4641a8b4b141b15b0bd}\label{reach__ble__proto__sizes_8h_adecc0815e4e9b4641a8b4b141b15b0bd} 
+\#define {\bfseries REACH\+\_\+\+MANUFACTURER\+\_\+\+NAME\+\_\+\+LEN}~REACH\+\_\+\+MEDIUM\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_aca9fe57c460de31553968f6b095c2322}\label{reach__ble__proto__sizes_8h_aca9fe57c460de31553968f6b095c2322} 
+\#define {\bfseries REACH\+\_\+\+PARAM\+\_\+\+INFO\+\_\+\+NAME\+\_\+\+LEN}~REACH\+\_\+\+MEDIUM\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a817b06ef1dca7753e01b5f9d67b2dec2}\label{reach__ble__proto__sizes_8h_a817b06ef1dca7753e01b5f9d67b2dec2} 
+\#define {\bfseries REACH\+\_\+\+FILE\+\_\+\+NAME\+\_\+\+LEN}~REACH\+\_\+\+MEDIUM\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a20cdfde0c6159f138e3d10d84ac6689c}\label{reach__ble__proto__sizes_8h_a20cdfde0c6159f138e3d10d84ac6689c} 
+\#define {\bfseries REACH\+\_\+\+STREAM\+\_\+\+NAME\+\_\+\+LEN}~REACH\+\_\+\+MEDIUM\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a5e20dbc5268c6d69ca3d1908bb8fe4ba}\label{reach__ble__proto__sizes_8h_a5e20dbc5268c6d69ca3d1908bb8fe4ba} 
+\#define {\bfseries REACH\+\_\+\+COMMAND\+\_\+\+NAME\+\_\+\+LEN}~REACH\+\_\+\+MEDIUM\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a66a9b64014c3a4dfa9696b90b935f8cf}\label{reach__ble__proto__sizes_8h_a66a9b64014c3a4dfa9696b90b935f8cf} 
+\#define {\bfseries REACH\+\_\+\+PARAM\+\_\+\+INFO\+\_\+\+UNITS\+\_\+\+LEN}~REACH\+\_\+\+SHORT\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a0597433c6214699e45cda51908511f72}\label{reach__ble__proto__sizes_8h_a0597433c6214699e45cda51908511f72} 
+\#define {\bfseries REACH\+\_\+\+FW\+\_\+\+VERSION\+\_\+\+LEN}~REACH\+\_\+\+SHORT\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_abfc460291967a1e0011777617611d8c4}\label{reach__ble__proto__sizes_8h_abfc460291967a1e0011777617611d8c4} 
+\#define {\bfseries REACH\+\_\+\+UUID\+\_\+\+BYTE\+\_\+\+LEN}~REACH\+\_\+\+SHORT\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_ad8f6c581829d8a823fc9528f4a749697}\label{reach__ble__proto__sizes_8h_ad8f6c581829d8a823fc9528f4a749697} 
+\#define {\bfseries REACH\+\_\+\+PI\+\_\+\+ENUM\+\_\+\+NAME\+\_\+\+LEN}~REACH\+\_\+\+SHORT\+\_\+\+STRING\+\_\+\+LEN
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a7b4a10e9b52af8f340f0d1f6449f4098}\label{reach__ble__proto__sizes_8h_a7b4a10e9b52af8f340f0d1f6449f4098} 
+\#define {\bfseries REACH\+\_\+\+COUNT\+\_\+\+PARAM\+\_\+\+READ\+\_\+\+VALUES}~REACH\+\_\+\+NUM\+\_\+\+MEDIUM\+\_\+\+STRUCTS\+\_\+\+IN\+\_\+\+MESSAGE
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a033b7925d7789bfc98c1b3972fe90717}\label{reach__ble__proto__sizes_8h_a033b7925d7789bfc98c1b3972fe90717} 
+\#define {\bfseries REACH\+\_\+\+DISCOVER\+\_\+\+STREAM\+\_\+\+COUNT}~REACH\+\_\+\+NUM\+\_\+\+MEDIUM\+\_\+\+STRUCTS\+\_\+\+IN\+\_\+\+MESSAGE
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a4a0fdeee41603e7134318502e742200e}\label{reach__ble__proto__sizes_8h_a4a0fdeee41603e7134318502e742200e} 
+\#define {\bfseries REACH\+\_\+\+COUNT\+\_\+\+PARAM\+\_\+\+WRITE\+\_\+\+IN\+\_\+\+REQUEST}~REACH\+\_\+\+NUM\+\_\+\+MEDIUM\+\_\+\+STRUCTS\+\_\+\+IN\+\_\+\+MESSAGE
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a759d3193607dacbe9e061614a68c6a77}\label{reach__ble__proto__sizes_8h_a759d3193607dacbe9e061614a68c6a77} 
+\#define {\bfseries REACH\+\_\+\+COUNT\+\_\+\+PARAM\+\_\+\+NOTIF\+\_\+\+VALUES}~REACH\+\_\+\+NUM\+\_\+\+MEDIUM\+\_\+\+STRUCTS\+\_\+\+IN\+\_\+\+MESSAGE
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_adadbfbc2f8754859bc467c56560c272c}\label{reach__ble__proto__sizes_8h_adadbfbc2f8754859bc467c56560c272c} 
+\#define {\bfseries REACH\+\_\+\+DISCOVER\+\_\+\+FILES\+\_\+\+COUNT}~REACH\+\_\+\+NUM\+\_\+\+MEDIUM\+\_\+\+STRUCTS\+\_\+\+IN\+\_\+\+MESSAGE
+\item 
+\Hypertarget{reach__ble__proto__sizes_8h_a29ce065d6ab1cc4e16f5ba44e9d38b36}\label{reach__ble__proto__sizes_8h_a29ce065d6ab1cc4e16f5ba44e9d38b36} 
+\#define {\bfseries REACH\+\_\+\+SIZE\+\_\+\+STRUCT\+\_\+\+SIZE}~16
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+This file contains structure sizes defining reach.\+options for BLE usage These sizes are based on the 240 byte BLE packetand are tuned to fit in all cases. Hence there is no need for a separate packetizing layer. These values are used to populate reach.\+options for nanopb. \doxylink{cr__stack_8h_source}{cr\+\_\+stack.\+h} uses these to define more specific buffer sizes. If you have a reason to change these, consider the effect in \doxylink{cr__stack_8h_source}{cr\+\_\+stack.\+h}, where you could use a different common size and reach.\+options.\+prototype and the Device\+Info\+Response message in reach.\+proto. 
+
+\begin{DoxyCopyright}{Copyright}
+(c) Copyright 2023 i3 Product Development. All Rights Reserved. 
+\end{DoxyCopyright}

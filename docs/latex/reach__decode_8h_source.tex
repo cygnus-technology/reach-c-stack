@@ -1,0 +1,41 @@
+\doxysection{reach\+\_\+decode.\+h}
+\hypertarget{reach__decode_8h_source}{}\label{reach__decode_8h_source}\mbox{\hyperlink{reach__decode_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/********************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ \ \ \ \_\ \_\_\_\_\ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ \ \ (\_)\_\_\ /\ |\ \_\ \(\backslash\)\_\ \_\ \_\_\_\ \ \_\_|\ |\_\ \ \_\ \_\_|\ |\_\ \ |\ \ \ \(\backslash\)\ \_\_\_\_\_\ \_\_\_\_\_|\ |\_\_\_\ \_\ \_\_\ \_\ \_\_\ \ \_\_\_\ \_\ \_|\ |\_}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ \ \ |\ ||\_\ \(\backslash\)\ |\ \ \_/\ '\_/\ \_\ \(\backslash\)/\ \_`\ |\ ||\ /\ \_|\ \ \_|\ |\ |)\ /\ -\/\_)\ V\ /\ -\/\_)\ /\ \_\ \(\backslash\)\ '\_\ \(\backslash\)\ '\ \ \(\backslash\)/\ -\/\_)\ '\ \(\backslash\)\ \ \_|}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ \ \ |\_|\_\_\_/\ |\_|\ |\_|\ \(\backslash\)\_\_\_/\(\backslash\)\_\_,\_|\(\backslash\)\_,\_\(\backslash\)\_\_|\(\backslash\)\_\_|\ |\_\_\_/\(\backslash\)\_\_\_|\(\backslash\)\_/\(\backslash\)\_\_\_|\_\(\backslash\)\_\_\_/\ .\_\_/\_|\_|\_\(\backslash\)\_\_\_|\_||\_\(\backslash\)\_\_|}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_|}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Copyright\ i3\ Product\ Development\ 2023}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ @author\ \ i3\ Product\ Development}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ Wei\ Zhou\ wei.zhou@i3pd.com}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ @version\ 0.0.1}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *\ @date\ \ \ \ 2023-\/08-\/22}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ ********************************************************************************************/}}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#ifndef\ \_\_REACH\_DECODE\_H\_\_}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#define\ \_\_REACH\_DECODE\_H\_\_}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#include\ "{}reach.pb.h"{}}}
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keywordtype}{bool}\ decode\_reach\_payload(cr\_ReachMessageTypes\ message\_type,\ \ \textcolor{comment}{//\ in:\ \ from\ the\ header}}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *dec\_data,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ out:\ decode\ to\ here.}}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint8\_t\ *in\_buffer,\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ in:\ \ encoded\ from\ the\ header}}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ in\_size);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ in:\ \ encoded\ size}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{keywordtype}{bool}\ decode\_reach\_message(cr\_ReachMessage\ *message,\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ out:\ decoded}}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint8\_t\ *in\_buffer,\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ in:\ \ encoded}}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ in\_size);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ in:\ \ encoded\ size}}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ uint32\_t\ cr\_get\_transaction\_id();}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ \_\_REACH\_DECODE\_H\_\_\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}

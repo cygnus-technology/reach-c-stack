@@ -1,0 +1,56 @@
+\doxysection{cr\+\_\+params.\+c File Reference}
+\hypertarget{cr__params_8c}{}\label{cr__params_8c}\index{cr\_params.c@{cr\_params.c}}
+
+
+Contains the private parts of the Cygnus Reach firmware stack supporting the parameter repository.  
+
+
+{\ttfamily \#include $<$assert.\+h$>$}\newline
+{\ttfamily \#include $<$stdarg.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include "{}reach-\/server.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{cr__params_8c_a0440e2157e389adf3b9734458ea485f8}{pvt\+Cr\+Param\+\_\+clear\+\_\+notifications}} (void)
+\begin{DoxyCompactList}\small\item\em clears any stale notifications. To be called on connection to client Must be available (empty) in all no-\/param case. \end{DoxyCompactList}\item 
+\Hypertarget{cr__params_8c_a970900d47b9760a340ef2d3021757e9c}\label{cr__params_8c_a970900d47b9760a340ef2d3021757e9c} 
+void {\bfseries pvt\+Cr\+Param\+\_\+check\+\_\+for\+\_\+notifications} ()
+\begin{DoxyCompactList}\small\item\em A local function called in cr\+\_\+process() to determine whether any parameter notifications need to be generated. Must be available (empty) in all no-\/param case. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contains the private parts of the Cygnus Reach firmware stack supporting the parameter repository. 
+
+\begin{DoxyNote}{Note}
+Functions that are not static are prefixed with pvt\+Cr\+Param\+\_\+. The entire contents can be excluded from the build when INCLUDE\+\_\+\+PARAMETER\+\_\+\+SERVICE is not defined. 
+\end{DoxyNote}
+\begin{DoxyAuthor}{Author}
+Chuck Peplinski 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2024-\/01-\/17 
+\end{DoxyDate}
+\begin{DoxyCopyright}{Copyright}
+(c) Copyright 2023 i3 Product Development. All Rights Reserved. The Cygngus Reach firmware stack is shared under an MIT license. 
+\end{DoxyCopyright}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{cr__params_8c_a0440e2157e389adf3b9734458ea485f8}\label{cr__params_8c_a0440e2157e389adf3b9734458ea485f8} 
+\index{cr\_params.c@{cr\_params.c}!pvtCrParam\_clear\_notifications@{pvtCrParam\_clear\_notifications}}
+\index{pvtCrParam\_clear\_notifications@{pvtCrParam\_clear\_notifications}!cr\_params.c@{cr\_params.c}}
+\doxysubsubsection{\texorpdfstring{pvtCrParam\_clear\_notifications()}{pvtCrParam\_clear\_notifications()}}
+{\footnotesize\ttfamily void pvt\+Cr\+Param\+\_\+clear\+\_\+notifications (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+clears any stale notifications. To be called on connection to client Must be available (empty) in all no-\/param case. 
+
+pvt\+Cr\+Param\+\_\+ functions support the (optional) parameters service. 

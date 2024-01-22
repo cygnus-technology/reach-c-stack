@@ -1,0 +1,32 @@
+\doxysection{reach\+\_\+decode.\+c File Reference}
+\hypertarget{reach__decode_8c}{}\label{reach__decode_8c}\index{reach\_decode.c@{reach\_decode.c}}
+
+
+Support for protobuf decoding.  
+
+
+{\ttfamily \#include $<$pb\+\_\+decode.\+h$>$}\newline
+{\ttfamily \#include "{}reach-\/server.\+h"{}}\newline
+{\ttfamily \#include "{}i3\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}message\+\_\+util.\+h"{}}\newline
+{\ttfamily \#include "{}reach\+\_\+decode.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{reach__decode_8c_a4a4c54d90d0ae8ebffbcb3a163b48895}\label{reach__decode_8c_a4a4c54d90d0ae8ebffbcb3a163b48895} 
+uint32\+\_\+t {\bfseries cr\+\_\+get\+\_\+transaction\+\_\+id} ()
+\item 
+\Hypertarget{reach__decode_8c_a04b12023f792330292343f647f39fa9d}\label{reach__decode_8c_a04b12023f792330292343f647f39fa9d} 
+bool {\bfseries decode\+\_\+reach\+\_\+message} (cr\+\_\+\+Reach\+Message \texorpdfstring{$\ast$}{*}message, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\item 
+\Hypertarget{reach__decode_8c_a6dfda3081e332d49302d49d2d714be78}\label{reach__decode_8c_a6dfda3081e332d49302d49d2d714be78} 
+bool {\bfseries decode\+\_\+reach\+\_\+payload} (cr\+\_\+\+Reach\+Message\+Types message\+\_\+type, void \texorpdfstring{$\ast$}{*}data, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t size)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Support for protobuf decoding. 
+
+\begin{DoxyCopyright}{Copyright}
+(c) Copyright 2023 i3 Product Development. All Rights Reserved. 
+\end{DoxyCopyright}

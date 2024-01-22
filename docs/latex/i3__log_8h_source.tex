@@ -1,0 +1,167 @@
+\doxysection{i3\+\_\+log.\+h}
+\hypertarget{i3__log_8h_source}{}\label{i3__log_8h_source}\index{IoT-\/Core/i3\_log.h@{IoT-\/Core/i3\_log.h}}
+\mbox{\hyperlink{i3__log_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/********************************************************************************************}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ \ \ \ \_\ \_\_\_\_\ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ \ \ (\_)\_\_\ /\ |\ \_\ \(\backslash\)\_\ \_\ \_\_\_\ \ \_\_|\ |\_\ \ \_\ \_\_|\ |\_\ \ |\ \ \ \(\backslash\)\ \_\_\_\_\_\ \_\_\_\_\_|\ |\_\_\_\ \_\ \_\_\ \_\ \_\_\ \ \_\_\_\ \_\ \_|\ |\_}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ \ \ |\ ||\_\ \(\backslash\)\ |\ \ \_/\ '\_/\ \_\ \(\backslash\)/\ \_`\ |\ ||\ /\ \_|\ \ \_|\ |\ |)\ /\ -\/\_)\ V\ /\ -\/\_)\ /\ \_\ \(\backslash\)\ '\_\ \(\backslash\)\ '\ \ \(\backslash\)/\ -\/\_)\ '\ \(\backslash\)\ \ \_|}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *\ \ \ |\_|\_\_\_/\ |\_|\ |\_|\ \(\backslash\)\_\_\_/\(\backslash\)\_\_,\_|\(\backslash\)\_,\_\(\backslash\)\_\_|\(\backslash\)\_\_|\ |\_\_\_/\(\backslash\)\_\_\_|\(\backslash\)\_/\(\backslash\)\_\_\_|\_\(\backslash\)\_\_\_/\ .\_\_/\_|\_|\_\(\backslash\)\_\_\_|\_||\_\(\backslash\)\_\_|}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_|}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Copyright\ i3\ Product\ Development\ 2023}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ \(\backslash\)brief\ "{}i3\_log.h"{}\ specifies\ the\ interface\ to\ a\ basic\ logging\ function.}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ \ \ The\ log\ must\ be\ easily\ retargeted\ to\ the\ console\ IO\ of\ the\ target.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *\ \ \ The\ log\ must\ be\ easily\ connected\ to\ the\ Reach\ CLI\ facility}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ \ \ The\ log\ must\ easily\ be\ removed\ for\ very\ small\ targets.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ \ \ The\ "{}mask"{}\ facility\ allows\ users\ to\ turn\ on\ and\ off\ logging\ on\ a\ per\ function\ basis.}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *\ Original\ Author:\ Chuck.Peplinski}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ ********************************************************************************************/}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{preprocessor}{\#ifndef\ LOG\_H\_}}
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#define\ LOG\_H\_}}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{00032\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#include\ "{}reach-\/server.h"{}}\ \ \textcolor{comment}{//\ excludes\ logging}}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\#include\ "{}i3\_error.h"{}}}
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\#include\ "{}text\_colors.h"{}}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00039\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}}
+\DoxyCodeLine{00040\ \{}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_ALWAYS\ \ \ \ \ 0x01\ \ \ \ }}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_ERROR\ \ \ \ \ \ 0x02\ \ \ \ }}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_WARN\ \ \ \ \ \ \ 0x04\ \ \ \ }}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_BARE\ \ \ \ \ \ \ 0x08\ \ \ \ }}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_REMOTE\ \ \ \ \ 0x10\ \ \ \ }}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_WEAK\ \ \ \ \ \ \ 0x20\ \ \ \ }}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_WIRE\ \ \ \ \ \ \ 0x40\ \ \ \ }}
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_REACH\ \ \ \ \ \ 0x80\ \ \ \ }}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_PARAMS\ \ \ \ \ 0x100}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_FILES\ \ \ \ \ \ 0x200}}
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_BLE\ \ \ \ \ \ \ \ 0x400}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_ACME\ \ \ \ \ \ 0x4000}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_DEBUG\ \ \ \ \ 0x8000}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#define\ LOG\_MASK\_TIMEOUT\ \ 0x10000}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\#ifdef\ NO\_REACH\_LOGGING}}
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\ \ \ \ \#define\ I3\_LOG(m,\ f,\ ...)}}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_REACH(format,\ ...)}}
+\DoxyCodeLine{00078\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_ERROR(format,\ ...)}}
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_DUMP\_WIRE(banner,\ buf,\ len)}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_DUMP\_MASK(mask,\ banner,\ buf,\ len)}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\ \ \ \ \#define\ I3\_LOG(m,\ f,\ ...)\ \ \ \ \ i3\_log(m,\ f,\ \#\#\_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_REACH(format,\ ...)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ I3\_LOG(LOG\_MASK\_REACH,\ "{}[\%s][\%s]\ "{}\ format,\ \_\_FILE\_\_,\ \_\_func\_\_,\ \#\#\_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00085\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_ERROR(format,\ ...)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00086\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ i3\_log(LOG\_MASK\_ERROR,\ "{}[\%s][\%s]\ "{}\ format,\ \_\_FILE\_\_,\ \_\_func\_\_,\ \#\#\_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00087\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_DUMP\_WIRE(banner,\ buf,\ len)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00088\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ i3\_log\_dump\_buffer(LOG\_MASK\_WIRE,\ banner,\ buf,\ len)}}
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\ \ \ \ \#define\ LOG\_DUMP\_MASK(mask,\ banner,\ buf,\ len)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \(\backslash\)}}
+\DoxyCodeLine{00090\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ i3\_log\_dump\_buffer(mask,\ banner,\ buf,\ len)}}
+\DoxyCodeLine{00091\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ def\ NO\_LOGGING}}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \textcolor{comment}{//\ Set\ and\ get\ the\ mask\ that\ control\ output\ per\ module}}
+\DoxyCodeLine{00094\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i3__log_8h_a7158b49c3856e138394fa544b7622cd8}{i3\_log\_set\_mask}}(uint32\_t\ mask);}
+\DoxyCodeLine{00095\ uint32\_t\ \mbox{\hyperlink{i3__log_8h_a387ee42dbbeaa80a5e522aa5324838e2}{i3\_log\_get\_mask}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \textcolor{comment}{//\ if\ remote\ CLI\ is\ enabled\ at\ build,\ this\ can\ disable\ it\ at\ run\ time.}}
+\DoxyCodeLine{00098\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{i3__log_8h_a5144ed020d32290b50db3d2c38ae4256}{i3\_log\_set\_remote\_cli\_enable}}(\textcolor{keywordtype}{bool}\ enable);}
+\DoxyCodeLine{00099\ \textcolor{keywordtype}{bool}\ i3\_log\_get\_remote\_cli\_enable();}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \textcolor{comment}{//\ if\ remote\ CLI\ support\ is\ enabled\ this\ gets\ a\ pointer\ to\ the\ remote\ buffer.}}
+\DoxyCodeLine{00102\ \textcolor{comment}{//\ Otherwise\ pRcli\ is\ set\ to\ NULL.}}
+\DoxyCodeLine{00103\ \textcolor{comment}{//\ Returns\ the\ current\ (valid)\ size\ of\ the\ buffer.}}
+\DoxyCodeLine{00104\ \textcolor{keywordtype}{int}\ i3\_log\_get\_remote\_buffer(\textcolor{keywordtype}{char}\ **pRcli);}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \textcolor{comment}{//\ The\ basic\ log\ function,\ like\ printf.}}
+\DoxyCodeLine{00107\ \textcolor{comment}{//\ The\ mask\ passed\ here\ is\ compared\ with\ the\ "{}log\ mask"{}\ for\ the\ system.}}
+\DoxyCodeLine{00108\ \textcolor{comment}{//\ The\ string\ prints\ if\ the\ mask\ bit\ is\ enabled.}}
+\DoxyCodeLine{00109\ \textcolor{keywordtype}{void}\ i3\_log(\textcolor{keyword}{const}\ uint32\_t\ mask,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *fmt,\ ...);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \textcolor{comment}{//\ A\ utility\ used\ to\ display\ raw\ binary\ data.}}
+\DoxyCodeLine{00112\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i3__log_8h_ab3883f9a81eebb62b08ba9b2d69454ef}{i3\_log\_dump\_buffer}}(\textcolor{keyword}{const}\ uint32\_t\ mask,}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *banner,}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint8\_t\ *ptr,}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00118\ \}}
+\DoxyCodeLine{00119\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \textcolor{preprocessor}{\#ifdef\ NO\_LOGGING}}
+\DoxyCodeLine{00123\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00124\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \textcolor{comment}{//\ Text\ color\ escape\ codes}}
+\DoxyCodeLine{00128\ \textcolor{preprocessor}{\#ifndef\ TEXT\_RESET}}
+\DoxyCodeLine{00129\ \textcolor{comment}{//\ escape\ codes\ so\ traces\ (printf)\ can\ have\ colors:}}
+\DoxyCodeLine{00131\ \textcolor{preprocessor}{\ \ \ \ \#define\ CSI\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ "{}\(\backslash\)033["{}}}
+\DoxyCodeLine{00132\ \textcolor{comment}{//\ Text\ Reset}}
+\DoxyCodeLine{00133\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_RESET\ \ \ \ \ \ \ \ \ \ CSI"{}0m"{}}}
+\DoxyCodeLine{00134\ \textcolor{comment}{//\ Bold\ define}}
+\DoxyCodeLine{00135\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\ \ \ \ \ \ \ \ \ \ \ CSI"{}1m"{}\ \ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bold}}
+\DoxyCodeLine{00136\ \textcolor{comment}{//\ Colors}}
+\DoxyCodeLine{00137\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BLACK\ \ \ \ \ \ \ \ \ \ CSI"{}30m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Black}}
+\DoxyCodeLine{00138\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_RED\ \ \ \ \ \ \ \ \ \ \ \ CSI"{}31m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Red}}
+\DoxyCodeLine{00139\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_GREEN\ \ \ \ \ \ \ \ \ \ CSI"{}32m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Green}}
+\DoxyCodeLine{00140\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_YELLOW\ \ \ \ \ \ \ \ \ CSI"{}33m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Yellow}}
+\DoxyCodeLine{00141\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BLUE\ \ \ \ \ \ \ \ \ \ \ CSI"{}34m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Blue}}
+\DoxyCodeLine{00142\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_MAGENTA\ \ \ \ \ \ \ \ CSI"{}35m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Magenta}}
+\DoxyCodeLine{00143\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_CYAN\ \ \ \ \ \ \ \ \ \ \ CSI"{}36m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Cyan}}
+\DoxyCodeLine{00144\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_WHITE\ \ \ \ \ \ \ \ \ \ CSI"{}37m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ White}}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{comment}{//\ Bright\ Colors}}
+\DoxyCodeLine{00147\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_BLACK\ \ \ CSI"{}90m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ Black}}
+\DoxyCodeLine{00148\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_RED\ \ \ \ \ CSI"{}91m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ Red}}
+\DoxyCodeLine{00149\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_GREEN\ \ \ CSI"{}92m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ Green}}
+\DoxyCodeLine{00150\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_YELLOW\ \ CSI"{}93m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ Yellow}}
+\DoxyCodeLine{00151\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_BLUE\ \ \ \ CSI"{}94m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ Blue}}
+\DoxyCodeLine{00152\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_MAGENTA\ CSI"{}95m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ Magenta}}
+\DoxyCodeLine{00153\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_CYAN\ \ \ \ CSI"{}96m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ Cyan}}
+\DoxyCodeLine{00154\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BRIGHT\_WHITE\ \ \ CSI"{}97m"{}\ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ Bright\ White}}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \textcolor{comment}{//\ Bold\ (}}
+\DoxyCodeLine{00157\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDBLACK\ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BLACK\ \ \ }\textcolor{comment}{//\ Bold\ Black}}
+\DoxyCodeLine{00158\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDRED\ \ \ \ \ \ \ \ TEXT\_BOLD\ TEXT\_RED\ \ \ \ \ }\textcolor{comment}{//\ Bold\ Red}}
+\DoxyCodeLine{00159\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDGREEN\ \ \ \ \ \ TEXT\_BOLD\ TEXT\_GREEN\ \ \ }\textcolor{comment}{//\ Bold\ Green}}
+\DoxyCodeLine{00160\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDYELLOW\ \ \ \ \ TEXT\_BOLD\ TEXT\_YELLOW\ \ }\textcolor{comment}{//\ Bold\ Yellow}}
+\DoxyCodeLine{00161\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDBLUE\ \ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BLUE\ \ \ \ }\textcolor{comment}{//\ Bold\ Blue}}
+\DoxyCodeLine{00162\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDMAGENTA\ \ \ \ TEXT\_BOLD\ TEXT\_MAGENTA\ }\textcolor{comment}{//\ Bold\ Magenta}}
+\DoxyCodeLine{00163\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDCYAN\ \ \ \ \ \ \ TEXT\_BOLD\ TEXT\_CYAN\ \ \ \ }\textcolor{comment}{//\ Bold\ Cyan}}
+\DoxyCodeLine{00164\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLDWHITE\ \ \ \ \ \ TEXT\_BOLD\ TEXT\_WHITE\ \ \ }\textcolor{comment}{//\ Bold\ White}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \textcolor{comment}{//\ Bright\ Colors}}
+\DoxyCodeLine{00167\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_BLACK\ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_BLACK\ \ \ }\textcolor{comment}{//\ Bold\ Bright\ Black}}
+\DoxyCodeLine{00168\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_RED\ \ \ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_RED\ \ \ \ \ }\textcolor{comment}{//\ Bold\ Bright\ Red}}
+\DoxyCodeLine{00169\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_GREEN\ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_GREEN\ \ \ }\textcolor{comment}{//\ Bold\ Bright\ Green}}
+\DoxyCodeLine{00170\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_YELLOW\ \ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_YELLOW\ \ }\textcolor{comment}{//\ Bold\ Bright\ Yellow}}
+\DoxyCodeLine{00171\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_BLUE\ \ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_BLUE\ \ \ \ }\textcolor{comment}{//\ Bold\ Bright\ Blue}}
+\DoxyCodeLine{00172\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_MAGENTA\ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_MAGENTA\ }\textcolor{comment}{//\ Bold\ Bright\ Magenta}}
+\DoxyCodeLine{00173\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_CYAN\ \ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_CYAN\ \ \ \ }\textcolor{comment}{//\ Bold\ Bright\ Cyan}}
+\DoxyCodeLine{00174\ \textcolor{preprocessor}{\ \ \ \ \#define\ TEXT\_BOLD\_BRIGHT\_WHITE\ \ \ \ \ \ TEXT\_BOLD\ TEXT\_BRIGHT\_WHITE\ \ \ }\textcolor{comment}{//\ Bold\ Bright\ White}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \textcolor{preprocessor}{\ \ \ \ \#define\ EMPTY\_LINE\ \ \ \ \ \ \ \ \ \ CSI"{}1K"{}}}
+\DoxyCodeLine{00177\ \textcolor{preprocessor}{\ \ \ \ \#define\ CLR\_TO\_END\ \ \ \ \ \ \ \ \ \ CSI"{}0K"{}}}
+\DoxyCodeLine{00178\ \textcolor{preprocessor}{\ \ \ \ \#define\ CURSOR\_LEFT\ \ \ \ \ \ \ \ \ CSI"{}1D"{}}}
+\DoxyCodeLine{00179\ \textcolor{preprocessor}{\ \ \ \ \#define\ CURSOR\_RIGHT\ \ \ \ \ \ \ \ CSI"{}1C"{}}}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ ndef\ TEXT\_RESET}}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{/*\ LOG\_H\_\ */}\textcolor{preprocessor}{}}
+
+\end{DoxyCode}
