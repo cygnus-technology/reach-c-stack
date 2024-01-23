@@ -71,8 +71,6 @@
 #include "reach_decode.h"
 #include "reach_version.h"
 
-
-
 //----------------------------------------------------------------------------
 // static buffers used and reused by the reach stack.
 // This is private data.
@@ -692,7 +690,8 @@ void cr_test_sizes()
     rval += checkSize(sizeof(cr_ParameterRead), MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
     rval += checkSize(sizeof(cr_FileTransferData), MAX_RAW_SZ, "sizeof(cr_FileTransferData)");
     rval += checkSize(sizeof(cr_ParameterInfo), MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
-    
+
+    // If these don't match, check the structures associated with them
     affirm(sizeof(reach_sizes_t) == REACH_SIZE_STRUCT_SIZE);
     affirm(REACH_MAX_RESPONSE_SIZE == CR_CODED_BUFFER_SIZE);
 
@@ -923,17 +922,16 @@ static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     sizes_struct.max_message_size             = 244;  // biggest BLE message
     sizes_struct.big_data_buffer_size         = REACH_BIG_DATA_BUFFER_LEN;
     sizes_struct.parameter_buffer_count       = REACH_COUNT_PARAM_IDS;
-    sizes_struct.num_medium_structs_in_msg    = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
-    sizes_struct.device_info_len              = REACH_DEVICE_INFO_LEN;
-    sizes_struct.long_string_len              = REACH_LONG_STRING_LEN;
-    sizes_struct.count_param_ids              = REACH_COUNT_PARAM_IDS;
+    sizes_struct.num_params_in_response       = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
+    sizes_struct.num_descriptors_in_response  = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
+    sizes_struct.device_description_len       = REACH_LONG_STRING_LEN;
+    sizes_struct.max_param_bytes              = REACH_NUM_PARAM_BYTES;
+    sizes_struct.param_info_description_len   = REACH_PARAM_INFO_DESCRIPTION_LEN;
     sizes_struct.medium_string_len            = REACH_MEDIUM_STRING_LEN;
     sizes_struct.short_string_len             = REACH_SHORT_STRING_LEN;
-    sizes_struct.param_info_enum_count        = REACH_PARAM_INFO_ENUM_COUNT;
-    sizes_struct.services_count               = REACH_SERVICES_COUNT;
-    sizes_struct.pi_enum_count                = REACH_PI_ENUM_COUNT;
+    sizes_struct.num_param_notifications      = NUM_SUPPORTED_PARAM_NOTIFY;
     sizes_struct.num_commands_in_response     = REACH_NUM_COMMANDS_IN_RESPONSE;
-    sizes_struct.count_param_desc_in_response = REACH_COUNT_PARAM_DESC_IN_RESPONSE;
+    sizes_struct.num_param_desc_in_response   = REACH_COUNT_PARAM_DESC_IN_RESPONSE;
     dir->sizes_struct.size = sizeof(reach_sizes_t);
     memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
 }

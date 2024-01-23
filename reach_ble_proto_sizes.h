@@ -62,13 +62,14 @@
 #define REACH_COMMAND_NAME_LEN                  REACH_MEDIUM_STRING_LEN 
 #define REACH_PARAM_INFO_UNITS_LEN              REACH_SHORT_STRING_LEN 
 #define REACH_FW_VERSION_LEN                    REACH_SHORT_STRING_LEN
-#define REACH_UUID_BYTE_LEN                     REACH_SHORT_STRING_LEN
+#define REACH_UUID_BYTE_LEN                     16 // this is constant.
 #define REACH_PI_ENUM_NAME_LEN                  REACH_SHORT_STRING_LEN
 #define REACH_COUNT_PARAM_READ_VALUES           REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_DISCOVER_STREAM_COUNT             REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_COUNT_PARAM_WRITE_IN_REQUEST      REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_COUNT_PARAM_NOTIF_VALUES          REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_DISCOVER_FILES_COUNT              REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
+#define REACH_NUM_PARAM_BYTES                   32
     
 // Used to keep the size of the device info struct down.
 // see enum SizesOffsets in reach.proto
@@ -77,17 +78,17 @@ typedef struct
     uint16_t  max_message_size;
     uint16_t  big_data_buffer_size;
     uint8_t   parameter_buffer_count;
-    uint8_t   num_medium_structs_in_msg;
-    uint8_t   device_info_len;
-    uint8_t   long_string_len;
-    uint8_t   count_param_ids;
+    uint8_t   num_params_in_response;
+    uint8_t   num_descriptors_in_response;
+    uint8_t   device_description_len;
+    uint8_t   max_param_bytes;
+    uint8_t   param_info_description_len;
     uint8_t   medium_string_len;
     uint8_t   short_string_len;
-    uint8_t   param_info_enum_count;
-    uint8_t   services_count;
-    uint8_t   pi_enum_count;
+    uint8_t   num_param_notifications;
     uint8_t   num_commands_in_response;
-    uint8_t   count_param_desc_in_response;
+    uint8_t   num_param_desc_in_response;
+    uint8_t   pad_to_16;
 } reach_sizes_t;
 
 #define REACH_SIZE_STRUCT_SIZE      16
