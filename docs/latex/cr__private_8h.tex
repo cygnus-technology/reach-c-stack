@@ -1,0 +1,108 @@
+\doxysection{cr\+\_\+private.\+h File Reference}
+\hypertarget{cr__private_8h}{}\label{cr__private_8h}\index{cr\_private.h@{cr\_private.h}}
+
+
+defines things internal to the Reach stack. In a C++ system these would be private members.  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stddef.\+h$>$}\newline
+{\ttfamily \#include "{}reach-\/server.\+h"{}}\newline
+{\ttfamily \#include "{}cr\+\_\+stack.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{cr__private_8h_a19c76f06e3d764396d9767b558dbd15d}\label{cr__private_8h_a19c76f06e3d764396d9767b558dbd15d} 
+bool {\bfseries pvt\+Cr\+\_\+challenge\+\_\+key\+\_\+is\+\_\+valid} (void)
+\begin{DoxyCompactList}\small\item\em Returns the state of the challenge key which may block access to the Reach interface. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{cr__private_8h_a30a6e551b81d138b8e873298ba9d9948}{pvt\+Cr\+File\+\_\+discover}} (const \mbox{\hyperlink{struct__cr___discover_files}{cr\+\_\+\+Discover\+Files}} \texorpdfstring{$\ast$}{*}request, \mbox{\hyperlink{struct__cr___discover_files_reply}{cr\+\_\+\+Discover\+Files\+Reply}} \texorpdfstring{$\ast$}{*}response)
+\item 
+\Hypertarget{cr__private_8h_ab7bb331c5af30605ecad5f73c9381319}\label{cr__private_8h_ab7bb331c5af30605ecad5f73c9381319} 
+int {\bfseries pvt\+Cr\+File\+\_\+transfer\+\_\+init} (const \mbox{\hyperlink{struct__cr___file_transfer_init}{cr\+\_\+\+File\+Transfer\+Init}} \texorpdfstring{$\ast$}{*}request, \mbox{\hyperlink{struct__cr___file_transfer_init_reply}{cr\+\_\+\+File\+Transfer\+Init\+Reply}} \texorpdfstring{$\ast$}{*}response)
+\item 
+\Hypertarget{cr__private_8h_afd6f00e1e336103effeb4abc04307af7}\label{cr__private_8h_afd6f00e1e336103effeb4abc04307af7} 
+int {\bfseries pvt\+Cr\+File\+\_\+transfer\+\_\+data} (const \mbox{\hyperlink{struct__cr___file_transfer_data}{cr\+\_\+\+File\+Transfer\+Data}} \texorpdfstring{$\ast$}{*}data\+Transfer, \mbox{\hyperlink{struct__cr___file_transfer_data_notification}{cr\+\_\+\+File\+Transfer\+Data\+Notification}} \texorpdfstring{$\ast$}{*}response)
+\item 
+\Hypertarget{cr__private_8h_addb5581e5708ccc287beaf7a62594d88}\label{cr__private_8h_addb5581e5708ccc287beaf7a62594d88} 
+int {\bfseries pvt\+Cr\+File\+\_\+transfer\+\_\+data\+\_\+notification} (const \mbox{\hyperlink{struct__cr___file_transfer_data_notification}{cr\+\_\+\+File\+Transfer\+Data\+Notification}} \texorpdfstring{$\ast$}{*}request, \mbox{\hyperlink{struct__cr___file_transfer_data}{cr\+\_\+\+File\+Transfer\+Data}} \texorpdfstring{$\ast$}{*}data\+Transfer)
+\item 
+void \mbox{\hyperlink{cr__private_8h_a5058fe0db52da996f1cd467ccb2c6ae3}{pvt\+Cr\+\_\+watchdog\+\_\+start\+\_\+timeout}} (uint32\+\_\+t msec, uint32\+\_\+t ticks)
+\begin{DoxyCompactList}\small\item\em The file service includes a timeout Watchdog. 0 ms disables watchdog. \end{DoxyCompactList}\item 
+\Hypertarget{cr__private_8h_a6ccc7c03a84db7f4f77facd4712eac3b}\label{cr__private_8h_a6ccc7c03a84db7f4f77facd4712eac3b} 
+void {\bfseries pvt\+Cr\+\_\+watchdog\+\_\+stroke\+\_\+timeout} (uint32\+\_\+t ticks)
+\item 
+\Hypertarget{cr__private_8h_a97af601257972f70d62625410e24fb14}\label{cr__private_8h_a97af601257972f70d62625410e24fb14} 
+void {\bfseries pvt\+Cr\+\_\+watchdog\+\_\+end\+\_\+timeout} ()
+\item 
+\Hypertarget{cr__private_8h_a35c9ee0c8d80ebc36fc9fd564af7de73}\label{cr__private_8h_a35c9ee0c8d80ebc36fc9fd564af7de73} 
+int {\bfseries pvt\+Cr\+\_\+watchdog\+\_\+check\+\_\+timeout} (uint32\+\_\+t ticks)
+\item 
+void \mbox{\hyperlink{cr__private_8h_a0440e2157e389adf3b9734458ea485f8}{pvt\+Cr\+Param\+\_\+clear\+\_\+notifications}} (void)
+\begin{DoxyCompactList}\small\item\em clears any stale notifications. To be called on connection to client Must be available (empty) in all no-\/param case. \end{DoxyCompactList}\item 
+\Hypertarget{cr__private_8h_a86729ed385bc8a20316714e4590d3bed}\label{cr__private_8h_a86729ed385bc8a20316714e4590d3bed} 
+int {\bfseries pvt\+Cr\+Param\+\_\+discover\+\_\+parameters} (const \mbox{\hyperlink{struct__cr___parameter_info_request}{cr\+\_\+\+Parameter\+Info\+Request}} \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{struct__cr___parameter_info_response}{cr\+\_\+\+Parameter\+Info\+Response}} \texorpdfstring{$\ast$}{*})
+\item 
+\Hypertarget{cr__private_8h_ae6c0f5684b555a4dd087736fc783bbe7}\label{cr__private_8h_ae6c0f5684b555a4dd087736fc783bbe7} 
+int {\bfseries pvt\+Cr\+Param\+\_\+discover\+\_\+parameters\+\_\+ex} (const \mbox{\hyperlink{struct__cr___parameter_info_request}{cr\+\_\+\+Parameter\+Info\+Request}} \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{struct__cr___param_ex_info_response}{cr\+\_\+\+Param\+Ex\+Info\+Response}} \texorpdfstring{$\ast$}{*})
+\item 
+\Hypertarget{cr__private_8h_a50f785f9a8bbfa125a9ba4d8fee2e7bc}\label{cr__private_8h_a50f785f9a8bbfa125a9ba4d8fee2e7bc} 
+int {\bfseries pvt\+Cr\+Param\+\_\+read\+\_\+param} (const \mbox{\hyperlink{struct__cr___parameter_read}{cr\+\_\+\+Parameter\+Read}} \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{struct__cr___parameter_read_result}{cr\+\_\+\+Parameter\+Read\+Result}} \texorpdfstring{$\ast$}{*})
+\item 
+\Hypertarget{cr__private_8h_af2723ddea521ee9c26f59b06d36ab5ef}\label{cr__private_8h_af2723ddea521ee9c26f59b06d36ab5ef} 
+int {\bfseries pvt\+Cr\+Param\+\_\+write\+\_\+param} (const \mbox{\hyperlink{struct__cr___parameter_write}{cr\+\_\+\+Parameter\+Write}} \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{struct__cr___parameter_write_result}{cr\+\_\+\+Parameter\+Write\+Result}} \texorpdfstring{$\ast$}{*})
+\item 
+\Hypertarget{cr__private_8h_aff16cc1fcad73f29013884f20e877076}\label{cr__private_8h_aff16cc1fcad73f29013884f20e877076} 
+void {\bfseries pvt\+Cr\+Param\+\_\+check\+\_\+for\+\_\+notifications} (void)
+\begin{DoxyCompactList}\small\item\em A local function called in \doxylink{cr__stack_8c_ad28b6060e7d1c0641b0a6571995f656d}{cr\+\_\+process()} to determine whether any parameter notifications need to be generated. Must be available (empty) in all no-\/param case. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{cr__private_8h_ad8991609e7b79f8c29f525ff481e33bd}\label{cr__private_8h_ad8991609e7b79f8c29f525ff481e33bd} 
+cr\+\_\+\+Reach\+Message\+Types {\bfseries pvt\+Cr\+\_\+continued\+\_\+message\+\_\+type}
+\begin{DoxyCompactList}\small\item\em Private variables controlling the sort of continuing transactions used by file transfers, etc. \end{DoxyCompactList}\item 
+\Hypertarget{cr__private_8h_a6525cf21916ad2b0b996a31aba66d80a}\label{cr__private_8h_a6525cf21916ad2b0b996a31aba66d80a} 
+uint32\+\_\+t {\bfseries pvt\+Cr\+\_\+num\+\_\+continued\+\_\+objects}
+\item 
+\Hypertarget{cr__private_8h_a4b3a18d3c66251fdfb9093f8708b0fc0}\label{cr__private_8h_a4b3a18d3c66251fdfb9093f8708b0fc0} 
+uint32\+\_\+t {\bfseries pvt\+Cr\+\_\+num\+\_\+remaining\+\_\+objects}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+defines things internal to the Reach stack. In a C++ system these would be private members. 
+
+\begin{DoxyCopyright}{Copyright}
+(c) Copyright 2023 i3 Product Development. All Rights Reserved. The Cygngus Reach firmware stack is shared under an MIT license. 
+\end{DoxyCopyright}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{cr__private_8h_a5058fe0db52da996f1cd467ccb2c6ae3}\label{cr__private_8h_a5058fe0db52da996f1cd467ccb2c6ae3} 
+\index{cr\_private.h@{cr\_private.h}!pvtCr\_watchdog\_start\_timeout@{pvtCr\_watchdog\_start\_timeout}}
+\index{pvtCr\_watchdog\_start\_timeout@{pvtCr\_watchdog\_start\_timeout}!cr\_private.h@{cr\_private.h}}
+\doxysubsubsection{\texorpdfstring{pvtCr\_watchdog\_start\_timeout()}{pvtCr\_watchdog\_start\_timeout()}}
+{\footnotesize\ttfamily void pvt\+Cr\+\_\+watchdog\+\_\+start\+\_\+timeout (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{msec,  }\item[{uint32\+\_\+t}]{ticks }\end{DoxyParamCaption})}
+
+
+
+The file service includes a timeout Watchdog. 0 ms disables watchdog. 
+
+~\newline
+ \Hypertarget{cr__private_8h_a30a6e551b81d138b8e873298ba9d9948}\label{cr__private_8h_a30a6e551b81d138b8e873298ba9d9948} 
+\index{cr\_private.h@{cr\_private.h}!pvtCrFile\_discover@{pvtCrFile\_discover}}
+\index{pvtCrFile\_discover@{pvtCrFile\_discover}!cr\_private.h@{cr\_private.h}}
+\doxysubsubsection{\texorpdfstring{pvtCrFile\_discover()}{pvtCrFile\_discover()}}
+{\footnotesize\ttfamily int pvt\+Cr\+File\+\_\+discover (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{struct__cr___discover_files}{cr\+\_\+\+Discover\+Files}} \texorpdfstring{$\ast$}{*}}]{request,  }\item[{\mbox{\hyperlink{struct__cr___discover_files_reply}{cr\+\_\+\+Discover\+Files\+Reply}} \texorpdfstring{$\ast$}{*}}]{response }\end{DoxyParamCaption})}
+
+pvt\+Cr\+File\+\_\+ functions support the (optional) files service. \Hypertarget{cr__private_8h_a0440e2157e389adf3b9734458ea485f8}\label{cr__private_8h_a0440e2157e389adf3b9734458ea485f8} 
+\index{cr\_private.h@{cr\_private.h}!pvtCrParam\_clear\_notifications@{pvtCrParam\_clear\_notifications}}
+\index{pvtCrParam\_clear\_notifications@{pvtCrParam\_clear\_notifications}!cr\_private.h@{cr\_private.h}}
+\doxysubsubsection{\texorpdfstring{pvtCrParam\_clear\_notifications()}{pvtCrParam\_clear\_notifications()}}
+{\footnotesize\ttfamily void pvt\+Cr\+Param\+\_\+clear\+\_\+notifications (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+clears any stale notifications. To be called on connection to client Must be available (empty) in all no-\/param case. 
+
+pvt\+Cr\+Param\+\_\+ functions support the (optional) parameters service. 

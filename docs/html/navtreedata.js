@@ -25,6 +25,29 @@
 var NAVTREE =
 [
   [ "Cygnus Reach Embedded Stack", "index.html", [
+    [ "Getting Started", "md__getting_01_started.html", [
+      [ "Getting Started with Cygnus Reach", "md__getting_01_started.html#autotoc_md0", [
+        [ "autotoc_md1", "md__getting_01_started.html#autotoc_md1", null ]
+      ] ],
+      [ "Executive Summary", "md__getting_01_started.html#autotoc_md2", [
+        [ "Audience", "md__getting_01_started.html#autotoc_md3", null ]
+      ] ],
+      [ "autotoc_md4", "md__getting_01_started.html#autotoc_md4", null ],
+      [ "Running the Demo", "md__getting_01_started.html#autotoc_md5", [
+        [ "Preparation", "md__getting_01_started.html#autotoc_md6", null ],
+        [ "Programming the Device", "md__getting_01_started.html#autotoc_md7", null ],
+        [ "autotoc_md8", "md__getting_01_started.html#autotoc_md8", null ],
+        [ "File Access and the Debug Interface", "md__getting_01_started.html#autotoc_md9", null ],
+        [ "The Serial Console", "md__getting_01_started.html#autotoc_md10", null ],
+        [ "The Web Interface", "md__getting_01_started.html#autotoc_md11", null ]
+      ] ],
+      [ "Building the Demo", "md__getting_01_started.html#autotoc_md12", [
+        [ "Create a new Project", "md__getting_01_started.html#autotoc_md13", null ],
+        [ "Copy in the Reach Source", "md__getting_01_started.html#autotoc_md14", null ],
+        [ "Fill in Dependencies", "md__getting_01_started.html#autotoc_md15", null ],
+        [ "Beyond the Demo", "md__getting_01_started.html#autotoc_md16", null ]
+      ] ]
+    ] ],
     [ "README", "md__r_e_a_d_m_e.html", null ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],

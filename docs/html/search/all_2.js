@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['do_20i_20get_20set_20up_0',['How do I get set up?',['../md__r_e_a_d_m_e.html#autotoc_md2',1,'']]]
+  ['beyond_20the_20demo_0',['Beyond the Demo',['../md__getting_01_started.html#autotoc_md16',1,'']]],
+  ['building_20the_20demo_1',['Building the Demo',['../md__getting_01_started.html#autotoc_md12',1,'']]]
 ];
