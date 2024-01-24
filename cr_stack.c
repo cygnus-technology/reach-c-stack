@@ -366,28 +366,36 @@ const char *cr_get_advertised_name()
 }
 
 /**
-* @brief   cr_set_advertised_name
-* @details Set the name of the device that should be advertised before 
-*          connecting.  Used in BLE.
-* @note    Just store the string up to length REACH_SHORT_STRING_LEN.  The code 
-*          setting up the link can retrieve this using cr_get_advertised_name()
+* @brief   cr_store_coded_prompt
+* @details allows the application to store the prompt where the Reach stack can 
+*          see it.  The byte data and length are copied into private storage.
+* @param   data: The coded prompt to be stored. 
+* @param   len : number of bytes to be stored. 
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
 */
-
-// allows the application to store the prompt where the Reach stack can see it.
 int cr_store_coded_prompt(uint8_t *data, size_t len)
 {
     affirm(len <= sizeof(sCr_encoded_message_buffer));
 
     memcpy(sCr_encoded_message_buffer, data, len);
     sCr_encoded_message_size = len;
-    return 0;
+    return cr_ErrorCodes_NO_ERROR;
 }
 
-int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len)
+/**
+* @brief   cr_get_coded_response_buffer
+* @details Retrieve the adress of the "coded response buffer".  This buffer 
+*          contains the response to a prompt, coded according to protobuf specs,
+*          to be transmitted to the client.  The stored coded length is zeroed
+*          by this call.
+* @param   ppResponse: Pointer to pointer to bytes.
+* @param   pLen : pointer to the number of bytes for transmission.
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
+*/
+int cr_get_coded_response_buffer(uint8_t **ppResponse, size_t *pLen)
 {
-    *pResponse = sCr_encoded_response_buffer;
-    *len = sCr_encoded_response_size;
+    *ppResponse = sCr_encoded_response_buffer;
+    *pLen = sCr_encoded_response_size;
     if (sCr_encoded_response_size == 0)
         return cr_ErrorCodes_NO_DATA;
     sCr_encoded_response_size = 0;
@@ -397,17 +405,27 @@ int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len)
 // static uint32_t lastTick = 0;
 static int sCallCount = 0;
 static uint32_t sCurrentTicks = 0;
-// The application must call cr_process() regularly.
-// ticks tells it approximately how many  milliseconds have passed since
-// the system started.  This allows it to perform timing related tasks.
+
+/**
+* @brief   cr_process
+* @details The application must call cr_process() regularly as it does most of 
+*          the work required of Reach. The ticks parameter is expected to be a
+*          monotonically increasing value representing the time since the system
+*          started. This allows it to perform timing related tasks such as
+*          notifications. cr_process() returns immediately if the device is not
+*          connected to BLE.
+* @param   ticks: A measure of time passed, typically milliseconds, but the 
+*               units are not specified.
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code, however these are 
+*          indicative only.  The non-zero returns indicate normal conditions.
+*/
 int cr_process(uint32_t ticks) 
 {
     sCurrentTicks = ticks;   // store it so others can use it.
     sCallCount++;
 
-    if (!cr_get_ble_connected())
+    if (!cr_get_comm_link_connected())
         return cr_ErrorCodes_NO_ERROR;
-
 
   #ifdef INCLUDE_FILE_SERVICE
     int timeout = pvtCr_watchdog_check_timeout(ticks);
@@ -488,29 +506,33 @@ int cr_process(uint32_t ticks)
     return cr_ErrorCodes_NO_ERROR;
 }
 
-// <summary>
-// The tick count is passed in to cr_process().  This function 
-// gives other Reach functions access to that value. 
-// </summary>
-// <returns> the 32 bit tick count passed in to 
-// cr_process() </returns> 
+
+/**
+* @brief   cr_get_current_ticks
+* @details The tick count is passed in to cr_process(). This function gives 
+*          other Reach functions access to that value. 
+* @return  The same tick count passed into cr_process().
+*/
 uint32_t cr_get_current_ticks()
 {
     // a 32 bit number will roll over in 49 days at 1kHz.
     return sCurrentTicks;
 }
 
- // <summary>
- //  The BLE stack must inform the Reach stack of the status of
- //  the BLE connection.  The Reach loop only runs when BLE is
- //  connected.  All parameter notifications are cleared when
- //  a BLE connection is established. The client must reenable
- //  notifications on each connection.
- // </summary>
- static bool sCr_ble_is_connected = false;
- void cr_set_ble_connected(bool connected)
- { 
-   if (!sCr_ble_is_connected && connected)
+/**
+* @brief   cr_set_comm_link_connected
+* @details The communication stack must inform the Reach stack of the status of 
+*          the communication link. The integration must inform Reach when
+*          the connection status changes. The Reach loop only runs when the
+*          connection is valid. All parameter notifications are cleared when a
+*          connection is established. The client must reenable notifications on
+*          each connection.
+* @param   connected true if connected.
+*/
+static bool sCr_comm_link_is_connected = false;
+void cr_set_comm_link_connected(bool connected)
+{ 
+   if (!sCr_comm_link_is_connected && connected)
    {
        // we are newly connected, so clear any stale data.
        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -524,14 +546,31 @@ uint32_t cr_get_current_ticks()
        sCr_parameter_key_valid = false;
      #endif
    }
-   sCr_ble_is_connected = connected;
- } 
+   sCr_comm_link_is_connected = connected;
+} 
 
- bool cr_get_ble_connected(void)
- { 
-   return sCr_ble_is_connected;
- } 
+/**
+* @brief   cr_get_comm_link_connected
+* @details Returns what was set using cr_set_comm_link_connected().
+* @return  true if the communication link is connected.
+*/
+bool cr_get_comm_link_connected(void)
+{ 
+   return sCr_comm_link_is_connected;
+} 
 
+/**
+* @brief   cr_report_error
+* @details Report an error condition to the client.  This can be called at any 
+*          point as the report to the client is asynchronous and immediate.  The
+*          stack can be configured to use only the error code, but the
+*          printf-like string describing the error condition is encouraged.
+*          This is intended to make it easier to find and eliminate errors
+*          during development.
+* @param error_code : Use of the cr_ErrorCodes_ enum is encouraged but not 
+*                   required.
+* @param fmt : A printf-like string with variables. 
+*/
 void cr_report_error(int error_code, const char *fmt, ...)
 {
     va_list args;
