@@ -38,8 +38,9 @@
  ********************************************************************************************/
 
 /**
- * @file      cr_provate.h
- * @brief     defines things internal to the Reach stack.
+ * @file      cr_private.h
+ * @brief     defines things internal to the Reach stack. In a C++ system these 
+ *            would be private members.
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
  * The Cygngus Reach firmware stack is shared under an MIT license.
  */

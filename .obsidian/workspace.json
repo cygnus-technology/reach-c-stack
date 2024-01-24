@@ -18,8 +18,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "c19b25783371240b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Getting Started.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -85,7 +98,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "README.md",
+                "file": "Getting Started.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +115,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "README.md",
+                "file": "Getting Started.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +138,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "README.md"
+                "file": "Getting Started.md"
               }
             }
           }
@@ -146,11 +159,31 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "64c8f7775b605d87",
+  "active": "c19b25783371240b",
   "lastOpenFiles": [
-    "docs/html/closed.png",
-    "docs/html/bc_s.png",
+    "docs/images/silabs_banner.png",
+    "docs/images/silabs_banner.png.crdownload",
+    "docs/images/silabs_includes.png",
+    "docs/images/silabs_includes.png.crdownload",
+    "docs/images/silabs_components.png",
+    "docs/images/silabs_components.png.crdownload",
+    "docs/images/silabs_config.png",
+    "docs/images/silabs_config.png.crdownload",
+    "docs/images/silabs_examples.png",
+    "docs/images/silabs_examples.png.crdownload",
+    "docs/images/silabs_sdk.png",
+    "docs/images/silabs_sdk.png.crdownload",
+    "docs/images/web_video.png",
+    "docs/images/web_video.png.crdownload",
+    "docs/images/web_connect.png",
+    "docs/images/web_connect.png.crdownload",
+    "docs/images/web_pin.png",
+    "docs/images/web_pin.png.crdownload",
+    "docs/images/web_session.png",
+    "docs/images/web_session.png.crdownload",
+    "docs/images/serial_cli.png",
     "README.md",
+    "Getting Started.md",
     "Welcome.md"
   ]
 }
