@@ -1009,10 +1009,16 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     return 0;
 }
 
+
+/**
+* @brief   cr_get_reach_version
+* @details Returns the version of the Reach C stack.
+*/
 const char *cr_get_reach_version()
 {
     return REACH_VERSION_STRING;
 }
+
 
 #ifdef INCLUDE_COMMAND_SERVICE
 static int 
