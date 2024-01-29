@@ -175,9 +175,6 @@ typedef struct {
     /// The number of parameter values that 
     /// fit in one message.
     uint8_t   num_params_in_response;
-    /// number of descriptors (stream, file) that
-    /// fit in one message.
-    uint8_t   num_descriptors_in_response;
     /// The length of the description field in the 
     /// device info structure
     uint8_t   device_description_len;
@@ -190,6 +187,10 @@ typedef struct {
     uint8_t   medium_string_len;
     /// The number of bytes in short strings like the units label.
     uint8_t   short_string_len;
+    /// padding : no longer used
+    uint8_t   param_info_enum_count;
+    /// number of descriptors (stream, file) that fit in one message. 
+    uint8_t   num_descriptors_in_response;
     /// Number of parameter notifications supported
     uint8_t   num_param_notifications;
     /// number of commands that can be in one info packet
@@ -197,11 +198,11 @@ typedef struct {
     /// number of parameter descriptions that 
     ///  can be in one info packet.
     uint8_t   num_param_desc_in_response;
-    ///  strcture size to 16 bytes
-    uint8_t   pad_to_16;
 } reach_sizes_t;
 
-#define REACH_SIZE_STRUCT_SIZE      16
+// The size of this structure (REACH_SIZE_STRUCT_SIZE) must be defined in 
+// reach_ble_proto_sizes.h, or the analogous file used to set structure sizes.
+// #define REACH_SIZE_STRUCT_SIZE      16
 
 const char *cr_get_reach_version();
 

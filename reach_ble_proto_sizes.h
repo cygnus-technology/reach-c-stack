@@ -71,5 +71,7 @@
 #define REACH_DISCOVER_FILES_COUNT              REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_NUM_PARAM_BYTES                   32
     
+// REACH_SIZE_STRUCT_SIZE must match the size of the reach_sizes_t defined in cr_stack.h
+#define REACH_SIZE_STRUCT_SIZE      16    
 
 #endif  // ndef _REACH_BLE_PROTO_SIZES_H
