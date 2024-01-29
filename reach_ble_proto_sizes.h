@@ -71,26 +71,7 @@
 #define REACH_DISCOVER_FILES_COUNT              REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_NUM_PARAM_BYTES                   32
     
-// Used to keep the size of the device info struct down.
-// see enum SizesOffsets in reach.proto
-typedef struct
-{
-    uint16_t  max_message_size;
-    uint16_t  big_data_buffer_size;
-    uint8_t   parameter_buffer_count;
-    uint8_t   num_params_in_response;
-    uint8_t   num_descriptors_in_response;
-    uint8_t   device_description_len;
-    uint8_t   max_param_bytes;
-    uint8_t   param_info_description_len;
-    uint8_t   medium_string_len;
-    uint8_t   short_string_len;
-    uint8_t   num_param_notifications;
-    uint8_t   num_commands_in_response;
-    uint8_t   num_param_desc_in_response;
-    uint8_t   pad_to_16;
-} reach_sizes_t;
-
-#define REACH_SIZE_STRUCT_SIZE      16
+// REACH_SIZE_STRUCT_SIZE must match the size of the reach_sizes_t defined in cr_stack.h
+#define REACH_SIZE_STRUCT_SIZE      16    
 
 #endif  // ndef _REACH_BLE_PROTO_SIZES_H

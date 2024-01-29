@@ -962,12 +962,13 @@ static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     sizes_struct.big_data_buffer_size         = REACH_BIG_DATA_BUFFER_LEN;
     sizes_struct.parameter_buffer_count       = REACH_COUNT_PARAM_IDS;
     sizes_struct.num_params_in_response       = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
-    sizes_struct.num_descriptors_in_response  = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
-    sizes_struct.device_description_len       = REACH_LONG_STRING_LEN;
+    sizes_struct.device_description_len       = REACH_DEVICE_INFO_LEN;
     sizes_struct.max_param_bytes              = REACH_NUM_PARAM_BYTES;
     sizes_struct.param_info_description_len   = REACH_PARAM_INFO_DESCRIPTION_LEN;
     sizes_struct.medium_string_len            = REACH_MEDIUM_STRING_LEN;
     sizes_struct.short_string_len             = REACH_SHORT_STRING_LEN;
+    sizes_struct.param_info_enum_count        = REACH_PARAM_INFO_ENUM_COUNT;
+    sizes_struct.num_descriptors_in_response  = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
     sizes_struct.num_param_notifications      = NUM_SUPPORTED_PARAM_NOTIFY;
     sizes_struct.num_commands_in_response     = REACH_NUM_COMMANDS_IN_RESPONSE;
     sizes_struct.num_param_desc_in_response   = REACH_COUNT_PARAM_DESC_IN_RESPONSE;
@@ -1009,10 +1010,16 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     return 0;
 }
 
+
+/**
+* @brief   cr_get_reach_version
+* @details Returns the version of the Reach C stack.
+*/
 const char *cr_get_reach_version()
 {
     return REACH_VERSION_STRING;
 }
+
 
 #ifdef INCLUDE_COMMAND_SERVICE
 static int 

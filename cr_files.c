@@ -85,7 +85,6 @@
 //  File Service
 //*************************************************************************
 
-
 int pvtCrFile_discover(const cr_DiscoverFiles *request,
                                 cr_DiscoverFilesReply *response)
 {
