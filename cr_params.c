@@ -305,6 +305,12 @@
                 crcb_parameter_ex_discover_reset(-1);
                 pvtCr_num_continued_objects = 
                     pvtCr_num_remaining_objects = crcb_parameter_ex_get_count(-1);
+                if (pvtCr_num_continued_objects == 0)
+                {
+                    I3_LOG(LOG_MASK_PARAMS, "discover params ex, object found no ex.");
+                    pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+                    return 0;
+                }
             }
             // one object in each response.
             I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.", pvtCr_num_continued_objects);
