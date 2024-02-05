@@ -389,6 +389,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
             i3_log(LOG_MASK_WARN, "On file write, remaining bytes is below zero.");
         }
         response->is_complete = true;
+        crcb_file_transfer_complete(sCr_file_xfer_state.file_id);
         pvtCr_watchdog_end_timeout();
         return 0;
     }

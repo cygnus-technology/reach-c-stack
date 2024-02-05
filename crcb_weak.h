@@ -456,6 +456,15 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     */
     int crcb_erase_file(const uint32_t fid);
 
+    /**
+    * @brief   crcb_file_transfer_complete
+    * @details Called when the last bytes have been received and a file write is 
+    *          complete.
+    * @param   fid (input) which file
+    * @return  returns zero or an error code
+    */
+    int crcb_file_transfer_complete(const uint32_t fid);
+
 #endif /// def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_TIME_SERVICE

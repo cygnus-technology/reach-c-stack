@@ -635,6 +635,21 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
+
+    /**
+    * @brief   crcb_file_transfer_complete
+    * @details Called when the last bytes have been received and a file write 
+    *          (upload) is complete.
+    * @param   fid (input) which file
+    * @return  returns zero or an error code
+    */
+    int crcb_file_transfer_complete(const uint32_t fid)
+    {
+        (void)fid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
 #endif /// def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_TIME_SERVICE
