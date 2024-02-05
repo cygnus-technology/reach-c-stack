@@ -242,7 +242,8 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
                                    request->request_offset, 
                                    request->transfer_length);
         if (rval == 0) {
-            i3_log(LOG_MASK_ALWAYS, "Start file write:");
+            I3_LOG(LOG_MASK_ALWAYS, "Start file write, timeout %d ms:", 
+                   sCr_file_xfer_state.timeout_in_ms);
         }
         else
         {
@@ -252,9 +253,12 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
         }
     }
     else
-        i3_log(LOG_MASK_ALWAYS, "Start file read:");
+    {
+        I3_LOG(LOG_MASK_ALWAYS, "Start file read, timeout %d ms:", 
+                   sCr_file_xfer_state.timeout_in_ms);
+    }
 
-    i3_log(LOG_MASK_ALWAYS, "  File ID: %d. offset %d. size %d. msgs per ACK: %d",
+    I3_LOG(LOG_MASK_ALWAYS, "  File ID: %d. offset %d. size %d. msgs per ACK: %d",
            request->file_id, request->request_offset, request->transfer_length,
            request->messages_per_ack);
 
@@ -311,7 +315,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     if (dataTransfer->transfer_id != sCr_file_xfer_state.transfer_id)
     {
         // the transfer_id is not rigorously enforced (yet)
-        i3_log(LOG_MASK_WARN, "Unmatched transfer_id (%d not %d)", 
+        I3_LOG(LOG_MASK_WARN, "Unmatched transfer_id (%d not %d)", 
                   dataTransfer->transfer_id, sCr_file_xfer_state.transfer_id);
         // response->result = cr_ErrorCodes_INVALID_PARAMETER;
         // return 0;
@@ -399,10 +403,10 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
 
     if (sCr_file_xfer_state.bytes_transfered >= sCr_file_xfer_state.transfer_length)
     {
-        i3_log(LOG_MASK_ALWAYS, "file write complete.");
+        I3_LOG(LOG_MASK_ALWAYS, "file write complete.");
         if (bytes_remaining_to_write != 0)
         {
-            i3_log(LOG_MASK_WARN, "On file write, remaining bytes is below zero.");
+            I3_LOG(LOG_MASK_WARN, "On file write, remaining bytes is below zero.");
         }
         response->is_complete = true;
         crcb_file_transfer_complete(sCr_file_xfer_state.file_id);
@@ -497,7 +501,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
         }
         if (request->is_complete)
         {
-            i3_log(LOG_MASK_ALWAYS, "file read of fid %d is complete.", 
+            I3_LOG(LOG_MASK_ALWAYS, "file read of fid %d is complete.", 
                    sCr_file_xfer_state.file_id);
             sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -574,7 +578,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     bytes_remaining_to_read -= bytes_read;
     if (bytes_remaining_to_read == 0)
     {
-        i3_log(LOG_MASK_ALWAYS, "File read complete.");
+        I3_LOG(LOG_MASK_ALWAYS, "File read complete.");
         pvtCr_num_remaining_objects = 0;
         sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -601,10 +605,10 @@ void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks)
         sTimeoutWatchdog_is_active = true;
         sTimeoutWatchdog_period    = msec;
         sTimeoutWatchdog_target = ticks + msec;
-        i3_log(LOG_MASK_TIMEOUT, "%s: set timeout to %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+        I3_LOG(LOG_MASK_TIMEOUT, "%s: set timeout to %d ms at %d ticks.", __FUNCTION__, msec, ticks);
         return;
     }
-    i3_log(LOG_MASK_TIMEOUT, "%s: Disable timeout with %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+    I3_LOG(LOG_MASK_TIMEOUT, "%s: Disable timeout with %d ms at %d ticks.", __FUNCTION__, msec, ticks);
     sTimeoutWatchdog_is_active = false;
 }
 
@@ -613,18 +617,18 @@ void pvtCr_watchdog_stroke_timeout(uint32_t ticks)
 {
     if (sTimeoutWatchdog_is_active) {
         sTimeoutWatchdog_target = ticks + sTimeoutWatchdog_period;
-        i3_log(LOG_MASK_TIMEOUT, "%s: Stroke timeout with %d ms at %d ticks.", 
+        I3_LOG(LOG_MASK_TIMEOUT, "%s: Stroke timeout with %d ms at %d ticks.", 
                __FUNCTION__, sTimeoutWatchdog_period, ticks);
         return;
     }
-    i3_log(LOG_MASK_TIMEOUT, "%s: Stroke timeout inactive.", __FUNCTION__);
+    I3_LOG(LOG_MASK_TIMEOUT, "%s: Stroke timeout inactive.", __FUNCTION__);
 }
 
 // disables the watchdog
 void pvtCr_watchdog_end_timeout()
 {
     sTimeoutWatchdog_is_active = false;
-    i3_log(LOG_MASK_TIMEOUT, "%s: End timeout.", __FUNCTION__);
+    I3_LOG(LOG_MASK_TIMEOUT, "%s: End timeout.", __FUNCTION__);
 }
 
 // if active, compares ticks to expected timeout.
@@ -636,7 +640,7 @@ int pvtCr_watchdog_check_timeout(uint32_t ticks)
 
     if (ticks > sTimeoutWatchdog_target)
     {
-        i3_log(LOG_MASK_TIMEOUT, TEXT_RED "%s: timeout Expired.", __FUNCTION__);
+        I3_LOG(LOG_MASK_TIMEOUT, TEXT_RED "%s: timeout Expired.", __FUNCTION__);
         return 1;
     }
     return 0;
