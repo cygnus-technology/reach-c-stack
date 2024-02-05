@@ -235,7 +235,22 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
     sCr_file_xfer_state.bytes_transfered        = 0;
 
     if (request->read_write)
-        i3_log(LOG_MASK_ALWAYS, "Start file write:");
+    {
+        // give the app a chance to erase flash:
+        int rval = 
+        crcb_file_prepare_to_write(request->file_id, 
+                                   request->request_offset, 
+                                   request->transfer_length);
+        if (rval == 0) {
+            i3_log(LOG_MASK_ALWAYS, "Start file write:");
+        }
+        else
+        {
+            LOG_ERROR("crcb_file_prepare_to_write failed");
+            cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
+                            "crcb_file_prepare_to_write() failed with %d.", rval);
+        }
+    }
     else
         i3_log(LOG_MASK_ALWAYS, "Start file read:");
 
@@ -243,7 +258,8 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
            request->file_id, request->request_offset, request->transfer_length,
            request->messages_per_ack);
 
-    pvtCr_watchdog_start_timeout(REACH_TIMEOUT, cr_get_current_ticks());
+    pvtCr_watchdog_start_timeout(sCr_file_xfer_state.timeout_in_ms, 
+                                 cr_get_current_ticks());
 
     return 0;
 }
