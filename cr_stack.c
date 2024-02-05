@@ -338,20 +338,28 @@ int cr_init()
     return cr_ErrorCodes_NO_ERROR;
 }
 
+#ifndef APP_ADVERTISED_NAME_LENGTH
+  #define APP_ADVERTISED_NAME_LENGTH    REACH_SHORT_STRING_LEN
+#endif
+
+char sCr_advertised_name[APP_ADVERTISED_NAME_LENGTH];
+
+
 /**
 * @brief   cr_set_advertised_name
-* @details Set the name of the device that should be advertised before 
-*          connecting.  Used in BLE.
-* @note    Just store the string up to length REACH_SHORT_STRING_LEN.  The code 
-*          setting up the link can retrieve this using cr_get_advertised_name()
+* @details Sets the name of the device that should be advertised before 
+*          connecting.  Used in BLE.  The length of the string is set by
+*          APP_ADVERTISED_NAME_LENGTH which can be define in the application.
+*          See reach-server.h.  Uses REACH_SHORT_STRING_LEN when
+*          APP_ADVERTISED_NAME_LENGTH is not defined.  The code setting up the
+*          communication link can retrieve this using cr_get_advertised_name().
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
 */
-char sCr_advertised_name[REACH_SHORT_STRING_LEN];
 int cr_set_advertised_name(char *name, int length)
 {
-    strncpy(sCr_advertised_name, name, REACH_SHORT_STRING_LEN);
-    if (length >= REACH_SHORT_STRING_LEN) 
-        return REACH_SHORT_STRING_LEN;
+    strncpy(sCr_advertised_name, name, APP_ADVERTISED_NAME_LENGTH);
+    if (length >= APP_ADVERTISED_NAME_LENGTH) 
+        return APP_ADVERTISED_NAME_LENGTH;
     return cr_ErrorCodes_NO_ERROR;
 }
 
@@ -369,6 +377,7 @@ const char *cr_get_advertised_name()
 * @brief   cr_store_coded_prompt
 * @details allows the application to store the prompt where the Reach stack can 
 *          see it.  The byte data and length are copied into private storage.
+*          This data is retrieved using crcb_get_coded_prompt().
 * @param   data: The coded prompt to be stored. 
 * @param   len : number of bytes to be stored. 
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
