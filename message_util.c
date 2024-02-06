@@ -167,7 +167,7 @@ char *message_util_discover_files_json() {
 }
 
 char *message_util_discover_files_response_json(
-    const cr_DiscoverFilesReply *response) {
+    const cr_DiscoverFilesResponse *response) {
 
   cJSON *json = cJSON_CreateObject();
   cJSON *jsonArray = cJSON_CreateArray();
@@ -217,7 +217,7 @@ char *message_util_transfer_init_json(const cr_FileTransferInit *request) {
 }
 
 char *message_util_transfer_init_response_json(
-    const cr_FileTransferInitReply *response) {
+    const cr_FileTransferInitResponse *response) {
 
   cJSON *json = cJSON_CreateObject();
   cJSON *json1 = cJSON_CreateObject();

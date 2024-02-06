@@ -694,14 +694,14 @@ void cr_test_sizes()
     rval += checkSize(cr_CommandInfo_size, MAX_BLE_SZ, "cr_CommandInfo_size");
     rval += checkSize(cr_DeviceInfoResponse_size, MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
     rval += checkSize(cr_DiscoverCommandsResult_size, MAX_BLE_SZ, "cr_DiscoverCommandsResult_size");
-    rval += checkSize(cr_DiscoverFilesReply_size, MAX_BLE_SZ, "cr_DiscoverFilesReply_size");
+    rval += checkSize(cr_DiscoverFilesResponse_size, MAX_BLE_SZ, "cr_DiscoverFilesResponse_size");
     rval += checkSize(cr_DiscoverStreamsResponse_size, MAX_BLE_SZ, "cr_DiscoverStreamsResponse_size");
     rval += checkSize(cr_ParamExKey_size, MAX_BLE_SZ, "cr_ParamExKey_size");
     rval += checkSize(cr_ErrorReport_size, MAX_BLE_SZ, "cr_ErrorReport_size");
     rval += checkSize(cr_FileInfo_size, MAX_BLE_SZ, "cr_FileInfo_size");
     rval += checkSize(cr_FileTransferDataNotification_size, MAX_BLE_SZ, "cr_FileTransferDataNotification_size");
     rval += checkSize(cr_FileTransferData_size, MAX_BLE_SZ, "cr_FileTransferData_size");
-    rval += checkSize(cr_FileTransferInitReply_size, MAX_BLE_SZ, "cr_FileTransferInitReply_size");
+    rval += checkSize(cr_FileTransferInitResponse_size, MAX_BLE_SZ, "cr_FileTransferInitResponse_size");
     rval += checkSize(cr_FileTransferInit_size, MAX_BLE_SZ, "cr_FileTransferInit_size");
     rval += checkSize(cr_ParamExInfoResponse_size, MAX_BLE_SZ, "cr_ParamExInfoResponse_size");
     rval += checkSize(cr_ParameterInfoRequest_size, MAX_BLE_SZ, "cr_ParameterInfoRequest_size");
@@ -829,12 +829,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_DISCOVER_FILES:
         rval = pvtCrFile_discover((cr_DiscoverFiles *)sCr_decoded_prompt_buffer,
-                              (cr_DiscoverFilesReply *)sCr_uncoded_response_buffer);
+                              (cr_DiscoverFilesResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_INIT:
         rval = pvtCrFile_transfer_init((cr_FileTransferInit *)sCr_decoded_prompt_buffer,
-                             (cr_FileTransferInitReply *)sCr_uncoded_response_buffer);
+                             (cr_FileTransferInitResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -1252,22 +1252,22 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
 
 #ifdef INCLUDE_FILE_SERVICE
   case cr_ReachMessageTypes_DISCOVER_FILES:
-      status = pb_encode(&os_stream, cr_DiscoverFilesReply_fields, data);
+      status = pb_encode(&os_stream, cr_DiscoverFilesResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Discover files response: \n%s\n",
                   message_util_discover_files_response_json(
-                      (cr_DiscoverFilesReply *)data));
+                      (cr_DiscoverFilesResponse *)data));
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_INIT:
 
-      status = pb_encode(&os_stream, cr_FileTransferInitReply_fields, data);
+      status = pb_encode(&os_stream, cr_FileTransferInitResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Transfer init response: \n%s\n",
                   message_util_transfer_init_response_json(
-                      (cr_FileTransferInitReply *)data));
+                      (cr_FileTransferInitResponse *)data));
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_DATA:

@@ -52,9 +52,9 @@
 
     #ifdef INCLUDE_FILE_SERVICE
         char *message_util_discover_files_json();
-        char *message_util_discover_files_response_json(const cr_DiscoverFilesReply *);
+        char *message_util_discover_files_response_json(const cr_DiscoverFilesResponse *);
         char *message_util_transfer_init_json(const cr_FileTransferInit *);
-        char *message_util_transfer_init_response_json(const cr_FileTransferInitReply *);
+        char *message_util_transfer_init_response_json(const cr_FileTransferInitResponse *);
         char *message_util_transfer_data_json(const cr_FileTransferData *);
         char *message_util_transfer_data_response_json(const cr_FileTransferData *);
         char *message_util_transfer_data_notification_json(

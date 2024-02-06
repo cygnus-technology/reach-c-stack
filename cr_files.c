@@ -86,11 +86,11 @@
 //*************************************************************************
 
 int pvtCrFile_discover(const cr_DiscoverFiles *request,
-                                cr_DiscoverFilesReply *response)
+                                cr_DiscoverFilesResponse *response)
 {
     if (!pvtCr_challenge_key_is_valid()) {
         pvtCr_num_continued_objects = pvtCr_num_remaining_objects = 0;
-        memset(response, 0, sizeof(cr_DiscoverFilesReply));
+        memset(response, 0, sizeof(cr_DiscoverFilesResponse));
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         return cr_ErrorCodes_NO_DATA; 
     }
@@ -150,7 +150,7 @@ typedef struct _cr_FileTransferStateMachine {
 cr_FileTransferStateMachine sCr_file_xfer_state;
 
 int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
-                               cr_FileTransferInitReply *response)
+                               cr_FileTransferInitResponse *response)
 {
     if (!pvtCr_challenge_key_is_valid()) {
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
@@ -160,7 +160,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
     }
 
     cr_FileInfo file_desc;
-    memset(response, 0, sizeof(cr_FileTransferInitReply));
+    memset(response, 0, sizeof(cr_FileTransferInitResponse));
     response->transfer_id = request->transfer_id;
     memset(&sCr_file_xfer_state, 0, sizeof(cr_FileTransferStateMachine));
     sCr_file_xfer_state.state = cr_FileTransferState_IDLE;

@@ -77,9 +77,9 @@ extern "C" {
     /// pvtCrFile_ functions support the (optional) files service. 
     ///  
     int pvtCrFile_discover(const cr_DiscoverFiles *request,
-                              cr_DiscoverFilesReply *response);
+                              cr_DiscoverFilesResponse *response);
     int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
-                             cr_FileTransferInitReply *response);
+                             cr_FileTransferInitResponse *response);
     int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                              cr_FileTransferDataNotification *response);
     int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *request,
