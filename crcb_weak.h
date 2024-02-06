@@ -473,10 +473,10 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @details Retrieve the device's idea of the current time.
     * @note    Time is specified in UTC Epoch format, seconds since 1970. More than 
     *          32 bits are required to remain valid past 2030.
-    * @param   utc_seconds (output) current time
+    * @param   response (output) with utc_seconds current time and zone 
     * @return  returns zero or an error code
     */
-    int crcb_time_get(uint64_t *utc_seconds);
+    int crcb_time_get(cr_TimeGetResponse *response);
 
     /**
     * @brief   crcb_time_set
@@ -484,10 +484,10 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     *          time clock.
     * @note    Time is specified in UTC Epoch format, seconds since 1970. More than 
     *          32 bits are required to remain valid past 2030.
-    * @param   utc_seconds current time
+    * @param   request (input) structure with utc_seconds current time and zone
     * @return  returns zero or an error code
     */
-    int crcb_time_set(uint64_t utc_seconds);
+    int crcb_time_set(const cr_TimeSetRequest *request);
 
 #endif  /// def INCLUDE_TIME_SERVICE
 

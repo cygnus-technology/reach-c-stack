@@ -117,7 +117,7 @@ extern "C" {
                                cr_ParameterWriteResult *);
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *,
-                                       cr_ParameterNotifyConfigResult *);
+                                       cr_ParameterNotifyConfigResponse *);
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
     
     void pvtCrParam_check_for_notifications(void);

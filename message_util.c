@@ -401,7 +401,7 @@ char *message_util_discover_commands_json() {
 }
 
 char *message_util_discover_commands_response_json(
-    const cr_DiscoverCommandsResult *payload) {
+    const cr_DiscoverCommandsResponse *payload) {
 
   cJSON *json = cJSON_CreateObject();
   cJSON *jsonArray = cJSON_CreateArray();
@@ -443,7 +443,7 @@ char *message_util_send_command_json(const cr_SendCommand *payload) {
 }
 
 char *
-message_util_send_command_response_json(const cr_SendCommandResult *payload) {
+message_util_send_command_response_json(const cr_SendCommandResponse *payload) {
 
   cJSON *json = cJSON_CreateObject();
   cJSON *json_1 = cJSON_CreateObject();
@@ -663,7 +663,7 @@ message_util_write_param_response_json(
 }
 
 char *message_util_config_notify_param_json(
-    const cr_ParameterNotifyConfigResult *payload)
+    const cr_ParameterNotifyConfigResponse *payload)
 {
   sprintf(sMsgUtilBuffer, "  write param response: %d", (int)payload->result);
   return sMsgUtilBuffer;
@@ -706,13 +706,13 @@ char *message_util_ping_response_json(const cr_PingResponse *payload) {
 }
 
 #ifdef INCLUDE_TIME_SERVICE
-    char *message_util_time_set_response_json(const cr_TimeSetResult *payload) 
+    char *message_util_time_set_response_json(const cr_TimeSetResponse *payload) 
     {
         sprintf(sMsgUtilBuffer, "  Time set response result: %d", (int)payload->result);
         return sMsgUtilBuffer;
     }
 
-    char *message_util_time_get_response_json(const cr_TimeGetResult *payload) 
+    char *message_util_time_get_response_json(const cr_TimeGetResponse *payload) 
     {
         int ptr = 0;
         ptr += sprintf(&sMsgUtilBuffer[ptr], "  Time get response result: %d\r\n", (int)payload->result);

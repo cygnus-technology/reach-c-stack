@@ -178,8 +178,8 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
 #ifdef INCLUDE_COMMAND_SERVICE
     // Commands 
     static int handle_discover_commands(const cr_DiscoverCommands *,
-                                        cr_DiscoverCommandsResult *);
-    static int handle_send_command(const cr_SendCommand *, cr_SendCommandResult *);
+                                        cr_DiscoverCommandsResponse *);
+    static int handle_send_command(const cr_SendCommand *, cr_SendCommandResponse *);
 #endif // def INCLUDE_COMMAND_SERVICE
 
 #ifdef INCLUDE_CLI_SERVICE
@@ -189,9 +189,9 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
 
 #ifdef INCLUDE_TIME_SERVICE
     static int handle_time_set(const cr_TimeSetRequest *request, 
-                               cr_TimeSetResult *response);
+                               cr_TimeSetResponse *response);
     static int handle_time_get(const cr_TimeGetRequest *request, 
-                               cr_TimeGetResult *response);
+                               cr_TimeGetResponse *response);
 #endif  // def INCLUDE_TIME_SERVICE
 
 // encodes message to sCr_encoded_response_buffer.
@@ -693,7 +693,7 @@ void cr_test_sizes()
     rval += checkSize(cr_CLIData_size, MAX_BLE_SZ, "cr_CLIData_size");
     rval += checkSize(cr_CommandInfo_size, MAX_BLE_SZ, "cr_CommandInfo_size");
     rval += checkSize(cr_DeviceInfoResponse_size, MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
-    rval += checkSize(cr_DiscoverCommandsResult_size, MAX_BLE_SZ, "cr_DiscoverCommandsResult_size");
+    rval += checkSize(cr_DiscoverCommandsResponse_size, MAX_BLE_SZ, "cr_DiscoverCommandsResponse_size");
     rval += checkSize(cr_DiscoverFilesResponse_size, MAX_BLE_SZ, "cr_DiscoverFilesResponse_size");
     rval += checkSize(cr_DiscoverStreamsResponse_size, MAX_BLE_SZ, "cr_DiscoverStreamsResponse_size");
     rval += checkSize(cr_ParamExKey_size, MAX_BLE_SZ, "cr_ParamExKey_size");
@@ -708,7 +708,7 @@ void cr_test_sizes()
     rval += checkSize(cr_ParameterInfoResponse_size, MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
     rval += checkSize(cr_ParameterInfo_size, MAX_BLE_SZ, "cr_ParameterInfo_size");
     rval += checkSize(cr_ParameterNotification_size, MAX_BLE_SZ, "cr_ParameterNotification_size");
-    rval += checkSize(cr_ParameterNotifyConfigResult_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResult_size");
+    rval += checkSize(cr_ParameterNotifyConfigResponse_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResponse_size");
     rval += checkSize(cr_ParameterNotifyConfig_size, MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
     rval += checkSize(cr_ParameterReadResult_size, MAX_BLE_SZ, "cr_ParameterReadResult_size");
     rval += checkSize(cr_ParameterRead_size, MAX_BLE_SZ, "cr_ParameterRead_size");
@@ -718,7 +718,7 @@ void cr_test_sizes()
     rval += checkSize(cr_PingResponse_size, MAX_BLE_SZ, "cr_PingResponse_size");
     rval += checkSize(cr_ReachMessageHeader_size, MAX_BLE_SZ, "cr_ReachMessageHeader_size");
     rval += checkSize(cr_ReachMessage_size, MAX_BLE_SZ, "cr_ReachMessage_size");
-    rval += checkSize(cr_SendCommandResult_size, MAX_BLE_SZ, "cr_SendCommandResult_size");
+    rval += checkSize(cr_SendCommandResponse_size, MAX_BLE_SZ, "cr_SendCommandResponse_size");
     rval += checkSize(cr_StreamData_size, MAX_BLE_SZ, "cr_StreamData_size");
     rval += checkSize(cr_StreamInfo_size, MAX_BLE_SZ, "cr_StreamInfo_size");
 
@@ -732,7 +732,7 @@ void cr_test_sizes()
     rval += checkSize(sizeof(cr_ParameterWrite), MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
     rval += checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
     rval += checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
-    rval += checkSize(sizeof(cr_ParameterNotifyConfigResult), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfigResult)");
+    rval += checkSize(sizeof(cr_ParameterNotifyConfigResponse), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfigResponse)");
     rval += checkSize(sizeof(cr_ParameterValue), MAX_RAW_SZ, "sizeof(cr_ParameterValue)");
     rval += checkSize(sizeof(cr_CLIData), MAX_RAW_SZ, "sizeof(cr_CLI_Data)");
     rval += checkSize(sizeof(cr_ParameterRead), MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
@@ -821,7 +821,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
         rval = pvtCrParam_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
-                           (cr_ParameterNotifyConfigResult *)sCr_uncoded_response_buffer);
+                           (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
         break;
     #endif
   #endif // def INCLUDE_PARAMETER_SERVICE
@@ -882,12 +882,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #ifdef INCLUDE_COMMAND_SERVICE
     case cr_ReachMessageTypes_DISCOVER_COMMANDS:
         rval = handle_discover_commands((cr_DiscoverCommands *)sCr_decoded_prompt_buffer,
-                                 (cr_DiscoverCommandsResult *)sCr_uncoded_response_buffer);
+                                 (cr_DiscoverCommandsResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_SEND_COMMAND:
         rval = handle_send_command((cr_SendCommand *)sCr_decoded_prompt_buffer,
-                            (cr_SendCommandResult *)sCr_uncoded_response_buffer);
+                            (cr_SendCommandResponse *)sCr_uncoded_response_buffer);
         break;
   #endif  // def INCLUDE_COMMAND_SERVICE
 
@@ -901,11 +901,11 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #ifdef INCLUDE_TIME_SERVICE
     case cr_ReachMessageTypes_SET_TIME:
         rval = handle_time_set((cr_TimeSetRequest *)sCr_decoded_prompt_buffer, 
-                                (cr_TimeSetResult *)sCr_uncoded_response_buffer);
+                                (cr_TimeSetResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_GET_TIME:
         rval = handle_time_get((cr_TimeGetRequest *)sCr_decoded_prompt_buffer, 
-                                (cr_TimeGetResult *)sCr_uncoded_response_buffer);
+                                (cr_TimeGetResponse *)sCr_uncoded_response_buffer);
         break;
   #endif  // def INCLUDE_TIME_SERVICE
 
@@ -1033,7 +1033,7 @@ const char *cr_get_reach_version()
 #ifdef INCLUDE_COMMAND_SERVICE
 static int 
 handle_discover_commands(const cr_DiscoverCommands *request,
-                         cr_DiscoverCommandsResult *response)
+                         cr_DiscoverCommandsResponse *response)
 {
     if (!pvtCr_challenge_key_is_valid()) {
         pvtCr_num_remaining_objects = 0;
@@ -1075,7 +1075,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
 }
 
 static int handle_send_command(const cr_SendCommand *request,
-                                   cr_SendCommandResult *response) 
+                                   cr_SendCommandResponse *response) 
 {
     if (!pvtCr_challenge_key_is_valid()) {
         response->result = cr_ErrorCodes_CHALLENGE_FAILED;
@@ -1104,28 +1104,28 @@ static int handle_send_command(const cr_SendCommand *request,
 
 #ifdef INCLUDE_TIME_SERVICE
     static int handle_time_set(const cr_TimeSetRequest *request, 
-                               cr_TimeSetResult *response)
+                               cr_TimeSetResponse *response)
     {
         if (!pvtCr_challenge_key_is_valid()) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
         }
 
-        response->result = crcb_time_set(request->seconds_utc);
+        response->result = crcb_time_set(request);
         response->result_message[0] = 0;
 
         return 0;
     }
 
     static int handle_time_get(const cr_TimeGetRequest *request, 
-                               cr_TimeGetResult *response)
+                               cr_TimeGetResponse *response)
     {
         (void)request;
         if (!pvtCr_challenge_key_is_valid()) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
         }
-        response->result = crcb_time_get(&response->seconds_utc);
+        response->result = crcb_time_get(response);
         return 0;
     }
 
@@ -1239,12 +1239,12 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
 
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
   case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-      status = pb_encode(&os_stream, cr_ParameterNotifyConfigResult_fields, data);
+      status = pb_encode(&os_stream, cr_ParameterNotifyConfigResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("parameter notify config response: \n%s\n",
                   message_util_config_notify_param_json(
-                      (cr_ParameterNotifyConfigResult *)data));
+                      (cr_ParameterNotifyConfigResponse *)data));
       }
       break;
   #endif
@@ -1316,21 +1316,21 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
 
 #ifdef INCLUDE_COMMAND_SERVICE
   case cr_ReachMessageTypes_DISCOVER_COMMANDS:
-      status = pb_encode(&os_stream, cr_DiscoverCommandsResult_fields, data);
+      status = pb_encode(&os_stream, cr_DiscoverCommandsResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Discover commands response: \n%s\n",
                   message_util_discover_commands_response_json(
-                      (cr_DiscoverCommandsResult *)data));
+                      (cr_DiscoverCommandsResponse *)data));
       }
       break;
   case cr_ReachMessageTypes_SEND_COMMAND:
-      status = pb_encode(&os_stream, cr_SendCommandResult_fields, data);
+      status = pb_encode(&os_stream, cr_SendCommandResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Send Command response: \n%s\n",
                   message_util_send_command_response_json(
-                      (cr_SendCommandResult *)data));
+                      (cr_SendCommandResponse *)data));
       }
       break;
 #endif  // def INCLUDE_COMMAND_SERVICE
@@ -1348,21 +1348,21 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
 
 #ifdef INCLUDE_TIME_SERVICE
   case cr_ReachMessageTypes_SET_TIME:
-      status = pb_encode(&os_stream, cr_TimeSetResult_fields, data);
+      status = pb_encode(&os_stream, cr_TimeSetResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Time set response: \n%s\n",
                   message_util_time_set_response_json(
-                      (cr_TimeSetResult *)data));
+                      (cr_TimeSetResponse *)data));
       }
       break;
   case cr_ReachMessageTypes_GET_TIME:
-      status = pb_encode(&os_stream, cr_TimeGetResult_fields, data);
+      status = pb_encode(&os_stream, cr_TimeGetResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Time set response: \n%s\n",
                   message_util_time_get_response_json(
-                      (cr_TimeGetResult *)data));
+                      (cr_TimeGetResponse *)data));
       }
       break;
 #endif  // def INCLUDE_TIME_SERVICE

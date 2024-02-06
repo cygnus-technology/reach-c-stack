@@ -679,12 +679,12 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @details Retrieve the device's idea of the current time.
     * @note    Time is specified in UTC Epoch format, seconds since 1970. More than 
     *          32 bits are required to remain valid past 2030.
-    * @param   utc_seconds (output) current time
+    * @param   response (output) with utc_seconds current time and zone 
     * @return  returns zero or an error code
     */
-    int __attribute__((weak)) crcb_time_get(uint64_t *utc_seconds)
+    int __attribute__((weak)) crcb_time_get(cr_TimeGetResponse *response)
     {
-        (void)utc_seconds;
+        (void)response;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
@@ -695,12 +695,12 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          time clock.
     * @note    Time is specified in UTC Epoch format, seconds since 1970. More than 
     *          32 bits are required to remain valid past 2030.
-    * @param   utc_seconds current time
+    * @param   request : structure with seconds and timeszone
     * @return  returns zero or an error code
     */
-    int __attribute__((weak)) crcb_time_set(uint64_t utc_seconds)
+    int __attribute__((weak)) crcb_time_set(const cr_TimeSetRequest *request)
     {
-        (void)utc_seconds;
+        (void)request;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }

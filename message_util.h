@@ -47,7 +47,7 @@
         char *message_util_write_param_json(const cr_ParameterWrite *);
         char *message_util_write_param_response_json(const cr_ParameterWriteResult *);
         // char *message_util_write_param_request_json(const cr_ParameterWrite *);
-        char *message_util_config_notify_param_json(const cr_ParameterNotifyConfigResult *);
+        char *message_util_config_notify_param_json(const cr_ParameterNotifyConfigResponse *);
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
@@ -71,9 +71,9 @@
         // Commands
         char *message_util_discover_commands_json();
         char *
-            message_util_discover_commands_response_json(const cr_DiscoverCommandsResult *);
+            message_util_discover_commands_response_json(const cr_DiscoverCommandsResponse *);
         char *message_util_send_command_json(const cr_SendCommand *);
-        char *message_util_send_command_response_json(const cr_SendCommandResult *);
+        char *message_util_send_command_response_json(const cr_SendCommandResponse *);
     #endif // def INCLUDE_COMMAND_SERVICE
 
     #ifdef INCLUDE_CLI_SERVICE
@@ -83,8 +83,8 @@
 
     #ifdef INCLUDE_TIME_SERVICE
         // Time
-        char *message_util_time_set_response_json(const cr_TimeSetResult *payload);
-        char *message_util_time_get_response_json(const cr_TimeGetResult *payload);
+        char *message_util_time_set_response_json(const cr_TimeSetResponse *payload);
+        char *message_util_time_get_response_json(const cr_TimeGetResponse *payload);
         char *message_util_time_set_request_json(const cr_TimeSetRequest *payload);
         char *message_util_time_get_request_json(const cr_TimeGetRequest *payload); 
     #endif // def INCLUDE_TIME_SERVICE

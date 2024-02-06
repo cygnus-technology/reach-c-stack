@@ -141,7 +141,7 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
         status = pb_decode(&is_stream, cr_ParameterNotifyConfig_fields, data);
         if (status) {
           LOG_REACH("Parameter notify config: \n%s\n",
-                    message_util_config_notify_param_json((cr_ParameterNotifyConfigResult *)data));
+                    message_util_config_notify_param_json((cr_ParameterNotifyConfigResponse *)data));
         }
         break;
 

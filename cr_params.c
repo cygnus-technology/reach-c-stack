@@ -566,7 +566,7 @@
     static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
 
     int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *pnc,
-                                       cr_ParameterNotifyConfigResult *pncr)
+                                       cr_ParameterNotifyConfigResponse *pncr)
     {
         int idx;
 
