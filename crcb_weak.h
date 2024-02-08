@@ -465,6 +465,20 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     */
     int crcb_file_transfer_complete(const uint32_t fid);
 
+    /**
+    * @brief   crcb_file_prepare_to_write
+    * @details Called when a file write has been requested.  Designed to give the 
+    *          app the chance to erase flash memory and setup before receiving the
+    *          first bytes.
+    * @param   fid (input) which file 
+    * @param   offset start address of write 
+    * @param   bytes_to_write 
+    * @return  returns zero or an error code.  The stack reacts to an error code.
+    */
+    int crcb_file_prepare_to_write(const uint32_t fid,
+                                   const size_t offset,
+                                   const size_t bytes_to_write);
+
 #endif /// def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_TIME_SERVICE
