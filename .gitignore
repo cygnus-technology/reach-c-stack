@@ -5,8 +5,9 @@
 
 
 # Doxygen build products
-docs/html/
-docs/latex/
+docs/__xml
+docs/__html
+docs/__latex
 
 # Node artifact files
 node_modules/
