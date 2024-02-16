@@ -3,6 +3,7 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+
 # Doxygen build products
 docs/html/
 docs/latex/
@@ -52,3 +53,41 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Sphinx documentation
+docs/_html/
+docs/_build/
+docs/_build/*
+docs/_deployment/
+docs/.doctrees/
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# python venv
+docs/venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyBuilder
+target/

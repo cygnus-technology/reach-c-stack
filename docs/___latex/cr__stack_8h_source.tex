@@ -1,0 +1,369 @@
+\doxysection{cr\+\_\+stack.\+h}
+\hypertarget{cr__stack_8h_source}{}\label{cr__stack_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2023-\/2024\ i3\ Product\ Development}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ }}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ MIT\ License}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ Permission\ is\ hereby\ granted,\ free\ of\ charge,\ to\ any\ person\ obtaining\ a\ copy}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ of\ this\ software\ and\ associated\ documentation\ files\ (the\ "{}Software"{}),\ to\ deal}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ in\ the\ Software\ without\ restriction,\ including\ without\ limitation\ the\ rights}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *\ to\ use,\ copy,\ modify,\ merge,\ publish,\ distribute,\ sublicense,\ and/or\ sell}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ copies\ of\ the\ Software,\ and\ to\ permit\ persons\ to\ whom\ the\ Software\ is}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ furnished\ to\ do\ so,\ subject\ to\ the\ following\ conditions:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ The\ above\ copyright\ notice\ and\ this\ permission\ notice\ shall\ be\ included\ in\ all}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ copies\ or\ substantial\ portions\ of\ the\ Software.}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *\ THE\ SOFTWARE\ IS\ PROVIDED\ "{}AS\ IS"{},\ WITHOUT\ WARRANTY\ OF\ ANY\ KIND,\ EXPRESS\ OR}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ IMPLIED,\ INCLUDING\ BUT\ NOT\ LIMITED\ TO\ THE\ WARRANTIES\ OF\ MERCHANTABILITY,}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE\ AND\ NONINFRINGEMENT.\ IN\ NO\ EVENT\ SHALL\ THE}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ AUTHORS\ OR\ COPYRIGHT\ HOLDERS\ BE\ LIABLE\ FOR\ ANY\ CLAIM,\ DAMAGES\ OR\ OTHER}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ LIABILITY,\ WHETHER\ IN\ AN\ ACTION\ OF\ CONTRACT,\ TORT\ OR\ OTHERWISE,\ ARISING\ FROM,}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ OUT\ OF\ OR\ IN\ CONNECTION\ WITH\ THE\ SOFTWARE\ OR\ THE\ USE\ OR\ OTHER\ DEALINGS\ IN\ THE}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ SOFTWARE.}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{/********************************************************************************************}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ \ \ \ \_\ \_\_\_\_\ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ \ \ (\_)\_\_\ /\ |\ \_\ \(\backslash\)\_\ \_\ \_\_\_\ \ \_\_|\ |\_\ \ \_\ \_\_|\ |\_\ \ |\ \ \ \(\backslash\)\ \_\_\_\_\_\ \_\_\_\_\_|\ |\_\_\_\ \_\ \_\_\ \_\ \_\_\ \ \_\_\_\ \_\ \_|\ |\_}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ \ \ |\ ||\_\ \(\backslash\)\ |\ \ \_/\ '\_/\ \_\ \(\backslash\)/\ \_`\ |\ ||\ /\ \_|\ \ \_|\ |\ |)\ /\ -\/\_)\ V\ /\ -\/\_)\ /\ \_\ \(\backslash\)\ '\_\ \(\backslash\)\ '\ \ \(\backslash\)/\ -\/\_)\ '\ \(\backslash\)\ \ \_|}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ \ \ |\_|\_\_\_/\ |\_|\ |\_|\ \(\backslash\)\_\_\_/\(\backslash\)\_\_,\_|\(\backslash\)\_,\_\(\backslash\)\_\_|\(\backslash\)\_\_|\ |\_\_\_/\(\backslash\)\_\_\_|\(\backslash\)\_/\(\backslash\)\_\_\_|\_\(\backslash\)\_\_\_/\ .\_\_/\_|\_|\_\(\backslash\)\_\_\_|\_||\_\(\backslash\)\_\_|}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_|}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Copyright\ i3\ Product\ Development\ 2023}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ \(\backslash\)brief\ "{}cr\_stack.h"{}\ defines\ the\ API\ to\ the\ Cygnus\ Reach\ device\ stack}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ Original\ Author:\ Chuck.Peplinski}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ ********************************************************************************************/}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\#ifndef\ \_CR\_STACK\_H}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#define\ \_CR\_STACK\_H}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \textcolor{comment}{//\ reach-\/server.h\ defines\ the\ build\ configuration\ of\ the\ Reach\ stack.}}
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ This\ includes\ which\ services,\ and\ the\ basic\ size\ of\ structures\ appropriate\ for\ the\ }}
+\DoxyCodeLine{00049\ \textcolor{comment}{//\ current\ transport\ means.\ \ For\ example,\ BLE.}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ "{}reach-\/server.h"{}}}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \textcolor{comment}{//\ reach.pb.h\ is\ generated\ by\ nanopb\ based\ on\ the\ protobuf\ file\ reach.proto.}}
+\DoxyCodeLine{00053\ \textcolor{preprocessor}{\#include\ "{}reach.pb.h"{}}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{reach__ble__proto__sizes_8h}{reach\_ble\_proto\_sizes.h}}"{}}}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00057\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00061\ \textcolor{comment}{//\ Conventions:}}
+\DoxyCodeLine{00062\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00063\ \textcolor{comment}{//\ Naming\ convention:\ \ }}
+\DoxyCodeLine{00064\ \textcolor{comment}{//\ \ cr\_\ prefix\ (for\ Cygnus\ Reach),\ then\ service\ name,\ then\ verb.}}
+\DoxyCodeLine{00065\ \textcolor{comment}{//\ crcb\_\ prefix\ for\ the\ "{}weak"{}\ callback\ functions\ required.}}
+\DoxyCodeLine{00066\ \textcolor{comment}{//\ }}
+\DoxyCodeLine{00067\ \textcolor{comment}{//\ All\ API\ functions\ return\ zero\ on\ success\ or\ an\ identifiable\ error\ code.}}
+\DoxyCodeLine{00068\ \textcolor{comment}{//}}
+\DoxyCodeLine{00069\ \textcolor{comment}{//\ There\ are\ a\ small\ number\ of\ API\ functions\ that\ are\ to\ be\ called\ by}}
+\DoxyCodeLine{00070\ \textcolor{comment}{//\ the\ hosting\ application.\ \ Most\ of\ the\ functions\ in\ the\ API\ are\ to\ be\ }}
+\DoxyCodeLine{00071\ \textcolor{comment}{//\ provided\ by\ the\ application.\ \ The\ reach\ stack\ provides\ "{}weak"{}\ declared}}
+\DoxyCodeLine{00072\ \textcolor{comment}{//\ versions\ so\ the\ application\ provide\ only\ what\ is\ required.}}
+\DoxyCodeLine{00073\ \textcolor{comment}{//\ The\ stack\ can\ be\ built\ to\ report\ errors\ if\ required\ weak\ functions\ are\ }}
+\DoxyCodeLine{00074\ \textcolor{comment}{//\ not\ overridden.}}
+\DoxyCodeLine{00075\ \textcolor{comment}{//}}
+\DoxyCodeLine{00076\ \textcolor{comment}{//\ The\ configuration\ structures\ that\ must\ be\ passed\ in\ to\ the\ stack\ to\ }}
+\DoxyCodeLine{00077\ \textcolor{comment}{//\ describe\ \ the\ system\ are\ designed\ to\ be\ constant\ and\ stored\ in\ flash\ }}
+\DoxyCodeLine{00078\ \textcolor{comment}{//\ if\ the\ application\ desires.\ \ This\ allows\ for\ a\ minimum\ use\ of\ RAM.}}
+\DoxyCodeLine{00079\ \textcolor{comment}{//}}
+\DoxyCodeLine{00080\ \textcolor{comment}{//\ Lists\ of\ items\ such\ as\ parameters,\ command,\ files,\ etc\ are\ handled\ using}}
+\DoxyCodeLine{00081\ \textcolor{comment}{//\ an\ iterator\ pattern.\ \ A\ function\ gets\ the\ next\ item\ and\ a\ reset\ function}}
+\DoxyCodeLine{00082\ \textcolor{comment}{//\ is\ available.}}
+\DoxyCodeLine{00083\ \textcolor{comment}{//\ In\ all\ cases,\ resetting\ to\ zero\ will\ select\ the\ lowest\ available\ object.}}
+\DoxyCodeLine{00084\ \textcolor{comment}{//}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00087\ \textcolor{comment}{//\ API}}
+\DoxyCodeLine{00088\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \textcolor{comment}{//\ Error\ codes\ are\ defined\ in\ the\ proto\ file\ so\ that\ the\ client\ can\ see\ them.}}
+\DoxyCodeLine{00091\ \ \ \ \ }
+\DoxyCodeLine{00092\ \textcolor{comment}{//\ an\ arbitary\ minimum\ size\ for\ the\ buffers}}
+\DoxyCodeLine{00093\ \textcolor{comment}{//\ \#define\ CR\_MINIMUM\_MESSAGE\_BUFFER\_SIZE\ \ 72}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \textcolor{preprocessor}{\#define\ REACH\_TIMEOUT\ \ \ 5000\ \ \ }\textcolor{comment}{//\ 5\ seconds\ in\ ms}}
+\DoxyCodeLine{00096\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00097\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00098\ \textcolor{comment}{//\ static\ buffers\ used\ and\ reused\ by\ the\ reach\ stack.}}
+\DoxyCodeLine{00099\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00100\ \textcolor{comment}{}}
+\DoxyCodeLine{00101\ \textcolor{comment}{//\ Terminology}}
+\DoxyCodeLine{00102\ \textcolor{comment}{//\ \ \ A\ transaction\ is\ a\ series\ of\ messages.}}
+\DoxyCodeLine{00103\ \textcolor{comment}{//\ \ \ A\ message\ has\ a\ header\ and\ a\ payload.}}
+\DoxyCodeLine{00104\ \textcolor{comment}{//\ \ \ The\ prompt\ is\ a\ received\ payload.}}
+\DoxyCodeLine{00105\ \textcolor{comment}{//\ \ \ The\ response\ is\ a\ generated\ payload.}}
+\DoxyCodeLine{00106\ \textcolor{comment}{\ }}
+\DoxyCodeLine{00107\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \textcolor{preprocessor}{\#define\ ALIGN\_TO\_WORD\ \ \ \_\_attribute\_\_((aligned(4)))}}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00112\ \textcolor{comment}{//\ To\ be\ called\ once\ before\ cr\_process\ is\ called.}}
+\DoxyCodeLine{00113\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{cr__stack_8c_aa30199827c6ac809190a2494b2a66a13}{cr\_init}}();}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \textcolor{comment}{//\ The\ application\ should\ set\ the\ name\ of\ the\ device\ to\ be\ advertised.}}
+\DoxyCodeLine{00116\ \textcolor{comment}{//\ If\ the\ length\ exceeds\ the\ maximum,\ the\ max\ length\ will\ be\ returned.}}
+\DoxyCodeLine{00117\ \textcolor{keywordtype}{int}\ cr\_set\_advertised\_name(\textcolor{keywordtype}{char}\ *name,\ \textcolor{keywordtype}{int}\ length);}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \textcolor{comment}{//\ to\ be\ used\ by\ the\ transport\ code\ to\ get\ the\ name.}}
+\DoxyCodeLine{00120\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{cr__stack_8c_a0455e201acdd200cfad17c663073a491}{cr\_get\_advertised\_name}}();}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \textcolor{comment}{//\ The\ application\ must\ call\ cr\_process()\ regularly.\ \ }}
+\DoxyCodeLine{00123\ \textcolor{comment}{//\ ticks\ tells\ it\ approximately\ how\ many\ \ milliseconds\ have\ passed\ since\ }}
+\DoxyCodeLine{00124\ \textcolor{comment}{//\ the\ system\ started.\ \ This\ allows\ it\ to\ perform\ timing\ related\ tasks.\ \ }}
+\DoxyCodeLine{00125\ \textcolor{comment}{//\ Most\ \ }}
+\DoxyCodeLine{00126\ \textcolor{keywordtype}{int}\ cr\_process(uint32\_t\ ticks);}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{comment}{//\ The\ cr\_process\ function\ calls\ crcb\_get\_coded\_prompt()\ }}
+\DoxyCodeLine{00130\ \textcolor{comment}{//\ to\ get\ any\ available\ prompt\ in\ coded\ format.\ \ }}
+\DoxyCodeLine{00131\ \textcolor{comment}{//\ The\ implementation\ copies\ the\ data\ into\ the\ provided\ buffer\ and\ sets\ the\ size.}}
+\DoxyCodeLine{00132\ \textcolor{comment}{//\ cr\_store\_coded\_prompt()\ can\ be\ used\ to\ push\ data\ into\ the\ stack.}}
+\DoxyCodeLine{00133\ \textcolor{comment}{//\ Then\ \ crcb\_get\_coded\_prompt()\ can\ remain\ in\ its\ weak\ state,\ as\ the\ data\ }}
+\DoxyCodeLine{00134\ \textcolor{comment}{//\ \ is\ already\ where\ it\ belongs.}}
+\DoxyCodeLine{00135\ \textcolor{comment}{//\ The\ len\ variable\ must\ specify\ the\ number\ of\ valid\ bytes\ in\ the\ supplied\ prompt.}}
+\DoxyCodeLine{00136\ \textcolor{comment}{//\ crcb\_get\_coded\_prompt()\ must\ not\ block\ as\ that\ would\ disable\ any\ notifications.}}
+\DoxyCodeLine{00137\ \textcolor{comment}{//\ Return\ cr\_ErrorCodes\_NO\_ERROR\ if\ prompt\ data\ is\ supplied.}}
+\DoxyCodeLine{00138\ \textcolor{comment}{//\ Return\ cr\_ErrorCodes\_NO\_DATA\ if\ no\ data\ is\ available.}}
+\DoxyCodeLine{00139\ \textcolor{comment}{//\ A\ message\ larger\ than\ CR\_CODED\_BUFFER\_SIZE\ is\ fatal.}}
+\DoxyCodeLine{00140\ \textcolor{keywordtype}{int}\ crcb\_get\_coded\_prompt(uint8\_t\ *prompt,\ \textcolor{keywordtype}{size\_t}\ *len);}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \textcolor{comment}{//\ allows\ the\ app\ to\ store\ the\ coded\ prompt\ in\ the\ memory\ held\ by\ the\ stack.}}
+\DoxyCodeLine{00143\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{cr__stack_8c_af1732a5d9ee5f83c4360448ae4452b34}{cr\_store\_coded\_prompt}}(uint8\_t\ *data,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \textcolor{comment}{//\ The\ cr\_process\ function\ calls\ crcb\_send\_coded\_response()\ to\ send\ responses\ to\ the\ client.}}
+\DoxyCodeLine{00147\ \textcolor{comment}{//\ Returns\ zero\ on\ success.}}
+\DoxyCodeLine{00148\ \textcolor{keywordtype}{int}\ crcb\_send\_coded\_response(\textcolor{keyword}{const}\ uint8\_t\ *response,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00149\ \textcolor{keywordtype}{int}\ cr\_get\_coded\_response\_buffer(uint8\_t\ **pResponse,\ \textcolor{keywordtype}{size\_t}\ *len);}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \textcolor{comment}{//\ you\ can\ get\ more\ useful\ error\ reports\ if\ you\ provide\ \string~128\ bytes\ here.}}
+\DoxyCodeLine{00152\ \textcolor{keywordtype}{void}\ cr\_provide\_debug\_buffer(\textcolor{keywordtype}{char}\ *buf,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \textcolor{keywordtype}{void}\ cr\_get\_reply\_buffer\_and\_size(\textcolor{keywordtype}{char}\ **ptr,\ \textcolor{keywordtype}{size\_t}\ *sz);}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \textcolor{comment}{//\ error\ handling\ is\ always\ present}}
+\DoxyCodeLine{00157\ \textcolor{keywordtype}{void}\ cr\_report\_error(\textcolor{keywordtype}{int}\ error\_code,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *fmt,\ ...);}
+\DoxyCodeLine{00158\ \textcolor{keywordtype}{int}\ crcb\_notify\_error(cr\_ErrorReport\ *err);}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \textcolor{keywordtype}{void}\ cr\_set\_ble\_connected(\textcolor{keywordtype}{bool}\ connected);}
+\DoxyCodeLine{00161\ \textcolor{keywordtype}{bool}\ cr\_get\_ble\_connected(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ uint32\_t\ cr\_get\_current\_ticks();}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00165\ \textcolor{keywordtype}{void}\ cr\_test\_sizes();}
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00169\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *cr\_get\_reach\_version();}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00172\ \textcolor{comment}{//\ \ Device\ Service\ (required)}}
+\DoxyCodeLine{00173\ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \textcolor{comment}{//\ The\ stack\ will\ call\ this\ function.\ \ The\ device\ must\ override\ the\ weak\ }}
+\DoxyCodeLine{00176\ \textcolor{comment}{//\ implementation\ to\ provide\ a\ valid\ device\ info\ structure\ to\ the\ stack.}}
+\DoxyCodeLine{00177\ \textcolor{comment}{//\ response\ message\ members\ like\ hash\ and\ services\ are\ computed\ by\ the\ }}
+\DoxyCodeLine{00178\ \textcolor{comment}{//\ reach\ stack.}}
+\DoxyCodeLine{00179\ \textcolor{keywordtype}{int}\ crcb\_device\_get\_info(cr\_DeviceInfoResponse\ *pDi);}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00183\ \textcolor{comment}{//\ \ Link\ (ping)\ Service\ (required)}}
+\DoxyCodeLine{00184\ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00185\ \textcolor{keywordtype}{int}\ crcb\_ping\_get\_signal\_strength(int8\_t\ *rssi);}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \textcolor{preprocessor}{\#ifdef\ INCLUDE\_CLI\_SERVICE}}
+\DoxyCodeLine{00188\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00189\ \ \ \ \ \textcolor{comment}{//\ \ CLI\ Service}}
+\DoxyCodeLine{00190\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{comment}{//\ When\ the\ CLI\ service\ is\ active,\ the\ stack\ can\ provide\ the\ device\ with\ }}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{comment}{//\ remotely\ entered\ CLI\ input\ by\ calling\ crcb\_cli\_enter().}}
+\DoxyCodeLine{00194\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_cli\_enter(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *cli);}
+\DoxyCodeLine{00195\ }
+\DoxyCodeLine{00196\ \ \ \ \ \textcolor{comment}{//\ When\ the\ device\ supports\ a\ CLI\ it\ is\ expected\ to\ share\ anything\ printed\ }}
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{comment}{//\ to\ the\ CLI\ back\ to\ the\ stack\ for\ remote\ display\ using\ crcb\_cli\_respond()}}
+\DoxyCodeLine{00198\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_cli\_respond(\textcolor{keywordtype}{char}\ *cli);}
+\DoxyCodeLine{00199\ }
+\DoxyCodeLine{00200\ \ \ \ \ \textcolor{comment}{//\ store\ the\ command\ line\ to\ be\ parsed\ elsewhere}}
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{keywordtype}{void}\ crcb\_set\_command\_line(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *ins);}
+\DoxyCodeLine{00202\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *crcb\_get\_command\_line();}
+\DoxyCodeLine{00203\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ def\ INCLUDE\_CLI\_SERVICE}}
+\DoxyCodeLine{00204\ }
+\DoxyCodeLine{00205\ \textcolor{preprocessor}{\#ifdef\ INCLUDE\_PARAMETER\_SERVICE}}
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00207\ \ \ \ \ \textcolor{comment}{//\ \ Parameter\ Service}}
+\DoxyCodeLine{00208\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00209\ }
+\DoxyCodeLine{00210\ \textcolor{preprocessor}{\ \ \ \ \#define\ MAX\_NUM\_PARAM\_ID\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 32767\ }\textcolor{comment}{//\ 16\ bits}}
+\DoxyCodeLine{00211\ }
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{comment}{//\ Gets\ the\ parameter\ description\ for\ the\ next\ parameter.}}
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{comment}{//\ Allows\ the\ stack\ to\ iterate\ through\ the\ parameter\ list.}}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{comment}{//\ Implies\ an\ order\ in\ the\ parameter\ list\ that\ is\ known\ by\ the\ application,}}
+\DoxyCodeLine{00216\ \ \ \ \ \textcolor{comment}{//\ but\ not\ directly\ by\ the\ stack.\ \ }}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{comment}{//\ Parameter\ ID's\ need\ not\ be\ continuous\ or\ in\ order.}}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{comment}{//\ The\ double\ pointer\ allows\ the\ app\ to\ provide\ a\ pointer\ to\ flash\ memory.}}
+\DoxyCodeLine{00219\ \ \ \ \ \textcolor{comment}{//\ Returns\ zero\ if\ the\ description\ is\ valid.}}
+\DoxyCodeLine{00220\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_discover\_next(cr\_ParameterInfo\ *desc);}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{comment}{//\ returns\ the\ number\ of\ parameters\ supported\ by\ the\ system.}}
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_get\_count();}
+\DoxyCodeLine{00224\ }
+\DoxyCodeLine{00225\ \ \ \ \ \textcolor{comment}{//\ Resets\ the\ application's\ pointer\ into\ the\ parameter\ table\ such\ that\ }}
+\DoxyCodeLine{00226\ \ \ \ \ \textcolor{comment}{//\ the\ next\ call\ to\ crcb\_parameter\_discover\_next()\ will\ return\ the}}
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{comment}{//\ description\ of\ this\ parameter.}}
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_discover\_reset(\textcolor{keyword}{const}\ uint32\_t\ pid);}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{comment}{//\ In\ parallel\ to\ the\ parameter\ discovery,\ use\ this\ to\ find\ out\ }}
+\DoxyCodeLine{00231\ \ \ \ \ \textcolor{comment}{//\ about\ enumerations\ and\ bitfields}}
+\DoxyCodeLine{00232\ \ \ \ \ \textcolor{comment}{//\ Only\ a\ single\ pointer\ since\ this\ gets\ the\ response\ directly.}}
+\DoxyCodeLine{00233\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_ex\_discover\_next(cr\_ParamExInfoResponse\ *pDesc);}
+\DoxyCodeLine{00234\ \ \ \ \ \textcolor{comment}{//\ negative\ pid\ specifes\ all\ pids.}}
+\DoxyCodeLine{00235\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_ex\_get\_count(\textcolor{keyword}{const}\ int32\_t\ pid);}
+\DoxyCodeLine{00236\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_ex\_discover\_reset(\textcolor{keyword}{const}\ int32\_t\ pid);}
+\DoxyCodeLine{00237\ }
+\DoxyCodeLine{00238\ }
+\DoxyCodeLine{00239\ \ \ \ \ \textcolor{comment}{//\ These\ read\ and\ write\ functions\ allow\ the\ stack\ to\ remotely\ access\ the}}
+\DoxyCodeLine{00240\ \ \ \ \ \textcolor{comment}{//\ parameter\ repository\ of\ the\ device.\ \ The\ parameter\ descripion\ of\ this\ pid}}
+\DoxyCodeLine{00241\ \ \ \ \ \textcolor{comment}{//\ specifying\ the\ size\ and\ type\ of\ the\ data\ is\ known\ both\ by\ the\ app\ and\ the\ }}
+\DoxyCodeLine{00242\ \ \ \ \ \textcolor{comment}{//\ stack.}}
+\DoxyCodeLine{00243\ \ \ \ \ \textcolor{comment}{//\ The\ data\ is\ copied\ into\ a\ structure\ provided\ by\ the\ app.}}
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{comment}{//\ Might\ return\ cr\_ErrorCodes\_READ\_FAILED\ or\ cr\_ErrorCodes\_PERMISSION\_DENIED}}
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_read(\textcolor{keyword}{const}\ uint32\_t\ pid,\ cr\_ParameterValue\ *data);}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00247\ \ \ \ \ \textcolor{comment}{//\ Might\ return\ cr\_ErrorCodes\_WRITE\_FAILED}}
+\DoxyCodeLine{00248\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_parameter\_write(\textcolor{keyword}{const}\ uint32\_t\ pid,\ \textcolor{keyword}{const}\ cr\_ParameterValue\ *data);\ }
+\DoxyCodeLine{00249\ }
+\DoxyCodeLine{00250\ \ \ \ \ \textcolor{comment}{//\ return\ a\ number\ that\ changes\ if\ the\ parameter\ descriptions\ have\ changed.}}
+\DoxyCodeLine{00251\ \ \ \ \ uint32\_t\ crcb\_compute\_parameter\_hash(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00253\ \ \ \ \ \textcolor{comment}{//\ parameter\ notifications\ are\ handled\ by\ the\ Reach\ stack.}}
+\DoxyCodeLine{00254\ \ \ \ \ \textcolor{comment}{//\ The\ stack\ will\ use\ the\ read\ parameters\ to\ be\ notified\ on\ an\ appropriate}}
+\DoxyCodeLine{00255\ \ \ \ \ \textcolor{comment}{//\ timescale\ and\ send\ notifications\ if\ enough\ changes.}}
+\DoxyCodeLine{00256\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_notify\_param(cr\_ParameterValue\ *param);}
+\DoxyCodeLine{00257\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ def\ INCLUDE\_PARAMETER\_SERVICE}}
+\DoxyCodeLine{00258\ }
+\DoxyCodeLine{00259\ \textcolor{preprocessor}{\#ifdef\ INCLUDE\_COMMAND\_SERVICE}}
+\DoxyCodeLine{00260\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00261\ \ \ \ \ \textcolor{comment}{//\ \ Command\ Service}}
+\DoxyCodeLine{00262\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00263\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_get\_command\_count();}
+\DoxyCodeLine{00264\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_command\_discover\_next(cr\_CommandInfo\ *cmd\_desc);}
+\DoxyCodeLine{00265\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_command\_discover\_reset(\textcolor{keyword}{const}\ uint32\_t\ pid);}
+\DoxyCodeLine{00266\ }
+\DoxyCodeLine{00267\ \ \ \ \ \textcolor{comment}{//\ actually\ execute\ the\ command}}
+\DoxyCodeLine{00268\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_command\_execute(\textcolor{keyword}{const}\ uint8\_t\ cid);}
+\DoxyCodeLine{00269\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ def\ INCLUDE\_COMMAND\_SERVICE}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ \textcolor{preprocessor}{\#ifdef\ INCLUDE\_FILE\_SERVICE}}
+\DoxyCodeLine{00272\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00273\ \ \ \ \ \textcolor{comment}{//\ \ File\ Service}}
+\DoxyCodeLine{00274\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00275\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_file\_discover\_next(cr\_FileInfo\ *file\_desc);}
+\DoxyCodeLine{00276\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_file\_discover\_reset(\textcolor{keyword}{const}\ uint8\_t\ fid);}
+\DoxyCodeLine{00277\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_file\_get\_file\_count();}
+\DoxyCodeLine{00278\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_file\_get\_description(uint32\_t\ fid,\ cr\_FileInfo\ *file\_desc);}
+\DoxyCodeLine{00279\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_file\_get\_preferred\_ack\_rate(\textcolor{keywordtype}{bool}\ is\_write);}
+\DoxyCodeLine{00280\ }
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{comment}{//\ Attempts\ to\ read\ the\ specified\ file.}}
+\DoxyCodeLine{00282\ \ \ \ \ \textcolor{comment}{//\ returns\ zero\ or\ an\ error\ code}}
+\DoxyCodeLine{00283\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_read\_file(\textcolor{keyword}{const}\ uint32\_t\ fid,\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ which\ file}}
+\DoxyCodeLine{00284\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ offset,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ offset,\ negative\ value\ specifies\ current\ location.}}
+\DoxyCodeLine{00285\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ bytes\_requested,\ \ \textcolor{comment}{//\ how\ many\ bytes\ to\ read}}
+\DoxyCodeLine{00286\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint8\_t\ *pData,\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ where\ the\ data\ goes}}
+\DoxyCodeLine{00287\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *bytes\_read);\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ bytes\ actually\ read,\ negative\ for\ errors.}}
+\DoxyCodeLine{00288\ }
+\DoxyCodeLine{00289\ \ \ \ \ \textcolor{comment}{//\ returns\ zero\ or\ an\ error\ code}}
+\DoxyCodeLine{00290\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_write\_file(\textcolor{keyword}{const}\ uint32\_t\ fid,\ \ \ \textcolor{comment}{//\ which\ file}}
+\DoxyCodeLine{00291\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ offset,\ \ \ \ \ \ \textcolor{comment}{//\ offset,\ negative\ value\ specifies\ current\ location.}}
+\DoxyCodeLine{00292\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ bytes,\ \ \ \ \textcolor{comment}{//\ how\ many\ bytes\ to\ write}}
+\DoxyCodeLine{00293\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ uint8\_t\ *pData);\ \textcolor{comment}{//\ where\ to\ get\ the\ data\ from}}
+\DoxyCodeLine{00294\ }
+\DoxyCodeLine{00295\ \ \ \ \ \textcolor{comment}{//\ returns\ zero\ or\ an\ error\ code}}
+\DoxyCodeLine{00296\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_erase\_file(\textcolor{keyword}{const}\ uint32\_t\ fid);}
+\DoxyCodeLine{00297\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ def\ INCLUDE\_FILE\_SERVICE}}
+\DoxyCodeLine{00298\ }
+\DoxyCodeLine{00299\ \textcolor{preprocessor}{\#ifdef\ INCLUDE\_OTA\_SERVICE}}
+\DoxyCodeLine{00300\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{comment}{//\ \ OTA\ Service}}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00303\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{00304\ \ \ \ \ \{}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ uint8\_t\ \ \ \ \ OTA\_id;\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ID\ of\ this\ OTA\ object}}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ uint8\_t\ \ \ \ \ OTA\_file\_id;\ \ \ \ \ \ \ \ \textcolor{comment}{//\ Which\ file\ stores\ the\ OTA\ data}}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ uint8\_t\ \ \ \ \ OTA\_command\_id;\ \ \ \ \ \textcolor{comment}{//\ Which\ command\ triggers\ the\ OTA\ sequence}}
+\DoxyCodeLine{00308\ \ \ \ \ \}\ cr\_OTA\_s;}
+\DoxyCodeLine{00309\ }
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_OTA\_discover\_next(cr\_OTA\_s\ *OTA\_desc);}
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_OTA\_discover\_reset(uint8\_t\ OTA\_id);}
+\DoxyCodeLine{00312\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ def\ INCLUDE\_OTA\_SERVICE}}
+\DoxyCodeLine{00313\ }
+\DoxyCodeLine{00314\ \textcolor{preprocessor}{\#ifdef\ INCLUDE\_TIME\_SERVICE}}
+\DoxyCodeLine{00315\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00316\ \ \ \ \ \textcolor{comment}{//\ \ Time\ Service}}
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00318\ \ \ \ \ \textcolor{comment}{//\ Time\ is\ specified\ in\ UTC\ Epoch\ format,\ seconds\ since\ 1970.}}
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{comment}{//\ More\ than\ 32\ bits\ are\ required\ to\ remain\ valid\ past\ 2030.}}
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_time\_get(uint64\_t\ *utc\_seconds);}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_time\_set(uint64\_t\ utc\_seconds);}
+\DoxyCodeLine{00322\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ def\ INCLUDE\_TIME\_SERVICE}}
+\DoxyCodeLine{00323\ }
+\DoxyCodeLine{00324\ \textcolor{preprocessor}{\#ifdef\ INCLUDE\_STREAM\_SERVICE}}
+\DoxyCodeLine{00325\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00326\ \ \ \ \ \textcolor{comment}{//\ \ Stream\ Service}}
+\DoxyCodeLine{00327\ \ \ \ \ \textcolor{comment}{//\ \ Unlike\ the\ other\ services,\ the\ spec\ says\ that\ streams\ can\ go\ in\ }}
+\DoxyCodeLine{00328\ \ \ \ \ \textcolor{comment}{//\ either\ direction.\ \ }}
+\DoxyCodeLine{00329\ \ \ \ \ \textcolor{comment}{//\ Here\ I\ only\ consider\ streaming\ from\ the\ device.}}
+\DoxyCodeLine{00330\ \ \ \ \ \textcolor{comment}{//*************************************************************************}}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ str\_number\ \ =\ 0,\ \ \textcolor{comment}{//\ Array\ of\ numbers\ of\ the\ same\ type}}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ str\_record\ \ =\ 1,\ \ \textcolor{comment}{//\ Array\ of\ objects,\ may\ include\ a\ timestamp}}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ str\_binary\ \ =\ 2,\ \ \textcolor{comment}{//\ binary\ data}}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ str\_string\ \ =\ 3,\ \ \textcolor{comment}{//\ string\ data}}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ str\_reserved\ \ \ \ \ \ \textcolor{comment}{//\ for\ expansion}}
+\DoxyCodeLine{00338\ \ \ \ \ \}\ stream\_type\_e;}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \ \ \ \ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{00341\ \ \ \ \ \{}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ uint8\_t\ \ \ \ \ \ \ \ \ stream\_id;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ID\ of\ this\ stream\ object}}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ uint8\_t\ \ \ \ \ \ \ \ \ access\_permissions;\ \textcolor{comment}{//\ read,\ write\ or\ both}}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ \ \ \ \ \ \ \ \ \ \ *name;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ UTF-\/8\ }}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ stream\_type\_e\ \ format;\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Format\ of\ this\ stream}}
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ \ \ \ \ \ \ \ \ \ \ *description;}
+\DoxyCodeLine{00347\ \ \ \ \ \}\ cr\_stream\_s;}
+\DoxyCodeLine{00348\ }
+\DoxyCodeLine{00349\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_stream\_discover\_next(cr\_stream\_s\ *stream\_desc);}
+\DoxyCodeLine{00350\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_stream\_discover\_reset(uint8\_t\ \ stream\_id);}
+\DoxyCodeLine{00351\ }
+\DoxyCodeLine{00352\ \ \ \ \ \textcolor{comment}{//\ A\ stream\ is\ sent\ as\ an\ array\ of\ records.}}
+\DoxyCodeLine{00353\ \ \ \ \ \textcolor{keywordtype}{int}\ crcb\_stream\_send\_packet(\textcolor{keyword}{const}\ uint8\_t\ stream\_id,}
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ *data,}
+\DoxyCodeLine{00355\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ num\_packets);}
+\DoxyCodeLine{00356\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ def\ INCLUDE\_STREAM\_SERVICE}}
+\DoxyCodeLine{00357\ }
+\DoxyCodeLine{00358\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00359\ \}}
+\DoxyCodeLine{00360\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00361\ }
+\DoxyCodeLine{00362\ }
+\DoxyCodeLine{00363\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ ndef\ \_CR\_STACK\_H}}
+\DoxyCodeLine{00364\ }
+
+\end{DoxyCode}

@@ -1,0 +1,508 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.10.0" xml:lang="en-US">
+  <compounddef id="text__colors_8h" kind="file" language="C++">
+    <compoundname>text_colors.h</compoundname>
+    <includedby refid="i3__log_8c" local="yes">IoT-Core/i3_log.c</includedby>
+    <includedby refid="i3__log_8h" local="yes">IoT-Core/i3_log.h</includedby>
+    <invincdepgraph>
+      <node id="2">
+        <label>IoT-Core/i3_log.c</label>
+        <link refid="i3__log_8c"/>
+      </node>
+      <node id="3">
+        <label>IoT-Core/i3_log.h</label>
+        <link refid="i3__log_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>IoT-Core/text_colors.h</label>
+        <link refid="text__colors_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>cr_files.c</label>
+        <link refid="cr__files_8c"/>
+      </node>
+      <node id="5">
+        <label>cr_stack.c</label>
+        <link refid="cr__stack_8c"/>
+      </node>
+      <node id="6">
+        <label>cr_weak.c</label>
+        <link refid="cr__weak_8c"/>
+      </node>
+      <node id="7">
+        <label>message_util.c</label>
+        <link refid="message__util_8c"/>
+      </node>
+      <node id="8">
+        <label>reach_decode.c</label>
+        <link refid="reach__decode_8c"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="text__colors_8h_1abc85bb07f8fa1e7c2eba467b6c8e8624" prot="public" static="no">
+        <name>CSI</name>
+        <initializer>&quot;\033[&quot;</initializer>
+        <briefdescription>
+<para>CSI - Control Sequence Introducer. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="12" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="12" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1aa9a83489a78b9e4b41551699cb3c6ba1" prot="public" static="no">
+        <name>TEXT_RESET</name>
+        <initializer>CSI&quot;0m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="14" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="14" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ac6a05036dfbcc5b69c4e3f9b6bbedb2a" prot="public" static="no">
+        <name>TEXT_BOLD</name>
+        <initializer>CSI&quot;1m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="16" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="16" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ad5ffb484c291e4fe9ad9d17b58511316" prot="public" static="no">
+        <name>TEXT_BLACK</name>
+        <initializer>CSI&quot;30m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="18" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a555a70bc0055a01ffe22773b65592275" prot="public" static="no">
+        <name>TEXT_RED</name>
+        <initializer>CSI&quot;31m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="19" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a0f72072a891489b733a5262eeda0908d" prot="public" static="no">
+        <name>TEXT_GREEN</name>
+        <initializer>CSI&quot;32m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="20" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a6e7e7b1c182f7189d6ac92f610209446" prot="public" static="no">
+        <name>TEXT_YELLOW</name>
+        <initializer>CSI&quot;33m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="21" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a6e402ca4f48eba3f31db597c712dfa67" prot="public" static="no">
+        <name>TEXT_BLUE</name>
+        <initializer>CSI&quot;34m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="22" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a100974b10f4902f82d998e4b463424a2" prot="public" static="no">
+        <name>TEXT_MAGENTA</name>
+        <initializer>CSI&quot;35m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="23" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a07402d6cbc33a05c66021319a9557e7d" prot="public" static="no">
+        <name>TEXT_CYAN</name>
+        <initializer>CSI&quot;36m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="24" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ab092d2c9b684d6aea800b49e212a3244" prot="public" static="no">
+        <name>TEXT_WHITE</name>
+        <initializer>CSI&quot;37m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="25" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a2397242ba944b4d95a6ceb377c6bcf63" prot="public" static="no">
+        <name>TEXT_BRIGHT_BLACK</name>
+        <initializer>CSI&quot;90m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="27" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ae768538f6d1ccd4dc7bea49b10001be3" prot="public" static="no">
+        <name>TEXT_BRIGHT_RED</name>
+        <initializer>CSI&quot;91m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="28" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a81e9f4d2475c574cdb47e317cf3b3b02" prot="public" static="no">
+        <name>TEXT_BRIGHT_GREEN</name>
+        <initializer>CSI&quot;92m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="29" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a6b0aaa42e212cf003e79eff7eedf83e7" prot="public" static="no">
+        <name>TEXT_BRIGHT_YELLOW</name>
+        <initializer>CSI&quot;93m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="30" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a77286285e0b129d36b9c6ff309238aa9" prot="public" static="no">
+        <name>TEXT_BRIGHT_BLUE</name>
+        <initializer>CSI&quot;94m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="31" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a12e77a1a246f0c54383e4877cffe41e9" prot="public" static="no">
+        <name>TEXT_BRIGHT_MAGENTA</name>
+        <initializer>CSI&quot;95m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="32" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ae02468cb942e2b69af271bcacf70ab5c" prot="public" static="no">
+        <name>TEXT_BRIGHT_CYAN</name>
+        <initializer>CSI&quot;96m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="33" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a60ee2f7671486fb1e2d789819182a075" prot="public" static="no">
+        <name>TEXT_BRIGHT_WHITE</name>
+        <initializer>CSI&quot;97m&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="34" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a633a17440c49a854225528dfc8f0e7df" prot="public" static="no">
+        <name>TEXT_BOLDBLACK</name>
+        <initializer>TEXT_BOLD TEXT_BLACK</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="37" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a2df9a3954beadc69e5285c7b82b78fa7" prot="public" static="no">
+        <name>TEXT_BOLDRED</name>
+        <initializer>TEXT_BOLD TEXT_RED</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="38" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a215ac4a1b1134974d8c8df3ce7afd197" prot="public" static="no">
+        <name>TEXT_BOLDGREEN</name>
+        <initializer>TEXT_BOLD TEXT_GREEN</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="39" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1af60dffbd864960fd83e8c4461d51a42f" prot="public" static="no">
+        <name>TEXT_BOLDYELLOW</name>
+        <initializer>TEXT_BOLD TEXT_YELLOW</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="40" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ac19954a5ea398868d9880d1f2ebdff68" prot="public" static="no">
+        <name>TEXT_BOLDBLUE</name>
+        <initializer>TEXT_BOLD TEXT_BLUE</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="41" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a296ece850b4220b34a99f21f3ee8a7d9" prot="public" static="no">
+        <name>TEXT_BOLDMAGENTA</name>
+        <initializer>TEXT_BOLD TEXT_MAGENTA</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="42" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a3a61ef880fe50a66fe98caa164fc6a7c" prot="public" static="no">
+        <name>TEXT_BOLDCYAN</name>
+        <initializer>TEXT_BOLD TEXT_CYAN</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="43" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="43" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a5ad9eb768827f292238d5e54eed9b28c" prot="public" static="no">
+        <name>TEXT_BOLDWHITE</name>
+        <initializer>TEXT_BOLD TEXT_WHITE</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="44" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a8ba3beeb67ab2de1bd842ba36487084f" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_BLACK</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_BLACK</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="46" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ab276ea1fbe6d78fbdeb5ae9edb4fd356" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_RED</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_RED</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="47" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a57be1946567e14a59eded31b39e5d381" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_GREEN</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_GREEN</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="48" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1aa2aeb90a1fe6e43f345d224d60ec4a30" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_YELLOW</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_YELLOW</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="49" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a78c1ba14b4a255b74026eb7657c406f9" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_BLUE</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_BLUE</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="50" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ad92cb2ba9a12987c5c99bd49b0a8320e" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_MAGENTA</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_MAGENTA</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="51" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1ac9a8dd4d81e9f676c9bee609ffd293bb" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_CYAN</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_CYAN</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="52" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="text__colors_8h_1a9334e218644fa393105d66fa961f4863" prot="public" static="no">
+        <name>TEXT_BOLD_BRIGHT_WHITE</name>
+        <initializer>TEXT_BOLD TEXT_BRIGHT_WHITE</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="IoT-Core/text_colors.h" line="53" column="13" bodyfile="IoT-Core/text_colors.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/***********************************************************************************************************************</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/>@brief<sp/><sp/><sp/>Serial<sp/>Handler</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/>@author<sp/><sp/>i3<sp/>Product<sp/>Development<sp/>(C.<sp/>Peplinski)</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/>@date<sp/><sp/><sp/><sp/>2021</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>**********************************************************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_TEXT_COLORS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_TEXT_COLORS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Text<sp/>color<sp/>escape<sp/>codes</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TEXT_RESET</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>escape<sp/>codes<sp/>so<sp/>traces<sp/>(printf)<sp/>can<sp/>have<sp/>colors:</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>CSI<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;\033[&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Text<sp/>Reset</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_RESET<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;0m&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>define</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;1m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Colors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BLACK<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;30m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_RED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;31m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_GREEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;32m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_YELLOW<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;33m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BLUE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;34m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_MAGENTA<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;35m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_CYAN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;36m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_WHITE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;37m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_BLACK<sp/><sp/><sp/>CSI&quot;90m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_RED<sp/><sp/><sp/><sp/><sp/>CSI&quot;91m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_GREEN<sp/><sp/><sp/>CSI&quot;92m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_YELLOW<sp/><sp/>CSI&quot;93m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_BLUE<sp/><sp/><sp/><sp/>CSI&quot;94m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_MAGENTA<sp/>CSI&quot;95m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_CYAN<sp/><sp/><sp/><sp/>CSI&quot;96m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_WHITE<sp/><sp/><sp/>CSI&quot;97m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>(</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDBLACK<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BLACK<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDRED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_RED<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDGREEN<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_GREEN<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDYELLOW<sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_YELLOW<sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDBLUE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BLUE<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDMAGENTA<sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_MAGENTA<sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDCYAN<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_CYAN<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDWHITE<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_WHITE<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_BLACK<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_BLACK<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_RED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_RED<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_GREEN<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_GREEN<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_YELLOW<sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_YELLOW<sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_BLUE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_BLUE<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_MAGENTA<sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_MAGENTA<sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_CYAN<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_CYAN<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_WHITE<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_WHITE<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>ndef<sp/>TEXT_RESET</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>def<sp/>_TEXT_COLORS_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="IoT-Core/text_colors.h"/>
+  </compounddef>
+</doxygen>

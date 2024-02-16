@@ -1,0 +1,109 @@
+\doxysection{cr\+\_\+private.\+h}
+\hypertarget{cr__private_8h_source}{}\label{cr__private_8h_source}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ *\ Copyright\ (c)\ 2023-\/2024\ i3\ Product\ Development}}
+\DoxyCodeLine{00003\ \textcolor{comment}{\ *\ }}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ *\ MIT\ License}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ *\ Permission\ is\ hereby\ granted,\ free\ of\ charge,\ to\ any\ person\ obtaining\ a\ copy}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ *\ of\ this\ software\ and\ associated\ documentation\ files\ (the\ "{}Software"{}),\ to\ deal}}
+\DoxyCodeLine{00008\ \textcolor{comment}{\ *\ in\ the\ Software\ without\ restriction,\ including\ without\ limitation\ the\ rights}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ *\ to\ use,\ copy,\ modify,\ merge,\ publish,\ distribute,\ sublicense,\ and/or\ sell}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ *\ copies\ of\ the\ Software,\ and\ to\ permit\ persons\ to\ whom\ the\ Software\ is}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ *\ furnished\ to\ do\ so,\ subject\ to\ the\ following\ conditions:}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00013\ \textcolor{comment}{\ *\ The\ above\ copyright\ notice\ and\ this\ permission\ notice\ shall\ be\ included\ in\ all}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ *\ copies\ or\ substantial\ portions\ of\ the\ Software.}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00016\ \textcolor{comment}{\ *\ THE\ SOFTWARE\ IS\ PROVIDED\ "{}AS\ IS"{},\ WITHOUT\ WARRANTY\ OF\ ANY\ KIND,\ EXPRESS\ OR}}
+\DoxyCodeLine{00017\ \textcolor{comment}{\ *\ IMPLIED,\ INCLUDING\ BUT\ NOT\ LIMITED\ TO\ THE\ WARRANTIES\ OF\ MERCHANTABILITY,}}
+\DoxyCodeLine{00018\ \textcolor{comment}{\ *\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE\ AND\ NONINFRINGEMENT.\ IN\ NO\ EVENT\ SHALL\ THE}}
+\DoxyCodeLine{00019\ \textcolor{comment}{\ *\ AUTHORS\ OR\ COPYRIGHT\ HOLDERS\ BE\ LIABLE\ FOR\ ANY\ CLAIM,\ DAMAGES\ OR\ OTHER}}
+\DoxyCodeLine{00020\ \textcolor{comment}{\ *\ LIABILITY,\ WHETHER\ IN\ AN\ ACTION\ OF\ CONTRACT,\ TORT\ OR\ OTHERWISE,\ ARISING\ FROM,}}
+\DoxyCodeLine{00021\ \textcolor{comment}{\ *\ OUT\ OF\ OR\ IN\ CONNECTION\ WITH\ THE\ SOFTWARE\ OR\ THE\ USE\ OR\ OTHER\ DEALINGS\ IN\ THE}}
+\DoxyCodeLine{00022\ \textcolor{comment}{\ *\ SOFTWARE.}}
+\DoxyCodeLine{00023\ \textcolor{comment}{\ */}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{comment}{/********************************************************************************************}}
+\DoxyCodeLine{00026\ \textcolor{comment}{\ *\ \ \ \ \_\ \_\_\_\_\ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \_\_\_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \_\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_}}
+\DoxyCodeLine{00027\ \textcolor{comment}{\ *\ \ \ (\_)\_\_\ /\ |\ \_\ \(\backslash\)\_\ \_\ \_\_\_\ \ \_\_|\ |\_\ \ \_\ \_\_|\ |\_\ \ |\ \ \ \(\backslash\)\ \_\_\_\_\_\ \_\_\_\_\_|\ |\_\_\_\ \_\ \_\_\ \_\ \_\_\ \ \_\_\_\ \_\ \_|\ |\_}}
+\DoxyCodeLine{00028\ \textcolor{comment}{\ *\ \ \ |\ ||\_\ \(\backslash\)\ |\ \ \_/\ '\_/\ \_\ \(\backslash\)/\ \_`\ |\ ||\ /\ \_|\ \ \_|\ |\ |)\ /\ -\/\_)\ V\ /\ -\/\_)\ /\ \_\ \(\backslash\)\ '\_\ \(\backslash\)\ '\ \ \(\backslash\)/\ -\/\_)\ '\ \(\backslash\)\ \ \_|}}
+\DoxyCodeLine{00029\ \textcolor{comment}{\ *\ \ \ |\_|\_\_\_/\ |\_|\ |\_|\ \(\backslash\)\_\_\_/\(\backslash\)\_\_,\_|\(\backslash\)\_,\_\(\backslash\)\_\_|\(\backslash\)\_\_|\ |\_\_\_/\(\backslash\)\_\_\_|\(\backslash\)\_/\(\backslash\)\_\_\_|\_\(\backslash\)\_\_\_/\ .\_\_/\_|\_|\_\(\backslash\)\_\_\_|\_||\_\(\backslash\)\_\_|}}
+\DoxyCodeLine{00030\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_|}}
+\DoxyCodeLine{00031\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ -\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{00032\ \textcolor{comment}{\ *\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Copyright\ i3\ Product\ Development\ 2023}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ *\ "{}cr\_private.h"{}\ defines\ things\ internal\ to\ the\ Reach\ stack.}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ *\ Original\ Author:\ Chuck.Peplinski}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ *}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ ********************************************************************************************/}}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\#ifndef\ \_CR\_PRIVATE\_H}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\#define\ \_CR\_PRIVATE\_H}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{00052\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#include\ "{}reach-\/server.h"{}}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\#include\ "{}cr\_stack.h"{}}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00058\ \textcolor{keyword}{extern}\ \textcolor{stringliteral}{"{}C"{}}\ \{}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{extern}\ cr\_ReachMessageTypes\ pvtCr\_continued\_message\_type;}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keyword}{extern}\ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ pvtCr\_num\_continued\_objects;}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keyword}{extern}\ uint32\_t\ \ \ \ \ \ \ \ \ \ \ \ \ pvtCr\_num\_remaining\_objects;}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordtype}{bool}\ pvtCr\_challenge\_key\_is\_valid(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrFile\_discover(\textcolor{keyword}{const}\ cr\_DiscoverFiles\ *request,}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_DiscoverFilesReply\ *response);}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrFile\_transfer\_init(\textcolor{keyword}{const}\ cr\_FileTransferInit\ *request,}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_FileTransferInitReply\ *response);}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrFile\_transfer\_data(\textcolor{keyword}{const}\ cr\_FileTransferData\ *dataTransfer,}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_FileTransferDataNotification\ *response);}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrFile\_transfer\_data\_notification(\textcolor{keyword}{const}\ cr\_FileTransferDataNotification\ *request,}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_FileTransferData\ *dataTransfer);}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keywordtype}{void}\ pvtCr\_watchdog\_start\_timeout(uint32\_t\ msec,\ uint32\_t\ ticks);}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{comment}{//\ resets\ the\ timeout\ period\ to\ original}}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{void}\ pvtCr\_watchdog\_stroke\_timeout(uint32\_t\ ticks);}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//\ disables\ the\ watchdog}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{void}\ pvtCr\_watchdog\_end\_timeout();}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//\ if\ active,\ compares\ ticks\ to\ expected\ timeout.}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{comment}{//\ return\ 1\ if\ timeout\ occurred}}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCr\_watchdog\_check\_timeout(uint32\_t\ ticks);}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{cr__params_8c_a0440e2157e389adf3b9734458ea485f8}{pvtCrParam\_clear\_notifications}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrParam\_discover\_parameters(\textcolor{keyword}{const}\ cr\_ParameterInfoRequest\ *,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_ParameterInfoResponse\ *);}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrParam\_discover\_parameters\_ex(\textcolor{keyword}{const}\ cr\_ParameterInfoRequest\ *,}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_ParamExInfoResponse\ *);}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrParam\_read\_param(\textcolor{keyword}{const}\ cr\_ParameterRead\ *,\ }
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_ParameterReadResult\ *);}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrParam\_write\_param(\textcolor{keyword}{const}\ cr\_ParameterWrite\ *,\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_ParameterWriteResult\ *);}
+\DoxyCodeLine{00117\ \textcolor{preprocessor}{\ \ \#if\ NUM\_SUPPORTED\_PARAM\_NOTIFY\ !=\ 0}}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{int}\ pvtCrParam\_config\_param\_notify(\textcolor{keyword}{const}\ cr\_ParameterNotifyConfig\ *,}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cr\_ParameterNotifyConfigResult\ *);}
+\DoxyCodeLine{00120\ \textcolor{preprocessor}{\ \ \#endif\ }\textcolor{comment}{//\ NUM\_SUPPORTED\_PARAM\_NOTIFY\ !=\ 0}}
+\DoxyCodeLine{00121\ \ \ \ \ }
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{cr__params_8c_a970900d47b9760a340ef2d3021757e9c}{pvtCrParam\_check\_for\_notifications}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \textcolor{preprocessor}{\#ifdef\ \_\_cplusplus}}
+\DoxyCodeLine{00126\ \}}
+\DoxyCodeLine{00127\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{preprocessor}{\#endif\ \ }\textcolor{comment}{//\ ndef\ \_CR\_PRIVATE\_H}}
+\DoxyCodeLine{00130\ }
+
+\end{DoxyCode}

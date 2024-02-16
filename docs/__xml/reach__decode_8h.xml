@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.10.0" xml:lang="en-US">
+  <compounddef id="reach__decode_8h" kind="file" language="C++">
+    <compoundname>reach_decode.h</compoundname>
+    <includes local="yes">reach.pb.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="cr__files_8c" local="yes">cr_files.c</includedby>
+    <includedby refid="cr__stack_8c" local="yes">cr_stack.c</includedby>
+    <includedby refid="reach__decode_8c" local="yes">reach_decode.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>reach_decode.h</label>
+        <link refid="reach__decode_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>reach.pb.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>cr_files.c</label>
+        <link refid="cr__files_8c"/>
+      </node>
+      <node id="3">
+        <label>cr_stack.c</label>
+        <link refid="cr__stack_8c"/>
+      </node>
+      <node id="4">
+        <label>reach_decode.c</label>
+        <link refid="reach__decode_8c"/>
+      </node>
+      <node id="1">
+        <label>reach_decode.h</label>
+        <link refid="reach__decode_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="reach__decode_8h_1a9e38665874440563eb65b7422a60398e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool decode_reach_payload</definition>
+        <argsstring>(cr_ReachMessageTypes message_type, void *dec_data, const uint8_t *in_buffer, size_t in_size)</argsstring>
+        <name>decode_reach_payload</name>
+        <param>
+          <type>cr_ReachMessageTypes</type>
+          <declname>message_type</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dec_data</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in_buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>in_size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="reach_decode.h" line="33" column="6" bodyfile="reach_decode.c" bodystart="82" bodyend="252" declfile="reach_decode.h" declline="33" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="reach__decode_8h_1a385cd728cde03ab8eea89abd9476324a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool decode_reach_message</definition>
+        <argsstring>(cr_ReachMessage *message, const uint8_t *in_buffer, size_t in_size)</argsstring>
+        <name>decode_reach_message</name>
+        <param>
+          <type>cr_ReachMessage *</type>
+          <declname>message</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in_buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>in_size</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="reach_decode.h" line="38" column="6" bodyfile="reach_decode.c" bodystart="65" bodyend="79" declfile="reach_decode.h" declline="38" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="reach__decode_8h_1a4a4c54d90d0ae8ebffbcb3a163b48895" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t cr_get_transaction_id</definition>
+        <argsstring>()</argsstring>
+        <name>cr_get_transaction_id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="reach_decode.h" line="42" column="10" bodyfile="reach_decode.c" bodystart="60" bodyend="63" declfile="reach_decode.h" declline="42" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Support for protobuf decoding. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="copyright"><para>(c) Copyright 2023 i3 Product Development. All Rights Reserved. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/********************************************************************************************</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>_<sp/>____<sp/><sp/>___<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_<sp/><sp/><sp/><sp/><sp/>___<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/><sp/>(_)__<sp/>/<sp/>|<sp/>_<sp/>\_<sp/>_<sp/>___<sp/><sp/>__|<sp/>|_<sp/><sp/>_<sp/>__|<sp/>|_<sp/><sp/>|<sp/><sp/><sp/>\<sp/>_____<sp/>_____|<sp/>|___<sp/>_<sp/>__<sp/>_<sp/>__<sp/><sp/>___<sp/>_<sp/>_|<sp/>|_</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/>|<sp/>||_<sp/>\<sp/>|<sp/><sp/>_/<sp/>&apos;_/<sp/>_<sp/>\/<sp/>_`<sp/>|<sp/>||<sp/>/<sp/>_|<sp/><sp/>_|<sp/>|<sp/>|)<sp/>/<sp/>-_)<sp/>V<sp/>/<sp/>-_)<sp/>/<sp/>_<sp/>\<sp/>&apos;_<sp/>\<sp/>&apos;<sp/><sp/>\/<sp/>-_)<sp/>&apos;<sp/>\<sp/><sp/>_|</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/>|_|___/<sp/>|_|<sp/>|_|<sp/>\___/\__,_|\_,_\__|\__|<sp/>|___/\___|\_/\___|_\___/<sp/>.__/_|_|_\___|_||_\__|</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>|_|</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-----------------------------------</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>i3<sp/>Product<sp/>Development<sp/>2023</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>@author<sp/><sp/>i3<sp/>Product<sp/>Development</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Wei<sp/>Zhou<sp/>wei.zhou@i3pd.com</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/>@version<sp/>0.0.1</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/>@date<sp/><sp/><sp/><sp/>2023-08-22</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>********************************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__REACH_DECODE_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__REACH_DECODE_H__</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;reach.pb.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>decode_reach_payload(cr_ReachMessageTypes<sp/>message_type,<sp/><sp/></highlight><highlight class="comment">//<sp/>in:<sp/><sp/>from<sp/>the<sp/>header</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dec_data,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>out:<sp/>decode<sp/>to<sp/>here.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in_buffer,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>in:<sp/><sp/>encoded<sp/>from<sp/>the<sp/>header</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_size);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>in:<sp/><sp/>encoded<sp/>size</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>decode_reach_message(cr_ReachMessage<sp/>*message,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>out:<sp/>decoded</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in_buffer,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>in:<sp/><sp/>encoded</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_size);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>in:<sp/><sp/>encoded<sp/>size</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">uint32_t<sp/>cr_get_transaction_id();</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>__REACH_DECODE_H__<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="reach_decode.h"/>
+  </compounddef>
+</doxygen>

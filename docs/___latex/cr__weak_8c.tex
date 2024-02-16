@@ -1,0 +1,111 @@
+\doxysection{cr\+\_\+weak.\+c File Reference}
+\hypertarget{cr__weak_8c}{}\label{cr__weak_8c}\index{cr\_weak.c@{cr\_weak.c}}
+
+
+The Reach stack relies on these callback functions being implemented by the device. The gcc supported "{}weak"{} keyword allows us to build without having real implementations..  
+
+
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include "{}cr\+\_\+stack.\+h"{}}\newline
+{\ttfamily \#include "{}i3\+\_\+log.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{cr__weak_8c_aeb0fee7e25692380f5346f304f4b6e5a}{\+\_\+\+\_\+attribute\+\_\+\+\_\+}} ((weak))
+\begin{DoxyCompactList}\small\item\em crcb\+\_\+get\+\_\+coded\+\_\+prompt \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The Reach stack relies on these callback functions being implemented by the device. The gcc supported "{}weak"{} keyword allows us to build without having real implementations.. 
+
+\begin{DoxyAuthor}{Author}
+Chuck Peplinski 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2024-\/01-\/17 
+\end{DoxyDate}
+\begin{DoxyCopyright}{Copyright}
+(c) Copyright 2023 i3 Product Development. All Rights Reserved. The Cygngus Reach firmware stack is shared under an MIT license. 
+\end{DoxyCopyright}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{cr__weak_8c_aeb0fee7e25692380f5346f304f4b6e5a}\label{cr__weak_8c_aeb0fee7e25692380f5346f304f4b6e5a} 
+\index{cr\_weak.c@{cr\_weak.c}!\_\_attribute\_\_@{\_\_attribute\_\_}}
+\index{\_\_attribute\_\_@{\_\_attribute\_\_}!cr\_weak.c@{cr\_weak.c}}
+\doxysubsubsection{\texorpdfstring{\_\_attribute\_\_()}{\_\_attribute\_\_()}}
+{\footnotesize\ttfamily int \+\_\+\+\_\+attribute\+\_\+\+\_\+ (\begin{DoxyParamCaption}\item[{(weak)}]{ }\end{DoxyParamCaption})}
+
+
+
+crcb\+\_\+get\+\_\+coded\+\_\+prompt 
+
+crcb\+\_\+ping\+\_\+get\+\_\+signal\+\_\+strength
+
+crcb\+\_\+device\+\_\+get\+\_\+info
+
+crcb\+\_\+notify\+\_\+error
+
+crcb\+\_\+send\+\_\+coded\+\_\+response
+
+The cr\+\_\+process function calls this function to get any available prompt in coded format. An overriding implementation is responsible to copy the data into the provided buffer and set the size. Alternatively, \doxylink{cr__stack_8c_af1732a5d9ee5f83c4360448ae4452b34}{cr\+\_\+store\+\_\+coded\+\_\+prompt()} can be used to push data into the stack. Then this weak implementation can remain, as the data is already where it belongs. \begin{DoxyNote}{Note}
+crcb\+\_\+get\+\_\+coded\+\_\+prompt() must not block as that would disable any notifications. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em prompt} & Pointer to raw data (output) \\
+\hline
+{\em len} & Pointer to the number of bytes in the supplied prompt (output) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+cr\+\_\+\+Error\+Codes\+\_\+\+NO\+\_\+\+ERROR on success. cr\+\_\+\+Error\+Codes\+\_\+\+NO\+\_\+\+DATA if no data is available.
+\end{DoxyReturn}
+The cr\+\_\+process function calls this function to send responses to the client. \begin{DoxyNote}{Note}
+Must be overridden to send the data to the client. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em response} & Pointer to coded data to be send (input) \\
+\hline
+{\em len} & Number of bytes to be sent (input) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+cr\+\_\+\+Error\+Codes\+\_\+\+NO\+\_\+\+ERROR on success or a non-\/zero error preferably from the cr\+\_\+\+Error\+Codes\+\_\+ enumeration
+\end{DoxyReturn}
+Called by cr\+\_\+report\+\_\+error(). Can be called at any point. \begin{DoxyNote}{Note}
+The device must override this implementation to send error messages to the client. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em err} & Pointer to a structure with a code and a string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+cr\+\_\+\+Error\+Codes\+\_\+\+NO\+\_\+\+ERROR on success or a non-\/zero error preferably from the cr\+\_\+\+Error\+Codes\+\_\+ enumeration
+\end{DoxyReturn}
+Called by the stack in response to a device info request. \begin{DoxyNote}{Note}
+The device must override the weak implementation to provide a valid device info structure to the stack. Response message members like hash and services are computed by the reach stack. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em p\+Di} & A pointer to memory provided by the stack to be populated with the basic device information. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+cr\+\_\+\+Error\+Codes\+\_\+\+NO\+\_\+\+ERROR on success or a non-\/zero error preferably from the cr\+\_\+\+Error\+Codes\+\_\+ enumeration
+\end{DoxyReturn}
+Called by the stack in response to a ping request. \begin{DoxyNote}{Note}
+The device can override the weak implementation to provide an ~\newline
+ estimate of the signal strength. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em rssi} & A pointer to be populated with a signal strength typically negative in dB. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+cr\+\_\+\+Error\+Codes\+\_\+\+NO\+\_\+\+ERROR on success or a non-\/zero error preferably from the cr\+\_\+\+Error\+Codes\+\_\+ enumeration 
+\end{DoxyReturn}

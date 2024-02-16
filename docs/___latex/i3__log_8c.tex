@@ -1,0 +1,108 @@
+\doxysection{Io\+T-\/\+Core/i3\+\_\+log.c File Reference}
+\hypertarget{i3__log_8c}{}\label{i3__log_8c}\index{IoT-\/Core/i3\_log.c@{IoT-\/Core/i3\_log.c}}
+
+
+Contains printf style logging functions as used by the Cygnus Reach firmware stack.  
+
+
+{\ttfamily \#include $<$stdarg.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include "{}i3\+\_\+log.\+h"{}}\newline
+{\ttfamily \#include "{}text\+\_\+colors.\+h"{}}\newline
+{\ttfamily \#include "{}reach-\/server.\+h"{}}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{i3__log_8c_a4aa0b6751225920cda91b5012ffec66a}\label{i3__log_8c_a4aa0b6751225920cda91b5012ffec66a} 
+\#define {\bfseries DUMP\+\_\+\+WIDTH}~25
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{i3__log_8c_a7158b49c3856e138394fa544b7622cd8}{i3\+\_\+log\+\_\+set\+\_\+mask}} (uint32\+\_\+t mask)
+\begin{DoxyCompactList}\small\item\em i3\+\_\+log\+\_\+set\+\_\+mask \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{i3__log_8c_a387ee42dbbeaa80a5e522aa5324838e2}{i3\+\_\+log\+\_\+get\+\_\+mask}} (void)
+\begin{DoxyCompactList}\small\item\em i3\+\_\+log\+\_\+set\+\_\+mask \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{i3__log_8c_a5144ed020d32290b50db3d2c38ae4256}{i3\+\_\+log\+\_\+set\+\_\+remote\+\_\+cli\+\_\+enable}} (bool enable)
+\item 
+\Hypertarget{i3__log_8c_a9f67a1e068b42bc8e103853758a55794}\label{i3__log_8c_a9f67a1e068b42bc8e103853758a55794} 
+bool {\bfseries i3\+\_\+log\+\_\+get\+\_\+remote\+\_\+cli\+\_\+enable} ()
+\item 
+\Hypertarget{i3__log_8c_a850a0891ec0b739f0f4da33b69afc3f5}\label{i3__log_8c_a850a0891ec0b739f0f4da33b69afc3f5} 
+int {\bfseries i3\+\_\+log\+\_\+get\+\_\+remote\+\_\+buffer} (char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}p\+Rcli)
+\item 
+\Hypertarget{i3__log_8c_adfc040fe87e98e8388c3f5758ea4e628}\label{i3__log_8c_adfc040fe87e98e8388c3f5758ea4e628} 
+void {\bfseries i3\+\_\+log} (const uint32\+\_\+t mask, const char \texorpdfstring{$\ast$}{*}fmt,...)
+\item 
+void \mbox{\hyperlink{i3__log_8c_ab3883f9a81eebb62b08ba9b2d69454ef}{i3\+\_\+log\+\_\+dump\+\_\+buffer}} (const uint32\+\_\+t mask, const char \texorpdfstring{$\ast$}{*}banner, const uint8\+\_\+t \texorpdfstring{$\ast$}{*}ptr, const size\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em i3\+\_\+log\+\_\+dump\+\_\+buffer \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Contains printf style logging functions as used by the Cygnus Reach firmware stack. 
+
+\begin{DoxyAuthor}{Author}
+Chuck Peplinski 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2024-\/01-\/17 
+\end{DoxyDate}
+\begin{DoxyCopyright}{Copyright}
+(c) Copyright 2023 i3 Product Development. All Rights Reserved. The Cygngus Reach firmware stack is shared under an MIT license. 
+\end{DoxyCopyright}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{i3__log_8c_ab3883f9a81eebb62b08ba9b2d69454ef}\label{i3__log_8c_ab3883f9a81eebb62b08ba9b2d69454ef} 
+\index{i3\_log.c@{i3\_log.c}!i3\_log\_dump\_buffer@{i3\_log\_dump\_buffer}}
+\index{i3\_log\_dump\_buffer@{i3\_log\_dump\_buffer}!i3\_log.c@{i3\_log.c}}
+\doxysubsubsection{\texorpdfstring{i3\_log\_dump\_buffer()}{i3\_log\_dump\_buffer()}}
+{\footnotesize\ttfamily void i3\+\_\+log\+\_\+dump\+\_\+buffer (\begin{DoxyParamCaption}\item[{const uint32\+\_\+t}]{mask,  }\item[{const char \texorpdfstring{$\ast$}{*}}]{banner,  }\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{ptr,  }\item[{const size\+\_\+t}]{len }\end{DoxyParamCaption})}
+
+
+
+i3\+\_\+log\+\_\+dump\+\_\+buffer 
+
+Directly uses printf to produce a hex dump of a buffer. Used to view the contents of coded buffers sent and received. \begin{DoxyNote}{Note}
+The buffer is dumped locally, and not remotely. The width of the dump is set by the DUMP\+\_\+\+WIDTH defined just above this function. 
+\end{DoxyNote}
+
+\begin{DoxyParams}{Parameters}
+{\em mask} & Enable or disable using the log module\textquotesingle{}s mask feature.. \\
+\hline
+{\em banner} & A header to be displayed describing the hex dump. \\
+\hline
+{\em ptr} & A buffer of bytes to be displayed. \\
+\hline
+{\em len} & The number of bytes to be displayed.. \\
+\hline
+\end{DoxyParams}
+\Hypertarget{i3__log_8c_a387ee42dbbeaa80a5e522aa5324838e2}\label{i3__log_8c_a387ee42dbbeaa80a5e522aa5324838e2} 
+\index{i3\_log.c@{i3\_log.c}!i3\_log\_get\_mask@{i3\_log\_get\_mask}}
+\index{i3\_log\_get\_mask@{i3\_log\_get\_mask}!i3\_log.c@{i3\_log.c}}
+\doxysubsubsection{\texorpdfstring{i3\_log\_get\_mask()}{i3\_log\_get\_mask()}}
+{\footnotesize\ttfamily uint32\+\_\+t i3\+\_\+log\+\_\+get\+\_\+mask (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+i3\+\_\+log\+\_\+set\+\_\+mask 
+
+Gets the mask which determines whether or not a log statement generates output. See defines starting with LOG\+\_\+\+MASK\+\_\+. \Hypertarget{i3__log_8c_a7158b49c3856e138394fa544b7622cd8}\label{i3__log_8c_a7158b49c3856e138394fa544b7622cd8} 
+\index{i3\_log.c@{i3\_log.c}!i3\_log\_set\_mask@{i3\_log\_set\_mask}}
+\index{i3\_log\_set\_mask@{i3\_log\_set\_mask}!i3\_log.c@{i3\_log.c}}
+\doxysubsubsection{\texorpdfstring{i3\_log\_set\_mask()}{i3\_log\_set\_mask()}}
+{\footnotesize\ttfamily void i3\+\_\+log\+\_\+set\+\_\+mask (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{mask }\end{DoxyParamCaption})}
+
+
+
+i3\+\_\+log\+\_\+set\+\_\+mask 
+
+Sets the mask which determines whether or not a log statement generates output. See defines starting with LOG\+\_\+\+MASK\+\_\+. \Hypertarget{i3__log_8c_a5144ed020d32290b50db3d2c38ae4256}\label{i3__log_8c_a5144ed020d32290b50db3d2c38ae4256} 
+\index{i3\_log.c@{i3\_log.c}!i3\_log\_set\_remote\_cli\_enable@{i3\_log\_set\_remote\_cli\_enable}}
+\index{i3\_log\_set\_remote\_cli\_enable@{i3\_log\_set\_remote\_cli\_enable}!i3\_log.c@{i3\_log.c}}
+\doxysubsubsection{\texorpdfstring{i3\_log\_set\_remote\_cli\_enable()}{i3\_log\_set\_remote\_cli\_enable()}}
+{\footnotesize\ttfamily int i3\+\_\+log\+\_\+set\+\_\+remote\+\_\+cli\+\_\+enable (\begin{DoxyParamCaption}\item[{bool}]{enable }\end{DoxyParamCaption})}
+
+The logging functions are simplified when INCLUDE\+\_\+\+CLI\+\_\+\+SERVICE is not defined. 
