@@ -103,3 +103,6 @@ Ensure-PackageVersions
 
 # Generate the Doxygen XML
 doxygen ./reach.doxyfile.in
+
+# Generate the Wiki html
+sphinx-build -b html ./__source ./__build 
