@@ -2,6 +2,7 @@
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.10.0" xml:lang="en-US">
   <compounddef id="structreach__sizes__t" kind="struct" language="C++" prot="public">
     <compoundname>reach_sizes_t</compoundname>
+    <includes refid="cr__stack_8h" local="no">cr_stack.h</includes>
     <sectiondef kind="public-attrib">
       <memberdef kind="variable" id="structreach__sizes__t_1a013f4c2684eed7afb7baf1c5c1817652" prot="public" static="no" mutable="no">
         <type>uint16_t</type>
@@ -12,10 +13,11 @@
         <briefdescription>
         </briefdescription>
         <detaileddescription>
+<para>The largest message that can be communicated </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="77" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="77" bodyend="-1"/>
+        <location file="cr_stack.h" line="169" column="15" bodyfile="cr_stack.h" bodystart="169" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structreach__sizes__t_1af8c20cb7120588cb41750315c1a1edcd" prot="public" static="no" mutable="no">
         <type>uint16_t</type>
@@ -26,10 +28,11 @@
         <briefdescription>
         </briefdescription>
         <detaileddescription>
+<para>The size of the buffer used for the longest strings. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="78" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="78" bodyend="-1"/>
+        <location file="cr_stack.h" line="170" column="15" bodyfile="cr_stack.h" bodystart="170" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structreach__sizes__t_1a22e04304fa71af1fbc8d3889a002dc73" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
@@ -40,66 +43,72 @@
         <briefdescription>
         </briefdescription>
         <detaileddescription>
+<para>The number of parameter buffers kept by the device. This determines the number of parameters that can be handled in a single message. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="79" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="79" bodyend="-1"/>
+        <location file="cr_stack.h" line="174" column="15" bodyfile="cr_stack.h" bodystart="174" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="structreach__sizes__t_1ab2e1c7018a7bd655eb12ef22c39eeef2" prot="public" static="no" mutable="no">
+      <memberdef kind="variable" id="structreach__sizes__t_1a0a18c41b8076b1dcb7de16803646411b" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
-        <definition>uint8_t reach_sizes_t::num_medium_structs_in_msg</definition>
+        <definition>uint8_t reach_sizes_t::num_params_in_response</definition>
         <argsstring></argsstring>
-        <name>num_medium_structs_in_msg</name>
-        <qualifiedname>reach_sizes_t::num_medium_structs_in_msg</qualifiedname>
+        <name>num_params_in_response</name>
+        <qualifiedname>reach_sizes_t::num_params_in_response</qualifiedname>
         <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The number of parameter values that fit in one message. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="cr_stack.h" line="177" column="15" bodyfile="cr_stack.h" bodystart="177" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structreach__sizes__t_1a46cc78459cad7d414cdc21d03011dff0" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t reach_sizes_t::device_description_len</definition>
+        <argsstring></argsstring>
+        <name>device_description_len</name>
+        <qualifiedname>reach_sizes_t::device_description_len</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The length of the description field in the device info structure </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="cr_stack.h" line="180" column="15" bodyfile="cr_stack.h" bodystart="180" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structreach__sizes__t_1a41af873809467792eeabed2e659836e5" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t reach_sizes_t::max_param_bytes</definition>
+        <argsstring></argsstring>
+        <name>max_param_bytes</name>
+        <qualifiedname>reach_sizes_t::max_param_bytes</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The number of bytes in the largest parameter types eg, strings and byte array <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="cr_stack.h" line="183" column="15" bodyfile="cr_stack.h" bodystart="183" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structreach__sizes__t_1abed5d5466ab8fb72111fe7800d5aaeb6" prot="public" static="no" mutable="no">
+        <type>uint8_t</type>
+        <definition>uint8_t reach_sizes_t::param_info_description_len</definition>
+        <argsstring></argsstring>
+        <name>param_info_description_len</name>
+        <qualifiedname>reach_sizes_t::param_info_description_len</qualifiedname>
+        <briefdescription>
+<para>Length of the text string for parameter info description. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="80" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="80" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="structreach__sizes__t_1a4bd1c3a871a46c46794de25fe2cb0032" prot="public" static="no" mutable="no">
-        <type>uint8_t</type>
-        <definition>uint8_t reach_sizes_t::device_info_len</definition>
-        <argsstring></argsstring>
-        <name>device_info_len</name>
-        <qualifiedname>reach_sizes_t::device_info_len</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="81" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="81" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="structreach__sizes__t_1a6a6f853805b787afe80c0d4308345828" prot="public" static="no" mutable="no">
-        <type>uint8_t</type>
-        <definition>uint8_t reach_sizes_t::long_string_len</definition>
-        <argsstring></argsstring>
-        <name>long_string_len</name>
-        <qualifiedname>reach_sizes_t::long_string_len</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="82" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="82" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="structreach__sizes__t_1a7781651ad828c2137d49ac880bc2f26f" prot="public" static="no" mutable="no">
-        <type>uint8_t</type>
-        <definition>uint8_t reach_sizes_t::count_param_ids</definition>
-        <argsstring></argsstring>
-        <name>count_param_ids</name>
-        <qualifiedname>reach_sizes_t::count_param_ids</qualifiedname>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="83" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="83" bodyend="-1"/>
+        <location file="cr_stack.h" line="185" column="15" bodyfile="cr_stack.h" bodystart="185" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structreach__sizes__t_1a2ea2b0edc1726c7c36c0c356652ce7dd" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
@@ -108,12 +117,13 @@
         <name>medium_string_len</name>
         <qualifiedname>reach_sizes_t::medium_string_len</qualifiedname>
         <briefdescription>
+<para>The length of longer strings. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="84" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="84" bodyend="-1"/>
+        <location file="cr_stack.h" line="187" column="15" bodyfile="cr_stack.h" bodystart="187" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structreach__sizes__t_1a79985c847ea324e6a36e68d4976c28d5" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
@@ -122,12 +132,13 @@
         <name>short_string_len</name>
         <qualifiedname>reach_sizes_t::short_string_len</qualifiedname>
         <briefdescription>
+<para>The number of bytes in short strings like the units label. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="85" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="85" bodyend="-1"/>
+        <location file="cr_stack.h" line="189" column="15" bodyfile="cr_stack.h" bodystart="189" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structreach__sizes__t_1a852892ee02d36c06d9256b4cd08ce053" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
@@ -136,40 +147,43 @@
         <name>param_info_enum_count</name>
         <qualifiedname>reach_sizes_t::param_info_enum_count</qualifiedname>
         <briefdescription>
+<para>padding : no longer used </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="86" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="86" bodyend="-1"/>
+        <location file="cr_stack.h" line="191" column="15" bodyfile="cr_stack.h" bodystart="191" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="structreach__sizes__t_1a4f25f81052beb611d04583fefd2bd116" prot="public" static="no" mutable="no">
+      <memberdef kind="variable" id="structreach__sizes__t_1a8dedad960bf7bce0624b3c50a8af1827" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
-        <definition>uint8_t reach_sizes_t::services_count</definition>
+        <definition>uint8_t reach_sizes_t::num_descriptors_in_response</definition>
         <argsstring></argsstring>
-        <name>services_count</name>
-        <qualifiedname>reach_sizes_t::services_count</qualifiedname>
+        <name>num_descriptors_in_response</name>
+        <qualifiedname>reach_sizes_t::num_descriptors_in_response</qualifiedname>
         <briefdescription>
+<para>number of descriptors (stream, file) that fit in one message. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="87" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="87" bodyend="-1"/>
+        <location file="cr_stack.h" line="193" column="15" bodyfile="cr_stack.h" bodystart="193" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="structreach__sizes__t_1a73343c86443aace7b09cb2b5e7760fb7" prot="public" static="no" mutable="no">
+      <memberdef kind="variable" id="structreach__sizes__t_1ae82dd9688db31f7d0249fe5ab4da9e25" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
-        <definition>uint8_t reach_sizes_t::pi_enum_count</definition>
+        <definition>uint8_t reach_sizes_t::num_param_notifications</definition>
         <argsstring></argsstring>
-        <name>pi_enum_count</name>
-        <qualifiedname>reach_sizes_t::pi_enum_count</qualifiedname>
+        <name>num_param_notifications</name>
+        <qualifiedname>reach_sizes_t::num_param_notifications</qualifiedname>
         <briefdescription>
+<para>Number of parameter notifications supported. </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="88" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="88" bodyend="-1"/>
+        <location file="cr_stack.h" line="195" column="15" bodyfile="cr_stack.h" bodystart="195" bodyend="-1"/>
       </memberdef>
       <memberdef kind="variable" id="structreach__sizes__t_1ae35f9bfe3573750958693ff55f2e6871" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
@@ -178,47 +192,50 @@
         <name>num_commands_in_response</name>
         <qualifiedname>reach_sizes_t::num_commands_in_response</qualifiedname>
         <briefdescription>
+<para>number of commands that can be in one info packet </para>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="89" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="89" bodyend="-1"/>
+        <location file="cr_stack.h" line="197" column="15" bodyfile="cr_stack.h" bodystart="197" bodyend="-1"/>
       </memberdef>
-      <memberdef kind="variable" id="structreach__sizes__t_1a78fdd7009ec6760271159fc3ad0390f6" prot="public" static="no" mutable="no">
+      <memberdef kind="variable" id="structreach__sizes__t_1a78e712a63bd7b8a2ac632405b13fe16f" prot="public" static="no" mutable="no">
         <type>uint8_t</type>
-        <definition>uint8_t reach_sizes_t::count_param_desc_in_response</definition>
+        <definition>uint8_t reach_sizes_t::num_param_desc_in_response</definition>
         <argsstring></argsstring>
-        <name>count_param_desc_in_response</name>
-        <qualifiedname>reach_sizes_t::count_param_desc_in_response</qualifiedname>
+        <name>num_param_desc_in_response</name>
+        <qualifiedname>reach_sizes_t::num_param_desc_in_response</qualifiedname>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
+<para>number of parameter descriptions that can be in one info packet. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="90" column="15" bodyfile="reach_ble_proto_sizes.h" bodystart="90" bodyend="-1"/>
+        <location file="cr_stack.h" line="200" column="15" bodyfile="cr_stack.h" bodystart="200" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
+<para>The <ref refid="structreach__sizes__t" kindref="compound">reach_sizes_t</ref> is used to communicate the sizes of device structures to clients. These sizes can vary from one server to another and the client is required to respect these sizes. Many of them are determined by the chosen communication link, such as BLE. It uses smaller member sizes that the uint32 favored by protobufs. Hence it communicates these sizes without blowing up the size of the Refer also to enum SizesOffsets reach.proto </para>
     </detaileddescription>
-    <location file="reach_ble_proto_sizes.h" line="75" column="1" bodyfile="reach_ble_proto_sizes.h" bodystart="76" bodyend="91"/>
+    <location file="cr_stack.h" line="168" column="1" bodyfile="cr_stack.h" bodystart="168" bodyend="201"/>
     <listofallmembers>
       <member refid="structreach__sizes__t_1af8c20cb7120588cb41750315c1a1edcd" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>big_data_buffer_size</name></member>
-      <member refid="structreach__sizes__t_1a78fdd7009ec6760271159fc3ad0390f6" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>count_param_desc_in_response</name></member>
-      <member refid="structreach__sizes__t_1a7781651ad828c2137d49ac880bc2f26f" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>count_param_ids</name></member>
-      <member refid="structreach__sizes__t_1a4bd1c3a871a46c46794de25fe2cb0032" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>device_info_len</name></member>
-      <member refid="structreach__sizes__t_1a6a6f853805b787afe80c0d4308345828" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>long_string_len</name></member>
+      <member refid="structreach__sizes__t_1a46cc78459cad7d414cdc21d03011dff0" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>device_description_len</name></member>
       <member refid="structreach__sizes__t_1a013f4c2684eed7afb7baf1c5c1817652" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>max_message_size</name></member>
+      <member refid="structreach__sizes__t_1a41af873809467792eeabed2e659836e5" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>max_param_bytes</name></member>
       <member refid="structreach__sizes__t_1a2ea2b0edc1726c7c36c0c356652ce7dd" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>medium_string_len</name></member>
       <member refid="structreach__sizes__t_1ae35f9bfe3573750958693ff55f2e6871" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>num_commands_in_response</name></member>
-      <member refid="structreach__sizes__t_1ab2e1c7018a7bd655eb12ef22c39eeef2" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>num_medium_structs_in_msg</name></member>
+      <member refid="structreach__sizes__t_1a8dedad960bf7bce0624b3c50a8af1827" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>num_descriptors_in_response</name></member>
+      <member refid="structreach__sizes__t_1a78e712a63bd7b8a2ac632405b13fe16f" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>num_param_desc_in_response</name></member>
+      <member refid="structreach__sizes__t_1ae82dd9688db31f7d0249fe5ab4da9e25" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>num_param_notifications</name></member>
+      <member refid="structreach__sizes__t_1a0a18c41b8076b1dcb7de16803646411b" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>num_params_in_response</name></member>
+      <member refid="structreach__sizes__t_1abed5d5466ab8fb72111fe7800d5aaeb6" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>param_info_description_len</name></member>
       <member refid="structreach__sizes__t_1a852892ee02d36c06d9256b4cd08ce053" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>param_info_enum_count</name></member>
       <member refid="structreach__sizes__t_1a22e04304fa71af1fbc8d3889a002dc73" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>parameter_buffer_count</name></member>
-      <member refid="structreach__sizes__t_1a73343c86443aace7b09cb2b5e7760fb7" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>pi_enum_count</name></member>
-      <member refid="structreach__sizes__t_1a4f25f81052beb611d04583fefd2bd116" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>services_count</name></member>
       <member refid="structreach__sizes__t_1a79985c847ea324e6a36e68d4976c28d5" prot="public" virt="non-virtual"><scope>reach_sizes_t</scope><name>short_string_len</name></member>
     </listofallmembers>
   </compounddef>

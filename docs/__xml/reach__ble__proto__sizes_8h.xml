@@ -10,7 +10,7 @@
       </node>
       <node id="4">
         <label>cr_private.h</label>
-        <link refid="cr__private_8h_source"/>
+        <link refid="cr__private_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="5" relation="include">
@@ -22,7 +22,7 @@
       </node>
       <node id="2">
         <label>cr_stack.h</label>
-        <link refid="cr__stack_8h_source"/>
+        <link refid="cr__stack_8h"/>
         <childnode refid="3" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
@@ -31,10 +31,18 @@
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
       </node>
       <node id="6">
         <label>cr_weak.c</label>
         <link refid="cr__weak_8c"/>
+      </node>
+      <node id="7">
+        <label>crcb_weak.h</label>
+        <link refid="crcb__weak_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
       </node>
       <node id="1">
         <label>reach_ble_proto_sizes.h</label>
@@ -43,7 +51,6 @@
         </childnode>
       </node>
     </invincdepgraph>
-    <innerclass refid="structreach__sizes__t" prot="public">reach_sizes_t</innerclass>
     <sectiondef kind="define">
       <memberdef kind="define" id="reach__ble__proto__sizes_8h_1a71cc43877e7ff9c92f755aeea41f4ffc" prot="public" static="no">
         <name>REACH_MAX_RESPONSE_SIZE</name>
@@ -421,7 +428,7 @@
       </memberdef>
       <memberdef kind="define" id="reach__ble__proto__sizes_8h_1abfc460291967a1e0011777617611d8c4" prot="public" static="no">
         <name>REACH_UUID_BYTE_LEN</name>
-        <initializer>REACH_SHORT_STRING_LEN</initializer>
+        <initializer>16</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
@@ -496,6 +503,17 @@
         </inbodydescription>
         <location file="reach_ble_proto_sizes.h" line="71" column="9" bodyfile="reach_ble_proto_sizes.h" bodystart="71" bodyend="-1"/>
       </memberdef>
+      <memberdef kind="define" id="reach__ble__proto__sizes_8h_1a9d7673f20fc6b8d4099a9372c1052405" prot="public" static="no">
+        <name>REACH_NUM_PARAM_BYTES</name>
+        <initializer>32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="reach_ble_proto_sizes.h" line="72" column="9" bodyfile="reach_ble_proto_sizes.h" bodystart="72" bodyend="-1"/>
+      </memberdef>
       <memberdef kind="define" id="reach__ble__proto__sizes_8h_1a29ce065d6ab1cc4e16f5ba44e9d38b36" prot="public" static="no">
         <name>REACH_SIZE_STRUCT_SIZE</name>
         <initializer>16</initializer>
@@ -505,11 +523,11 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="reach_ble_proto_sizes.h" line="93" column="9" bodyfile="reach_ble_proto_sizes.h" bodystart="93" bodyend="-1"/>
+        <location file="reach_ble_proto_sizes.h" line="75" column="9" bodyfile="reach_ble_proto_sizes.h" bodystart="75" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
-<para>This file contains structure sizes defining reach.options for BLE usage These sizes are based on the 240 byte BLE packetand are tuned to fit in all cases. Hence there is no need for a separate packetizing layer. These values are used to populate reach.options for nanopb. <ref refid="cr__stack_8h_source" kindref="compound">cr_stack.h</ref> uses these to define more specific buffer sizes. If you have a reason to change these, consider the effect in <ref refid="cr__stack_8h_source" kindref="compound">cr_stack.h</ref>, where you could use a different common size and reach.options.prototype and the DeviceInfoResponse message in reach.proto. </para>
+<para>This file contains structure sizes defining reach.options for BLE usage These sizes are based on the 240 byte BLE packetand are tuned to fit in all cases. Hence there is no need for a separate packetizing layer. These values are used to populate reach.options for nanopb. <ref refid="cr__stack_8h" kindref="compound">cr_stack.h</ref> uses these to define more specific buffer sizes. If you have a reason to change these, consider the effect in <ref refid="cr__stack_8h" kindref="compound">cr_stack.h</ref>, where you could use a different common size and reach.options.prototype and the DeviceInfoResponse message in reach.proto. </para>
     </briefdescription>
     <detaileddescription>
 <para><simplesect kind="copyright"><para>(c) Copyright 2023 i3 Product Development. All Rights Reserved. </para>
@@ -567,37 +585,19 @@
 <codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_COMMAND_NAME_LEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_MEDIUM_STRING_LEN<sp/></highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_PARAM_INFO_UNITS_LEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_SHORT_STRING_LEN<sp/></highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_FW_VERSION_LEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_SHORT_STRING_LEN</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_UUID_BYTE_LEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_SHORT_STRING_LEN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_UUID_BYTE_LEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>16<sp/></highlight><highlight class="comment">//<sp/>this<sp/>is<sp/>constant.</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_PI_ENUM_NAME_LEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_SHORT_STRING_LEN</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_COUNT_PARAM_READ_VALUES<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_DISCOVER_STREAM_COUNT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="69"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_COUNT_PARAM_WRITE_IN_REQUEST<sp/><sp/><sp/><sp/><sp/><sp/>REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_COUNT_PARAM_NOTIF_VALUES<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="71"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_DISCOVER_FILES_COUNT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="73"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Used<sp/>to<sp/>keep<sp/>the<sp/>size<sp/>of<sp/>the<sp/>device<sp/>info<sp/>struct<sp/>down.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">//<sp/>see<sp/>enum<sp/>SizesOffsets<sp/>in<sp/>reach.proto</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="75" refid="structreach__sizes__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/>max_message_size;</highlight></codeline>
-<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/>big_data_buffer_size;</highlight></codeline>
-<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>parameter_buffer_count;</highlight></codeline>
-<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>num_medium_structs_in_msg;</highlight></codeline>
-<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>device_info_len;</highlight></codeline>
-<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>long_string_len;</highlight></codeline>
-<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>count_param_ids;</highlight></codeline>
-<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>medium_string_len;</highlight></codeline>
-<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>short_string_len;</highlight></codeline>
-<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>param_info_enum_count;</highlight></codeline>
-<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>services_count;</highlight></codeline>
-<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>pi_enum_count;</highlight></codeline>
-<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>num_commands_in_response;</highlight></codeline>
-<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>count_param_desc_in_response;</highlight></codeline>
-<codeline lineno="91"><highlight class="normal">}<sp/><ref refid="structreach__sizes__t" kindref="compound">reach_sizes_t</ref>;</highlight></codeline>
-<codeline lineno="92"><highlight class="normal"></highlight></codeline>
-<codeline lineno="93"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_SIZE_STRUCT_SIZE<sp/><sp/><sp/><sp/><sp/><sp/>16</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="94"><highlight class="normal"></highlight></codeline>
-<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>ndef<sp/>_REACH_BLE_PROTO_SIZES_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_NUM_PARAM_BYTES<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">//<sp/>REACH_SIZE_STRUCT_SIZE<sp/>must<sp/>match<sp/>the<sp/>size<sp/>of<sp/>the<sp/>reach_sizes_t<sp/>defined<sp/>in<sp/>cr_stack.h</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_SIZE_STRUCT_SIZE<sp/><sp/><sp/><sp/><sp/><sp/>16<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>ndef<sp/>_REACH_BLE_PROTO_SIZES_H</highlight><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="reach_ble_proto_sizes.h"/>
   </compounddef>

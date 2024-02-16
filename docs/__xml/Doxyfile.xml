@@ -328,7 +328,7 @@
   <option  id='MAN_SUBDIR' default='yes' type='string'><value><![CDATA[]]></value></option>
   <option  id='MAN_LINKS' default='yes' type='bool'><value>NO</value></option>
   <option  id='GENERATE_XML' default='no' type='bool'><value>YES</value></option>
-  <option  id='XML_OUTPUT' default='no' type='string'><value><![CDATA[_xml]]></value></option>
+  <option  id='XML_OUTPUT' default='no' type='string'><value><![CDATA[__xml]]></value></option>
   <option  id='XML_PROGRAMLISTING' default='yes' type='bool'><value>YES</value></option>
   <option  id='XML_NS_MEMB_FILE_SCOPE' default='yes' type='bool'><value>NO</value></option>
   <option  id='GENERATE_DOCBOOK' default='yes' type='bool'><value>NO</value></option>

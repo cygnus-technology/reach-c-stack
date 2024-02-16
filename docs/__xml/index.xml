@@ -43,17 +43,17 @@
     <member refid="structreach__sizes__t_1a013f4c2684eed7afb7baf1c5c1817652" kind="variable"><name>max_message_size</name></member>
     <member refid="structreach__sizes__t_1af8c20cb7120588cb41750315c1a1edcd" kind="variable"><name>big_data_buffer_size</name></member>
     <member refid="structreach__sizes__t_1a22e04304fa71af1fbc8d3889a002dc73" kind="variable"><name>parameter_buffer_count</name></member>
-    <member refid="structreach__sizes__t_1ab2e1c7018a7bd655eb12ef22c39eeef2" kind="variable"><name>num_medium_structs_in_msg</name></member>
-    <member refid="structreach__sizes__t_1a4bd1c3a871a46c46794de25fe2cb0032" kind="variable"><name>device_info_len</name></member>
-    <member refid="structreach__sizes__t_1a6a6f853805b787afe80c0d4308345828" kind="variable"><name>long_string_len</name></member>
-    <member refid="structreach__sizes__t_1a7781651ad828c2137d49ac880bc2f26f" kind="variable"><name>count_param_ids</name></member>
+    <member refid="structreach__sizes__t_1a0a18c41b8076b1dcb7de16803646411b" kind="variable"><name>num_params_in_response</name></member>
+    <member refid="structreach__sizes__t_1a46cc78459cad7d414cdc21d03011dff0" kind="variable"><name>device_description_len</name></member>
+    <member refid="structreach__sizes__t_1a41af873809467792eeabed2e659836e5" kind="variable"><name>max_param_bytes</name></member>
+    <member refid="structreach__sizes__t_1abed5d5466ab8fb72111fe7800d5aaeb6" kind="variable"><name>param_info_description_len</name></member>
     <member refid="structreach__sizes__t_1a2ea2b0edc1726c7c36c0c356652ce7dd" kind="variable"><name>medium_string_len</name></member>
     <member refid="structreach__sizes__t_1a79985c847ea324e6a36e68d4976c28d5" kind="variable"><name>short_string_len</name></member>
     <member refid="structreach__sizes__t_1a852892ee02d36c06d9256b4cd08ce053" kind="variable"><name>param_info_enum_count</name></member>
-    <member refid="structreach__sizes__t_1a4f25f81052beb611d04583fefd2bd116" kind="variable"><name>services_count</name></member>
-    <member refid="structreach__sizes__t_1a73343c86443aace7b09cb2b5e7760fb7" kind="variable"><name>pi_enum_count</name></member>
+    <member refid="structreach__sizes__t_1a8dedad960bf7bce0624b3c50a8af1827" kind="variable"><name>num_descriptors_in_response</name></member>
+    <member refid="structreach__sizes__t_1ae82dd9688db31f7d0249fe5ab4da9e25" kind="variable"><name>num_param_notifications</name></member>
     <member refid="structreach__sizes__t_1ae35f9bfe3573750958693ff55f2e6871" kind="variable"><name>num_commands_in_response</name></member>
-    <member refid="structreach__sizes__t_1a78fdd7009ec6760271159fc3ad0390f6" kind="variable"><name>count_param_desc_in_response</name></member>
+    <member refid="structreach__sizes__t_1a78e712a63bd7b8a2ac632405b13fe16f" kind="variable"><name>num_param_desc_in_response</name></member>
   </compound>
   <compound refid="cr__files_8c" kind="file"><name>cr_files.c</name>
   </compound>
@@ -66,8 +66,8 @@
     <member refid="cr__private_8h_1a6525cf21916ad2b0b996a31aba66d80a" kind="variable"><name>pvtCr_num_continued_objects</name></member>
     <member refid="cr__private_8h_1a4b3a18d3c66251fdfb9093f8708b0fc0" kind="variable"><name>pvtCr_num_remaining_objects</name></member>
     <member refid="cr__private_8h_1a19c76f06e3d764396d9767b558dbd15d" kind="function"><name>pvtCr_challenge_key_is_valid</name></member>
-    <member refid="cr__private_8h_1a30a6e551b81d138b8e873298ba9d9948" kind="function"><name>pvtCrFile_discover</name></member>
-    <member refid="cr__private_8h_1ab7bb331c5af30605ecad5f73c9381319" kind="function"><name>pvtCrFile_transfer_init</name></member>
+    <member refid="cr__private_8h_1aa638044996619f3205c1b07c0e2fc9a0" kind="function"><name>pvtCrFile_discover</name></member>
+    <member refid="cr__private_8h_1a2ce04ba8ccecb402a00843ccc49e1f29" kind="function"><name>pvtCrFile_transfer_init</name></member>
     <member refid="cr__private_8h_1afd6f00e1e336103effeb4abc04307af7" kind="function"><name>pvtCrFile_transfer_data</name></member>
     <member refid="cr__private_8h_1addb5581e5708ccc287beaf7a62594d88" kind="function"><name>pvtCrFile_transfer_data_notification</name></member>
     <member refid="cr__private_8h_1a5058fe0db52da996f1cd467ccb2c6ae3" kind="function"><name>pvtCr_watchdog_start_timeout</name></member>
@@ -83,6 +83,7 @@
   </compound>
   <compound refid="cr__stack_8c" kind="file"><name>cr_stack.c</name>
     <member refid="cr__stack_8c_1a2ddabcc331f98de862032a6d4c0a75e7" kind="define"><name>UNCODED_PAYLOAD_SIZE</name></member>
+    <member refid="cr__stack_8c_1a327c78e06c1b51106a8fbfc5ec398cde" kind="define"><name>APP_ADVERTISED_NAME_LENGTH</name></member>
     <member refid="cr__stack_8c_1a4e5f2c04ed179641bfb6c8776698f94e" kind="define"><name>ASYNC_ERROR_NOTIFCATION</name></member>
     <member refid="cr__stack_8c_1adbceeaf83d3a9e89c45a8fbe308ba183" kind="define"><name>MAX_BLE_SZ</name></member>
     <member refid="cr__stack_8c_1a6aadb7fb05bd8dc5c84cd47fa37d7c64" kind="define"><name>MAX_RAW_SZ</name></member>
@@ -98,10 +99,10 @@
     <member refid="cr__stack_8c_1a0ab3031331b5123adfb100c9e8ca807b" kind="variable"><name>sCr_transaction_id</name></member>
     <member refid="cr__stack_8c_1aa0ca485bc7485798bc4b27b72e1e80ca" kind="variable"><name>sCR_error_reported</name></member>
     <member refid="cr__stack_8c_1a9d1627ba7baf2fd96c940861b589ffce" kind="variable"><name>sCr_challenge_key_valid</name></member>
-    <member refid="cr__stack_8c_1a507defe644b6bd5d985a50059d4006d4" kind="variable"><name>sCr_advertised_name</name></member>
+    <member refid="cr__stack_8c_1a996349a934cf8124f79470898b7ec934" kind="variable"><name>sCr_advertised_name</name></member>
     <member refid="cr__stack_8c_1abf9c5955457c95a914190313042e8081" kind="variable"><name>sCallCount</name></member>
     <member refid="cr__stack_8c_1ae7ae837920f3d00b46af806fa63addcc" kind="variable"><name>sCurrentTicks</name></member>
-    <member refid="cr__stack_8c_1aeb56b25a1095642c9ff1cd280ebd01fd" kind="variable"><name>sCr_ble_is_connected</name></member>
+    <member refid="cr__stack_8c_1a7e14f94140944dfeeff2dd4318b6b257" kind="variable"><name>sCr_comm_link_is_connected</name></member>
     <member refid="cr__stack_8c_1ab1dab28bd1a3a27556b55580ab88f990" kind="variable"><name>sMaxBufferSize</name></member>
     <member refid="cr__stack_8c_1a346a4a71f723d149b97b161a0861e1fb" kind="function"><name>handle_coded_prompt</name></member>
     <member refid="cr__stack_8c_1a9fdef5c113aea7d0a89dffebeb41f7c2" kind="function"><name>handle_message</name></member>
@@ -117,11 +118,11 @@
     <member refid="cr__stack_8c_1a16d910a820e7f9337216cd623d55e66f" kind="function"><name>cr_set_advertised_name</name></member>
     <member refid="cr__stack_8c_1a0455e201acdd200cfad17c663073a491" kind="function"><name>cr_get_advertised_name</name></member>
     <member refid="cr__stack_8c_1af1732a5d9ee5f83c4360448ae4452b34" kind="function"><name>cr_store_coded_prompt</name></member>
-    <member refid="cr__stack_8c_1ab475ae83a3ac8917b289852d0a0aa6ec" kind="function"><name>cr_get_coded_response_buffer</name></member>
+    <member refid="cr__stack_8c_1ab084e3f2bc9d3199bd7af593b0d4f3e3" kind="function"><name>cr_get_coded_response_buffer</name></member>
     <member refid="cr__stack_8c_1ad28b6060e7d1c0641b0a6571995f656d" kind="function"><name>cr_process</name></member>
     <member refid="cr__stack_8c_1ac3be80269e1e885655edb9f3bdea2e96" kind="function"><name>cr_get_current_ticks</name></member>
-    <member refid="cr__stack_8c_1a309d1592e6bca704064924348b5faa67" kind="function"><name>cr_set_ble_connected</name></member>
-    <member refid="cr__stack_8c_1a4aebef6306c8823d394d73df04684a86" kind="function"><name>cr_get_ble_connected</name></member>
+    <member refid="cr__stack_8c_1ad1095632068473688fc3208985c1d01b" kind="function"><name>cr_set_comm_link_connected</name></member>
+    <member refid="cr__stack_8c_1a9c0aef7d4122da3699fab4a72a802832" kind="function"><name>cr_get_comm_link_connected</name></member>
     <member refid="cr__stack_8c_1a516393a2f8a30416f04285bf3dbcd010" kind="function"><name>cr_report_error</name></member>
     <member refid="cr__stack_8c_1a640498366ea309829bdc5231ecc80493" kind="function"><name>checkSize</name></member>
     <member refid="cr__stack_8c_1a16ccedefa64bb122fda0990567e8499c" kind="function"><name>cr_test_sizes</name></member>
@@ -129,30 +130,32 @@
     <member refid="cr__stack_8c_1ac4de55cd1a8df4e01f0dbc1fb788284f" kind="function"><name>cr_get_reach_version</name></member>
   </compound>
   <compound refid="cr__stack_8h" kind="file"><name>cr_stack.h</name>
-    <member refid="cr__stack_8h_1aa4de9563efe854a0f7b231c6b0ff1173" kind="define"><name>REACH_TIMEOUT</name></member>
+    <member refid="cr__stack_8h_1a2cad5cbd47a3b5129f0d77b50531b774" kind="define"><name>MAX_NUM_PARAM_ID</name></member>
     <member refid="cr__stack_8h_1a3a25a0d69b8381ca15bf278ffa888471" kind="define"><name>ALIGN_TO_WORD</name></member>
     <member refid="cr__stack_8h_1aa30199827c6ac809190a2494b2a66a13" kind="function"><name>cr_init</name></member>
     <member refid="cr__stack_8h_1a16d910a820e7f9337216cd623d55e66f" kind="function"><name>cr_set_advertised_name</name></member>
     <member refid="cr__stack_8h_1a0455e201acdd200cfad17c663073a491" kind="function"><name>cr_get_advertised_name</name></member>
     <member refid="cr__stack_8h_1ad28b6060e7d1c0641b0a6571995f656d" kind="function"><name>cr_process</name></member>
-    <member refid="cr__stack_8h_1a97b5d59390752d905648adaae504983a" kind="function"><name>crcb_get_coded_prompt</name></member>
     <member refid="cr__stack_8h_1af1732a5d9ee5f83c4360448ae4452b34" kind="function"><name>cr_store_coded_prompt</name></member>
-    <member refid="cr__stack_8h_1a2425b316220a950df2f5df91839227f9" kind="function"><name>crcb_send_coded_response</name></member>
     <member refid="cr__stack_8h_1ab475ae83a3ac8917b289852d0a0aa6ec" kind="function"><name>cr_get_coded_response_buffer</name></member>
     <member refid="cr__stack_8h_1ae7166504541451a189a7b1e30d3118f7" kind="function"><name>cr_provide_debug_buffer</name></member>
     <member refid="cr__stack_8h_1ad454aec65a19531cefb2ed921c2d6b64" kind="function"><name>cr_get_reply_buffer_and_size</name></member>
     <member refid="cr__stack_8h_1a516393a2f8a30416f04285bf3dbcd010" kind="function"><name>cr_report_error</name></member>
-    <member refid="cr__stack_8h_1a3b11bcf43cdbfb72f4f57e10cda502e3" kind="function"><name>crcb_notify_error</name></member>
-    <member refid="cr__stack_8h_1a309d1592e6bca704064924348b5faa67" kind="function"><name>cr_set_ble_connected</name></member>
-    <member refid="cr__stack_8h_1a4aebef6306c8823d394d73df04684a86" kind="function"><name>cr_get_ble_connected</name></member>
+    <member refid="cr__stack_8h_1ad1095632068473688fc3208985c1d01b" kind="function"><name>cr_set_comm_link_connected</name></member>
+    <member refid="cr__stack_8h_1a9c0aef7d4122da3699fab4a72a802832" kind="function"><name>cr_get_comm_link_connected</name></member>
     <member refid="cr__stack_8h_1ac3be80269e1e885655edb9f3bdea2e96" kind="function"><name>cr_get_current_ticks</name></member>
     <member refid="cr__stack_8h_1a16ccedefa64bb122fda0990567e8499c" kind="function"><name>cr_test_sizes</name></member>
     <member refid="cr__stack_8h_1ac4de55cd1a8df4e01f0dbc1fb788284f" kind="function"><name>cr_get_reach_version</name></member>
-    <member refid="cr__stack_8h_1aa6ab171c64b3b26d3a82854ac940ae06" kind="function"><name>crcb_device_get_info</name></member>
-    <member refid="cr__stack_8h_1a41420e3431871f32a2df1e214da86ced" kind="function"><name>crcb_ping_get_signal_strength</name></member>
   </compound>
   <compound refid="cr__weak_8c" kind="file"><name>cr_weak.c</name>
     <member refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kind="function"><name>__attribute__</name></member>
+  </compound>
+  <compound refid="crcb__weak_8h" kind="file"><name>crcb_weak.h</name>
+    <member refid="crcb__weak_8h_1a97b5d59390752d905648adaae504983a" kind="function"><name>crcb_get_coded_prompt</name></member>
+    <member refid="crcb__weak_8h_1a2425b316220a950df2f5df91839227f9" kind="function"><name>crcb_send_coded_response</name></member>
+    <member refid="crcb__weak_8h_1a3b11bcf43cdbfb72f4f57e10cda502e3" kind="function"><name>crcb_notify_error</name></member>
+    <member refid="crcb__weak_8h_1aa6ab171c64b3b26d3a82854ac940ae06" kind="function"><name>crcb_device_get_info</name></member>
+    <member refid="crcb__weak_8h_1a41420e3431871f32a2df1e214da86ced" kind="function"><name>crcb_ping_get_signal_strength</name></member>
   </compound>
   <compound refid="i3__error_8h" kind="file"><name>i3_error.h</name>
     <member refid="i3__error_8h_1a88034e5c19a8d88b8bf13a83d25dac9c" kind="define"><name>affirm</name></member>
@@ -358,9 +361,9 @@
     <member refid="message__util_8c_1a212744c0fa214f898ea46ec0c686b21c" kind="function"><name>message_util_get_device_info_json</name></member>
     <member refid="message__util_8c_1a0d562dea7bb4cc5d8a6b65e9769a81b1" kind="function"><name>message_util_get_device_info_response_json</name></member>
     <member refid="message__util_8c_1a1cf73adf818e6cf2fda09532a5d65443" kind="function"><name>message_util_discover_files_json</name></member>
-    <member refid="message__util_8c_1a43ba96ef5c7097198970f24877af5671" kind="function"><name>message_util_discover_files_response_json</name></member>
+    <member refid="message__util_8c_1a169b6a3ca5c5902638c67db88fea2b08" kind="function"><name>message_util_discover_files_response_json</name></member>
     <member refid="message__util_8c_1a63595c267409a8b19d6bf03dc7d4e2d2" kind="function"><name>message_util_transfer_init_json</name></member>
-    <member refid="message__util_8c_1aee45a8da99c97c4074e8f6b308c259da" kind="function"><name>message_util_transfer_init_response_json</name></member>
+    <member refid="message__util_8c_1a8438c0e1fa589f5595bb3b7742fd7b00" kind="function"><name>message_util_transfer_init_response_json</name></member>
     <member refid="message__util_8c_1a1fcae094d691da9368241de643b44d7a" kind="function"><name>message_util_transfer_data_json</name></member>
     <member refid="message__util_8c_1ae91622201659a12ee1d796ab525e0922" kind="function"><name>message_util_transfer_data_response_json</name></member>
     <member refid="message__util_8c_1a6ef091d86d8383c3b9d6ac1ea0c892df" kind="function"><name>message_util_transfer_data_notification_json</name></member>
@@ -369,9 +372,9 @@
     <member refid="message__util_8c_1adae4fcd96f400488f8cf39bb7adb8aa3" kind="function"><name>message_util_param_info_ex_response_json</name></member>
     <member refid="message__util_8c_1a68c614020376462da3436bad8bc9a169" kind="function"><name>message_util_discover_streams_json</name></member>
     <member refid="message__util_8c_1a35b8be46be2154327164b52e997e5472" kind="function"><name>message_util_discover_commands_json</name></member>
-    <member refid="message__util_8c_1af5b37f2b49c1670b75801348c5a9e994" kind="function"><name>message_util_discover_commands_response_json</name></member>
+    <member refid="message__util_8c_1a0eda2634adb34eabc68c1c33ef7ae6d8" kind="function"><name>message_util_discover_commands_response_json</name></member>
     <member refid="message__util_8c_1ae1aae4e560034bf9ecb931dc649b966d" kind="function"><name>message_util_send_command_json</name></member>
-    <member refid="message__util_8c_1a2f4586a44cb73ec74a5f3921161deeda" kind="function"><name>message_util_send_command_response_json</name></member>
+    <member refid="message__util_8c_1a7cb7821110154d6979fa377cfb035313" kind="function"><name>message_util_send_command_response_json</name></member>
     <member refid="message__util_8c_1ab6040c7c67e6b9dc8b5ec37d4b59d488" kind="function"><name>message_util_cli_notification_json</name></member>
     <member refid="message__util_8c_1aed25b2ddfa7eb288526a66df97b1e84e" kind="function"><name>message_util_ping_json</name></member>
     <member refid="message__util_8c_1a6244e566bb3bbca541b7cd57eca1d508" kind="function"><name>message_util_ping_response_json</name></member>
@@ -426,6 +429,7 @@
     <member refid="reach__ble__proto__sizes_8h_1a4a0fdeee41603e7134318502e742200e" kind="define"><name>REACH_COUNT_PARAM_WRITE_IN_REQUEST</name></member>
     <member refid="reach__ble__proto__sizes_8h_1a759d3193607dacbe9e061614a68c6a77" kind="define"><name>REACH_COUNT_PARAM_NOTIF_VALUES</name></member>
     <member refid="reach__ble__proto__sizes_8h_1adadbfbc2f8754859bc467c56560c272c" kind="define"><name>REACH_DISCOVER_FILES_COUNT</name></member>
+    <member refid="reach__ble__proto__sizes_8h_1a9d7673f20fc6b8d4099a9372c1052405" kind="define"><name>REACH_NUM_PARAM_BYTES</name></member>
     <member refid="reach__ble__proto__sizes_8h_1a29ce065d6ab1cc4e16f5ba44e9d38b36" kind="define"><name>REACH_SIZE_STRUCT_SIZE</name></member>
   </compound>
   <compound refid="reach__decode_8c" kind="file"><name>reach_decode.c</name>

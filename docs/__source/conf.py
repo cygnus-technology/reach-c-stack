@@ -19,11 +19,11 @@ extensions = [
     'myst_parser',
 ]
 
-templates_path = ['_templates']
+templates_path = ['__templates']
 exclude_patterns = []
 
 # doxygen xml key:path binding for breath
-breathe_projects = { "source_docs": "../_xml" }
+breathe_projects = { "source_docs": "../__xml" }
 
 
 

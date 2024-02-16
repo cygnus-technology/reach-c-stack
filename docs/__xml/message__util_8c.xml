@@ -164,13 +164,13 @@
         </inbodydescription>
         <location file="message_util.c" line="165" column="6" bodyfile="message_util.c" bodystart="165" bodyend="167"/>
       </memberdef>
-      <memberdef kind="function" id="message__util_8c_1a43ba96ef5c7097198970f24877af5671" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="message__util_8c_1a169b6a3ca5c5902638c67db88fea2b08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>char *</type>
         <definition>char * message_util_discover_files_response_json</definition>
-        <argsstring>(const cr_DiscoverFilesReply *response)</argsstring>
+        <argsstring>(const cr_DiscoverFilesResponse *response)</argsstring>
         <name>message_util_discover_files_response_json</name>
         <param>
-          <type>const cr_DiscoverFilesReply *</type>
+          <type>const cr_DiscoverFilesResponse *</type>
           <declname>response</declname>
         </param>
         <briefdescription>
@@ -198,13 +198,13 @@
         </inbodydescription>
         <location file="message_util.c" line="196" column="6" bodyfile="message_util.c" bodystart="196" bodyend="217"/>
       </memberdef>
-      <memberdef kind="function" id="message__util_8c_1aee45a8da99c97c4074e8f6b308c259da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="message__util_8c_1a8438c0e1fa589f5595bb3b7742fd7b00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>char *</type>
         <definition>char * message_util_transfer_init_response_json</definition>
-        <argsstring>(const cr_FileTransferInitReply *response)</argsstring>
+        <argsstring>(const cr_FileTransferInitResponse *response)</argsstring>
         <name>message_util_transfer_init_response_json</name>
         <param>
-          <type>const cr_FileTransferInitReply *</type>
+          <type>const cr_FileTransferInitResponse *</type>
           <declname>response</declname>
         </param>
         <briefdescription>
@@ -344,13 +344,13 @@
         </inbodydescription>
         <location file="message_util.c" line="399" column="6" bodyfile="message_util.c" bodystart="399" bodyend="401"/>
       </memberdef>
-      <memberdef kind="function" id="message__util_8c_1af5b37f2b49c1670b75801348c5a9e994" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="message__util_8c_1a0eda2634adb34eabc68c1c33ef7ae6d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>char *</type>
         <definition>char * message_util_discover_commands_response_json</definition>
-        <argsstring>(const cr_DiscoverCommandsResult *payload)</argsstring>
+        <argsstring>(const cr_DiscoverCommandsResponse *payload)</argsstring>
         <name>message_util_discover_commands_response_json</name>
         <param>
-          <type>const cr_DiscoverCommandsResult *</type>
+          <type>const cr_DiscoverCommandsResponse *</type>
           <declname>payload</declname>
         </param>
         <briefdescription>
@@ -378,13 +378,13 @@
         </inbodydescription>
         <location file="message_util.c" line="429" column="6" bodyfile="message_util.c" bodystart="429" bodyend="443"/>
       </memberdef>
-      <memberdef kind="function" id="message__util_8c_1a2f4586a44cb73ec74a5f3921161deeda" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="message__util_8c_1a7cb7821110154d6979fa377cfb035313" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>char *</type>
         <definition>char * message_util_send_command_response_json</definition>
-        <argsstring>(const cr_SendCommandResult *payload)</argsstring>
+        <argsstring>(const cr_SendCommandResponse *payload)</argsstring>
         <name>message_util_send_command_response_json</name>
         <param>
-          <type>const cr_SendCommandResult *</type>
+          <type>const cr_SendCommandResponse *</type>
           <declname>payload</declname>
         </param>
         <briefdescription>
@@ -619,7 +619,7 @@
 <codeline lineno="167"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="168"><highlight class="normal"></highlight></codeline>
 <codeline lineno="169"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_discover_files_response_json(</highlight></codeline>
-<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_DiscoverFilesReply<sp/>*response)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_DiscoverFilesResponse<sp/>*response)<sp/>{</highlight></codeline>
 <codeline lineno="171"><highlight class="normal"></highlight></codeline>
 <codeline lineno="172"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*json<sp/>=<sp/>cJSON_CreateObject();</highlight></codeline>
 <codeline lineno="173"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*jsonArray<sp/>=<sp/>cJSON_CreateArray();</highlight></codeline>
@@ -669,7 +669,7 @@
 <codeline lineno="217"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="218"><highlight class="normal"></highlight></codeline>
 <codeline lineno="219"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_transfer_init_response_json(</highlight></codeline>
-<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_FileTransferInitReply<sp/>*response)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_FileTransferInitResponse<sp/>*response)<sp/>{</highlight></codeline>
 <codeline lineno="221"><highlight class="normal"></highlight></codeline>
 <codeline lineno="222"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*json<sp/>=<sp/>cJSON_CreateObject();</highlight></codeline>
 <codeline lineno="223"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*json1<sp/>=<sp/>cJSON_CreateObject();</highlight></codeline>
@@ -852,7 +852,7 @@
 <codeline lineno="401"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="402"><highlight class="normal"></highlight></codeline>
 <codeline lineno="403"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_discover_commands_response_json(</highlight></codeline>
-<codeline lineno="404"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_DiscoverCommandsResult<sp/>*payload)<sp/>{</highlight></codeline>
+<codeline lineno="404"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_DiscoverCommandsResponse<sp/>*payload)<sp/>{</highlight></codeline>
 <codeline lineno="405"><highlight class="normal"></highlight></codeline>
 <codeline lineno="406"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*json<sp/>=<sp/>cJSON_CreateObject();</highlight></codeline>
 <codeline lineno="407"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*jsonArray<sp/>=<sp/>cJSON_CreateArray();</highlight></codeline>
@@ -894,7 +894,7 @@
 <codeline lineno="443"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="444"><highlight class="normal"></highlight></codeline>
 <codeline lineno="445"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*</highlight></codeline>
-<codeline lineno="446"><highlight class="normal">message_util_send_command_response_json(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_SendCommandResult<sp/>*payload)<sp/>{</highlight></codeline>
+<codeline lineno="446"><highlight class="normal">message_util_send_command_response_json(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_SendCommandResponse<sp/>*payload)<sp/>{</highlight></codeline>
 <codeline lineno="447"><highlight class="normal"></highlight></codeline>
 <codeline lineno="448"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*json<sp/>=<sp/>cJSON_CreateObject();</highlight></codeline>
 <codeline lineno="449"><highlight class="normal"><sp/><sp/><ref refid="structc_j_s_o_n" kindref="compound">cJSON</ref><sp/>*json_1<sp/>=<sp/>cJSON_CreateObject();</highlight></codeline>
@@ -1112,7 +1112,7 @@
 <codeline lineno="663"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="664"><highlight class="normal"></highlight></codeline>
 <codeline lineno="665"><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_config_notify_param_json(</highlight></codeline>
-<codeline lineno="666"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_ParameterNotifyConfigResult<sp/>*payload)</highlight></codeline>
+<codeline lineno="666"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_ParameterNotifyConfigResponse<sp/>*payload)</highlight></codeline>
 <codeline lineno="667"><highlight class="normal">{</highlight></codeline>
 <codeline lineno="668"><highlight class="normal"><sp/><sp/>sprintf(sMsgUtilBuffer,<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>write<sp/>param<sp/>response:<sp/>%d&quot;</highlight><highlight class="normal">,<sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)payload-&gt;result);</highlight></codeline>
 <codeline lineno="669"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sMsgUtilBuffer;</highlight></codeline>
@@ -1155,13 +1155,13 @@
 <codeline lineno="706"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="707"><highlight class="normal"></highlight></codeline>
 <codeline lineno="708"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_TIME_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="709"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_time_set_response_json(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_TimeSetResult<sp/>*payload)<sp/></highlight></codeline>
+<codeline lineno="709"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_time_set_response_json(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_TimeSetResponse<sp/>*payload)<sp/></highlight></codeline>
 <codeline lineno="710"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
 <codeline lineno="711"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sprintf(sMsgUtilBuffer,<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>Time<sp/>set<sp/>response<sp/>result:<sp/>%d&quot;</highlight><highlight class="normal">,<sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)payload-&gt;result);</highlight></codeline>
 <codeline lineno="712"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sMsgUtilBuffer;</highlight></codeline>
 <codeline lineno="713"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="714"><highlight class="normal"></highlight></codeline>
-<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_time_get_response_json(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_TimeGetResult<sp/>*payload)<sp/></highlight></codeline>
+<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*message_util_time_get_response_json(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_TimeGetResponse<sp/>*payload)<sp/></highlight></codeline>
 <codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
 <codeline lineno="717"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ptr<sp/>=<sp/>0;</highlight></codeline>
 <codeline lineno="718"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ptr<sp/>+=<sp/>sprintf(&amp;sMsgUtilBuffer[ptr],<sp/></highlight><highlight class="stringliteral">&quot;<sp/><sp/>Time<sp/>get<sp/>response<sp/>result:<sp/>%d\r\n&quot;</highlight><highlight class="normal">,<sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)payload-&gt;result);</highlight></codeline>

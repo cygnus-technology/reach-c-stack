@@ -7,15 +7,15 @@
     <includes refid="cr__stack_8h" local="yes">cr_stack.h</includes>
     <includes refid="i3__log_8h" local="yes">i3_log.h</includes>
     <incdepgraph>
-      <node id="10">
+      <node id="9">
         <label>i3_error.h</label>
         <link refid="i3__error_8h_source"/>
+        <childnode refid="10" relation="include">
+        </childnode>
         <childnode refid="11" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
       </node>
-      <node id="9">
+      <node id="8">
         <label>i3_log.h</label>
         <link refid="i3__log_8h"/>
         <childnode refid="2" relation="include">
@@ -26,18 +26,18 @@
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
-        <childnode refid="10" relation="include">
+        <childnode refid="9" relation="include">
         </childnode>
-        <childnode refid="13" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
       </node>
-      <node id="13">
+      <node id="12">
         <label>text_colors.h</label>
         <link refid="text__colors_8h_source"/>
       </node>
       <node id="4">
         <label>cr_stack.h</label>
-        <link refid="cr__stack_8h_source"/>
+        <link refid="cr__stack_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="3" relation="include">
@@ -48,7 +48,9 @@
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="8" relation="include">
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
         </childnode>
       </node>
       <node id="1">
@@ -60,17 +62,29 @@
         </childnode>
         <childnode refid="4" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
+        <childnode refid="8" relation="include">
         </childnode>
       </node>
-      <node id="8">
+      <node id="7">
+        <label>crcb_weak.h</label>
+        <link refid="crcb__weak_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
         <label>reach_ble_proto_sizes.h</label>
         <link refid="reach__ble__proto__sizes_8h"/>
       </node>
       <node id="6">
         <label>reach-server.h</label>
       </node>
-      <node id="7">
+      <node id="13">
         <label>reach.pb.h</label>
       </node>
       <node id="3">
@@ -82,10 +96,10 @@
       <node id="2">
         <label>stdint.h</label>
       </node>
-      <node id="11">
+      <node id="10">
         <label>stdio.h</label>
       </node>
-      <node id="12">
+      <node id="11">
         <label>stdlib.h</label>
       </node>
     </incdepgraph>
@@ -148,7 +162,7 @@ The cr_process function calls this function to send responses to the client. <si
 </parameterlist>
 <simplesect kind="return"><para>cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from the cr_ErrorCodes_ enumeration</para>
 </simplesect>
-Called by cr_report_error(). Can be called at any point. <simplesect kind="note"><para>The device must override this implementation to send error messages to the client. </para>
+Called by <ref refid="cr__stack_8c_1a516393a2f8a30416f04285bf3dbcd010" kindref="member">cr_report_error()</ref>. Can be called at any point. <simplesect kind="note"><para>The device must override this implementation to send error messages to the client. </para>
 </simplesect>
 <parameterlist kind="param"><parameteritem>
 <parameternamelist>
@@ -251,7 +265,7 @@ Called by the stack in response to a ping request. <simplesect kind="note"><para
 <codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="55"><highlight class="normal"></highlight></codeline>
-<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;cr_stack.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="cr__stack_8h" kindref="compound">cr_stack.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="i3__log_8h" kindref="compound">i3_log.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="58"><highlight class="normal"></highlight></codeline>
 <codeline lineno="59"><highlight class="normal"><sp/></highlight></codeline>
@@ -526,68 +540,87 @@ Called by the stack in response to a ping request. <simplesect kind="note"><para
 <codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
 <codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
 <codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="638"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="639"><highlight class="normal"></highlight></codeline>
-<codeline lineno="640"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_TIME_SERVICE</highlight></codeline>
-<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_time_get(uint64_t<sp/>*utc_seconds)</highlight></codeline>
-<codeline lineno="650"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="651"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)utc_seconds;</highlight></codeline>
-<codeline lineno="652"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
-<codeline lineno="653"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
-<codeline lineno="654"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="655"><highlight class="normal"></highlight></codeline>
-<codeline lineno="665"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_time_set(uint64_t<sp/>utc_seconds)</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"></highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_file_transfer_complete(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>fid)</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)fid;</highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="650"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="651"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="652"><highlight class="normal"></highlight></codeline>
+<codeline lineno="663"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_file_prepare_to_write(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>fid,</highlight></codeline>
+<codeline lineno="664"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset,</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bytes_to_write)</highlight></codeline>
 <codeline lineno="666"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="667"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)utc_seconds;</highlight></codeline>
-<codeline lineno="668"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
-<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
-<codeline lineno="670"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="671"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="672"><highlight class="normal"></highlight></codeline>
-<codeline lineno="673"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_OTA_SERVICE</highlight></codeline>
-<codeline lineno="677"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_OTA_discover_next(cr_OTA_s<sp/>*OTA_desc)</highlight></codeline>
-<codeline lineno="678"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="679"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)OTA_desc;</highlight></codeline>
-<codeline lineno="680"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
-<codeline lineno="681"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
-<codeline lineno="682"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="683"><highlight class="normal"></highlight></codeline>
-<codeline lineno="684"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_OTA_discover_reset(uint8_t<sp/>OTA_id)</highlight></codeline>
-<codeline lineno="685"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="686"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)OTA_id;</highlight></codeline>
-<codeline lineno="687"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
-<codeline lineno="688"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
-<codeline lineno="689"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="690"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="667"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)fid;</highlight></codeline>
+<codeline lineno="668"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)offset;</highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)bytes_to_write;</highlight></codeline>
+<codeline lineno="670"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NO_ERROR;</highlight></codeline>
+<codeline lineno="672"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="673"><highlight class="normal"></highlight></codeline>
+<codeline lineno="674"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="675"><highlight class="normal"></highlight></codeline>
+<codeline lineno="676"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_TIME_SERVICE</highlight></codeline>
+<codeline lineno="685"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_time_get(cr_TimeGetResponse<sp/>*response)</highlight></codeline>
+<codeline lineno="686"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="687"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)response;</highlight></codeline>
+<codeline lineno="688"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="689"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="690"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
 <codeline lineno="691"><highlight class="normal"></highlight></codeline>
-<codeline lineno="692"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_STREAM_SERVICE</highlight></codeline>
-<codeline lineno="696"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_stream_discover_next(cr_stream_s<sp/>*stream_desc)</highlight></codeline>
-<codeline lineno="697"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="698"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stream_desc;</highlight></codeline>
-<codeline lineno="699"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
-<codeline lineno="700"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
-<codeline lineno="701"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="702"><highlight class="normal"></highlight></codeline>
-<codeline lineno="703"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_stream_discover_reset(uint8_t<sp/><sp/>stream_id)</highlight></codeline>
-<codeline lineno="704"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="705"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stream_id;</highlight></codeline>
-<codeline lineno="706"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
-<codeline lineno="707"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
-<codeline lineno="708"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="709"><highlight class="normal"></highlight></codeline>
-<codeline lineno="711"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_stream_send_packet(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>stream_id,</highlight></codeline>
-<codeline lineno="712"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,</highlight></codeline>
-<codeline lineno="713"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_packets)</highlight></codeline>
+<codeline lineno="701"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_time_set(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_TimeSetRequest<sp/>*request)</highlight></codeline>
+<codeline lineno="702"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="703"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)request;</highlight></codeline>
+<codeline lineno="704"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="705"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="706"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="707"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="708"><highlight class="normal"></highlight></codeline>
+<codeline lineno="709"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_OTA_SERVICE</highlight></codeline>
+<codeline lineno="713"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_OTA_discover_next(cr_OTA_s<sp/>*OTA_desc)</highlight></codeline>
 <codeline lineno="714"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stream_id;</highlight></codeline>
-<codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)data;</highlight></codeline>
-<codeline lineno="717"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)num_packets;</highlight></codeline>
-<codeline lineno="718"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
-<codeline lineno="719"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
-<codeline lineno="720"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="721"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="722"><highlight class="normal"></highlight></codeline>
-<codeline lineno="723"><highlight class="normal"></highlight></codeline>
+<codeline lineno="715"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)OTA_desc;</highlight></codeline>
+<codeline lineno="716"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="717"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="718"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="719"><highlight class="normal"></highlight></codeline>
+<codeline lineno="720"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_OTA_discover_reset(uint8_t<sp/>OTA_id)</highlight></codeline>
+<codeline lineno="721"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="722"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)OTA_id;</highlight></codeline>
+<codeline lineno="723"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="724"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="725"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="726"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="727"><highlight class="normal"></highlight></codeline>
+<codeline lineno="728"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_STREAM_SERVICE</highlight></codeline>
+<codeline lineno="732"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_stream_discover_next(cr_stream_s<sp/>*stream_desc)</highlight></codeline>
+<codeline lineno="733"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="734"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stream_desc;</highlight></codeline>
+<codeline lineno="735"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="736"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="737"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="738"><highlight class="normal"></highlight></codeline>
+<codeline lineno="739"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_stream_discover_reset(uint8_t<sp/><sp/>stream_id)</highlight></codeline>
+<codeline lineno="740"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="741"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stream_id;</highlight></codeline>
+<codeline lineno="742"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="743"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="744"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="745"><highlight class="normal"></highlight></codeline>
+<codeline lineno="747"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__weak_8c_1aeb0fee7e25692380f5346f304f4b6e5a" kindref="member">__attribute__</ref>((weak))<sp/>crcb_stream_send_packet(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>stream_id,</highlight></codeline>
+<codeline lineno="748"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,</highlight></codeline>
+<codeline lineno="749"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_packets)</highlight></codeline>
+<codeline lineno="750"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="751"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)stream_id;</highlight></codeline>
+<codeline lineno="752"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)data;</highlight></codeline>
+<codeline lineno="753"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)num_packets;</highlight></codeline>
+<codeline lineno="754"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(<ref refid="i3__log_8h_1ade35013528561f271e548653520cdd54" kindref="member">LOG_MASK_WEAK</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s:<sp/>weak<sp/>default.\n&quot;</highlight><highlight class="normal">,<sp/>__FUNCTION__);</highlight></codeline>
+<codeline lineno="755"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>cr_ErrorCodes_NOT_IMPLEMENTED;</highlight></codeline>
+<codeline lineno="756"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="757"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="758"><highlight class="normal"></highlight></codeline>
+<codeline lineno="759"><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="cr_weak.c"/>
   </compounddef>

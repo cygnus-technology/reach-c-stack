@@ -45,26 +45,56 @@
         </childnode>
         <childnode refid="7" relation="include">
         </childnode>
-        <childnode refid="8" relation="include">
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
         </childnode>
       </node>
       <node id="4">
         <label>cr_files.c</label>
         <link refid="cr__files_8c"/>
       </node>
+      <node id="9">
+        <label>cr_private.h</label>
+        <link refid="cr__private_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
       <node id="5">
         <label>cr_stack.c</label>
         <link refid="cr__stack_8c"/>
+      </node>
+      <node id="8">
+        <label>cr_stack.h</label>
+        <link refid="cr__stack_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
       </node>
       <node id="6">
         <label>cr_weak.c</label>
         <link refid="cr__weak_8c"/>
       </node>
       <node id="7">
+        <label>crcb_weak.h</label>
+        <link refid="crcb__weak_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
         <label>message_util.c</label>
         <link refid="message__util_8c"/>
       </node>
-      <node id="8">
+      <node id="11">
         <label>reach_decode.c</label>
         <link refid="reach__decode_8c"/>
       </node>

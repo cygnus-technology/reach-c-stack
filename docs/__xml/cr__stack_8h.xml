@@ -6,13 +6,43 @@
     <includes local="no">stdbool.h</includes>
     <includes local="no">stddef.h</includes>
     <includes local="yes">reach-server.h</includes>
+    <includes refid="crcb__weak_8h" local="yes">crcb_weak.h</includes>
     <includes local="yes">reach.pb.h</includes>
     <includes refid="reach__ble__proto__sizes_8h" local="yes">reach_ble_proto_sizes.h</includes>
     <includedby refid="cr__files_8c" local="yes">cr_files.c</includedby>
     <includedby refid="cr__private_8h" local="yes">cr_private.h</includedby>
     <includedby refid="cr__stack_8c" local="yes">cr_stack.c</includedby>
     <includedby refid="cr__weak_8c" local="yes">cr_weak.c</includedby>
+    <includedby refid="crcb__weak_8h" local="yes">crcb_weak.h</includedby>
     <incdepgraph>
+      <node id="8">
+        <label>i3_error.h</label>
+        <link refid="i3__error_8h_source"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>i3_log.h</label>
+        <link refid="i3__log_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>text_colors.h</label>
+        <link refid="text__colors_8h_source"/>
+      </node>
       <node id="1">
         <label>cr_stack.h</label>
         <link refid="cr__stack_8h"/>
@@ -26,17 +56,31 @@
         </childnode>
         <childnode refid="6" relation="include">
         </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>crcb_weak.h</label>
+        <link refid="crcb__weak_8h_source"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="1" relation="include">
+        </childnode>
         <childnode refid="7" relation="include">
         </childnode>
       </node>
-      <node id="7">
+      <node id="13">
         <label>reach_ble_proto_sizes.h</label>
         <link refid="reach__ble__proto__sizes_8h"/>
       </node>
       <node id="5">
         <label>reach-server.h</label>
       </node>
-      <node id="6">
+      <node id="12">
         <label>reach.pb.h</label>
       </node>
       <node id="3">
@@ -48,6 +92,12 @@
       <node id="2">
         <label>stdint.h</label>
       </node>
+      <node id="9">
+        <label>stdio.h</label>
+      </node>
+      <node id="10">
+        <label>stdlib.h</label>
+      </node>
     </incdepgraph>
     <invincdepgraph>
       <node id="2">
@@ -56,7 +106,7 @@
       </node>
       <node id="3">
         <label>cr_private.h</label>
-        <link refid="cr__private_8h_source"/>
+        <link refid="cr__private_8h"/>
         <childnode refid="2" relation="include">
         </childnode>
         <childnode refid="4" relation="include">
@@ -77,23 +127,32 @@
         </childnode>
         <childnode refid="5" relation="include">
         </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
       </node>
       <node id="5">
         <label>cr_weak.c</label>
         <link refid="cr__weak_8c"/>
       </node>
+      <node id="6">
+        <label>crcb_weak.h</label>
+        <link refid="crcb__weak_8h_source"/>
+        <childnode refid="1" relation="include">
+        </childnode>
+      </node>
     </invincdepgraph>
+    <innerclass refid="structreach__sizes__t" prot="public">reach_sizes_t</innerclass>
     <sectiondef kind="define">
-      <memberdef kind="define" id="cr__stack_8h_1aa4de9563efe854a0f7b231c6b0ff1173" prot="public" static="no">
-        <name>REACH_TIMEOUT</name>
-        <initializer>5000</initializer>
+      <memberdef kind="define" id="cr__stack_8h_1a2cad5cbd47a3b5129f0d77b50531b774" prot="public" static="no">
+        <name>MAX_NUM_PARAM_ID</name>
+        <initializer>32767</initializer>
         <briefdescription>
         </briefdescription>
         <detaileddescription>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="95" column="9" bodyfile="cr_stack.h" bodystart="95" bodyend="-1"/>
+        <location file="cr_stack.h" line="100" column="9" bodyfile="cr_stack.h" bodystart="100" bodyend="-1"/>
       </memberdef>
       <memberdef kind="define" id="cr__stack_8h_1a3a25a0d69b8381ca15bf278ffa888471" prot="public" static="no">
         <name>ALIGN_TO_WORD</name>
@@ -104,7 +163,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="109" column="9" bodyfile="cr_stack.h" bodystart="109" bodyend="-1"/>
+        <location file="cr_stack.h" line="121" column="9" bodyfile="cr_stack.h" bodystart="121" bodyend="-1"/>
       </memberdef>
     </sectiondef>
     <sectiondef kind="func">
@@ -125,7 +184,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="113" column="5" bodyfile="cr_stack.c" bodystart="324" bodyend="341" declfile="cr_stack.h" declline="113" declcolumn="5"/>
+        <location file="cr_stack.h" line="125" column="5" bodyfile="cr_stack.c" bodystart="322" bodyend="339" declfile="cr_stack.h" declline="125" declcolumn="5"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1a16d910a820e7f9337216cd623d55e66f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -141,12 +200,16 @@
           <declname>length</declname>
         </param>
         <briefdescription>
+<para>cr_set_advertised_name </para>
         </briefdescription>
         <detaileddescription>
+<para>Sets the name of the device that should be advertised before connecting. Used in BLE. The length of the string is set by APP_ADVERTISED_NAME_LENGTH which can be define in the application. See reach-server.h. Uses REACH_SHORT_STRING_LEN when APP_ADVERTISED_NAME_LENGTH is not defined. The code setting up the communication link can retrieve this using <ref refid="cr__stack_8c_1a0455e201acdd200cfad17c663073a491" kindref="member">cr_get_advertised_name()</ref>. <simplesect kind="return"><para>cr_ErrorCodes_NO_ERROR or a non-zero error code. </para>
+</simplesect>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="117" column="5" bodyfile="cr_stack.c" bodystart="352" bodyend="358" declfile="cr_stack.h" declline="117" declcolumn="5"/>
+        <location file="cr_stack.h" line="129" column="5" bodyfile="cr_stack.c" bodystart="358" bodyend="364" declfile="cr_stack.h" declline="129" declcolumn="5"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1a0455e201acdd200cfad17c663073a491" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>const char *</type>
@@ -157,13 +220,13 @@
 <para>cr_get_advertised_name </para>
         </briefdescription>
         <detaileddescription>
-<para>Retrieves the name stored by cr_set_advertised_name(). <simplesect kind="return"><para>pointer to a string of length REACH_SHORT_STRING_LEN. </para>
+<para>Retrieves the name stored by <ref refid="cr__stack_8c_1a16d910a820e7f9337216cd623d55e66f" kindref="member">cr_set_advertised_name()</ref>. <simplesect kind="return"><para>pointer to a string of length REACH_SHORT_STRING_LEN. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="120" column="12" bodyfile="cr_stack.c" bodystart="365" bodyend="368" declfile="cr_stack.h" declline="120" declcolumn="12"/>
+        <location file="cr_stack.h" line="132" column="12" bodyfile="cr_stack.c" bodystart="371" bodyend="374" declfile="cr_stack.h" declline="132" declcolumn="12"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1ad28b6060e7d1c0641b0a6571995f656d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -175,33 +238,25 @@
           <declname>ticks</declname>
         </param>
         <briefdescription>
+<para>cr_process </para>
         </briefdescription>
         <detaileddescription>
+<para>The application must call <ref refid="cr__stack_8c_1ad28b6060e7d1c0641b0a6571995f656d" kindref="member">cr_process()</ref> regularly as it does most of the work required of Reach. The ticks parameter is expected to be a monotonically increasing value representing the time since the system started. This allows it to perform timing related tasks such as notifications. <ref refid="cr__stack_8c_1ad28b6060e7d1c0641b0a6571995f656d" kindref="member">cr_process()</ref> returns immediately if the device is not connected to BLE. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ticks</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A measure of time passed, typically milliseconds, but the units are not specified. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>cr_ErrorCodes_NO_ERROR or a non-zero error code, however these are indicative only. The non-zero returns indicate normal conditions. </para>
+</simplesect>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="126" column="5" bodyfile="cr_stack.c" bodystart="405" bodyend="491" declfile="cr_stack.h" declline="126" declcolumn="5"/>
-      </memberdef>
-      <memberdef kind="function" id="cr__stack_8h_1a97b5d59390752d905648adaae504983a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>int</type>
-        <definition>int crcb_get_coded_prompt</definition>
-        <argsstring>(uint8_t *prompt, size_t *len)</argsstring>
-        <name>crcb_get_coded_prompt</name>
-        <param>
-          <type>uint8_t *</type>
-          <declname>prompt</declname>
-        </param>
-        <param>
-          <type>size_t *</type>
-          <declname>len</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="cr_stack.h" line="140" column="5" declfile="cr_stack.h" declline="140" declcolumn="5"/>
+        <location file="cr_stack.h" line="138" column="5" bodyfile="cr_stack.c" bodystart="431" bodyend="516" declfile="cr_stack.h" declline="138" declcolumn="5"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1af1732a5d9ee5f83c4360448ae4452b34" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -217,39 +272,33 @@
           <declname>len</declname>
         </param>
         <briefdescription>
-<para>cr_set_advertised_name </para>
+<para>cr_store_coded_prompt </para>
         </briefdescription>
         <detaileddescription>
-<para>Set the name of the device that should be advertised before connecting. Used in BLE. <simplesect kind="note"><para>Just store the string up to length REACH_SHORT_STRING_LEN. The code setting up the link can retrieve this using <ref refid="cr__stack_8c_1a0455e201acdd200cfad17c663073a491" kindref="member">cr_get_advertised_name()</ref> </para>
-</simplesect>
+<para>allows the application to store the prompt where the Reach stack can see it. The byte data and length are copied into private storage. This data is retrieved using crcb_get_coded_prompt(). <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The coded prompt to be stored. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: number of bytes to be stored. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
 <simplesect kind="return"><para>cr_ErrorCodes_NO_ERROR or a non-zero error code. </para>
 </simplesect>
 </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="143" column="5" bodyfile="cr_stack.c" bodystart="380" bodyend="387" declfile="cr_stack.h" declline="143" declcolumn="5"/>
-      </memberdef>
-      <memberdef kind="function" id="cr__stack_8h_1a2425b316220a950df2f5df91839227f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>int</type>
-        <definition>int crcb_send_coded_response</definition>
-        <argsstring>(const uint8_t *response, size_t len)</argsstring>
-        <name>crcb_send_coded_response</name>
-        <param>
-          <type>const uint8_t *</type>
-          <declname>response</declname>
-        </param>
-        <param>
-          <type>size_t</type>
-          <declname>len</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="cr_stack.h" line="148" column="5" declfile="cr_stack.h" declline="148" declcolumn="5"/>
+        <location file="cr_stack.h" line="141" column="5" bodyfile="cr_stack.c" bodystart="385" bodyend="392" declfile="cr_stack.h" declline="141" declcolumn="5"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1ab475ae83a3ac8917b289852d0a0aa6ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>int</type>
@@ -259,18 +308,41 @@
         <param>
           <type>uint8_t **</type>
           <declname>pResponse</declname>
+          <defname>ppResponse</defname>
         </param>
         <param>
           <type>size_t *</type>
           <declname>len</declname>
+          <defname>pLen</defname>
         </param>
         <briefdescription>
+<para>cr_get_coded_response_buffer </para>
         </briefdescription>
         <detaileddescription>
+<para>Retrieve the adress of the &quot;coded response buffer&quot;. This buffer contains the response to a prompt, coded according to protobuf specs, to be transmitted to the client. The stored coded length is zeroed by this call. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ppResponse</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to pointer to bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pLen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: pointer to the number of bytes for transmission. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>cr_ErrorCodes_NO_ERROR or a non-zero error code. </para>
+</simplesect>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="149" column="5" bodyfile="cr_stack.c" bodystart="389" bodyend="397" declfile="cr_stack.h" declline="149" declcolumn="5"/>
+        <location file="cr_stack.h" line="143" column="5" bodyfile="cr_stack.c" bodystart="404" bodyend="412" declfile="cr_stack.h" declline="143" declcolumn="5"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1ae7166504541451a189a7b1e30d3118f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -291,7 +363,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="152" column="6" declfile="cr_stack.h" declline="152" declcolumn="6"/>
+        <location file="cr_stack.h" line="146" column="6" declfile="cr_stack.h" declline="146" declcolumn="6"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1ad454aec65a19531cefb2ed921c2d6b64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -312,7 +384,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="154" column="6" declfile="cr_stack.h" declline="154" declcolumn="6"/>
+        <location file="cr_stack.h" line="148" column="6" declfile="cr_stack.h" declline="148" declcolumn="6"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1a516393a2f8a30416f04285bf3dbcd010" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -331,35 +403,37 @@
           <type>...</type>
         </param>
         <briefdescription>
+<para>cr_report_error </para>
         </briefdescription>
         <detaileddescription>
+<para>Report an error condition to the client. This can be called at any point as the report to the client is asynchronous and immediate. The stack can be configured to use only the error code, but the printf-like string describing the error condition is encouraged. This is intended to make it easier to find and eliminate errors during development. <parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>error_code</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: Use of the cr_ErrorCodes_ enum is encouraged but not required. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>: A printf-like string with variables. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="157" column="6" bodyfile="cr_stack.c" bodystart="537" bodyend="578" declfile="cr_stack.h" declline="157" declcolumn="6"/>
+        <location file="cr_stack.h" line="151" column="6" bodyfile="cr_stack.c" bodystart="583" bodyend="624" declfile="cr_stack.h" declline="151" declcolumn="6"/>
       </memberdef>
-      <memberdef kind="function" id="cr__stack_8h_1a3b11bcf43cdbfb72f4f57e10cda502e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>int</type>
-        <definition>int crcb_notify_error</definition>
-        <argsstring>(cr_ErrorReport *err)</argsstring>
-        <name>crcb_notify_error</name>
-        <param>
-          <type>cr_ErrorReport *</type>
-          <declname>err</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="cr_stack.h" line="158" column="5" declfile="cr_stack.h" declline="158" declcolumn="5"/>
-      </memberdef>
-      <memberdef kind="function" id="cr__stack_8h_1a309d1592e6bca704064924348b5faa67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="cr__stack_8h_1ad1095632068473688fc3208985c1d01b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
-        <definition>void cr_set_ble_connected</definition>
+        <definition>void cr_set_comm_link_connected</definition>
         <argsstring>(bool connected)</argsstring>
-        <name>cr_set_ble_connected</name>
+        <name>cr_set_comm_link_connected</name>
         <param>
           <type>bool</type>
           <declname>connected</declname>
@@ -370,23 +444,27 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="160" column="6" bodyfile="cr_stack.c" bodystart="513" bodyend="530" declfile="cr_stack.h" declline="160" declcolumn="6"/>
+        <location file="cr_stack.h" line="153" column="6" bodyfile="cr_stack.c" bodystart="542" bodyend="559" declfile="cr_stack.h" declline="153" declcolumn="6"/>
       </memberdef>
-      <memberdef kind="function" id="cr__stack_8h_1a4aebef6306c8823d394d73df04684a86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+      <memberdef kind="function" id="cr__stack_8h_1a9c0aef7d4122da3699fab4a72a802832" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>bool</type>
-        <definition>bool cr_get_ble_connected</definition>
+        <definition>bool cr_get_comm_link_connected</definition>
         <argsstring>(void)</argsstring>
-        <name>cr_get_ble_connected</name>
+        <name>cr_get_comm_link_connected</name>
         <param>
           <type>void</type>
         </param>
         <briefdescription>
+<para>cr_get_comm_link_connected </para>
         </briefdescription>
         <detaileddescription>
+<para>Returns what was set using cr_set_comm_link_connected(). <simplesect kind="return"><para>true if the communication link is connected. </para>
+</simplesect>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="161" column="6" bodyfile="cr_stack.c" bodystart="532" bodyend="535" declfile="cr_stack.h" declline="161" declcolumn="6"/>
+        <location file="cr_stack.h" line="154" column="6" bodyfile="cr_stack.c" bodystart="566" bodyend="569" declfile="cr_stack.h" declline="154" declcolumn="6"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1ac3be80269e1e885655edb9f3bdea2e96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>uint32_t</type>
@@ -394,12 +472,16 @@
         <argsstring>()</argsstring>
         <name>cr_get_current_ticks</name>
         <briefdescription>
+<para>cr_get_current_ticks </para>
         </briefdescription>
         <detaileddescription>
+<para>The tick count is passed in to <ref refid="cr__stack_8c_1ad28b6060e7d1c0641b0a6571995f656d" kindref="member">cr_process()</ref>. This function gives other Reach functions access to that value. <simplesect kind="return"><para>The same tick count passed into <ref refid="cr__stack_8c_1ad28b6060e7d1c0641b0a6571995f656d" kindref="member">cr_process()</ref>. </para>
+</simplesect>
+</para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="163" column="10" bodyfile="cr_stack.c" bodystart="499" bodyend="503" declfile="cr_stack.h" declline="163" declcolumn="10"/>
+        <location file="cr_stack.h" line="156" column="10" bodyfile="cr_stack.c" bodystart="525" bodyend="529" declfile="cr_stack.h" declline="156" declcolumn="10"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1a16ccedefa64bb122fda0990567e8499c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>void</type>
@@ -412,7 +494,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="165" column="6" bodyfile="cr_stack.c" bodystart="635" bodyend="709" declfile="cr_stack.h" declline="165" declcolumn="6"/>
+        <location file="cr_stack.h" line="158" column="6" bodyfile="cr_stack.c" bodystart="681" bodyend="756" declfile="cr_stack.h" declline="158" declcolumn="6"/>
       </memberdef>
       <memberdef kind="function" id="cr__stack_8h_1ac4de55cd1a8df4e01f0dbc1fb788284f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
         <type>const char *</type>
@@ -420,51 +502,27 @@
         <argsstring>()</argsstring>
         <name>cr_get_reach_version</name>
         <briefdescription>
+<para>cr_get_reach_version </para>
         </briefdescription>
         <detaileddescription>
+<para>Returns the version of the Reach C stack. </para>
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="cr_stack.h" line="169" column="12" bodyfile="cr_stack.c" bodystart="975" bodyend="978" declfile="cr_stack.h" declline="169" declcolumn="12"/>
-      </memberdef>
-      <memberdef kind="function" id="cr__stack_8h_1aa6ab171c64b3b26d3a82854ac940ae06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>int</type>
-        <definition>int crcb_device_get_info</definition>
-        <argsstring>(cr_DeviceInfoResponse *pDi)</argsstring>
-        <name>crcb_device_get_info</name>
-        <param>
-          <type>cr_DeviceInfoResponse *</type>
-          <declname>pDi</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="cr_stack.h" line="179" column="5" declfile="cr_stack.h" declline="179" declcolumn="5"/>
-      </memberdef>
-      <memberdef kind="function" id="cr__stack_8h_1a41420e3431871f32a2df1e214da86ced" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>int</type>
-        <definition>int crcb_ping_get_signal_strength</definition>
-        <argsstring>(int8_t *rssi)</argsstring>
-        <name>crcb_ping_get_signal_strength</name>
-        <param>
-          <type>int8_t *</type>
-          <declname>rssi</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="cr_stack.h" line="185" column="5" declfile="cr_stack.h" declline="185" declcolumn="5"/>
+        <location file="cr_stack.h" line="207" column="12" bodyfile="cr_stack.c" bodystart="1027" bodyend="1030" declfile="cr_stack.h" declline="207" declcolumn="12"/>
       </memberdef>
     </sectiondef>
     <briefdescription>
+<para>This file exposes the core of the public Reach stack API. It depends on reach-server.h which defines what parts of the stack are being used by an applicaiton. <ref refid="crcb__weak_8h_source" kindref="compound">crcb_weak.h</ref> is incluced. That is the part of the API that must be implemented by a server application. </para>
     </briefdescription>
     <detaileddescription>
+<para><simplesect kind="author"><para>Chuck Peplinski </para>
+</simplesect>
+<simplesect kind="date"><para>2024-01-24 </para>
+</simplesect>
+<simplesect kind="copyright"><para>(c) Copyright 2023 i3 Product Development. All Rights Reserved. The Cygngus Reach firmware stack is shared under an MIT license. </para>
+</simplesect>
+</para>
     </detaileddescription>
     <programlisting>
 <codeline lineno="1"><highlight class="comment">/*</highlight></codeline>
@@ -506,331 +564,144 @@
 <codeline lineno="37"><highlight class="comment"><sp/>*</highlight></codeline>
 <codeline lineno="38"><highlight class="comment"><sp/>********************************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="39"><highlight class="normal"></highlight></codeline>
-<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_CR_STACK_H</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_CR_STACK_H</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="42"><highlight class="normal"></highlight></codeline>
-<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="46"><highlight class="normal"></highlight></codeline>
-<codeline lineno="47"><highlight class="normal"></highlight><highlight class="comment">//<sp/>reach-server.h<sp/>defines<sp/>the<sp/>build<sp/>configuration<sp/>of<sp/>the<sp/>Reach<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>includes<sp/>which<sp/>services,<sp/>and<sp/>the<sp/>basic<sp/>size<sp/>of<sp/>structures<sp/>appropriate<sp/>for<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="49"><highlight class="normal"></highlight><highlight class="comment">//<sp/>current<sp/>transport<sp/>means.<sp/><sp/>For<sp/>example,<sp/>BLE.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;reach-server.h&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="51"><highlight class="normal"></highlight></codeline>
-<codeline lineno="52"><highlight class="normal"></highlight><highlight class="comment">//<sp/>reach.pb.h<sp/>is<sp/>generated<sp/>by<sp/>nanopb<sp/>based<sp/>on<sp/>the<sp/>protobuf<sp/>file<sp/>reach.proto.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;reach.pb.h&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="reach__ble__proto__sizes_8h" kindref="compound">reach_ble_proto_sizes.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>_CR_STACK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_CR_STACK_H</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="55"><highlight class="normal"></highlight></codeline>
-<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
-<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="59"><highlight class="normal"></highlight></codeline>
-<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Conventions:</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Naming<sp/>convention:<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>cr_<sp/>prefix<sp/>(for<sp/>Cygnus<sp/>Reach),<sp/>then<sp/>service<sp/>name,<sp/>then<sp/>verb.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="65"><highlight class="normal"></highlight><highlight class="comment">//<sp/>crcb_<sp/>prefix<sp/>for<sp/>the<sp/>&quot;weak&quot;<sp/>callback<sp/>functions<sp/>required.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">//<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">//<sp/>All<sp/>API<sp/>functions<sp/>return<sp/>zero<sp/>on<sp/>success<sp/>or<sp/>an<sp/>identifiable<sp/>error<sp/>code.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="68"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">//<sp/>There<sp/>are<sp/>a<sp/>small<sp/>number<sp/>of<sp/>API<sp/>functions<sp/>that<sp/>are<sp/>to<sp/>be<sp/>called<sp/>by</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="70"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>hosting<sp/>application.<sp/><sp/>Most<sp/>of<sp/>the<sp/>functions<sp/>in<sp/>the<sp/>API<sp/>are<sp/>to<sp/>be<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">//<sp/>provided<sp/>by<sp/>the<sp/>application.<sp/><sp/>The<sp/>reach<sp/>stack<sp/>provides<sp/>&quot;weak&quot;<sp/>declared</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="72"><highlight class="normal"></highlight><highlight class="comment">//<sp/>versions<sp/>so<sp/>the<sp/>application<sp/>provide<sp/>only<sp/>what<sp/>is<sp/>required.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="73"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>stack<sp/>can<sp/>be<sp/>built<sp/>to<sp/>report<sp/>errors<sp/>if<sp/>required<sp/>weak<sp/>functions<sp/>are<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">//<sp/>not<sp/>overridden.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="75"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="76"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>configuration<sp/>structures<sp/>that<sp/>must<sp/>be<sp/>passed<sp/>in<sp/>to<sp/>the<sp/>stack<sp/>to<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">//<sp/>describe<sp/><sp/>the<sp/>system<sp/>are<sp/>designed<sp/>to<sp/>be<sp/>constant<sp/>and<sp/>stored<sp/>in<sp/>flash<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="78"><highlight class="normal"></highlight><highlight class="comment">//<sp/>if<sp/>the<sp/>application<sp/>desires.<sp/><sp/>This<sp/>allows<sp/>for<sp/>a<sp/>minimum<sp/>use<sp/>of<sp/>RAM.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="79"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="80"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Lists<sp/>of<sp/>items<sp/>such<sp/>as<sp/>parameters,<sp/>command,<sp/>files,<sp/>etc<sp/>are<sp/>handled<sp/>using</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="81"><highlight class="normal"></highlight><highlight class="comment">//<sp/>an<sp/>iterator<sp/>pattern.<sp/><sp/>A<sp/>function<sp/>gets<sp/>the<sp/>next<sp/>item<sp/>and<sp/>a<sp/>reset<sp/>function</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="82"><highlight class="normal"></highlight><highlight class="comment">//<sp/>is<sp/>available.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>all<sp/>cases,<sp/>resetting<sp/>to<sp/>zero<sp/>will<sp/>select<sp/>the<sp/>lowest<sp/>available<sp/>object.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="85"><highlight class="normal"></highlight></codeline>
-<codeline lineno="86"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">//<sp/>API</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="88"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="89"><highlight class="normal"></highlight></codeline>
-<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Error<sp/>codes<sp/>are<sp/>defined<sp/>in<sp/>the<sp/>proto<sp/>file<sp/>so<sp/>that<sp/>the<sp/>client<sp/>can<sp/>see<sp/>them.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="92"><highlight class="normal"></highlight><highlight class="comment">//<sp/>an<sp/>arbitary<sp/>minimum<sp/>size<sp/>for<sp/>the<sp/>buffers</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">//<sp/>#define<sp/>CR_MINIMUM_MESSAGE_BUFFER_SIZE<sp/><sp/>72</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="94"><highlight class="normal"></highlight></codeline>
-<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>REACH_TIMEOUT<sp/><sp/><sp/>5000<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>5<sp/>seconds<sp/>in<sp/>ms</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="96"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
-<codeline lineno="97"><highlight class="comment">//----------------------------------------------------------------------------</highlight></codeline>
-<codeline lineno="98"><highlight class="comment">//<sp/>static<sp/>buffers<sp/>used<sp/>and<sp/>reused<sp/>by<sp/>the<sp/>reach<sp/>stack.</highlight></codeline>
-<codeline lineno="99"><highlight class="comment">//----------------------------------------------------------------------------</highlight></codeline>
-<codeline lineno="100"><highlight class="comment"></highlight></codeline>
-<codeline lineno="101"><highlight class="comment">//<sp/>Terminology</highlight></codeline>
-<codeline lineno="102"><highlight class="comment">//<sp/><sp/><sp/>A<sp/>transaction<sp/>is<sp/>a<sp/>series<sp/>of<sp/>messages.</highlight></codeline>
-<codeline lineno="103"><highlight class="comment">//<sp/><sp/><sp/>A<sp/>message<sp/>has<sp/>a<sp/>header<sp/>and<sp/>a<sp/>payload.</highlight></codeline>
-<codeline lineno="104"><highlight class="comment">//<sp/><sp/><sp/>The<sp/>prompt<sp/>is<sp/>a<sp/>received<sp/>payload.</highlight></codeline>
-<codeline lineno="105"><highlight class="comment">//<sp/><sp/><sp/>The<sp/>response<sp/>is<sp/>a<sp/>generated<sp/>payload.</highlight></codeline>
-<codeline lineno="106"><highlight class="comment"><sp/></highlight></codeline>
-<codeline lineno="107"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="108"><highlight class="normal"></highlight></codeline>
-<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ALIGN_TO_WORD<sp/><sp/><sp/>__attribute__((aligned(4)))</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="110"><highlight class="normal"></highlight></codeline>
-<codeline lineno="111"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="112"><highlight class="normal"></highlight><highlight class="comment">//<sp/>To<sp/>be<sp/>called<sp/>once<sp/>before<sp/>cr_process<sp/>is<sp/>called.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="113"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8c_1aa30199827c6ac809190a2494b2a66a13" kindref="member">cr_init</ref>();</highlight></codeline>
-<codeline lineno="114"><highlight class="normal"></highlight></codeline>
-<codeline lineno="115"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>application<sp/>should<sp/>set<sp/>the<sp/>name<sp/>of<sp/>the<sp/>device<sp/>to<sp/>be<sp/>advertised.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="116"><highlight class="normal"></highlight><highlight class="comment">//<sp/>If<sp/>the<sp/>length<sp/>exceeds<sp/>the<sp/>maximum,<sp/>the<sp/>max<sp/>length<sp/>will<sp/>be<sp/>returned.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="117"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cr_set_advertised_name(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>length);</highlight></codeline>
-<codeline lineno="118"><highlight class="normal"></highlight></codeline>
-<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">//<sp/>to<sp/>be<sp/>used<sp/>by<sp/>the<sp/>transport<sp/>code<sp/>to<sp/>get<sp/>the<sp/>name.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="cr__stack_8c_1a0455e201acdd200cfad17c663073a491" kindref="member">cr_get_advertised_name</ref>();</highlight></codeline>
-<codeline lineno="121"><highlight class="normal"></highlight></codeline>
-<codeline lineno="122"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>application<sp/>must<sp/>call<sp/>cr_process()<sp/>regularly.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="123"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ticks<sp/>tells<sp/>it<sp/>approximately<sp/>how<sp/>many<sp/><sp/>milliseconds<sp/>have<sp/>passed<sp/>since<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="124"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>system<sp/>started.<sp/><sp/>This<sp/>allows<sp/>it<sp/>to<sp/>perform<sp/>timing<sp/>related<sp/>tasks.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="125"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Most<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="126"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cr_process(uint32_t<sp/>ticks);</highlight></codeline>
-<codeline lineno="127"><highlight class="normal"></highlight></codeline>
-<codeline lineno="128"><highlight class="normal"></highlight></codeline>
-<codeline lineno="129"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>cr_process<sp/>function<sp/>calls<sp/>crcb_get_coded_prompt()<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="130"><highlight class="normal"></highlight><highlight class="comment">//<sp/>to<sp/>get<sp/>any<sp/>available<sp/>prompt<sp/>in<sp/>coded<sp/>format.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="131"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>implementation<sp/>copies<sp/>the<sp/>data<sp/>into<sp/>the<sp/>provided<sp/>buffer<sp/>and<sp/>sets<sp/>the<sp/>size.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="132"><highlight class="normal"></highlight><highlight class="comment">//<sp/>cr_store_coded_prompt()<sp/>can<sp/>be<sp/>used<sp/>to<sp/>push<sp/>data<sp/>into<sp/>the<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="133"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Then<sp/><sp/>crcb_get_coded_prompt()<sp/>can<sp/>remain<sp/>in<sp/>its<sp/>weak<sp/>state,<sp/>as<sp/>the<sp/>data<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="134"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>is<sp/>already<sp/>where<sp/>it<sp/>belongs.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="135"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>len<sp/>variable<sp/>must<sp/>specify<sp/>the<sp/>number<sp/>of<sp/>valid<sp/>bytes<sp/>in<sp/>the<sp/>supplied<sp/>prompt.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="136"><highlight class="normal"></highlight><highlight class="comment">//<sp/>crcb_get_coded_prompt()<sp/>must<sp/>not<sp/>block<sp/>as<sp/>that<sp/>would<sp/>disable<sp/>any<sp/>notifications.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="137"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Return<sp/>cr_ErrorCodes_NO_ERROR<sp/>if<sp/>prompt<sp/>data<sp/>is<sp/>supplied.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="138"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Return<sp/>cr_ErrorCodes_NO_DATA<sp/>if<sp/>no<sp/>data<sp/>is<sp/>available.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="139"><highlight class="normal"></highlight><highlight class="comment">//<sp/>A<sp/>message<sp/>larger<sp/>than<sp/>CR_CODED_BUFFER_SIZE<sp/>is<sp/>fatal.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_get_coded_prompt(uint8_t<sp/>*prompt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len);</highlight></codeline>
-<codeline lineno="141"><highlight class="normal"></highlight></codeline>
-<codeline lineno="142"><highlight class="normal"></highlight><highlight class="comment">//<sp/>allows<sp/>the<sp/>app<sp/>to<sp/>store<sp/>the<sp/>coded<sp/>prompt<sp/>in<sp/>the<sp/>memory<sp/>held<sp/>by<sp/>the<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8c_1af1732a5d9ee5f83c4360448ae4452b34" kindref="member">cr_store_coded_prompt</ref>(uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">//<sp/>reach-server.h<sp/>defines<sp/>the<sp/>build<sp/>configuration<sp/>of<sp/>the<sp/>Reach<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">//<sp/>This<sp/>includes<sp/>which<sp/>services,<sp/>and<sp/>the<sp/>basic<sp/>size<sp/>of<sp/>structures<sp/>appropriate<sp/>for<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">//<sp/>current<sp/>transport<sp/>means.<sp/><sp/>For<sp/>example,<sp/>BLE.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;reach-server.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;crcb_weak.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">//<sp/>reach.pb.h<sp/>is<sp/>generated<sp/>by<sp/>nanopb<sp/>based<sp/>on<sp/>the<sp/>protobuf<sp/>file<sp/>reach.proto.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;reach.pb.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="reach__ble__proto__sizes_8h" kindref="compound">reach_ble_proto_sizes.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Conventions:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Naming<sp/>convention:<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>cr_<sp/>prefix<sp/>(for<sp/>Cygnus<sp/>Reach),<sp/>then<sp/>service<sp/>name,<sp/>then<sp/>verb.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="comment">//<sp/>crcb_<sp/>prefix<sp/>for<sp/>the<sp/>&quot;weak&quot;<sp/>callback<sp/>functions<sp/>required.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="comment">//<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="comment">//<sp/>All<sp/>API<sp/>functions<sp/>return<sp/>zero<sp/>on<sp/>success<sp/>or<sp/>an<sp/>identifiable<sp/>error<sp/>code.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">//<sp/>There<sp/>are<sp/>a<sp/>small<sp/>number<sp/>of<sp/>API<sp/>functions<sp/>that<sp/>are<sp/>to<sp/>be<sp/>called<sp/>by</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>hosting<sp/>application.<sp/><sp/>Most<sp/>of<sp/>the<sp/>functions<sp/>in<sp/>the<sp/>API<sp/>are<sp/>to<sp/>be<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="comment">//<sp/>provided<sp/>by<sp/>the<sp/>application.<sp/><sp/>The<sp/>reach<sp/>stack<sp/>provides<sp/>&quot;weak&quot;<sp/>declared</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="comment">//<sp/>versions<sp/>so<sp/>the<sp/>application<sp/>provide<sp/>only<sp/>what<sp/>is<sp/>required.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>stack<sp/>can<sp/>be<sp/>built<sp/>to<sp/>report<sp/>errors<sp/>if<sp/>required<sp/>weak<sp/>functions<sp/>are<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="comment">//<sp/>not<sp/>overridden.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>configuration<sp/>structures<sp/>that<sp/>must<sp/>be<sp/>passed<sp/>in<sp/>to<sp/>the<sp/>stack<sp/>to<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="comment">//<sp/>describe<sp/><sp/>the<sp/>system<sp/>are<sp/>designed<sp/>to<sp/>be<sp/>constant<sp/>and<sp/>stored<sp/>in<sp/>flash<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="comment">//<sp/>if<sp/>the<sp/>application<sp/>desires.<sp/><sp/>This<sp/>allows<sp/>for<sp/>a<sp/>minimum<sp/>use<sp/>of<sp/>RAM.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Lists<sp/>of<sp/>items<sp/>such<sp/>as<sp/>parameters,<sp/>command,<sp/>files,<sp/>etc<sp/>are<sp/>handled<sp/>using</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="comment">//<sp/>an<sp/>iterator<sp/>pattern.<sp/><sp/>A<sp/>function<sp/>gets<sp/>the<sp/>next<sp/>item<sp/>and<sp/>a<sp/>reset<sp/>function</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="comment">//<sp/>is<sp/>available.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>all<sp/>cases,<sp/>resetting<sp/>to<sp/>zero<sp/>will<sp/>select<sp/>the<sp/>lowest<sp/>available<sp/>object.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="comment">//</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MAX_NUM_PARAM_ID<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>32767<sp/></highlight><highlight class="comment">//<sp/>16<sp/>bits</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="comment">//<sp/>API</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Error<sp/>codes<sp/>are<sp/>defined<sp/>in<sp/>the<sp/>proto<sp/>file<sp/>so<sp/>that<sp/>the<sp/>client<sp/>can<sp/>see<sp/>them.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="109"><highlight class="comment">//----------------------------------------------------------------------------</highlight></codeline>
+<codeline lineno="110"><highlight class="comment">//<sp/>static<sp/>buffers<sp/>used<sp/>and<sp/>reused<sp/>by<sp/>the<sp/>reach<sp/>stack.</highlight></codeline>
+<codeline lineno="111"><highlight class="comment">//----------------------------------------------------------------------------</highlight></codeline>
+<codeline lineno="112"><highlight class="comment"></highlight></codeline>
+<codeline lineno="113"><highlight class="comment">//<sp/>Terminology</highlight></codeline>
+<codeline lineno="114"><highlight class="comment">//<sp/><sp/><sp/>A<sp/>transaction<sp/>is<sp/>a<sp/>series<sp/>of<sp/>messages.</highlight></codeline>
+<codeline lineno="115"><highlight class="comment">//<sp/><sp/><sp/>A<sp/>message<sp/>has<sp/>a<sp/>header<sp/>and<sp/>a<sp/>payload.</highlight></codeline>
+<codeline lineno="116"><highlight class="comment">//<sp/><sp/><sp/>The<sp/>prompt<sp/>is<sp/>a<sp/>received<sp/>payload.</highlight></codeline>
+<codeline lineno="117"><highlight class="comment">//<sp/><sp/><sp/>The<sp/>response<sp/>is<sp/>a<sp/>generated<sp/>payload.</highlight></codeline>
+<codeline lineno="118"><highlight class="comment"><sp/></highlight></codeline>
+<codeline lineno="119"><highlight class="comment">*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ALIGN_TO_WORD<sp/><sp/><sp/>__attribute__((aligned(4)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="comment">//----------------------------------------------------------------------------</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="comment">//<sp/>To<sp/>be<sp/>called<sp/>once<sp/>before<sp/>cr_process<sp/>is<sp/>called.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8h_1aa30199827c6ac809190a2494b2a66a13" kindref="member">cr_init</ref>();</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>application<sp/>should<sp/>set<sp/>the<sp/>name<sp/>of<sp/>the<sp/>device<sp/>to<sp/>be<sp/>advertised.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="comment">//<sp/>If<sp/>the<sp/>length<sp/>exceeds<sp/>the<sp/>maximum,<sp/>the<sp/>max<sp/>length<sp/>will<sp/>be<sp/>returned.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8h_1a16d910a820e7f9337216cd623d55e66f" kindref="member">cr_set_advertised_name</ref>(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>length);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="comment">//<sp/>to<sp/>be<sp/>used<sp/>by<sp/>the<sp/>transport<sp/>code<sp/>to<sp/>get<sp/>the<sp/>name.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="cr__stack_8h_1a0455e201acdd200cfad17c663073a491" kindref="member">cr_get_advertised_name</ref>();</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>application<sp/>must<sp/>call<sp/>cr_process()<sp/>regularly.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="comment">//<sp/>ticks<sp/>tells<sp/>it<sp/>approximately<sp/>how<sp/>many<sp/><sp/>milliseconds<sp/>have<sp/>passed<sp/>since<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="comment">//<sp/>the<sp/>system<sp/>started.<sp/><sp/>This<sp/>allows<sp/>it<sp/>to<sp/>perform<sp/>timing<sp/>related<sp/>tasks.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Most<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8h_1ad28b6060e7d1c0641b0a6571995f656d" kindref="member">cr_process</ref>(uint32_t<sp/>ticks);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="comment">//<sp/>allows<sp/>the<sp/>app<sp/>to<sp/>store<sp/>the<sp/>coded<sp/>prompt<sp/>in<sp/>the<sp/>memory<sp/>held<sp/>by<sp/>the<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8h_1af1732a5d9ee5f83c4360448ae4452b34" kindref="member">cr_store_coded_prompt</ref>(uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8h_1ab475ae83a3ac8917b289852d0a0aa6ec" kindref="member">cr_get_coded_response_buffer</ref>(uint8_t<sp/>**pResponse,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len);</highlight></codeline>
 <codeline lineno="144"><highlight class="normal"></highlight></codeline>
-<codeline lineno="145"><highlight class="normal"></highlight></codeline>
-<codeline lineno="146"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>cr_process<sp/>function<sp/>calls<sp/>crcb_send_coded_response()<sp/>to<sp/>send<sp/>responses<sp/>to<sp/>the<sp/>client.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="147"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Returns<sp/>zero<sp/>on<sp/>success.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_send_coded_response(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*response,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
-<codeline lineno="149"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cr_get_coded_response_buffer(uint8_t<sp/>**pResponse,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len);</highlight></codeline>
-<codeline lineno="150"><highlight class="normal"></highlight></codeline>
-<codeline lineno="151"><highlight class="normal"></highlight><highlight class="comment">//<sp/>you<sp/>can<sp/>get<sp/>more<sp/>useful<sp/>error<sp/>reports<sp/>if<sp/>you<sp/>provide<sp/>~128<sp/>bytes<sp/>here.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="152"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_provide_debug_buffer(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
-<codeline lineno="153"><highlight class="normal"></highlight></codeline>
-<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_get_reply_buffer_and_size(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*sz);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="comment">//<sp/>you<sp/>can<sp/>get<sp/>more<sp/>useful<sp/>error<sp/>reports<sp/>if<sp/>you<sp/>provide<sp/>~128<sp/>bytes<sp/>here.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_provide_debug_buffer(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_get_reply_buffer_and_size(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*sz);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="comment">//<sp/>error<sp/>handling<sp/>is<sp/>always<sp/>present</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8h_1a516393a2f8a30416f04285bf3dbcd010" kindref="member">cr_report_error</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>error_code,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fmt,<sp/>...);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_set_comm_link_connected(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>connected);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="cr__stack_8h_1a9c0aef7d4122da3699fab4a72a802832" kindref="member">cr_get_comm_link_connected</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="155"><highlight class="normal"></highlight></codeline>
-<codeline lineno="156"><highlight class="normal"></highlight><highlight class="comment">//<sp/>error<sp/>handling<sp/>is<sp/>always<sp/>present</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="157"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_report_error(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>error_code,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fmt,<sp/>...);</highlight></codeline>
-<codeline lineno="158"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_notify_error(cr_ErrorReport<sp/>*err);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">uint32_t<sp/><ref refid="cr__stack_8h_1ac3be80269e1e885655edb9f3bdea2e96" kindref="member">cr_get_current_ticks</ref>();</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_test_sizes();</highlight></codeline>
 <codeline lineno="159"><highlight class="normal"></highlight></codeline>
-<codeline lineno="160"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_set_ble_connected(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>connected);</highlight></codeline>
-<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>cr_get_ble_connected(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="162"><highlight class="normal"></highlight></codeline>
-<codeline lineno="163"><highlight class="normal">uint32_t<sp/>cr_get_current_ticks();</highlight></codeline>
-<codeline lineno="164"><highlight class="normal"></highlight></codeline>
-<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>cr_test_sizes();</highlight></codeline>
-<codeline lineno="166"><highlight class="normal"></highlight></codeline>
-<codeline lineno="167"><highlight class="normal"></highlight></codeline>
-<codeline lineno="168"><highlight class="normal"></highlight></codeline>
-<codeline lineno="169"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*cr_get_reach_version();</highlight></codeline>
-<codeline lineno="170"><highlight class="normal"></highlight></codeline>
-<codeline lineno="171"><highlight class="normal"></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="172"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Device<sp/>Service<sp/>(required)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="173"><highlight class="normal"></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="174"><highlight class="normal"></highlight></codeline>
-<codeline lineno="175"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>stack<sp/>will<sp/>call<sp/>this<sp/>function.<sp/><sp/>The<sp/>device<sp/>must<sp/>override<sp/>the<sp/>weak<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="176"><highlight class="normal"></highlight><highlight class="comment">//<sp/>implementation<sp/>to<sp/>provide<sp/>a<sp/>valid<sp/>device<sp/>info<sp/>structure<sp/>to<sp/>the<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="177"><highlight class="normal"></highlight><highlight class="comment">//<sp/>response<sp/>message<sp/>members<sp/>like<sp/>hash<sp/>and<sp/>services<sp/>are<sp/>computed<sp/>by<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="178"><highlight class="normal"></highlight><highlight class="comment">//<sp/>reach<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="179"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_device_get_info(cr_DeviceInfoResponse<sp/>*pDi);</highlight></codeline>
-<codeline lineno="180"><highlight class="normal"></highlight></codeline>
-<codeline lineno="181"><highlight class="normal"></highlight></codeline>
-<codeline lineno="182"><highlight class="normal"></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="183"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/>Link<sp/>(ping)<sp/>Service<sp/>(required)</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="184"><highlight class="normal"></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="185"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_ping_get_signal_strength(int8_t<sp/>*rssi);</highlight></codeline>
-<codeline lineno="186"><highlight class="normal"></highlight></codeline>
-<codeline lineno="187"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_CLI_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>CLI<sp/>Service</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="191"><highlight class="normal"></highlight></codeline>
-<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>When<sp/>the<sp/>CLI<sp/>service<sp/>is<sp/>active,<sp/>the<sp/>stack<sp/>can<sp/>provide<sp/>the<sp/>device<sp/>with<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>remotely<sp/>entered<sp/>CLI<sp/>input<sp/>by<sp/>calling<sp/>crcb_cli_enter().</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_cli_enter(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*cli);</highlight></codeline>
-<codeline lineno="195"><highlight class="normal"></highlight></codeline>
-<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>When<sp/>the<sp/>device<sp/>supports<sp/>a<sp/>CLI<sp/>it<sp/>is<sp/>expected<sp/>to<sp/>share<sp/>anything<sp/>printed<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>to<sp/>the<sp/>CLI<sp/>back<sp/>to<sp/>the<sp/>stack<sp/>for<sp/>remote<sp/>display<sp/>using<sp/>crcb_cli_respond()</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_cli_respond(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*cli);</highlight></codeline>
-<codeline lineno="199"><highlight class="normal"></highlight></codeline>
-<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>store<sp/>the<sp/>command<sp/>line<sp/>to<sp/>be<sp/>parsed<sp/>elsewhere</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>crcb_set_command_line(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*ins);</highlight></codeline>
-<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*crcb_get_command_line();</highlight></codeline>
-<codeline lineno="203"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>def<sp/>INCLUDE_CLI_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="204"><highlight class="normal"></highlight></codeline>
-<codeline lineno="205"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_PARAMETER_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>Parameter<sp/>Service</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="209"><highlight class="normal"></highlight></codeline>
-<codeline lineno="210"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>MAX_NUM_PARAM_ID<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>32767<sp/></highlight><highlight class="comment">//<sp/>16<sp/>bits</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168" refid="structreach__sizes__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="169" refid="structreach__sizes__t_1a013f4c2684eed7afb7baf1c5c1817652" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><ref refid="structreach__sizes__t_1a013f4c2684eed7afb7baf1c5c1817652" kindref="member">max_message_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="170" refid="structreach__sizes__t_1af8c20cb7120588cb41750315c1a1edcd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><ref refid="structreach__sizes__t_1af8c20cb7120588cb41750315c1a1edcd" kindref="member">big_data_buffer_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="174" refid="structreach__sizes__t_1a22e04304fa71af1fbc8d3889a002dc73" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a22e04304fa71af1fbc8d3889a002dc73" kindref="member">parameter_buffer_count</ref>;</highlight></codeline>
+<codeline lineno="177" refid="structreach__sizes__t_1a0a18c41b8076b1dcb7de16803646411b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a0a18c41b8076b1dcb7de16803646411b" kindref="member">num_params_in_response</ref>;</highlight></codeline>
+<codeline lineno="180" refid="structreach__sizes__t_1a46cc78459cad7d414cdc21d03011dff0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a46cc78459cad7d414cdc21d03011dff0" kindref="member">device_description_len</ref>;</highlight></codeline>
+<codeline lineno="183" refid="structreach__sizes__t_1a41af873809467792eeabed2e659836e5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a41af873809467792eeabed2e659836e5" kindref="member">max_param_bytes</ref>;</highlight></codeline>
+<codeline lineno="185" refid="structreach__sizes__t_1abed5d5466ab8fb72111fe7800d5aaeb6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1abed5d5466ab8fb72111fe7800d5aaeb6" kindref="member">param_info_description_len</ref>;</highlight></codeline>
+<codeline lineno="187" refid="structreach__sizes__t_1a2ea2b0edc1726c7c36c0c356652ce7dd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a2ea2b0edc1726c7c36c0c356652ce7dd" kindref="member">medium_string_len</ref>;</highlight></codeline>
+<codeline lineno="189" refid="structreach__sizes__t_1a79985c847ea324e6a36e68d4976c28d5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a79985c847ea324e6a36e68d4976c28d5" kindref="member">short_string_len</ref>;</highlight></codeline>
+<codeline lineno="191" refid="structreach__sizes__t_1a852892ee02d36c06d9256b4cd08ce053" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a852892ee02d36c06d9256b4cd08ce053" kindref="member">param_info_enum_count</ref>;</highlight></codeline>
+<codeline lineno="193" refid="structreach__sizes__t_1a8dedad960bf7bce0624b3c50a8af1827" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a8dedad960bf7bce0624b3c50a8af1827" kindref="member">num_descriptors_in_response</ref>;</highlight></codeline>
+<codeline lineno="195" refid="structreach__sizes__t_1ae82dd9688db31f7d0249fe5ab4da9e25" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1ae82dd9688db31f7d0249fe5ab4da9e25" kindref="member">num_param_notifications</ref>;</highlight></codeline>
+<codeline lineno="197" refid="structreach__sizes__t_1ae35f9bfe3573750958693ff55f2e6871" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1ae35f9bfe3573750958693ff55f2e6871" kindref="member">num_commands_in_response</ref>;</highlight></codeline>
+<codeline lineno="200" refid="structreach__sizes__t_1a78e712a63bd7b8a2ac632405b13fe16f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structreach__sizes__t_1a78e712a63bd7b8a2ac632405b13fe16f" kindref="member">num_param_desc_in_response</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}<sp/><ref refid="structreach__sizes__t" kindref="compound">reach_sizes_t</ref>;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>size<sp/>of<sp/>this<sp/>structure<sp/>(REACH_SIZE_STRUCT_SIZE)<sp/>must<sp/>be<sp/>defined<sp/>in<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="comment">//<sp/>reach_ble_proto_sizes.h,<sp/>or<sp/>the<sp/>analogous<sp/>file<sp/>used<sp/>to<sp/>set<sp/>structure<sp/>sizes.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="comment">//<sp/>#define<sp/>REACH_SIZE_STRUCT_SIZE<sp/><sp/><sp/><sp/><sp/><sp/>16</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="cr__stack_8h_1ac4de55cd1a8df4e01f0dbc1fb788284f" kindref="member">cr_get_reach_version</ref>();</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="212"><highlight class="normal"></highlight></codeline>
-<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Gets<sp/>the<sp/>parameter<sp/>description<sp/>for<sp/>the<sp/>next<sp/>parameter.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Allows<sp/>the<sp/>stack<sp/>to<sp/>iterate<sp/>through<sp/>the<sp/>parameter<sp/>list.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Implies<sp/>an<sp/>order<sp/>in<sp/>the<sp/>parameter<sp/>list<sp/>that<sp/>is<sp/>known<sp/>by<sp/>the<sp/>application,</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>but<sp/>not<sp/>directly<sp/>by<sp/>the<sp/>stack.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Parameter<sp/>ID&apos;s<sp/>need<sp/>not<sp/>be<sp/>continuous<sp/>or<sp/>in<sp/>order.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>The<sp/>double<sp/>pointer<sp/>allows<sp/>the<sp/>app<sp/>to<sp/>provide<sp/>a<sp/>pointer<sp/>to<sp/>flash<sp/>memory.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Returns<sp/>zero<sp/>if<sp/>the<sp/>description<sp/>is<sp/>valid.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_discover_next(cr_ParameterInfo<sp/>*desc);</highlight></codeline>
-<codeline lineno="221"><highlight class="normal"></highlight></codeline>
-<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>returns<sp/>the<sp/>number<sp/>of<sp/>parameters<sp/>supported<sp/>by<sp/>the<sp/>system.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_get_count();</highlight></codeline>
-<codeline lineno="224"><highlight class="normal"></highlight></codeline>
-<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Resets<sp/>the<sp/>application&apos;s<sp/>pointer<sp/>into<sp/>the<sp/>parameter<sp/>table<sp/>such<sp/>that<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>the<sp/>next<sp/>call<sp/>to<sp/>crcb_parameter_discover_next()<sp/>will<sp/>return<sp/>the</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>description<sp/>of<sp/>this<sp/>parameter.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_discover_reset(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>pid);</highlight></codeline>
-<codeline lineno="229"><highlight class="normal"></highlight></codeline>
-<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>In<sp/>parallel<sp/>to<sp/>the<sp/>parameter<sp/>discovery,<sp/>use<sp/>this<sp/>to<sp/>find<sp/>out<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>about<sp/>enumerations<sp/>and<sp/>bitfields</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Only<sp/>a<sp/>single<sp/>pointer<sp/>since<sp/>this<sp/>gets<sp/>the<sp/>response<sp/>directly.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_ex_discover_next(cr_ParamExInfoResponse<sp/>*pDesc);</highlight></codeline>
-<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>negative<sp/>pid<sp/>specifes<sp/>all<sp/>pids.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_ex_get_count(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>pid);</highlight></codeline>
-<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_ex_discover_reset(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int32_t<sp/>pid);</highlight></codeline>
-<codeline lineno="237"><highlight class="normal"></highlight></codeline>
-<codeline lineno="238"><highlight class="normal"></highlight></codeline>
-<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>These<sp/>read<sp/>and<sp/>write<sp/>functions<sp/>allow<sp/>the<sp/>stack<sp/>to<sp/>remotely<sp/>access<sp/>the</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>parameter<sp/>repository<sp/>of<sp/>the<sp/>device.<sp/><sp/>The<sp/>parameter<sp/>descripion<sp/>of<sp/>this<sp/>pid</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>specifying<sp/>the<sp/>size<sp/>and<sp/>type<sp/>of<sp/>the<sp/>data<sp/>is<sp/>known<sp/>both<sp/>by<sp/>the<sp/>app<sp/>and<sp/>the<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>The<sp/>data<sp/>is<sp/>copied<sp/>into<sp/>a<sp/>structure<sp/>provided<sp/>by<sp/>the<sp/>app.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Might<sp/>return<sp/>cr_ErrorCodes_READ_FAILED<sp/>or<sp/>cr_ErrorCodes_PERMISSION_DENIED</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_read(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>pid,<sp/>cr_ParameterValue<sp/>*data);</highlight></codeline>
-<codeline lineno="246"><highlight class="normal"></highlight></codeline>
-<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Might<sp/>return<sp/>cr_ErrorCodes_WRITE_FAILED</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_parameter_write(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>pid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cr_ParameterValue<sp/>*data);<sp/></highlight></codeline>
-<codeline lineno="249"><highlight class="normal"></highlight></codeline>
-<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>return<sp/>a<sp/>number<sp/>that<sp/>changes<sp/>if<sp/>the<sp/>parameter<sp/>descriptions<sp/>have<sp/>changed.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>crcb_compute_parameter_hash(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="252"><highlight class="normal"></highlight></codeline>
-<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>parameter<sp/>notifications<sp/>are<sp/>handled<sp/>by<sp/>the<sp/>Reach<sp/>stack.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>The<sp/>stack<sp/>will<sp/>use<sp/>the<sp/>read<sp/>parameters<sp/>to<sp/>be<sp/>notified<sp/>on<sp/>an<sp/>appropriate</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>timescale<sp/>and<sp/>send<sp/>notifications<sp/>if<sp/>enough<sp/>changes.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_notify_param(cr_ParameterValue<sp/>*param);</highlight></codeline>
-<codeline lineno="257"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>def<sp/>INCLUDE_PARAMETER_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="258"><highlight class="normal"></highlight></codeline>
-<codeline lineno="259"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_COMMAND_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>Command<sp/>Service</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_get_command_count();</highlight></codeline>
-<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_command_discover_next(cr_CommandInfo<sp/>*cmd_desc);</highlight></codeline>
-<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_command_discover_reset(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>pid);</highlight></codeline>
-<codeline lineno="266"><highlight class="normal"></highlight></codeline>
-<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>actually<sp/>execute<sp/>the<sp/>command</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_command_execute(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>cid);</highlight></codeline>
-<codeline lineno="269"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>def<sp/>INCLUDE_COMMAND_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="270"><highlight class="normal"></highlight></codeline>
-<codeline lineno="271"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_FILE_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>File<sp/>Service</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_file_discover_next(cr_FileInfo<sp/>*file_desc);</highlight></codeline>
-<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_file_discover_reset(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>fid);</highlight></codeline>
-<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_file_get_file_count();</highlight></codeline>
-<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_file_get_description(uint32_t<sp/>fid,<sp/>cr_FileInfo<sp/>*file_desc);</highlight></codeline>
-<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_file_get_preferred_ack_rate(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_write);</highlight></codeline>
-<codeline lineno="280"><highlight class="normal"></highlight></codeline>
-<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Attempts<sp/>to<sp/>read<sp/>the<sp/>specified<sp/>file.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>returns<sp/>zero<sp/>or<sp/>an<sp/>error<sp/>code</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_read_file(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>fid,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>which<sp/>file</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>offset,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>offset,<sp/>negative<sp/>value<sp/>specifies<sp/>current<sp/>location.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bytes_requested,<sp/><sp/></highlight><highlight class="comment">//<sp/>how<sp/>many<sp/>bytes<sp/>to<sp/>read</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*pData,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>where<sp/>the<sp/>data<sp/>goes</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*bytes_read);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>bytes<sp/>actually<sp/>read,<sp/>negative<sp/>for<sp/>errors.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="288"><highlight class="normal"></highlight></codeline>
-<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>returns<sp/>zero<sp/>or<sp/>an<sp/>error<sp/>code</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_write_file(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>fid,<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>which<sp/>file</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>offset,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>offset,<sp/>negative<sp/>value<sp/>specifies<sp/>current<sp/>location.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bytes,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>how<sp/>many<sp/>bytes<sp/>to<sp/>write</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*pData);<sp/></highlight><highlight class="comment">//<sp/>where<sp/>to<sp/>get<sp/>the<sp/>data<sp/>from</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="294"><highlight class="normal"></highlight></codeline>
-<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>returns<sp/>zero<sp/>or<sp/>an<sp/>error<sp/>code</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_erase_file(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>fid);</highlight></codeline>
-<codeline lineno="297"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>def<sp/>INCLUDE_FILE_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="298"><highlight class="normal"></highlight></codeline>
-<codeline lineno="299"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_OTA_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>OTA<sp/>Service</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/>OTA_id;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>ID<sp/>of<sp/>this<sp/>OTA<sp/>object</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/>OTA_file_id;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Which<sp/>file<sp/>stores<sp/>the<sp/>OTA<sp/>data</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/>OTA_command_id;<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Which<sp/>command<sp/>triggers<sp/>the<sp/>OTA<sp/>sequence</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>cr_OTA_s;</highlight></codeline>
-<codeline lineno="309"><highlight class="normal"></highlight></codeline>
-<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_OTA_discover_next(cr_OTA_s<sp/>*OTA_desc);</highlight></codeline>
-<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_OTA_discover_reset(uint8_t<sp/>OTA_id);</highlight></codeline>
-<codeline lineno="312"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>def<sp/>INCLUDE_OTA_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="313"><highlight class="normal"></highlight></codeline>
-<codeline lineno="314"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_TIME_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>Time<sp/>Service</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Time<sp/>is<sp/>specified<sp/>in<sp/>UTC<sp/>Epoch<sp/>format,<sp/>seconds<sp/>since<sp/>1970.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>More<sp/>than<sp/>32<sp/>bits<sp/>are<sp/>required<sp/>to<sp/>remain<sp/>valid<sp/>past<sp/>2030.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_time_get(uint64_t<sp/>*utc_seconds);</highlight></codeline>
-<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_time_set(uint64_t<sp/>utc_seconds);</highlight></codeline>
-<codeline lineno="322"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>def<sp/>INCLUDE_TIME_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="323"><highlight class="normal"></highlight></codeline>
-<codeline lineno="324"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>INCLUDE_STREAM_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>Stream<sp/>Service</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/>Unlike<sp/>the<sp/>other<sp/>services,<sp/>the<sp/>spec<sp/>says<sp/>that<sp/>streams<sp/>can<sp/>go<sp/>in<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>either<sp/>direction.<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Here<sp/>I<sp/>only<sp/>consider<sp/>streaming<sp/>from<sp/>the<sp/>device.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//*************************************************************************</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="331"><highlight class="normal"></highlight></codeline>
-<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
-<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>str_number<sp/><sp/>=<sp/>0,<sp/><sp/></highlight><highlight class="comment">//<sp/>Array<sp/>of<sp/>numbers<sp/>of<sp/>the<sp/>same<sp/>type</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>str_record<sp/><sp/>=<sp/>1,<sp/><sp/></highlight><highlight class="comment">//<sp/>Array<sp/>of<sp/>objects,<sp/>may<sp/>include<sp/>a<sp/>timestamp</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>str_binary<sp/><sp/>=<sp/>2,<sp/><sp/></highlight><highlight class="comment">//<sp/>binary<sp/>data</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>str_string<sp/><sp/>=<sp/>3,<sp/><sp/></highlight><highlight class="comment">//<sp/>string<sp/>data</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>str_reserved<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>for<sp/>expansion</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>stream_type_e;</highlight></codeline>
-<codeline lineno="339"><highlight class="normal"></highlight></codeline>
-<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream_id;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>ID<sp/>of<sp/>this<sp/>stream<sp/>object</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>access_permissions;<sp/></highlight><highlight class="comment">//<sp/>read,<sp/>write<sp/>or<sp/>both</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*name;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>UTF-8<sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stream_type_e<sp/><sp/>format;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Format<sp/>of<sp/>this<sp/>stream</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*description;</highlight></codeline>
-<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>cr_stream_s;</highlight></codeline>
-<codeline lineno="348"><highlight class="normal"></highlight></codeline>
-<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_stream_discover_next(cr_stream_s<sp/>*stream_desc);</highlight></codeline>
-<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_stream_discover_reset(uint8_t<sp/><sp/>stream_id);</highlight></codeline>
-<codeline lineno="351"><highlight class="normal"></highlight></codeline>
-<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>A<sp/>stream<sp/>is<sp/>sent<sp/>as<sp/>an<sp/>array<sp/>of<sp/>records.</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>crcb_stream_send_packet(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>stream_id,</highlight></codeline>
-<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,</highlight></codeline>
-<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_packets);</highlight></codeline>
-<codeline lineno="356"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>def<sp/>INCLUDE_STREAM_SERVICE</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="357"><highlight class="normal"></highlight></codeline>
-<codeline lineno="358"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="359"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="360"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="361"><highlight class="normal"></highlight></codeline>
-<codeline lineno="362"><highlight class="normal"></highlight></codeline>
-<codeline lineno="363"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>ndef<sp/>_CR_STACK_H</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>ndef<sp/>_CR_STACK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
     </programlisting>
     <location file="cr_stack.h"/>
   </compounddef>
