@@ -1,0 +1,717 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.10.0" xml:lang="en-US">
+  <compounddef id="i3__log_8h" kind="file" language="C++">
+    <compoundname>i3_log.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="yes">reach-server.h</includes>
+    <includes refid="i3__error_8h" local="yes">i3_error.h</includes>
+    <includes refid="text__colors_8h" local="yes">text_colors.h</includes>
+    <includedby refid="i3__log_8c" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c</includedby>
+    <includedby refid="cr__files_8c" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_files.c</includedby>
+    <includedby refid="cr__stack_8c" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_stack.c</includedby>
+    <includedby refid="cr__weak_8c" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_weak.c</includedby>
+    <includedby refid="crcb__weak_8h" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/crcb_weak.h</includedby>
+    <includedby refid="message__util_8c" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/message_util.c</includedby>
+    <includedby refid="reach__decode_8c" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/reach_decode.c</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>i3_error.h</label>
+        <link refid="i3__error_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h</label>
+        <link refid="i3__log_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>text_colors.h</label>
+        <link refid="text__colors_8h_source"/>
+      </node>
+      <node id="5">
+        <label>reach-server.h</label>
+      </node>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>stdio.h</label>
+      </node>
+      <node id="8">
+        <label>stdlib.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c</label>
+        <link refid="i3__log_8c"/>
+      </node>
+      <node id="1">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h</label>
+        <link refid="i3__log_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_files.c</label>
+        <link refid="cr__files_8c"/>
+      </node>
+      <node id="8">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_private.h</label>
+        <link refid="cr__private_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_stack.c</label>
+        <link refid="cr__stack_8c"/>
+      </node>
+      <node id="7">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_stack.h</label>
+        <link refid="cr__stack_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_weak.c</label>
+        <link refid="cr__weak_8c"/>
+      </node>
+      <node id="6">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/crcb_weak.h</label>
+        <link refid="crcb__weak_8h_source"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/message_util.c</label>
+        <link refid="message__util_8c"/>
+      </node>
+      <node id="10">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/reach_decode.c</label>
+        <link refid="reach__decode_8c"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="i3__log_8h_1a4acce57b336ea13e74e65c756d9ccb52" prot="public" static="no">
+        <name>LOG_MASK_ALWAYS</name>
+        <initializer>0x01</initializer>
+        <briefdescription>
+<para>The lowest nibble is reserved to system things. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The logging system used by Reach relies on a &quot;mask&quot; to control the amount of logging. The &quot;mask&quot; concept here is chosen over the &quot;level&quot; concept so that masks can be assigned to specific features. Turning on all of the masks is likely to be too much information. You can turn on the logging from only the modules that you want to debug. Reach uses a few bits. You can assign your own bits. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="53" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1ada906a8d411f28695e5ad71e65927916" prot="public" static="no">
+        <name>LOG_MASK_ERROR</name>
+        <initializer>0x02</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="54" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a62e366d1bd8bc1ad623cda9ac2cff522" prot="public" static="no">
+        <name>LOG_MASK_WARN</name>
+        <initializer>0x04</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="55" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a410ecc58275b44043479a1f7af35fe7b" prot="public" static="no">
+        <name>LOG_MASK_BARE</name>
+        <initializer>0x08</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="56" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a14148239a536628efcbc2a39beeaed12" prot="public" static="no">
+        <name>LOG_MASK_REMOTE</name>
+        <initializer>0x10</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="57" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1ade35013528561f271e548653520cdd54" prot="public" static="no">
+        <name>LOG_MASK_WEAK</name>
+        <initializer>0x20</initializer>
+        <briefdescription>
+<para>These used by Reach features. Enable them to debug and understand. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="60" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a1fdd582c34d7430aed06079ce7ef1466" prot="public" static="no">
+        <name>LOG_MASK_WIRE</name>
+        <initializer>0x40</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="61" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1af45f5a1cb3c8f281fae946908e29ec1c" prot="public" static="no">
+        <name>LOG_MASK_REACH</name>
+        <initializer>0x80</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="62" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1aae4b2a7b74d3a6217e17e259e517ace4" prot="public" static="no">
+        <name>LOG_MASK_PARAMS</name>
+        <initializer>0x100</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="63" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a28caa7b8e445caba9b76ae8633d413ef" prot="public" static="no">
+        <name>LOG_MASK_FILES</name>
+        <initializer>0x200</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="64" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a50e2c002d06ddfb14339129a818c5440" prot="public" static="no">
+        <name>LOG_MASK_BLE</name>
+        <initializer>0x400</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="65" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1abf0933796628153d01c800dcb8383c3e" prot="public" static="no">
+        <name>LOG_MASK_ACME</name>
+        <initializer>0x4000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="66" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a61d37369cb5bacacfb9e37016a55338f" prot="public" static="no">
+        <name>LOG_MASK_DEBUG</name>
+        <initializer>0x8000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="67" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1ab0957ed1c2c5d9a0f01c6def6c17f201" prot="public" static="no">
+        <name>LOG_MASK_TIMEOUT</name>
+        <initializer>0x10000</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="68" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="68" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" prot="public" static="no">
+        <name>I3_LOG</name>
+        <param><defname>m</defname></param>
+        <param><defname>f</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>i3_log(m, f, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Higher bits can be defined and used by the application #include &quot;app_log_masks.h&quot; Logging can be completely excluded from the build by defining NO_REACH_LOGGING in reach-server.h. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="82" column="14" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a950d15a69555c9c763a35a1af5d6a6db" prot="public" static="no">
+        <name>LOG_REACH</name>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>        <ref refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" kindref="member">I3_LOG</ref>(LOG_MASK_REACH, &quot;[%s][%s] &quot; format, __FILE__, __func__, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="83" column="13" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="83" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1abffaf9cecb61026cac6db71a16ace9c5" prot="public" static="no">
+        <name>LOG_ERROR</name>
+        <param><defname>format</defname></param>
+        <param><defname>...</defname></param>
+        <initializer>        i3_log(LOG_MASK_ERROR, &quot;[%s][%s] &quot; format, __FILE__, __func__, ##__VA_ARGS__)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="85" column="13" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="85" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1ab1bf0f4dbecde6dc28f25b33e841ce5a" prot="public" static="no">
+        <name>LOG_DUMP_WIRE</name>
+        <param><defname>banner</defname></param>
+        <param><defname>buf</defname></param>
+        <param><defname>len</defname></param>
+        <initializer>        <ref refid="i3__log_8c_1ab3883f9a81eebb62b08ba9b2d69454ef" kindref="member">i3_log_dump_buffer</ref>(LOG_MASK_WIRE, banner, buf, len)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="87" column="13" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="87" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="define" id="i3__log_8h_1a2a78431fdae40efcaf2a1b091659b7ed" prot="public" static="no">
+        <name>LOG_DUMP_MASK</name>
+        <param><defname>mask</defname></param>
+        <param><defname>banner</defname></param>
+        <param><defname>buf</defname></param>
+        <param><defname>len</defname></param>
+        <initializer>        <ref refid="i3__log_8c_1ab3883f9a81eebb62b08ba9b2d69454ef" kindref="member">i3_log_dump_buffer</ref>(mask, banner, buf, len)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="89" column="13" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" bodystart="89" bodyend="90"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="i3__log_8h_1a7158b49c3856e138394fa544b7622cd8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void i3_log_set_mask</definition>
+        <argsstring>(uint32_t mask)</argsstring>
+        <name>i3_log_set_mask</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+<para>i3_log_set_mask </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the mask which determines whether or not a log statement generates output. See defines starting with LOG_MASK_. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="94" column="6" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c" bodystart="75" bodyend="78" declfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" declline="94" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="i3__log_8h_1a387ee42dbbeaa80a5e522aa5324838e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t i3_log_get_mask</definition>
+        <argsstring>(void)</argsstring>
+        <name>i3_log_get_mask</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>i3_log_set_mask </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Gets the mask which determines whether or not a log statement generates output. See defines starting with LOG_MASK_. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="95" column="10" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c" bodystart="85" bodyend="88" declfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" declline="95" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="i3__log_8h_1a5144ed020d32290b50db3d2c38ae4256" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int i3_log_set_remote_cli_enable</definition>
+        <argsstring>(bool enable)</argsstring>
+        <name>i3_log_set_remote_cli_enable</name>
+        <param>
+          <type>bool</type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The logging functions are simplified when INCLUDE_CLI_SERVICE is not defined. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="98" column="5" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c" bodystart="95" bodyend="99" declfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" declline="98" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="i3__log_8h_1a9f67a1e068b42bc8e103853758a55794" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool i3_log_get_remote_cli_enable</definition>
+        <argsstring>()</argsstring>
+        <name>i3_log_get_remote_cli_enable</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="99" column="6" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c" bodystart="101" bodyend="104" declfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" declline="99" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="i3__log_8h_1a850a0891ec0b739f0f4da33b69afc3f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int i3_log_get_remote_buffer</definition>
+        <argsstring>(char **pRcli)</argsstring>
+        <name>i3_log_get_remote_buffer</name>
+        <param>
+          <type>char **</type>
+          <declname>pRcli</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="104" column="5" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c" bodystart="109" bodyend="113" declfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" declline="104" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="i3__log_8h_1adfc040fe87e98e8388c3f5758ea4e628" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void i3_log</definition>
+        <argsstring>(const uint32_t mask, const char *fmt,...)</argsstring>
+        <name>i3_log</name>
+        <param>
+          <type>const uint32_t</type>
+          <declname>mask</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>fmt</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="109" column="6" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c" bodystart="115" bodyend="142" declfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" declline="109" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="i3__log_8h_1ab3883f9a81eebb62b08ba9b2d69454ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void i3_log_dump_buffer</definition>
+        <argsstring>(const uint32_t mask, const char *banner, const uint8_t *ptr, const size_t len)</argsstring>
+        <name>i3_log_dump_buffer</name>
+        <param>
+          <type>const uint32_t</type>
+          <declname>mask</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>banner</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ptr</declname>
+        </param>
+        <param>
+          <type>const size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>i3_log_dump_buffer </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Directly uses printf to produce a hex dump of a buffer. Used to view the contents of coded buffers sent and received. <simplesect kind="note"><para>The buffer is dumped locally, and not remotely. The width of the dump is set by the DUMP_WIDTH defined just above this function. </para>
+</simplesect>
+<parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Enable or disable using the log module&apos;s mask feature.. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>banner</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A header to be displayed describing the hex dump. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>A buffer of bytes to be displayed. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The number of bytes to be displayed.. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" line="112" column="6" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c" bodystart="318" bodyend="333" declfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h" declline="112" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Public API to the i3_log module. By convention the functions here are documented with their source in the .c file. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="copyright"><para>(c) Copyright 2023 i3 Product Development. All Rights Reserved. The Cygngus Reach firmware stack is shared under an MIT license. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="comment">/********************************************************************************************</highlight></codeline>
+<codeline lineno="2"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/>_<sp/>____<sp/><sp/>___<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_<sp/><sp/><sp/><sp/><sp/>___<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>_</highlight></codeline>
+<codeline lineno="3"><highlight class="comment"><sp/>*<sp/><sp/><sp/>(_)__<sp/>/<sp/>|<sp/>_<sp/>\_<sp/>_<sp/>___<sp/><sp/>__|<sp/>|_<sp/><sp/>_<sp/>__|<sp/>|_<sp/><sp/>|<sp/><sp/><sp/>\<sp/>_____<sp/>_____|<sp/>|___<sp/>_<sp/>__<sp/>_<sp/>__<sp/><sp/>___<sp/>_<sp/>_|<sp/>|_</highlight></codeline>
+<codeline lineno="4"><highlight class="comment"><sp/>*<sp/><sp/><sp/>|<sp/>||_<sp/>\<sp/>|<sp/><sp/>_/<sp/>&apos;_/<sp/>_<sp/>\/<sp/>_`<sp/>|<sp/>||<sp/>/<sp/>_|<sp/><sp/>_|<sp/>|<sp/>|)<sp/>/<sp/>-_)<sp/>V<sp/>/<sp/>-_)<sp/>/<sp/>_<sp/>\<sp/>&apos;_<sp/>\<sp/>&apos;<sp/><sp/>\/<sp/>-_)<sp/>&apos;<sp/>\<sp/><sp/>_|</highlight></codeline>
+<codeline lineno="5"><highlight class="comment"><sp/>*<sp/><sp/><sp/>|_|___/<sp/>|_|<sp/>|_|<sp/>\___/\__,_|\_,_\__|\__|<sp/>|___/\___|\_/\___|_\___/<sp/>.__/_|_|_\___|_||_\__|</highlight></codeline>
+<codeline lineno="6"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>|_|</highlight></codeline>
+<codeline lineno="7"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-----------------------------------</highlight></codeline>
+<codeline lineno="8"><highlight class="comment"><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Copyright<sp/>i3<sp/>Product<sp/>Development<sp/>2023</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*<sp/>\brief<sp/>&quot;i3_log.h&quot;<sp/>specifies<sp/>the<sp/>interface<sp/>to<sp/>a<sp/>basic<sp/>logging<sp/>function.</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/><sp/><sp/>The<sp/>log<sp/>must<sp/>be<sp/>easily<sp/>retargeted<sp/>to<sp/>the<sp/>console<sp/>IO<sp/>of<sp/>the<sp/>target.</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/><sp/><sp/>The<sp/>log<sp/>must<sp/>be<sp/>easily<sp/>connected<sp/>to<sp/>the<sp/>Reach<sp/>CLI<sp/>facility</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/><sp/><sp/>The<sp/>log<sp/>must<sp/>easily<sp/>be<sp/>removed<sp/>for<sp/>very<sp/>small<sp/>targets.</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/>The<sp/>&quot;mask&quot;<sp/>facility<sp/>allows<sp/>users<sp/>to<sp/>turn<sp/>on<sp/>and<sp/>off<sp/>logging<sp/>on<sp/>a<sp/>per<sp/>function<sp/>basis.</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/>Original<sp/>Author:<sp/>Chuck.Peplinski</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>********************************************************************************************/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>LOG_H_</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_H_</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;reach-server.h&quot;</highlight><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>excludes<sp/>logging</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;i3_error.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;text_colors.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="i3__log_8h_1a4acce57b336ea13e74e65c756d9ccb52" refkind="member"><highlight class="preprocessor">#define<sp/>LOG_MASK_ALWAYS<sp/><sp/><sp/><sp/><sp/>0x01<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_ERROR<sp/><sp/><sp/><sp/><sp/><sp/>0x02<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_WARN<sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x04<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_BARE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x08<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_REMOTE<sp/><sp/><sp/><sp/><sp/>0x10<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="i3__log_8h_1ade35013528561f271e548653520cdd54" refkind="member"><highlight class="preprocessor">#define<sp/>LOG_MASK_WEAK<sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x20<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_WIRE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x40<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_REACH<sp/><sp/><sp/><sp/><sp/><sp/>0x80<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_PARAMS<sp/><sp/><sp/><sp/><sp/>0x100</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_FILES<sp/><sp/><sp/><sp/><sp/><sp/>0x200</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_BLE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x400</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_ACME<sp/><sp/><sp/><sp/><sp/><sp/>0x4000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_DEBUG<sp/><sp/><sp/><sp/><sp/>0x8000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>LOG_MASK_TIMEOUT<sp/><sp/>0x10000</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"></codeline>
+<codeline lineno="75"><highlight class="preprocessor">#ifdef<sp/>NO_REACH_LOGGING</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>I3_LOG(m,<sp/>f,<sp/>...)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_REACH(format,<sp/>...)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_ERROR(format,<sp/>...)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_DUMP_WIRE(banner,<sp/>buf,<sp/>len)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_DUMP_MASK(mask,<sp/>banner,<sp/>buf,<sp/>len)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="i3__log_8h_1a77e685badbf7a45c979cee037308dd70" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>I3_LOG(m,<sp/>f,<sp/>...)<sp/><sp/><sp/><sp/><sp/>i3_log(m,<sp/>f,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_REACH(format,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="84"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>I3_LOG(LOG_MASK_REACH,<sp/>&quot;[%s][%s]<sp/>&quot;<sp/>format,<sp/>__FILE__,<sp/>__func__,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_ERROR(format,<sp/>...)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="86"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i3_log(LOG_MASK_ERROR,<sp/>&quot;[%s][%s]<sp/>&quot;<sp/>format,<sp/>__FILE__,<sp/>__func__,<sp/>##__VA_ARGS__)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_DUMP_WIRE(banner,<sp/>buf,<sp/>len)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="88"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i3_log_dump_buffer(LOG_MASK_WIRE,<sp/>banner,<sp/>buf,<sp/>len)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>LOG_DUMP_MASK(mask,<sp/>banner,<sp/>buf,<sp/>len)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="90"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i3_log_dump_buffer(mask,<sp/>banner,<sp/>buf,<sp/>len)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>def<sp/>NO_LOGGING</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Set<sp/>and<sp/>get<sp/>the<sp/>mask<sp/>that<sp/>control<sp/>output<sp/>per<sp/>module</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="i3__log_8h_1a7158b49c3856e138394fa544b7622cd8" kindref="member">i3_log_set_mask</ref>(uint32_t<sp/>mask);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">uint32_t<sp/><ref refid="i3__log_8h_1a387ee42dbbeaa80a5e522aa5324838e2" kindref="member">i3_log_get_mask</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="comment">//<sp/>if<sp/>remote<sp/>CLI<sp/>is<sp/>enabled<sp/>at<sp/>build,<sp/>this<sp/>can<sp/>disable<sp/>it<sp/>at<sp/>run<sp/>time.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="i3__log_8h_1a5144ed020d32290b50db3d2c38ae4256" kindref="member">i3_log_set_remote_cli_enable</ref>(</highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>i3_log_get_remote_cli_enable();</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="comment">//<sp/>if<sp/>remote<sp/>CLI<sp/>support<sp/>is<sp/>enabled<sp/>this<sp/>gets<sp/>a<sp/>pointer<sp/>to<sp/>the<sp/>remote<sp/>buffer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Otherwise<sp/>pRcli<sp/>is<sp/>set<sp/>to<sp/>NULL.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Returns<sp/>the<sp/>current<sp/>(valid)<sp/>size<sp/>of<sp/>the<sp/>buffer.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i3_log_get_remote_buffer(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>**pRcli);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>basic<sp/>log<sp/>function,<sp/>like<sp/>printf.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>mask<sp/>passed<sp/>here<sp/>is<sp/>compared<sp/>with<sp/>the<sp/>&quot;log<sp/>mask&quot;<sp/>for<sp/>the<sp/>system.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="comment">//<sp/>The<sp/>string<sp/>prints<sp/>if<sp/>the<sp/>mask<sp/>bit<sp/>is<sp/>enabled.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>i3_log(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>mask,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fmt,<sp/>...);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="comment">//<sp/>A<sp/>utility<sp/>used<sp/>to<sp/>display<sp/>raw<sp/>binary<sp/>data.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="i3__log_8h_1ab3883f9a81eebb62b08ba9b2d69454ef" kindref="member">i3_log_dump_buffer</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/>mask,</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*banner,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ptr,</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>NO_LOGGING</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Text<sp/>color<sp/>escape<sp/>codes</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>TEXT_RESET</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="comment">//<sp/>escape<sp/>codes<sp/>so<sp/>traces<sp/>(printf)<sp/>can<sp/>have<sp/>colors:</highlight></codeline>
+<codeline lineno="131"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>CSI<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&quot;\033[&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Text<sp/>Reset</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_RESET<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;0m&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Bold<sp/>define</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;1m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Colors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BLACK<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;30m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_RED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;31m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_GREEN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;32m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_YELLOW<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;33m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BLUE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;34m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_MAGENTA<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;35m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_CYAN<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;36m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_WHITE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;37m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Bright<sp/>Colors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_BLACK<sp/><sp/><sp/>CSI&quot;90m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_RED<sp/><sp/><sp/><sp/><sp/>CSI&quot;91m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_GREEN<sp/><sp/><sp/>CSI&quot;92m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_YELLOW<sp/><sp/>CSI&quot;93m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_BLUE<sp/><sp/><sp/><sp/>CSI&quot;94m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_MAGENTA<sp/>CSI&quot;95m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_CYAN<sp/><sp/><sp/><sp/>CSI&quot;96m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BRIGHT_WHITE<sp/><sp/><sp/>CSI&quot;97m&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bright<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Bold<sp/>(</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDBLACK<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BLACK<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDRED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_RED<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDGREEN<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_GREEN<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDYELLOW<sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_YELLOW<sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDBLUE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BLUE<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDMAGENTA<sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_MAGENTA<sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDCYAN<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_CYAN<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLDWHITE<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_WHITE<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="comment">//<sp/>Bright<sp/>Colors</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_BLACK<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_BLACK<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Black</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_RED<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_RED<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Red</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_GREEN<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_GREEN<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Green</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_YELLOW<sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_YELLOW<sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Yellow</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_BLUE<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_BLUE<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Blue</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_MAGENTA<sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_MAGENTA<sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Magenta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_CYAN<sp/><sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_CYAN<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>Cyan</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>TEXT_BOLD_BRIGHT_WHITE<sp/><sp/><sp/><sp/><sp/><sp/>TEXT_BOLD<sp/>TEXT_BRIGHT_WHITE<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Bold<sp/>Bright<sp/>White</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>EMPTY_LINE<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;1K&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>CLR_TO_END<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;0K&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>CURSOR_LEFT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;1D&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/><sp/><sp/>#define<sp/>CURSOR_RIGHT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CSI&quot;1C&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>ndef<sp/>TEXT_RESET</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>LOG_H_<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h"/>
+  </compounddef>
+</doxygen>

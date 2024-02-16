@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.10.0" xml:lang="en-US">
+  <compounddef id="i3__error_8h" kind="file" language="C++">
+    <compoundname>i3_error.h</compoundname>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includedby refid="i3__log_8h" local="yes">C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_error.h</label>
+        <link refid="i3__error_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdio.h</label>
+      </node>
+      <node id="3">
+        <label>stdlib.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_error.h</label>
+        <link refid="i3__error_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.c</label>
+        <link refid="i3__log_8c"/>
+      </node>
+      <node id="2">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_log.h</label>
+        <link refid="i3__log_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_files.c</label>
+        <link refid="cr__files_8c"/>
+      </node>
+      <node id="9">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_private.h</label>
+        <link refid="cr__private_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_stack.c</label>
+        <link refid="cr__stack_8c"/>
+      </node>
+      <node id="8">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_stack.h</label>
+        <link refid="cr__stack_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/cr_weak.c</label>
+        <link refid="cr__weak_8c"/>
+      </node>
+      <node id="7">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/crcb_weak.h</label>
+        <link refid="crcb__weak_8h_source"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/message_util.c</label>
+        <link refid="message__util_8c"/>
+      </node>
+      <node id="11">
+        <label>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/reach_decode.c</label>
+        <link refid="reach__decode_8c"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="i3__error_8h_1a88034e5c19a8d88b8bf13a83d25dac9c" prot="public" static="no">
+        <name>affirm</name>
+        <param><defname>a</defname></param>
+        <initializer>    if(!(a)) { \
+    printf(TEXT_RED &quot;\naffirm() failed at %s.%u\n&quot; TEXT_RESET, __FUNCTION__, __LINE__); \
+    __asm__(&quot;bkpt&quot;); \
+    exit(1); \
+    }</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_error.h" line="9" column="9" bodyfile="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_error.h" bodystart="9" bodyend="13"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>__i3_error_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__i3_error_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>affirm(a)<sp/><sp/>if(!(a))<sp/>{<sp/>\</highlight></codeline>
+<codeline lineno="10"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>printf(TEXT_RED<sp/>&quot;\naffirm()<sp/>failed<sp/>at<sp/>%s.%u\n&quot;<sp/>TEXT_RESET,<sp/>__FUNCTION__,<sp/>__LINE__);<sp/>\</highlight></codeline>
+<codeline lineno="11"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>__asm__(&quot;bkpt&quot;);<sp/>\</highlight></codeline>
+<codeline lineno="12"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>exit(1);<sp/>\</highlight></codeline>
+<codeline lineno="13"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/></highlight><highlight class="comment">//<sp/>ndef<sp/>__i3_error_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/i3_error.h"/>
+  </compounddef>
+</doxygen>

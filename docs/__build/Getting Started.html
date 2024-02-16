@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Getting Started with Cygnus Reach &#8212; Cygnus Reach Embedded Stack  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <p><img alt="alt_text" src="images%5CCygnusLogo_REACH-horiz-bg_light.png" /></p>
+<section id="getting-started-with-cygnus-reach">
+<h1>Getting Started with Cygnus Reach<a class="headerlink" href="#getting-started-with-cygnus-reach" title="Link to this heading">¶</a></h1>
+<p>I3 Product Design</p>
+<p>Version 2.02</p>
+<p>Date        February 13, 2024</p>
+<section id="id1">
+<h2><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+<section id="executive-summary">
+<h1>Executive Summary<a class="headerlink" href="#executive-summary" title="Link to this heading">¶</a></h1>
+<p>Cygnus Reach is a system to provide customer support to users of embedded IoT (Internet of Things) devices.  This support is also very useful to developers of such systems.</p>
+<p>In case you aren’t familiar with Cygnus Reach, here are two links with some overview.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://cygnustechnology.com/">https://cygnustechnology.com/</a></p></li>
+<li><p><a class="reference external" href="https://cygnustechnology.com/see-reach-in-action/">https://cygnustechnology.com/see-reach-in-action/</a></p></li>
+</ul>
+<p>This package provides code to exercise the Cygnus Reach system using the “Thunderboard”, which is a common IoT development board.  This allows a user to evaluate the mobile apps and the web interface that are involved.  This document briefly describes how to run the prebuilt demo and then how to rebuild the demo to make a more detailed evaluation.</p>
+<p>The SDK’s necessary to develop customized mobile app and web pages for Reach access are available through your Cygnus sales representative.  While the demo works with the Silicon Labs hardware, the system is deployed on other platforms.</p>
+<section id="audience">
+<h2>Audience<a class="headerlink" href="#audience" title="Link to this heading">¶</a></h2>
+<p>The Cygnus Reach Evaluation Kit for the Silicon Labs Thunderboard assumes that the user is familiar with the development of IoT devices using “Simplicity Studio”, the Silicon Labs development system.  The Silicon Labs web site contains quite a bit of introductory material which is beyond the scope of this document.  A wider audience will be interested in the demo when the device is programmed.</p>
+</section>
+<section id="version-history">
+<h2>##Version History<a class="headerlink" href="#version-history" title="Link to this heading">¶</a></h2>
+<p>1.01 : January 2024, first public release.</p>
+<p>2.01:  February 9, 2024.  Adds features such as parameter notifications.  Provided with a separate release note.</p>
+</section>
+</section>
+<section id="running-the-demo">
+<h1>Running the Demo<a class="headerlink" href="#running-the-demo" title="Link to this heading">¶</a></h1>
+<p>The demo requires a Reach enabled IoT device.  The Thunderboard fills this role conveniently.</p>
+<section id="preparation">
+<h2>Preparation<a class="headerlink" href="#preparation" title="Link to this heading">¶</a></h2>
+<ul>
+<li><p>Obtain the Cygnus Reach firmware package from this site on github:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/cygnus-technology/reach-firmware">https://github.com/cygnus-technology/reach-firmware</a></p></li>
+</ul>
+</li>
+<li><p>Procure a Silicon Labs Thunderboard (SLTB010A).  A quick google finds these common at Digikey and Mouser.  The cost is around $42.</p></li>
+<li><p>If you are going to rebuild the Thunderboard program, install Simplicity Studio from Silicon Labs.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>  [https://www.silabs.com/developers/simplicity-studio](https://www.silabs.com/developers/simplicity-studio)
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The code is updated to match version 5.8 with Gecko 4.4.</p></li>
+<li><p>For any Linux users, be aware that the default installation can go a lot faster if you set the make to use multiple threads.</p></li>
+</ul>
+</li>
+<li><p>If you are only going to flash the prebuilt binary, you can more quickly install only the Simplicity Commander tool.  Google “<a class="reference external" href="https://community.silabs.com/s/article/simplicity-commander?language=en_US">download Simplicity Commande</a>r” and choose the version you like.  They offer Windows, Mac and Linux.</p></li>
+<li><p>Install the Cygnus Reach application on your mobile device.  You can find an appropriate version in the Google Play Store and in Apple’s App Store.</p>
+<ul class="simple">
+<li><p>iOS:</p>
+<ul>
+<li><p><a class="reference external" href="https://apps.apple.com/us/app/reach-bluetooth-analyzer/id1500040087">https://apps.apple.com/us/app/reach-bluetooth-analyzer/id1500040087</a></p></li>
+</ul>
+</li>
+<li><p>Android</p>
+<ul>
+<li><p><a class="reference external" href="https://play.google.com/store/apps/details?id=com.reach_android&amp;amp;pli=1">https://play.google.com/store/apps/details?id=com.reach_android&amp;pli=1</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="programming-the-device">
+<h2>Programming the Device<a class="headerlink" href="#programming-the-device" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Connect your PC to the USB port on the Thunderboard.</p></li>
+<li><p>Launch Simplicity Commander.</p></li>
+</ul>
+<p><img alt="alt_text" src="images%5CSimlicity-Commander.png" /></p>
+<ul>
+<li><p>Choose the kit in the upper left.</p></li>
+<li><p>Select “prebuilt/reacher-tboard-v320.hex” (or the latest) for flashing.  This includes both the bootloader and the application.  Separate bootloader and app hex files are also available.</p></li>
+<li><p>Poke the “Flash” button.  The program will boot when the download is complete.</p></li>
+<li><p>Connect a serial terminal to the “JLink CDC UART Port” exposed by the Thunderboard.  It runs at the typical 115200,N,8,1.</p></li>
+<li><p>When the board is running it should respond to a carriage return with a prompt and the “ver” command should print a banner.  The help command prints help.</p></li>
+<li><p>You should start to see a console like shown here.
+<img alt="alt_text" src="images%5Cver_command.png" /></p>
+<h2 class="rubric" id="id2"></h2>
+<p>Connecting with the Cygnus App</p>
+</li>
+<li><p>Open the Cygnus app on your phone and select this device.  You can see that it has the Cygnus logo.  The app can also view the characteristics on other BLE devices.</p></li>
+<li><p>You can pull down the name tab to see the complete device info.</p></li>
+<li><p>Poke the Device Parameters button.  This will bring up the basic parameter inspection frame.</p>
+<ul>
+<li><p>You can edit parameters here.</p></li>
+<li><p>Note the different types of supported parameters.</p></li>
+<li><p>Parameter ID 13 turns the yellow LED on and off.</p>
+<ul class="simple">
+<li><p>The blue LED monitors USB activity.</p></li>
+</ul>
+</li>
+<li><p>Parameter ID 23 is increasing.  Refresh to see that.</p>
+<p>Reach provides for a remote command line interface (CLI).  The Thunderboard provides a CLI on the USB based serial port.  Reach also supports a remote CLI using the app.  This can be very helpful in development and troubleshooting.
+<img alt="alt_text" src="images%5Cconnect.png" /></p>
+<p>Commands provide a simple way to execute a function on the device.  The command tab has several useful functions.</p>
+</li>
+</ul>
+</li>
+<li><p>You can enable and disable the remote command line interface.</p></li>
+<li><p>You can adjust the amount of serial port logging.</p>
+<p>Reach supports high speed data transfer as “files”.</p>
+</li>
+</ul>
+<p><img alt="alt_text" src="images%5Cconnected.png" />
+<img alt="alt_text" src="images%5Cphone_params.png" />
+<img alt="alt_text" src="images%5Cphone_commands.png" /></p>
+</section>
+<section id="file-access-and-the-debug-interface">
+<h2>File Access and the Debug Interface<a class="headerlink" href="#file-access-and-the-debug-interface" title="Link to this heading">¶</a></h2>
+<p>The file access features of Cygnus support the efficient transfer of larger blocks of data.  The “simple” interface interacts with files on your phone and gives you the option of emailing received files.  The debug interface gives you more control.  Access the debug interface from the three dots in the upper right corner.
+<img alt="alt_text" src="images%5Cdiagnostics1.png" />
+Here a button represents each of the basic message commands in the Reach protocol.  The phone issues the request and the resulting action is printed on the screen.  The response is shown in hex.  The message is decoded into a JSON like format.  The hex bytes that were sent are not displayed here.  They are visible on the serial console of the device.
+<img alt="alt_text" src="images%5Cdiagnostics_file.png" />
+You can exercise finer control over the file operations on the debug screen.  First minimize logging using command 3.  Then select a fairly large size to read.  These tests send synthetic data, just increasing numbers to exercise the transfer rate.  You can experiment with the Acknowledgement rate and easily achieve transfer rates over 200kbps.</p>
+</section>
+<section id="the-serial-console">
+<h2>The Serial Console<a class="headerlink" href="#the-serial-console" title="Link to this heading">¶</a></h2>
+<p>By default you see messages on the serial console as illustrated below.</p>
+<ul class="simple">
+<li><p>A banner is printed at startup.</p></li>
+<li><p>The yellow text about the PHY indicates we are connected to the phone.</p></li>
+<li><p>The magenta text indicates we have received a new prompt from the phone.  The hex bytes are printed.  This is the “wire” log.</p></li>
+<li><p>The cyan text prints what is decoded or to be encoded.  This is the “reach” log.  In this illustration the request for device info is answered.</p></li>
+<li><p>Finally, the command “lm ?” shows you the bit field values of the log mask.  You can enable or disable various bits of logging.
+<img alt="alt_text" src="images%5Cserial_cli.png" />
+The command pane allows you to enable the remote CLI.</p></li>
+</ul>
+<p>The remote command line interface (CLI) is disabled by default.  When enabled, the command line of the device is accessible on the phone.</p>
+<p>Rather verbose logging is enabled on the device by default.  Commands are provided to minimize and maximize the logging.   More finely grained control of the logging is provided through the CLI.</p>
+<p>You can experiment with the file transfers.  When all logging is disabled (command “lm 0” on the device console) and the “ack rate” is set relatively high (say 100), a file read transfer rate over 300kbps is easily achieved.  Write transfer rates are over 100kbps.</p>
+</section>
+<section id="the-web-interface">
+<h2>The Web Interface<a class="headerlink" href="#the-web-interface" title="Link to this heading">¶</a></h2>
+<p>The remote access capability of Cygnus relies on a mobile device (a phone) which is near the IoT device to act as a relay to a support engineer located remotely.  The end user who needs help can connect to the device with their phone and then connect to a support engineer who has visibility into the device.  You can demonstrate this using this kit.</p>
+<ol class="arabic simple">
+<li><p>Complete the demo of the Cygnus app to verify the device.</p></li>
+<li><p>Go to <a class="reference external" href="https://cygnustechnology.com/">https://cygnustechnology.com/</a>.  You will need to create an account.  This account allows you to evaluate the system.  It’s immediately granted.  It doesn’t confer enough rights to support the deployment of a real product.  Full product support requires a licensing agreement that is available from your Cygnus sales representative.</p></li>
+<li><p>Having created an account you are invited to start a support session.  It may take a few minutes for the account to become active to access this page.  Enter an arbitrary name for the session.  This allows the session to be recorded for later reference.</p></li>
+</ol>
+<p><img alt="alt_text" src="images%5Cweb_session.png" />
+Clicking on “Start Support Session” brings you to a PIN page.
+<img alt="alt_text" src="images%5Cweb_pin.png" /></p>
+<p>Open the app on your phone and select “Start Remote Support Session” at the bottom of the page.  Enter the PIN.  Accept the permission request to start “recording or casting with Cygnus Reach”.</p>
+<p>Select “Device Info” on the web page.  You see what is essentially the same interface as you see on the phone.</p>
+<p><img alt="alt_text" src="images%5Cweb_connect.png" /></p>
+<p>You can initiate a video sharing session which will allow the support engineer to see what is happening in the device.</p>
+<p><img alt="alt_text" src="images%5Cweb_video.png" /></p>
+<p>You can also see the phone’s screen and chat with the user.</p>
+</section>
+</section>
+<section id="building-the-demo">
+<h1>Building the Demo<a class="headerlink" href="#building-the-demo" title="Link to this heading">¶</a></h1>
+<p>You can rebuild the application and modify it to your needs.  The process is described here.  It assumes that you have already run the demo on a Thunderboard.</p>
+<section id="create-a-new-project">
+<h2>Create a new Project<a class="headerlink" href="#create-a-new-project" title="Link to this heading">¶</a></h2>
+<p>Use the New menu entry to access the “Silicon Labs New Project Wizard”.
+<img alt="alt_text" src="images%5Csilabs_sdk.png" /></p>
+<p>Choose the Thunderboard EFR32BG22 (BRD4184A) using the EFR32BG22C224F512IM40.  If your thunderboard is attached to the USB port these should be selected automatically.  You want the latest Gecko SDK, here 4.4.0, and the GCC compiler, here “Simplicity IDE / GNU ARM v12.2.1”</p>
+<p>Click on “Next”.
+<img alt="alt_text" src="images%5Csilabs_examples.png" />
+Select the “Bluetooth SoC Empty” project.  This will work best to duplicate the demo.  Other starting points might be more appropriate for a larger project.  For instance, SoC Empty has no RTOS, but this small device doesn’t have much use for an RTOS.</p>
+<p>Click on Next.
+<img alt="alt_text" src="images%5Csilabs_config.png" />
+<strong>Important!  Rename the project to “reach_tboard”.</strong></p>
+<p>You can accept the default location or choose your own location.</p>
+<p>You can choose “Link SDK and copy project sources”, but “Copy Contents” has the advantage of copying in the SiLabs source code.</p>
+<p>More advanced users of Simplicity Studio might change these settings.  They may have an impact on various configuration files.</p>
+</section>
+<section id="copy-in-the-reach-source">
+<h2>Copy in the Reach Source<a class="headerlink" href="#copy-in-the-reach-source" title="Link to this heading">¶</a></h2>
+<p>Copy the contents of the Reach source package over the new project.  A handful of files are overwritten, most importantly app.c, the .pintool file and the gatt_configuration.btconf file.  Most files are new to the project.</p>
+</section>
+<section id="fill-in-dependencies">
+<h2>Fill in Dependencies<a class="headerlink" href="#fill-in-dependencies" title="Link to this heading">¶</a></h2>
+<p>With the project open in Simplicity Studio, double click on reach_tboard.slcp file and open the software component manager.  For each listed component, enter the name in the search box and install it with any given comments.</p>
+<p>Install the following components:</p>
+<p><img alt="alt_text" src="images%5Csilabs_components.png" /></p>
+<ol class="arabic simple">
+<li><p>Iostream_retarget_stdio</p>
+<ol class="arabic simple">
+<li><p>Depends on iostream_usart_core</p></li>
+</ol>
+</li>
+<li><p>CLI Instance
+2. Create an instance “inst”</p></li>
+<li><p>Iostream_usart
+3. Create an instance named “vcom”
+4. Disable flow control.
+5. Convert \n to \r\n</p></li>
+<li><p>Iostream_stdlib_config</p></li>
+<li><p>Tiny Printf</p></li>
+<li><p>Simple LED
+6. With instance led0 connected GPIO B0</p></li>
+</ol>
+<p>Add the necessary include paths.  Right click on the project in the project explorer and select properties.  Open the C/C++ build tab and choose settings.  Select “Includes” for the GNU ARM C Compiler.   Add the following:</p>
+<p><img alt="alt_text" src="images%5Csilabs_includes.png" /></p>
+<ol class="arabic simple">
+<li><p>${workspace_loc:/${ProjName}/App}</p></li>
+<li><p>${workspace_loc:/${ProjName}/reach-c-stack}</p></li>
+<li><p>${workspace_loc:/${ProjName}/reach_proto/ansic/built}</p></li>
+<li><p>${workspace_loc:/${ProjName}/reach_proto/ansic/nanopb}</p></li>
+<li><p>${workspace_loc:/${ProjName}/reach-c-stack/IoT-Core}</p></li>
+<li><p>${workspace_loc:/${ProjName}/reach-c-stack/lib}</p></li>
+<li><p>${workspace_loc:/${ProjName}/reach-c-stack/silabs}</p></li>
+</ol>
+<p>The project should build with this configuration.</p>
+<p>You should be able to “Debug As” a “Silicon Labs ARM Program” by right clicking on the project in the explorer.  You may need to set up a debug configuration.  You should see the startup banner in your serial console with the new build date.</p>
+<p><img alt="alt_text" src="images%5Csilabs_banner.png" /></p>
+<p>The Cygnus app should be able to connect to you.</p>
+<p>By default the advertised name will contain the last three octets of the system ID.  You can use the “sn” command to set a device serial number and then this will be advertised.  This demonstrates how each Reach device can have a unique name.</p>
+<p>You might also note that the first time you run the program it will print red as it initializes the non-volatile storage.</p>
+</section>
+<section id="beyond-the-demo">
+<h2>Beyond the Demo<a class="headerlink" href="#beyond-the-demo" title="Link to this heading">¶</a></h2>
+<p>The source package includes a “Programmers Intro” document.  It contains a lot more background about the Reach package which should be helpful as you customize it for your own purposes.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cygnus Reach Embedded Stack</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials <code class="docutils literal notranslate"><span class="pre">tutorials/index.md</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="programmers_guide/index.html">Programmers Guide <code class="docutils literal notranslate"><span class="pre">programmers_guide/index.md</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference/index.html">API Reference <code class="docutils literal notranslate"><span class="pre">api_reference/index.md</span></code></a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Chuck Peplinski, Peter S. Jamrozinski.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/Getting Started.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.10.0" xml:lang="en-US">
+  <compounddef id="dir_6df71edbf64ab09a7ac0f08e7b136e66" kind="dir">
+    <compoundname>C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core</compoundname>
+    <innerfile refid="i3__error_8h">i3_error.h</innerfile>
+    <innerfile refid="i3__log_8c">i3_log.c</innerfile>
+    <innerfile refid="i3__log_8h">i3_log.h</innerfile>
+    <innerfile refid="text__colors_8h">text_colors.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="C:/Users/peter.jamrozinski/code/i3/bitbucket/cygnus/reach-c-stack/IoT-Core/"/>
+  </compounddef>
+</doxygen>

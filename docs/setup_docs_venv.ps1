@@ -34,6 +34,39 @@ function Install-Pyenv {
     Write-Host "pyenv installed successfully."
 }
 
+function Ensure-PackageVersions {
+    # Get a hashtable of installed packages with their versions
+    $installedPackagesWithVersions = @{}
+    pip list | ForEach-Object {
+        if ($_ -match '(\S+)\s+(\S+)') {
+            $installedPackagesWithVersions[$matches[1]] = $matches[2]
+        }
+    }
+
+    # Read the required packages and their versions from 'requirements.txt'
+    $requiredPackagesWithVersions = @{}
+    Get-Content "requirements.txt" | ForEach-Object {
+        if ($_ -match '(\S+)==(\S+)') {
+            $requiredPackagesWithVersions[$matches[1]] = $matches[2]
+        }
+    }
+
+    # Check for missing packages or packages with version mismatches
+    foreach ($package in $requiredPackagesWithVersions.Keys) {
+        $requiredVersion = $requiredPackagesWithVersions[$package]
+        if (-not $installedPackagesWithVersions.ContainsKey($package)) {
+            Write-Host "Installing missing package: $package"
+            pip install "$package==$requiredVersion"
+        }
+        elseif ($installedPackagesWithVersions[$package] -ne $requiredVersion) {
+            Write-Host "Found package $package, but with a different version (installed: $($installedPackagesWithVersions[$package]), required: $requiredVersion). Updating..."
+            pip install "$package==$requiredVersion"
+        }
+    }
+
+    Write-Host "Package verification and installation/update process complete."
+}
+
 # Get the current directory
 $currentDirectory = Get-Location
 
@@ -50,14 +83,23 @@ if (-not $pyenvPath) {
     Install-Pyenv
 }
 
-# Set the local pyenv version
-pyenv local
+# Check if __venv directory exists
+if (-not (Test-Path "__venv")) {
+    # Create a virtual environment if it doesn't exist
+    python -m venv __venv
+}
 
-# Create a virtual environment
-python -m venv __venv
+# Activate the virtual environment if activation script exists
+if (-not (Test-Path "__venv\Scripts\Activate")) {
+    Write-Host "Error: Activation script for virtual environment not found."
+    exit 1
+}
+else {
+    . .\__venv\Scripts\Activate
+}
 
-# Activate the virtual environment
-. .\__venv\Scripts\Activate
+# Call Ensure-PackageVersions to check and update packages
+Ensure-PackageVersions
 
-# Install required packages from requirements.txt
-pip install -r requirements.txt -Verbose
+# Generate the Doxygen XML
+doxygen ./reach.doxyfile.in
