@@ -34,6 +34,26 @@ function Install-Pyenv {
     Write-Host "pyenv installed successfully."
 }
 
+function Set-PyenvLocalVersion {
+    # Check if .python-version file exists
+    if (Test-Path .python-version) {
+        $pythonVersion = Get-Content .python-version
+        # Check if the specified Python version is installed
+        $installedVersions = pyenv versions
+        if (-not ($installedVersions -contains $pythonVersion)) {
+            Write-Host "Python version $pythonVersion is not installed. Installing now..."
+            pyenv install $pythonVersion
+        }
+        # Set the local Python version
+        pyenv local $pythonVersion
+        Write-Host "Set local Python version to $pythonVersion."
+    }
+    else {
+        Write-Host ".python-version file not found. Exiting."
+        exit 1
+    }
+}
+
 function Ensure-PackageVersions {
     # Get a hashtable of installed packages with their versions
     $installedPackagesWithVersions = @{}
@@ -82,6 +102,9 @@ $pyenvPath = (Get-Command pyenv -ErrorAction SilentlyContinue).Path
 if (-not $pyenvPath) {
     Install-Pyenv
 }
+
+# After installing pyenv, set the local Python version as per .python-version file
+Set-PyenvLocalVersion
 
 # Check if __venv directory exists
 if (-not (Test-Path "__venv")) {

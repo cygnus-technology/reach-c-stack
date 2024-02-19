@@ -1,44 +1,50 @@
 #!/bin/bash
 
-function install_pyenv() {
+install_pyenv() {
     # Prompt user if they want to install pyenv
     read -p "pyenv is not installed. Would you like to install it? (Y/N) " installPyenv
-    if [ "$installPyenv" != "Y" ]; then
+    if [[ "$installPyenv" != "Y" ]]; then
         echo "Exiting..."
         exit 1
     fi
 
-    # Prompt user for installation directory
-    read -p "Enter the full path to the directory where you want to install pyenv (press Enter for default): " installDirectory
-
-    # If the user provided a path, validate it
-    if [ -n "$installDirectory" ]; then
-        while [ ! -d "$installDirectory" ]; do
-            echo "Invalid path. Please enter a valid directory path."
-            read -p "Enter the full path to the directory where you want to install pyenv (press Enter for default): " installDirectory
-        done
-    fi
-
+    # Prompt user for installation directory (skipped for simplicity, uses default pyenv installation path)
+    
     # Download and install pyenv
-    installScriptUrl="https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer"
-    curl -L "$installScriptUrl" | bash
+    curl -L https://pyenv.run | bash
 
-    # Assuming the installation path customization for pyenv is done via environment variables
-    if [ -n "$installDirectory" ]; then
-        echo 'export PYENV_ROOT="$installDirectory"' >> ~/.bashrc
-        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-        source ~/.bashrc
-    fi
+    # Update environment variables - Assumes .bashrc or equivalent is used
+    echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
+    echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
+    echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+    source ~/.bashrc
 
     echo "pyenv installed successfully."
 }
 
-function ensure_package_versions() {
-    # This is a simplified version since parsing and comparing versions directly in Bash is more complex
-    while IFS= read -r line; do
-        package=$(echo $line | cut -d'=' -f1)
-        version=$(echo $line | cut -d'=' -f2)
-        if ! pip list | grep -q "$package ($version)"; then
+set_pyenv_local_version() {
+    # Check if .python-version file exists
+    if [ -f ".python-version" ]; then
+        pythonVersion=$(cat .python-version)
+        # Check if the specified Python version is installed
+        if ! pyenv versions | grep -q "$pythonVersion"; then
+            echo "Python version $pythonVersion is not installed. Installing now..."
+            pyenv install "$pythonVersion"
+        fi
+        # Set the local Python version
+        pyenv local "$pythonVersion"
+        echo "Set local Python version to $pythonVersion."
+    else
+        echo ".python-version file not found. Exiting."
+        exit 1
+    fi
+}
+
+ensure_package_versions() {
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        package=$(echo "$line" | cut -d'=' -f1)
+        version=$(echo "$line" | cut -d'=' -f2)
+        if ! pip list --format=freeze | grep -q "^$package==$version$"; then
             echo "Version mismatch or package not found for $package. Installing required version."
             pip install "$package==$version"
         fi
@@ -47,9 +53,11 @@ function ensure_package_versions() {
     echo "Package verification and installation/update process complete."
 }
 
-# Check if the current directory is the "docs" directory
+# Get the current directory
 currentDirectory=$(pwd)
-if [ "$(basename "$currentDirectory")" != "docs" ]; then
+
+# Check if the current directory is the "docs" directory
+if [[ "$(basename "$currentDirectory")" != "docs" ]]; then
     echo "Error: This script must be run from the 'docs' directory."
     exit 1
 fi
@@ -58,6 +66,9 @@ fi
 if ! command -v pyenv &> /dev/null; then
     install_pyenv
 fi
+
+# After installing pyenv, set the local Python version as per .python-version file
+set_pyenv_local_version
 
 # Check if __venv directory exists
 if [ ! -d "__venv" ]; then
@@ -78,3 +89,6 @@ ensure_package_versions
 
 # Generate the Doxygen XML
 doxygen ./reach.doxyfile.in
+
+# Generate the Wiki html
+sphinx-build -b html ./__source ./__build
