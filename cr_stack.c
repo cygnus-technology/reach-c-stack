@@ -71,97 +71,97 @@
 #include "reach_decode.h"
 #include "reach_version.h"
 
-//----------------------------------------------------------------------------
-// static buffers used and reused by the reach stack.
-// This is private data.
-//----------------------------------------------------------------------------
+///----------------------------------------------------------------------------
+/// static buffers used and reused by the reach stack.
+/// This is private data.
+///----------------------------------------------------------------------------
 
-// terminology
-// A transaction is a series of messages.
-// A message has a header and a payload.
-// The prompt is a received payload.
-// The response is a generated payload.
-// A file "transfer" is a series of messages terminated by an ACK.
+/// terminology
+/// A transaction is a series of mes`sages.
+/// A message has a header and a payload.
+/// The prompt is a received payload.
+/// The response is a generated payload.
+/// A file "transfer" is a series of messages terminated by an ACK.
 
-// the fully encoded message is received in the 
-// sCr_encoded_message_buffer. 
+/// the fully encoded message is received in the 
+/// sCr_encoded_message_buffer. 
 static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_message_size = 0;
 
-// The message header is decoded into this buffer containing an encoded payload buffer: 
+/// The message header is decoded into this buffer containing an encoded payload buffer: 
 static cr_ReachMessage sCr_uncoded_message_structure;
 
-// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
-// so that the header can be added.
+/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
+/// so that the header can be added.
 #define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
-// A decoded prompt payload.
-// This can be reused from the encoded message buffer.
-// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+/// A decoded prompt payload.
+/// This can be reused from the encoded message buffer.
+/// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
-// An uncoded response payload.
+/// An uncoded response payload.
 static uint8_t sCr_uncoded_response_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
-// The response payload is encoded into sCr_encoded_payload_buffer[]. 
+/// The response payload is encoded into sCr_encoded_payload_buffer[]. 
 static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
 static size_t sCr_encoded_payload_size; 
  
-// The response payload is copied into the sCr_uncoded_message_structure
+/// The response payload is copied into the sCr_uncoded_message_structure
 
-// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
+/// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 static size_t  sCr_encoded_response_size = 0;
 
 
-//----------------------------------------------------------------------------
-// private but global variables shared with the Reach stack
-//----------------------------------------------------------------------------
+///----------------------------------------------------------------------------
+/// private but global variables shared with the Reach stack
+///----------------------------------------------------------------------------
 cr_ReachMessageTypes pvtCr_continued_message_type;
 uint32_t pvtCr_num_continued_objects = 0;
 uint32_t pvtCr_num_remaining_objects = 0;
 
-//----------------------------------------------------------------------------
-// static (private) "member" variables
-//----------------------------------------------------------------------------
+///----------------------------------------------------------------------------
+/// static (private) "member" variables
+///----------------------------------------------------------------------------
 static int sCr_transaction_id = 0;
 static bool sCR_error_reported = false;
 
-//----------------------------------------------------------------------------
-// static (private) "member" functions
-//----------------------------------------------------------------------------
+///----------------------------------------------------------------------------
+/// static (private) "member" functions
+///----------------------------------------------------------------------------
 
-// <summary> Decodes and responds to the coded prompt provided
-// to the Reach core. Calls handle_message() 
-// </summary>
-// <returns>0 on success or an error</returns>
+/// <summary> Decodes and responds to the coded prompt provided
+/// to the Reach core. Calls handle_message() 
+/// </summary>
+/// <returns>0 on success or an error</returns>
 static int handle_coded_prompt();
 
-// <summary> Decodes the payload and calls the appropriate 
-// handler function. 
-// </summary>
-// <param name="hdr"> Includes type of message</param>
-// <param name="data">The actual message</param>
-// <param name="size">in bytes</param>
-// <returns>0 on success or an error</returns>
+/// <summary> Decodes the payload and calls the appropriate 
+/// handler function. 
+/// </summary>
+/// <param name="hdr"> Includes type of message</param>
+/// <param name="data">The actual message</param>
+/// <param name="size">in bytes</param>
+/// <returns>0 on success or an error</returns>
 static int 
 handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *data, size_t size);
 
-// <summary>
-// Respond to a ping request
-// </summary>
-// <param name="request"> The triggering message</param>
-// <param name="response">Response delivered here</param>
-// <returns></returns>
+/// <summary>
+/// Respond to a ping request
+/// </summary>
+/// <param name="request"> The triggering message</param>
+/// <param name="response">Response delivered here</param>
+/// <returns></returns>
 static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response);
 
 
-// <summary>
-// Respond to a request for device info
-// </summary>
-// <param name="request"> The triggering message</param>
-// <param name="response">Response delivered here</param>
-// <returns></returns>
+/// <summary>
+/// Respond to a request for device info
+/// </summary>
+/// <param name="request"> The triggering message</param>
+/// <param name="response">Response delivered here</param>
+/// <returns></returns>
 static int handle_get_device_info(const cr_DeviceInfoRequest *request,
                                       cr_DeviceInfoResponse *response);
 
@@ -339,9 +339,16 @@ int cr_init()
 }
 
 #ifndef APP_ADVERTISED_NAME_LENGTH
+    /// APP_ADVERTISED_NAME_LENGTH is the length of the string
+    /// holding the adveritsed name.  It can be set by the app in
+    /// reach-server.h
   #define APP_ADVERTISED_NAME_LENGTH    REACH_SHORT_STRING_LEN
 #endif
 
+/// <summary>
+/// sCr_advertised_name holds the name that will be advertised 
+/// (via BLE).  This can be set programmatically. 
+/// </summary>
 char sCr_advertised_name[APP_ADVERTISED_NAME_LENGTH];
 
 
@@ -528,6 +535,7 @@ uint32_t cr_get_current_ticks()
     return sCurrentTicks;
 }
 
+static bool sCr_comm_link_is_connected = false;
 /**
 * @brief   cr_set_comm_link_connected
 * @details The communication stack must inform the Reach stack of the status of 
@@ -538,7 +546,6 @@ uint32_t cr_get_current_ticks()
 *          each connection.
 * @param   connected true if connected.
 */
-static bool sCr_comm_link_is_connected = false;
 void cr_set_comm_link_connected(bool connected)
 { 
    if (!sCr_comm_link_is_connected && connected)
@@ -676,11 +683,16 @@ static int checkSize(size_t test, size_t limit, char *name)
     return 0;
 }
 
-// The test harness checks that buffer sizes are not too big.
-// These buffer sizes are adjusted in reach.options.
+/// cr_test_sizes(): The test harness checks that buffer sizes
+/// are not too big. These buffer sizes are adjusted via 
+/// reach.options.prototype and update_proto.bat 
 void cr_test_sizes()
 {
     int rval = 0;
+
+    /// <summary> MAX_BLE_SZ is used to check the encoded structure
+    /// sizes. 
+    /// </summary>
     #define MAX_BLE_SZ  CR_CODED_BUFFER_SIZE
 
   #ifdef VERBOSE_SIZES
@@ -688,8 +700,9 @@ void cr_test_sizes()
   #else
     i3_log(LOG_MASK_ALWAYS, "Silent buffer size check:  " TEXT_RESET);
   #endif
-    // reach.pb.h gives us some "Maximum encoded size of messages".
-    // Check these.
+    /// reach.pb.h gives us some "Maximum encoded size of messages".
+    /// Check these against MAX_BLE_SZ, the limit of an encoded 
+    /// buffer. 
     rval += checkSize(cr_CLIData_size, MAX_BLE_SZ, "cr_CLIData_size");
     rval += checkSize(cr_CommandInfo_size, MAX_BLE_SZ, "cr_CommandInfo_size");
     rval += checkSize(cr_DeviceInfoResponse_size, MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
@@ -722,8 +735,9 @@ void cr_test_sizes()
     rval += checkSize(cr_StreamData_size, MAX_BLE_SZ, "cr_StreamData_size");
     rval += checkSize(cr_StreamInfo_size, MAX_BLE_SZ, "cr_StreamInfo_size");
 
-
-    // check the unencoded structure sizes.
+    /// <summary>
+    /// MAX_RAW_SZ is used to check the unencoded structure sizes. 
+    /// </summary>
     #define MAX_RAW_SZ  CR_DECODED_BUFFER_SIZE
 
     rval += checkSize(sizeof(cr_StreamInfo), MAX_RAW_SZ, "sizeof(cr_StreamInfo)");

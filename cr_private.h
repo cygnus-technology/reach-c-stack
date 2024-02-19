@@ -63,8 +63,14 @@ extern "C" {
     /// Private variables controlling the sort of continuing 
     /// transactions used by file transfers, etc. 
     /// </summary>
+
+    /// The type of the current continued message
     extern cr_ReachMessageTypes pvtCr_continued_message_type;
+
+    /// The number of continued objects (total)
     extern uint32_t             pvtCr_num_continued_objects;
+
+    /// The number of continued objects (remaining)
     extern uint32_t             pvtCr_num_remaining_objects;
 
     /// <summary>
@@ -76,12 +82,16 @@ extern "C" {
     ///  
     /// pvtCrFile_ functions support the (optional) files service. 
     ///  
+    /// Private function to discover files 
     int pvtCrFile_discover(const cr_DiscoverFiles *request,
                               cr_DiscoverFilesResponse *response);
+    /// Private function for file transfer init
     int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
                              cr_FileTransferInitResponse *response);
+    /// Private function for file transfer data
     int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                              cr_FileTransferDataNotification *response);
+    /// Private function for file transfer data notification
     int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *request,
                                              cr_FileTransferData *dataTransfer);
 
@@ -91,35 +101,46 @@ extern "C" {
     /// </summary> 
     void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks);
 
-    // resets the timeout period to original
+    /// resets the timeout period to original
     void pvtCr_watchdog_stroke_timeout(uint32_t ticks);
 
-    // disables the watchdog
+    /// disables the watchdog
     void pvtCr_watchdog_end_timeout();
 
-    // if active, compares ticks to expected timeout.
-    // return 1 if timeout occurred
+    /// if active, compares ticks to expected timeout.
+    /// return 1 if timeout occurred
     int pvtCr_watchdog_check_timeout(uint32_t ticks);
 
     ///  
     /// pvtCrParam_ functions support the (optional) parameters 
     /// service. 
     ///  
+
+    ///  Private helper function to clear parameter notificaitons
     void pvtCrParam_clear_notifications(void);
 
+    ///  Private helper function to discover parameters
     int pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *,
                                        cr_ParameterInfoResponse *);
+
+    ///  Private helper function to discover extended parameters
     int pvtCrParam_discover_parameters_ex(const cr_ParameterInfoRequest *,
                                           cr_ParamExInfoResponse *);
+
+    ///  Private helper function to read a parameter
     int pvtCrParam_read_param(const cr_ParameterRead *, 
                               cr_ParameterReadResult *);
+    ///  Private helper function to write a parameter
     int pvtCrParam_write_param(const cr_ParameterWrite *, 
                                cr_ParameterWriteResult *);
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    ///  Private helper function to configure parameter
+    ///  notifications
     int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *,
                                        cr_ParameterNotifyConfigResponse *);
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
-    
+    ///  Private helper function to check for parameter
+    ///  notifications
     void pvtCrParam_check_for_notifications(void);
 
 

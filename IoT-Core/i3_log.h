@@ -70,8 +70,8 @@ extern "C"
 /// Higher bits can be defined and used by the application
 /// #include "app_log_masks.h"
 
-/// Logging can be completely excluded from the build by defining
-///NO_REACH_LOGGING in reach-server.h.
+/// Logging can be completely excluded from the build by
+/// defining NO_REACH_LOGGING in reach-server.h.
 #ifdef NO_REACH_LOGGING
     #define I3_LOG(m, f, ...)
     #define LOG_REACH(format, ...)

@@ -30,15 +30,41 @@
 #include "reach.pb.h"
 #include <stdint.h>
 
+
+/**
+* @brief   decode_reach_payload
+* @details Apply the protobuf decode function to the buffer. 
+*          Feeds pb_decode() the necessary structure based on
+*          the message type.
+* @param   message_type :  in:  from the header
+* @param   data :  out:  decode to here
+* @param   buffer :  in:  encoded, from the header
+* @param   size :  in:  size of encoded buffer
+* @return  true if no error.
+*/
 bool decode_reach_payload(cr_ReachMessageTypes message_type,  // in:  from the header
                           void *dec_data,                     // out: decode to here.
                           const uint8_t *in_buffer,           // in:  encoded from the header
                           size_t in_size);                    // in:  encoded size
 
+
+/**
+* @brief   decode_reach_message
+* @details Apply the protobuf decode function to the "header" 
+*          that contains the message.
+* @param   message :  out:  decode to here
+* @param   buffer :  in:  encoded
+* @param   size :  in:  size of encoded buffer
+* @return  true if no error.
+*/
 bool decode_reach_message(cr_ReachMessage *message,           // out: decoded
                           const uint8_t *in_buffer,           // in:  encoded
                           size_t in_size);                    // in:  encoded size
 
+/**
+* @brief   cr_get_transaction_id
+* @return  Return the current transaction ID.
+*/
 uint32_t cr_get_transaction_id();
 
 #endif /* __REACH_DECODE_H__ */

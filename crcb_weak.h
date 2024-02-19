@@ -31,7 +31,7 @@
  *                           -----------------------------------
  *                          Copyright i3 Product Development 2023
  *
- * \brief "cr_weak.h" defines the weak implementations of the callback functions the user of
+ * \brief "crcb_weak.h" defines the weak implementations of the callback functions the user of
  * the Cygnus Reach device stack should override.
  *
  * Original Author: Chuck.Peplinski

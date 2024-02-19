@@ -90,7 +90,8 @@ uint32_t i3_log_get_mask(void)
 // defined in reach-server.h
 #ifndef INCLUDE_CLI_SERVICE
     /**
-     * The logging functions are simplified when INCLUDE_CLI_SERVICE is not defined.
+     * i3_log_set_remote_cli_enable() is a stub when the the CLI 
+     *  service is not included.
      */
     int i3_log_set_remote_cli_enable(bool enable)
     {
@@ -98,6 +99,10 @@ uint32_t i3_log_get_mask(void)
         return cr_ErrorCodes_NO_SERVICE;
     }
 
+    /**
+     * i3_log_get_remote_cli_enable() is a stub when the the CLI 
+     *  service is not included.
+     */
     bool i3_log_get_remote_cli_enable()
     {
         return false;
@@ -106,12 +111,31 @@ uint32_t i3_log_get_mask(void)
     // uses no memory for a log buffer.  Just printf().
 
     // There is no buffer
+
+    /**
+    * @brief   i3_log_get_remote_buffer
+    * @details Retrieve the pointer and size of the remote buffer.  Set the size to 
+    *          zero before returning so that the next string can overwrite the
+    *          buffer.
+    * @note    In case there is no CLI service there is no buffer.
+    * @param   pRcli   pointer to char pointer of buffer.
+    * @return  number of bytes currently in use by the remote cli buffer.
+    */
     int i3_log_get_remote_buffer(char **pRcli)
     {
         *pRcli = NULL;
         return 0;
     }
 
+    /**
+    * @brief   i3_log
+    * @details A printf style logging function conditioned on a mask. The mask is 
+    *          and'ed with the control set by i3_log_set_mask(). The string is
+    *          printed if the result is non-zero. See LOG_MASK_.
+    * @note    In case there is no CLI service, simply printf.
+    * @param   mask See LOG_MASK_.
+    * @param   fmt As in printf.
+    */
     void i3_log(const uint32_t mask, const char *fmt, ...)
     {
         va_list args;

@@ -120,41 +120,119 @@ extern "C" {
 
 #define ALIGN_TO_WORD   __attribute__((aligned(4)))
 
-//----------------------------------------------------------------------------
-// To be called once before cr_process is called.
+/**
+* @brief   cr_init
+* @details To be called before starting the stack.
+* @note    Not much happens here yet.
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
+*/
 int cr_init();
 
-// The application should set the name of the device to be advertised.
-// If the length exceeds the maximum, the max length will be returned.
+/**
+* @brief   cr_set_advertised_name
+* @details Sets the name of the device that should be advertised before 
+*          connecting.  Used in BLE.  The length of the string is set by
+*          APP_ADVERTISED_NAME_LENGTH which can be define in the application.
+*          See reach-server.h.  Uses REACH_SHORT_STRING_LEN when
+*          APP_ADVERTISED_NAME_LENGTH is not defined.  The code setting up the
+*          communication link can retrieve this using cr_get_advertised_name().
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
+*/
 int cr_set_advertised_name(char *name, int length);
 
-// to be used by the transport code to get the name.
+/**
+* @brief   cr_get_advertised_name
+* @details Retrieves the name stored by cr_set_advertised_name().
+* @return  pointer to a string of length REACH_SHORT_STRING_LEN.
+*/
 const char *cr_get_advertised_name();
 
-// The application must call cr_process() regularly.  
-// ticks tells it approximately how many  milliseconds have passed since 
-// the system started.  This allows it to perform timing related tasks.  
-// Most  
+/**
+* @brief   cr_process
+* @details The application must call cr_process() regularly as it does most of 
+*          the work required of Reach. The ticks parameter is expected to be a
+*          monotonically increasing value representing the time since the system
+*          started. This allows it to perform timing related tasks such as
+*          notifications. cr_process() returns immediately if the device is not
+*          connected to BLE.
+* @param   ticks: A measure of time passed, typically milliseconds, but the 
+*               units are not specified.
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code, however these are 
+*          indicative only.  The non-zero returns indicate normal conditions.
+*/
 int cr_process(uint32_t ticks);
 
-// allows the app to store the coded prompt in the memory held by the stack.
+/**
+* @brief   cr_store_coded_prompt
+* @details allows the application to store the prompt where the Reach stack can 
+*          see it.  The byte data and length are copied into private storage.
+*          This data is retrieved using crcb_get_coded_prompt().
+* @param   data: The coded prompt to be stored. 
+* @param   len : number of bytes to be stored. 
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
+*/
 int cr_store_coded_prompt(uint8_t *data, size_t len);
 
+
+/**
+* @brief   cr_get_coded_response_buffer
+* @details Retrieve the adress of the "coded response buffer".  This buffer 
+*          contains the response to a prompt, coded according to protobuf specs,
+*          to be transmitted to the client.  The stored coded length is zeroed
+*          by this call.
+* @param   ppResponse: Pointer to pointer to bytes.
+* @param   pLen : pointer to the number of bytes for transmission.
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
+*/
 int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len);
 
-// you can get more useful error reports if you provide ~128 bytes here.
-void cr_provide_debug_buffer(char *buf, size_t len);
-
-void cr_get_reply_buffer_and_size(char **ptr, size_t *sz);
-
-// error handling is always present
+/**
+* @brief   cr_report_error
+* @details Report an error condition to the client.  This can be called at any 
+*          point as the report to the client is asynchronous and immediate.  The
+*          stack can be configured to use only the error code, but the
+*          printf-like string describing the error condition is encouraged.
+*          This is intended to make it easier to find and eliminate errors
+*          during development.
+* @param error_code : Use of the cr_ErrorCodes_ enum is encouraged but not 
+*                   required.
+* @param fmt : A printf-like string with variables. 
+*/
 void cr_report_error(int error_code, const char *fmt, ...);
 
+
+/**
+* @brief   cr_set_comm_link_connected
+* @details The communication stack must inform the Reach stack of the status of 
+*          the communication link. The integration must inform Reach when
+*          the connection status changes. The Reach loop only runs when the
+*          connection is valid. All parameter notifications are cleared when a
+*          connection is established. The client must reenable notifications on
+*          each connection.
+* @param   connected true if connected.
+*/
 void cr_set_comm_link_connected(bool connected);
+
+
+/**
+* @brief   cr_get_comm_link_connected
+* @details Returns what was set using cr_set_comm_link_connected().
+* @return  true if the communication link is connected.
+*/
 bool cr_get_comm_link_connected(void);
 
+
+/**
+* @brief   cr_get_current_ticks
+* @details The tick count is passed in to cr_process(). This function gives 
+*          other Reach functions access to that value. 
+* @return  The same tick count passed into cr_process().
+*/
 uint32_t cr_get_current_ticks();
 
+/// <summary>
+/// Verify that buffer structures fit into limited size memory
+/// </summary>
 void cr_test_sizes();
 
 
@@ -187,7 +265,8 @@ typedef struct {
     uint8_t   medium_string_len;
     /// The number of bytes in short strings like the units label.
     uint8_t   short_string_len;
-    /// padding : no longer used
+    /// The max number of enumeration descriptions that a server 
+    /// will provide in a parameter extended description. 
     uint8_t   param_info_enum_count;
     /// number of descriptors (stream, file) that fit in one message. 
     uint8_t   num_descriptors_in_response;
