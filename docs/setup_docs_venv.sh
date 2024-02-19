@@ -189,7 +189,11 @@ fi
 ensure_package_versions
 
 # Generate the Doxygen XML
-doxygen ./reach.doxyfile.in
+echo "Generating Doxygen XML..."
+doxygen ./reach.doxyfile.in > doxygen_build.log 2> doxygen_error.log
+echo "Doxygen XML generation complete. Please see doxygen_build.log and doxygen_error.log for details"
 
 # Generate the Wiki html
-sphinx-build -b html ./__source ./__build
+echo "Generating HTML Wiki..."
+sphinx-build -b html ./__source ./__build > sphinx_build.log 2> sphinx_error.log
+echo "HTML Wiki generation complete. Please see sphinx_build.log and sphinx_error.log for details"
