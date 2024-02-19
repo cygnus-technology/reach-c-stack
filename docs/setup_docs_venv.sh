@@ -26,11 +26,17 @@ set_pyenv_local_version() {
     # Check if .python-version file exists
     if [ -f ".python-version" ]; then
         pythonVersion=$(cat .python-version)
+        # Normalize the output of pyenv versions to ensure correct matching
+        installedVersions=$(pyenv versions --bare)
+        
         # Check if the specified Python version is installed
-        if ! pyenv versions | grep -q "$pythonVersion"; then
+        if ! echo "$installedVersions" | grep -Fxq "$pythonVersion"; then
             echo "Python version $pythonVersion is not installed. Installing now..."
             pyenv install "$pythonVersion"
+        else
+            echo "Python version $pythonVersion is already installed."
         fi
+        
         # Set the local Python version
         pyenv local "$pythonVersion"
         echo "Set local Python version to $pythonVersion."
