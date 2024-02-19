@@ -1,4 +1,4 @@
-![alt_text](images\CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
+![alt_text](images/CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
 
 # Getting Started with Cygnus Reach
 
@@ -66,7 +66,7 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
 * Connect your PC to the USB port on the Thunderboard.  
 * Launch Simplicity Commander.
 
-![alt_text](images\Simlicity-Commander.png "image_tooltip")
+![alt_text](images/Simlicity-Commander.png "image_tooltip")
 
 * Choose the kit in the upper left.  
 
@@ -79,7 +79,7 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
 * When the board is running it should respond to a carriage return with a prompt and the “ver” command should print a banner.  The help command prints help.
 
 * You should start to see a console like shown here.
-  ![alt_text](images\ver_command.png "image_tooltip")
+  ![alt_text](images/ver_command.png "image_tooltip")
   
   ## 
   
@@ -102,7 +102,7 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
   * Parameter ID 23 is increasing.  Refresh to see that.
     
     Reach provides for a remote command line interface (CLI).  The Thunderboard provides a CLI on the USB based serial port.  Reach also supports a remote CLI using the app.  This can be very helpful in development and troubleshooting.
-    ![alt_text](images\connect.png "image_tooltip")
+    ![alt_text](images/connect.png "image_tooltip")
     
     Commands provide a simple way to execute a function on the device.  The command tab has several useful functions.
 
@@ -112,16 +112,16 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
   
     Reach supports high speed data transfer as “files”.  
 
-![alt_text](images\connected.png "image_tooltip")
-![alt_text](images\phone_params.png "image_tooltip")
-![alt_text](images\phone_commands.png "image_tooltip")
+![alt_text](images/connected.png "image_tooltip")
+![alt_text](images/phone_params.png "image_tooltip")
+![alt_text](images/phone_commands.png "image_tooltip")
 
 ## File Access and the Debug Interface
 
 The file access features of Cygnus support the efficient transfer of larger blocks of data.  The “simple” interface interacts with files on your phone and gives you the option of emailing received files.  The debug interface gives you more control.  Access the debug interface from the three dots in the upper right corner.
-![alt_text](images\diagnostics1.png "image_tooltip")
+![alt_text](images/diagnostics1.png "image_tooltip")
 Here a button represents each of the basic message commands in the Reach protocol.  The phone issues the request and the resulting action is printed on the screen.  The response is shown in hex.  The message is decoded into a JSON like format.  The hex bytes that were sent are not displayed here.  They are visible on the serial console of the device.
-![alt_text](images\diagnostics_file.png "image_tooltip")
+![alt_text](images/diagnostics_file.png "image_tooltip")
 You can exercise finer control over the file operations on the debug screen.  First minimize logging using command 3.  Then select a fairly large size to read.  These tests send synthetic data, just increasing numbers to exercise the transfer rate.  You can experiment with the Acknowledgement rate and easily achieve transfer rates over 200kbps.
 
 ## The Serial Console
@@ -133,7 +133,7 @@ By default you see messages on the serial console as illustrated below.
 * The magenta text indicates we have received a new prompt from the phone.  The hex bytes are printed.  This is the “wire” log.
 * The cyan text prints what is decoded or to be encoded.  This is the “reach” log.  In this illustration the request for device info is answered.
 * Finally, the command “lm ?” shows you the bit field values of the log mask.  You can enable or disable various bits of logging.
-  ![alt_text](images\serial_cli.png "image_tooltip")
+  ![alt_text](images/serial_cli.png "image_tooltip")
   The command pane allows you to enable the remote CLI.
 
 The remote command line interface (CLI) is disabled by default.  When enabled, the command line of the device is accessible on the phone.
@@ -150,19 +150,19 @@ The remote access capability of Cygnus relies on a mobile device (a phone) which
 2. Go to [https://cygnustechnology.com/](https://cygnustechnology.com/).  You will need to create an account.  This account allows you to evaluate the system.  It’s immediately granted.  It doesn’t confer enough rights to support the deployment of a real product.  Full product support requires a licensing agreement that is available from your Cygnus sales representative.
 3. Having created an account you are invited to start a support session.  It may take a few minutes for the account to become active to access this page.  Enter an arbitrary name for the session.  This allows the session to be recorded for later reference.
 
-![alt_text](images\web_session.png "image_tooltip")
+![alt_text](images/web_session.png "image_tooltip")
 Clicking on “Start Support Session” brings you to a PIN page.
-![alt_text](images\web_pin.png "image_tooltip")
+![alt_text](images/web_pin.png "image_tooltip")
 
 Open the app on your phone and select “Start Remote Support Session” at the bottom of the page.  Enter the PIN.  Accept the permission request to start “recording or casting with Cygnus Reach”.
 
 Select “Device Info” on the web page.  You see what is essentially the same interface as you see on the phone.
 
-![alt_text](images\web_connect.png "image_tooltip")
+![alt_text](images/web_connect.png "image_tooltip")
 
 You can initiate a video sharing session which will allow the support engineer to see what is happening in the device.
 
-![alt_text](images\web_video.png "image_tooltip")
+![alt_text](images/web_video.png "image_tooltip")
 
 You can also see the phone’s screen and chat with the user.
 
@@ -173,16 +173,16 @@ You can rebuild the application and modify it to your needs.  The process is des
 ## Create a new Project
 
 Use the New menu entry to access the “Silicon Labs New Project Wizard”.
-![alt_text](images\silabs_sdk.png "image_tooltip")
+![alt_text](images/silabs_sdk.png "image_tooltip")
 
 Choose the Thunderboard EFR32BG22 (BRD4184A) using the EFR32BG22C224F512IM40.  If your thunderboard is attached to the USB port these should be selected automatically.  You want the latest Gecko SDK, here 4.4.0, and the GCC compiler, here “Simplicity IDE / GNU ARM v12.2.1”
 
 Click on “Next”.
-![alt_text](images\silabs_examples.png "image_tooltip")
+![alt_text](images/silabs_examples.png "image_tooltip")
 Select the “Bluetooth SoC Empty” project.  This will work best to duplicate the demo.  Other starting points might be more appropriate for a larger project.  For instance, SoC Empty has no RTOS, but this small device doesn’t have much use for an RTOS.
 
 Click on Next.
-![alt_text](images\silabs_config.png "image_tooltip")
+![alt_text](images/silabs_config.png "image_tooltip")
 **Important!  Rename the project to “reach_tboard”.**
 
 You can accept the default location or choose your own location.  
@@ -201,7 +201,7 @@ With the project open in Simplicity Studio, double click on reach_tboard.slcp fi
 
 Install the following components:
 
-![alt_text](images\silabs_components.png "image_tooltip")
+![alt_text](images/silabs_components.png "image_tooltip")
 
 1. Iostream_retarget_stdio
    1. Depends on iostream_usart_core
@@ -218,7 +218,7 @@ Install the following components:
 
 Add the necessary include paths.  Right click on the project in the project explorer and select properties.  Open the C/C++ build tab and choose settings.  Select “Includes” for the GNU ARM C Compiler.   Add the following:
 
-![alt_text](images\silabs_includes.png "image_tooltip")
+![alt_text](images/silabs_includes.png "image_tooltip")
 
 1. ${workspace_loc:/${ProjName}/App}
 2. ${workspace_loc:/${ProjName}/reach-c-stack}
@@ -232,7 +232,7 @@ The project should build with this configuration.
 
 You should be able to “Debug As” a “Silicon Labs ARM Program” by right clicking on the project in the explorer.  You may need to set up a debug configuration.  You should see the startup banner in your serial console with the new build date.
 
-![alt_text](images\silabs_banner.png "image_tooltip")
+![alt_text](images/silabs_banner.png "image_tooltip")
 
 The Cygnus app should be able to connect to you.
 

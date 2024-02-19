@@ -25,7 +25,7 @@ Conversion notes:
 
 ----->
 
-![alt_text](C:\Users\chuck.peplinski\cygnus\reacher-pb\reach-c-stack\docs\images\CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
+![alt_text](images/CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
 
 ## Cygnus Reach Programmers Introduction
 
@@ -159,7 +159,7 @@ The REACH API characteristic is all that is needed to enable access to the proto
 
 The BLE device must advertise this UUID so that mobile apps can identify it as a Cygnus device.  Note that the “Generic Access” service must also advertise to support long device names.
 
-![alt_text](C:\Users\chuck.peplinski\cygnus\reacher-pb\reach-c-stack\docs\images\SiLabsBLE.png "image_tooltip")
+![alt_text](images/SiLabsBLE.png "image_tooltip")
 
 ### System Structure
 
@@ -490,7 +490,7 @@ Repeat:
 
 (phone sends)        Final Transfer Data Notification, with “is_complete” : true
 
-![alt_text](C:\Users\chuck.peplinski\cygnus\reacher-pb\reach-c-stack\docs\images\file_read_sequence.png "image_tooltip")
+![alt_text](images/file_read_sequence.png "image_tooltip")
 
 ### Write File Sequence
 
@@ -518,7 +518,7 @@ Repeat:
 
 ## 
 
-![alt_text](C:\Users\chuck.peplinski\cygnus\reacher-pb\reach-c-stack\docs\images\file_write_sequence.png "image_tooltip")
+![alt_text](images/file_write_sequence.png "image_tooltip")
 
 ## Error Handling
 
