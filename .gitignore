@@ -8,6 +8,8 @@
 docs/__xml
 docs/__html
 docs/__latex
+docs/__build
+docs/__build.x
 
 # Node artifact files
 node_modules/
