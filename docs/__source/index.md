@@ -8,8 +8,5 @@ This documentation covers the Cygnus Reach Embedded Stack, including tutorials, 
 :maxdepth: 2
 :caption: Contents:
 
-overview
+```markdown
 getting_started
-tutorials/index
-programmers_guide/index
-api_reference/index
