@@ -23,7 +23,8 @@ templates_path = ['__templates']
 exclude_patterns = []
 
 # doxygen xml key:path binding for breath
-breathe_projects = { "source_docs": "../__xml" }
+breathe_projects = { "reach_embedded_stack": "../__xml" }
+breathe_default_project = "reach_embedded_stack"
 
 
 
