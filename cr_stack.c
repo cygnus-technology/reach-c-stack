@@ -39,7 +39,19 @@
 
 /**
  * @file      cr_stack.c
- * @brief     Contains the core of the Cygnus Reach firmware stack.
+ * @brief     Contains the core of the Cygnus Reach firmware 
+ *            stack. The Reach stack depends on reach-server.h
+ *            to control its configuration at build time.  The
+ *            file reach-server.h should be part of the server
+ *            application using the reach stack.
+ * @brief TERMINOLOGY: 
+ *      A transaction is a series of messages.
+ *      A message has a header and a payload.
+ *      The prompt is a received payload.
+ *      The response is a generated payload.
+ *      A file "transfer" is a series of messages terminated by
+ *      an ACK.
+
  * @author    Chuck Peplinski
  * @date      2024-01-18
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
@@ -56,7 +68,7 @@
 #include <time.h>
 #include <math.h>
 
-// H file provided by the app to configure the stack.
+// from the applicaiton
 #include "reach-server.h"
 
 #include "cr_stack.h"
@@ -71,46 +83,47 @@
 #include "reach_decode.h"
 #include "reach_version.h"
 
-///----------------------------------------------------------------------------
-/// static buffers used and reused by the reach stack.
-/// This is private data.
-///----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// static buffers used and reused by the reach stack.
+// This is private data.
+//----------------------------------------------------------------------------
 
-/// terminology
-/// A transaction is a series of mes`sages.
-/// A message has a header and a payload.
-/// The prompt is a received payload.
-/// The response is a generated payload.
-/// A file "transfer" is a series of messages terminated by an ACK.
-
-/// the fully encoded message is received in the 
-/// sCr_encoded_message_buffer. 
+// the fully encoded message is received in the sCr_encoded_message_buffer. 
+/// @private
 static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
+
+/// @private
 static size_t  sCr_encoded_message_size = 0;
 
-/// The message header is decoded into this buffer containing an encoded payload buffer: 
+// The message header is decoded into this buffer containing an encoded payload buffer: 
+/// @private
 static cr_ReachMessage sCr_uncoded_message_structure;
 
 /// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
 /// so that the header can be added.
 #define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
-/// A decoded prompt payload.
-/// This can be reused from the encoded message buffer.
-/// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+// A decoded prompt payload. This can be reused from the encoded message buffer. 
+// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+/// @private
 static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
-/// An uncoded response payload.
+// An uncoded response payload.
+/// @private
 static uint8_t sCr_uncoded_response_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
-/// The response payload is encoded into sCr_encoded_payload_buffer[]. 
+// The response payload is encoded into sCr_encoded_payload_buffer[]. 
+/// @private
 static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
+/// @private
 static size_t sCr_encoded_payload_size; 
  
-/// The response payload is copied into the sCr_uncoded_message_structure
+// The response payload is copied into the sCr_uncoded_message_structure
 
-/// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
+// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
+/// @private
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
+/// @private
 static size_t  sCr_encoded_response_size = 0;
 
 
@@ -125,25 +138,16 @@ uint32_t pvtCr_num_remaining_objects = 0;
 /// static (private) "member" variables
 ///----------------------------------------------------------------------------
 static int sCr_transaction_id = 0;
-static bool sCR_error_reported = false;
+static bool sCr_error_reported = false;
 
 ///----------------------------------------------------------------------------
-/// static (private) "member" functions
+/// Forward declarations of static (private) "member" functions
 ///----------------------------------------------------------------------------
 
-/// <summary> Decodes and responds to the coded prompt provided
-/// to the Reach core. Calls handle_message() 
-/// </summary>
-/// <returns>0 on success or an error</returns>
+/// @private
 static int handle_coded_prompt();
 
-/// <summary> Decodes the payload and calls the appropriate 
-/// handler function. 
-/// </summary>
-/// <param name="hdr"> Includes type of message</param>
-/// <param name="data">The actual message</param>
-/// <param name="size">in bytes</param>
-/// <returns>0 on success or an error</returns>
+/// @private
 static int 
 handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *data, size_t size);
 
@@ -197,11 +201,13 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
 static
-int cr_encode_message(cr_ReachMessageTypes message_type,        // in
+int sCr_encode_message(cr_ReachMessageTypes message_type,        // in
                       const void *payload,                      // in:  to be encoded
                       cr_ReachMessageHeader *hdr);              // in
 
-// Internal encode functions, to be deprecated.  Use cr_encode_message.
+
+
+// Internal encode functions, to be deprecated.  Use sCr_encode_message.
 static
 bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                           const void *data,                     // in:  data to be encoded
@@ -271,7 +277,7 @@ static int handle_continued_transactions()
     msg_header.number_of_objects = pvtCr_num_continued_objects;
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
     msg_header.transaction_id    = sCr_transaction_id;
-    rval = cr_encode_message(encode_message_type,          // in
+    rval = sCr_encode_message(encode_message_type,          // in
                              sCr_uncoded_response_buffer,  // in:  to be encoded
                              &msg_header);
 
@@ -316,7 +322,6 @@ bool pvtCr_challenge_key_is_valid(void)
 /**
 * @brief   cr_init
 * @details To be called before starting the stack.
-* @note    Not much happens here yet.
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
 */
 int cr_init() 
@@ -419,8 +424,8 @@ int cr_get_coded_response_buffer(uint8_t **ppResponse, size_t *pLen)
 }
 
 // static uint32_t lastTick = 0;
-static int sCallCount = 0;
-static uint32_t sCurrentTicks = 0;
+static int sCr_CallCount = 0;
+static uint32_t sCr_currentTicks = 0;
 
 /**
 * @brief   cr_process
@@ -437,8 +442,8 @@ static uint32_t sCurrentTicks = 0;
 */
 int cr_process(uint32_t ticks) 
 {
-    sCurrentTicks = ticks;   // store it so others can use it.
-    sCallCount++;
+    sCr_currentTicks = ticks;   // store it so others can use it.
+    sCr_CallCount++;
 
     if (!cr_get_comm_link_connected())
         return cr_ErrorCodes_NO_ERROR;
@@ -465,7 +470,7 @@ int cr_process(uint32_t ticks)
 
   // #define TEST_ERROR_REPORT
   #ifdef TEST_ERROR_REPORT
-    if (sCallCount == 500)
+    if (sCr_CallCount == 500)
     {
         i3_log(LOG_MASK_ALWAYS, "On tick 500, test the error report using Future Legend:");
         // Tick 2 error test: Send 190 characters to test too long string.
@@ -477,7 +482,7 @@ int cr_process(uint32_t ticks)
         crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
         return 0;
     }
-    if (sCallCount > 5000) sCallCount = 5000;
+    if (sCr_CallCount > 5000) sCr_CallCount = 5000;
   #endif  // def TEST_ERROR_REPORT
 
     // Support for continued transactions:
@@ -509,13 +514,13 @@ int cr_process(uint32_t ticks)
         if ((rval == cr_ErrorCodes_NO_DATA) || (rval == cr_ErrorCodes_NO_RESPONSE))
             return rval;
 
-        if (rval && !sCR_error_reported)
+        if (rval && !sCr_error_reported)
         {
             // The functions called here must report their errors
             // and return the error code.  This is a backup.
             cr_report_error(rval, "Otherwise unreported error");
         }
-        sCR_error_reported = false;
+        sCr_error_reported = false;
     }
     crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
 
@@ -532,7 +537,7 @@ int cr_process(uint32_t ticks)
 uint32_t cr_get_current_ticks()
 {
     // a 32 bit number will roll over in 49 days at 1kHz.
-    return sCurrentTicks;
+    return sCr_currentTicks;
 }
 
 static bool sCr_comm_link_is_connected = false;
@@ -604,6 +609,7 @@ void cr_report_error(int error_code, const char *fmt, ...)
     va_end(args);
     // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
 
+    /// @private
   #define ASYNC_ERROR_NOTIFCATION
   #ifdef ASYNC_ERROR_NOTIFCATION
     crcb_notify_error(err);
@@ -615,7 +621,7 @@ void cr_report_error(int error_code, const char *fmt, ...)
     msg_header.number_of_objects = 0;
     msg_header.remaining_objects = 0;
     msg_header.transaction_id    = 0;
-    int rval = cr_encode_message(cr_ReachMessageTypes_ERROR_REPORT, // in
+    int rval = sCr_encode_message(cr_ReachMessageTypes_ERROR_REPORT, // in
                                  sCr_uncoded_response_buffer,       // in:  to be encoded
                                  &msg_header);                      // in
     if (0 != rval)
@@ -626,7 +632,7 @@ void cr_report_error(int error_code, const char *fmt, ...)
     }
     i3_log(LOG_MASK_WARN, "Logged Error report:");
     i3_log(LOG_MASK_ERROR, "%s", err->result_string);
-    sCR_error_reported = true;
+    sCr_error_reported = true;
   #endif
 }
 
@@ -634,6 +640,13 @@ void cr_report_error(int error_code, const char *fmt, ...)
 // Static functions 
 //
 
+/*
+* @brief   handle_coded_prompt
+* @details A static (private) function to decode the wrapper and
+*          dispatch the appropriate message handlers.
+* @return Zero on success or an error code.
+*/
+/// @private
 static int handle_coded_prompt() 
 {
     // sCr_uncoded_message_structure will hold the decoded message.
@@ -666,11 +679,11 @@ static int handle_coded_prompt()
 
 
 // #define VERBOSE_SIZES
-static size_t sMaxBufferSize = 0;
-static int checkSize(size_t test, size_t limit, char *name)
+static size_t sCr_MaxBufferSize = 0;
+static int sCr_checkSize(size_t test, size_t limit, char *name)
 {
-    if (test > sMaxBufferSize)
-        sMaxBufferSize = test;
+    if (test > sCr_MaxBufferSize)
+        sCr_MaxBufferSize = test;
 
     if (test > limit)
     {
@@ -690,9 +703,8 @@ void cr_test_sizes()
 {
     int rval = 0;
 
-    /// <summary> MAX_BLE_SZ is used to check the encoded structure
+    /// MAX_BLE_SZ is used to check the encoded structure
     /// sizes. 
-    /// </summary>
     #define MAX_BLE_SZ  CR_CODED_BUFFER_SIZE
 
   #ifdef VERBOSE_SIZES
@@ -703,55 +715,55 @@ void cr_test_sizes()
     /// reach.pb.h gives us some "Maximum encoded size of messages".
     /// Check these against MAX_BLE_SZ, the limit of an encoded 
     /// buffer. 
-    rval += checkSize(cr_CLIData_size, MAX_BLE_SZ, "cr_CLIData_size");
-    rval += checkSize(cr_CommandInfo_size, MAX_BLE_SZ, "cr_CommandInfo_size");
-    rval += checkSize(cr_DeviceInfoResponse_size, MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
-    rval += checkSize(cr_DiscoverCommandsResponse_size, MAX_BLE_SZ, "cr_DiscoverCommandsResponse_size");
-    rval += checkSize(cr_DiscoverFilesResponse_size, MAX_BLE_SZ, "cr_DiscoverFilesResponse_size");
-    rval += checkSize(cr_DiscoverStreamsResponse_size, MAX_BLE_SZ, "cr_DiscoverStreamsResponse_size");
-    rval += checkSize(cr_ParamExKey_size, MAX_BLE_SZ, "cr_ParamExKey_size");
-    rval += checkSize(cr_ErrorReport_size, MAX_BLE_SZ, "cr_ErrorReport_size");
-    rval += checkSize(cr_FileInfo_size, MAX_BLE_SZ, "cr_FileInfo_size");
-    rval += checkSize(cr_FileTransferDataNotification_size, MAX_BLE_SZ, "cr_FileTransferDataNotification_size");
-    rval += checkSize(cr_FileTransferData_size, MAX_BLE_SZ, "cr_FileTransferData_size");
-    rval += checkSize(cr_FileTransferInitResponse_size, MAX_BLE_SZ, "cr_FileTransferInitResponse_size");
-    rval += checkSize(cr_FileTransferInit_size, MAX_BLE_SZ, "cr_FileTransferInit_size");
-    rval += checkSize(cr_ParamExInfoResponse_size, MAX_BLE_SZ, "cr_ParamExInfoResponse_size");
-    rval += checkSize(cr_ParameterInfoRequest_size, MAX_BLE_SZ, "cr_ParameterInfoRequest_size");
-    rval += checkSize(cr_ParameterInfoResponse_size, MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
-    rval += checkSize(cr_ParameterInfo_size, MAX_BLE_SZ, "cr_ParameterInfo_size");
-    rval += checkSize(cr_ParameterNotification_size, MAX_BLE_SZ, "cr_ParameterNotification_size");
-    rval += checkSize(cr_ParameterNotifyConfigResponse_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResponse_size");
-    rval += checkSize(cr_ParameterNotifyConfig_size, MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
-    rval += checkSize(cr_ParameterReadResult_size, MAX_BLE_SZ, "cr_ParameterReadResult_size");
-    rval += checkSize(cr_ParameterRead_size, MAX_BLE_SZ, "cr_ParameterRead_size");
-    rval += checkSize(cr_ParameterValue_size, MAX_BLE_SZ, "cr_ParameterValue_size");
-    rval += checkSize(cr_ParameterWrite_size, MAX_BLE_SZ, "cr_ParameterWrite_size");
-    rval += checkSize(cr_PingRequest_size, MAX_BLE_SZ, "cr_PingRequest_size");
-    rval += checkSize(cr_PingResponse_size, MAX_BLE_SZ, "cr_PingResponse_size");
-    rval += checkSize(cr_ReachMessageHeader_size, MAX_BLE_SZ, "cr_ReachMessageHeader_size");
-    rval += checkSize(cr_ReachMessage_size, MAX_BLE_SZ, "cr_ReachMessage_size");
-    rval += checkSize(cr_SendCommandResponse_size, MAX_BLE_SZ, "cr_SendCommandResponse_size");
-    rval += checkSize(cr_StreamData_size, MAX_BLE_SZ, "cr_StreamData_size");
-    rval += checkSize(cr_StreamInfo_size, MAX_BLE_SZ, "cr_StreamInfo_size");
+    rval += sCr_checkSize(cr_CLIData_size, MAX_BLE_SZ, "cr_CLIData_size");
+    rval += sCr_checkSize(cr_CommandInfo_size, MAX_BLE_SZ, "cr_CommandInfo_size");
+    rval += sCr_checkSize(cr_DeviceInfoResponse_size, MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
+    rval += sCr_checkSize(cr_DiscoverCommandsResponse_size, MAX_BLE_SZ, "cr_DiscoverCommandsResponse_size");
+    rval += sCr_checkSize(cr_DiscoverFilesResponse_size, MAX_BLE_SZ, "cr_DiscoverFilesResponse_size");
+    rval += sCr_checkSize(cr_DiscoverStreamsResponse_size, MAX_BLE_SZ, "cr_DiscoverStreamsResponse_size");
+    rval += sCr_checkSize(cr_ParamExKey_size, MAX_BLE_SZ, "cr_ParamExKey_size");
+    rval += sCr_checkSize(cr_ErrorReport_size, MAX_BLE_SZ, "cr_ErrorReport_size");
+    rval += sCr_checkSize(cr_FileInfo_size, MAX_BLE_SZ, "cr_FileInfo_size");
+    rval += sCr_checkSize(cr_FileTransferDataNotification_size, MAX_BLE_SZ, "cr_FileTransferDataNotification_size");
+    rval += sCr_checkSize(cr_FileTransferData_size, MAX_BLE_SZ, "cr_FileTransferData_size");
+    rval += sCr_checkSize(cr_FileTransferInitResponse_size, MAX_BLE_SZ, "cr_FileTransferInitResponse_size");
+    rval += sCr_checkSize(cr_FileTransferInit_size, MAX_BLE_SZ, "cr_FileTransferInit_size");
+    rval += sCr_checkSize(cr_ParamExInfoResponse_size, MAX_BLE_SZ, "cr_ParamExInfoResponse_size");
+    rval += sCr_checkSize(cr_ParameterInfoRequest_size, MAX_BLE_SZ, "cr_ParameterInfoRequest_size");
+    rval += sCr_checkSize(cr_ParameterInfoResponse_size, MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
+    rval += sCr_checkSize(cr_ParameterInfo_size, MAX_BLE_SZ, "cr_ParameterInfo_size");
+    rval += sCr_checkSize(cr_ParameterNotification_size, MAX_BLE_SZ, "cr_ParameterNotification_size");
+    rval += sCr_checkSize(cr_ParameterNotifyConfigResponse_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResponse_size");
+    rval += sCr_checkSize(cr_ParameterNotifyConfig_size, MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
+    rval += sCr_checkSize(cr_ParameterReadResult_size, MAX_BLE_SZ, "cr_ParameterReadResult_size");
+    rval += sCr_checkSize(cr_ParameterRead_size, MAX_BLE_SZ, "cr_ParameterRead_size");
+    rval += sCr_checkSize(cr_ParameterValue_size, MAX_BLE_SZ, "cr_ParameterValue_size");
+    rval += sCr_checkSize(cr_ParameterWrite_size, MAX_BLE_SZ, "cr_ParameterWrite_size");
+    rval += sCr_checkSize(cr_PingRequest_size, MAX_BLE_SZ, "cr_PingRequest_size");
+    rval += sCr_checkSize(cr_PingResponse_size, MAX_BLE_SZ, "cr_PingResponse_size");
+    rval += sCr_checkSize(cr_ReachMessageHeader_size, MAX_BLE_SZ, "cr_ReachMessageHeader_size");
+    rval += sCr_checkSize(cr_ReachMessage_size, MAX_BLE_SZ, "cr_ReachMessage_size");
+    rval += sCr_checkSize(cr_SendCommandResponse_size, MAX_BLE_SZ, "cr_SendCommandResponse_size");
+    rval += sCr_checkSize(cr_StreamData_size, MAX_BLE_SZ, "cr_StreamData_size");
+    rval += sCr_checkSize(cr_StreamInfo_size, MAX_BLE_SZ, "cr_StreamInfo_size");
 
     /// <summary>
     /// MAX_RAW_SZ is used to check the unencoded structure sizes. 
     /// </summary>
     #define MAX_RAW_SZ  CR_DECODED_BUFFER_SIZE
 
-    rval += checkSize(sizeof(cr_StreamInfo), MAX_RAW_SZ, "sizeof(cr_StreamInfo)");
-    rval += checkSize(sizeof(cr_ErrorReport), MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
-    rval += checkSize(sizeof(cr_ParameterReadResult), MAX_RAW_SZ, "sizeof(cr_ParameterReadResult)");
-    rval += checkSize(sizeof(cr_ParameterWrite), MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
-    rval += checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
-    rval += checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
-    rval += checkSize(sizeof(cr_ParameterNotifyConfigResponse), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfigResponse)");
-    rval += checkSize(sizeof(cr_ParameterValue), MAX_RAW_SZ, "sizeof(cr_ParameterValue)");
-    rval += checkSize(sizeof(cr_CLIData), MAX_RAW_SZ, "sizeof(cr_CLI_Data)");
-    rval += checkSize(sizeof(cr_ParameterRead), MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
-    rval += checkSize(sizeof(cr_FileTransferData), MAX_RAW_SZ, "sizeof(cr_FileTransferData)");
-    rval += checkSize(sizeof(cr_ParameterInfo), MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
+    rval += sCr_checkSize(sizeof(cr_StreamInfo), MAX_RAW_SZ, "sizeof(cr_StreamInfo)");
+    rval += sCr_checkSize(sizeof(cr_ErrorReport), MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
+    rval += sCr_checkSize(sizeof(cr_ParameterReadResult), MAX_RAW_SZ, "sizeof(cr_ParameterReadResult)");
+    rval += sCr_checkSize(sizeof(cr_ParameterWrite), MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
+    rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
+    rval += sCr_checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
+    rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfigResponse), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfigResponse)");
+    rval += sCr_checkSize(sizeof(cr_ParameterValue), MAX_RAW_SZ, "sizeof(cr_ParameterValue)");
+    rval += sCr_checkSize(sizeof(cr_CLIData), MAX_RAW_SZ, "sizeof(cr_CLI_Data)");
+    rval += sCr_checkSize(sizeof(cr_ParameterRead), MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
+    rval += sCr_checkSize(sizeof(cr_FileTransferData), MAX_RAW_SZ, "sizeof(cr_FileTransferData)");
+    rval += sCr_checkSize(sizeof(cr_ParameterInfo), MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
 
     // If these don't match, check the structures associated with them
     affirm(sizeof(reach_sizes_t) == REACH_SIZE_STRUCT_SIZE);
@@ -768,6 +780,14 @@ void cr_test_sizes()
   #endif  // def VERBOSE_SIZES
 
 }
+
+// <summary> Decodes the payload and calls the appropriate 
+// handler function. 
+// </summary>
+// <param name="hdr"> Includes type of message</param>
+// <param name="data">The actual message</param>
+// <param name="size">in bytes</param>
+// <returns>0 on success or an error</returns>
 
 /*********************************************************************************
   * The caller separated the wrapper into header and coded_data.
@@ -937,7 +957,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     msg_header.number_of_objects = pvtCr_num_continued_objects;
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
     msg_header.transaction_id    = sCr_transaction_id;
-    rval = cr_encode_message(encode_message_type,
+    rval = sCr_encode_message(encode_message_type,
                              sCr_uncoded_response_buffer,
                              &msg_header);
     if (rval != 0)
@@ -977,7 +997,7 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 // </summary>
 // <param name="dir">Pointer to a device info response 
 // structure into which the sizes data will be copied</param> 
-static void populate_device_info_sizes(cr_DeviceInfoResponse *dir)
+static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
 {
     reach_sizes_t sizes_struct; 
 
@@ -1029,7 +1049,7 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 #endif  // def INCLUDE_PARAMETER_SERVICE
 
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
-    populate_device_info_sizes(response);
+    sCr_populate_device_info_sizes(response);
     return 0;
 }
 
@@ -1419,7 +1439,7 @@ bool encode_reach_message(const cr_ReachMessage *message,   // in:  message to b
 
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
-static int cr_encode_message(cr_ReachMessageTypes message_type,    // in
+static int sCr_encode_message(cr_ReachMessageTypes message_type,    // in
                              const void *payload,                  // in:  to be encoded
                              cr_ReachMessageHeader *hdr)           // in
 {

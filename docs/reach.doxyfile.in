@@ -949,7 +949,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ../IoT-Core/i3_log.c ../cr_stack.c ../crcb_weak.c
+INPUT                  = ../IoT-Core/i3_log.c ../cr_stack.c ../cr_weak.c
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1078,7 +1078,12 @@ EXCLUDE_PATTERNS       =
 # wildcard * is used, a substring. Examples: ANamespace, AClass,
 # ANamespace::AClass, ANamespace::*Test
 
-EXCLUDE_SYMBOLS        =
+EXCLUDE_SYMBOLS        = handle_* pvt* sCr_* \
+			  test_* encode_* \
+			  ASYNC_ERROR_NOTIFCATION \
+			  MAX_BLE_SZ \
+			  MAX_RAW_SZ 
+
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
