@@ -5,15 +5,7 @@
  *   |_|___/ |_| |_| \___/\__,_|\_,_\__|\__| |___/\___|\_/\___|_\___/ .__/_|_|_\___|_||_\__|
  *                                                                  |_|
  *                           -----------------------------------
- *                          Copyright i3 Product Development 2023
- *
- * \brief "i3_log.h" specifies the interface to a basic logging function.
- *   The log must be easily retargeted to the console IO of the target.
- *   The log must be easily connected to the Reach CLI facility
- *   The log must easily be removed for very small targets.
- *   The "mask" facility allows users to turn on and off logging on a per function basis.
- *
- * Original Author: Chuck.Peplinski
+ *                          Copyright i3 Product Development 2023-24
  *
  ********************************************************************************************/
 
@@ -22,8 +14,13 @@
 
 /**
  * @file      i3_log.h
- * @brief     Public API to the i3_log module. By convention the functions here 
- *            are documented with their source in the .c file.
+ * @brief     Contains printf style logging functions as used by the Cygnus 
+ *            Reach firmware stack. The log module is designed
+ *            to be easily retargeted to the console IO of the
+ *            target. It is designed to be easily removed for
+ *            very small targets.  The "mask" facility allows
+ *            users to turn on and off logging on a per function
+ *            basis.
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
  * The Cygngus Reach firmware stack is shared under an MIT license.
  */
@@ -47,28 +44,25 @@ extern "C"
  * likely to be too much information.  You can turn on the logging from only the 
  * modules that you want to debug. Reach uses a few bits.  You can assign your 
  * own bits. 
+ * The lowest nibble is reserved to system things. 
+ * Higher bits can be defined and used by the application. 
  */
 
 ///  The lowest nibble is reserved to system things.
-#define LOG_MASK_ALWAYS     0x01    /// Cannot be supressed
-#define LOG_MASK_ERROR      0x02    /// Prints red, cannot be supressed
-#define LOG_MASK_WARN       0x04    /// Prints yellow, cannot be supressed
-#define LOG_MASK_BARE       0x08    /// trailing \n is omitted
-#define LOG_MASK_REMOTE     0x10    /// Set this to indicate that a message should be shared remotely.
+#define LOG_MASK_ALWAYS     0x01    ///< Cannot be supressed
+#define LOG_MASK_ERROR      0x02    ///< Prints red, cannot be supressed
+#define LOG_MASK_WARN       0x04    ///< Prints yellow, cannot be supressed
+#define LOG_MASK_BARE       0x08    ///< trailing \n is omitted
+#define LOG_MASK_REMOTE     0x10    ///< Set this to indicate that a message should be shared remotely.
 
 /// These used by Reach features.  Enable them to debug and understand.
-#define LOG_MASK_WEAK       0x20    /// print in weak functions
-#define LOG_MASK_WIRE       0x40    /// show what is on the wire
-#define LOG_MASK_REACH      0x80    /// show reach protocol exchanges
-#define LOG_MASK_PARAMS     0x100
-#define LOG_MASK_FILES      0x200
-#define LOG_MASK_BLE        0x400
-#define LOG_MASK_COMMAND   0x4000
-#define LOG_MASK_DEBUG     0x8000
-#define LOG_MASK_TIMEOUT  0x10000
-
-/// Higher bits can be defined and used by the application
-/// #include "app_log_masks.h"
+#define LOG_MASK_WEAK       0x20    ///< print in weak functions
+#define LOG_MASK_WIRE       0x40    ///< show what is on the wire
+#define LOG_MASK_REACH      0x80    ///< show reach protocol exchanges
+#define LOG_MASK_PARAMS     0x100   ///< show parameter handling
+#define LOG_MASK_FILES      0x200   ///< show file handling
+#define LOG_MASK_BLE        0x400   ///< show BLE handling
+#define LOG_MASK_DEBUG      0x800   ///< show other reach features
 
 /// Logging can be completely excluded from the build by
 /// defining NO_REACH_LOGGING in reach-server.h.
@@ -90,7 +84,11 @@ extern "C"
         i3_log_dump_buffer(mask, banner, buf, len)
 #endif  // def NO_LOGGING
 
-// Set and get the mask that control output per module
+/**
+* @brief   i3_log_set_mask
+* @details Sets the mask which determines whether or not a log statement 
+*              generates output. See defines starting with LOG_MASK_.
+*/
 void i3_log_set_mask(uint32_t mask);
 uint32_t i3_log_get_mask(void);
 

@@ -29,25 +29,21 @@
  *   |_|___/ |_| |_| \___/\__,_|\_,_\__|\__| |___/\___|\_/\___|_\___/ .__/_|_|_\___|_||_\__|
  *                                                                  |_|
  *                           -----------------------------------
- *                          Copyright i3 Product Development 2023
- *
- * \brief "i3_log.c" implments the i3_log interface using printf().
- *   The log must be easily retargeted to the console IO of the target.
- *   The log must be easily connected to the Reach CLI facility
- *   The log must easily be removed for very small targets.
- *   The "mask" facility allows users to turn on and off logging on a per function basis.
- *   See further comments in the H file.
- *
- * Original Author: Chuck.Peplinski
- *
+ *                          Copyright i3 Product Development 2023-2024
+ * *
  ********************************************************************************************/
 
 /**
  * @file      i3_log.c
  * @brief     Contains printf style logging functions as used by the Cygnus 
- *            Reach firmware stack.
+ *            Reach firmware stack. The log module is designed
+ *            to be easily retargeted to the console IO of the
+ *            target. It is designed to be easily removed for
+ *            very small targets.  The "mask" facility allows
+ *            users to turn on and off logging on a per function
+ *            basis.
  * @author    Chuck Peplinski
- * @date      2024-01-17
+ * @date      2024-02-21
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
  * The Cygngus Reach firmware stack is shared under an MIT license.
  */
@@ -62,6 +58,7 @@
 // reach-server.h defines the basic size of structures appropriate for the
 // current transport means.  For example, BLE.
 #include "reach-server.h"
+
 
 static uint32_t sLogMask = 0x147C7; // 0x387;
 //LOG_MASK_ALWAYS | LOG_MASK_ERROR | LOG_MASK_WARN |

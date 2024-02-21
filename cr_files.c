@@ -605,10 +605,10 @@ void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks)
         sTimeoutWatchdog_is_active = true;
         sTimeoutWatchdog_period    = msec;
         sTimeoutWatchdog_target = ticks + msec;
-        I3_LOG(LOG_MASK_TIMEOUT, "%s: set timeout to %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+        I3_LOG(LOG_MASK_DEBUG, "%s: set timeout to %d ms at %d ticks.", __FUNCTION__, msec, ticks);
         return;
     }
-    I3_LOG(LOG_MASK_TIMEOUT, "%s: Disable timeout with %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+    I3_LOG(LOG_MASK_DEBUG, "%s: Disable timeout with %d ms at %d ticks.", __FUNCTION__, msec, ticks);
     sTimeoutWatchdog_is_active = false;
 }
 
@@ -617,18 +617,18 @@ void pvtCr_watchdog_stroke_timeout(uint32_t ticks)
 {
     if (sTimeoutWatchdog_is_active) {
         sTimeoutWatchdog_target = ticks + sTimeoutWatchdog_period;
-        I3_LOG(LOG_MASK_TIMEOUT, "%s: Stroke timeout with %d ms at %d ticks.", 
+        I3_LOG(LOG_MASK_DEBUG, "%s: Stroke timeout with %d ms at %d ticks.", 
                __FUNCTION__, sTimeoutWatchdog_period, ticks);
         return;
     }
-    I3_LOG(LOG_MASK_TIMEOUT, "%s: Stroke timeout inactive.", __FUNCTION__);
+    I3_LOG(LOG_MASK_DEBUG, "%s: Stroke timeout inactive.", __FUNCTION__);
 }
 
 // disables the watchdog
 void pvtCr_watchdog_end_timeout()
 {
     sTimeoutWatchdog_is_active = false;
-    I3_LOG(LOG_MASK_TIMEOUT, "%s: End timeout.", __FUNCTION__);
+    I3_LOG(LOG_MASK_DEBUG, "%s: End timeout.", __FUNCTION__);
 }
 
 // if active, compares ticks to expected timeout.
@@ -640,7 +640,7 @@ int pvtCr_watchdog_check_timeout(uint32_t ticks)
 
     if (ticks > sTimeoutWatchdog_target)
     {
-        I3_LOG(LOG_MASK_TIMEOUT, TEXT_RED "%s: timeout Expired.", __FUNCTION__);
+        I3_LOG(LOG_MASK_DEBUG, TEXT_RED "%s: timeout Expired.", __FUNCTION__);
         return 1;
     }
     return 0;
