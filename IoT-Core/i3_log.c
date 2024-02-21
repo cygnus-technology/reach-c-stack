@@ -59,10 +59,10 @@
 // current transport means.  For example, BLE.
 #include "reach-server.h"
 
-
-static uint32_t sLogMask = 0x147C7; // 0x387;
-//LOG_MASK_ALWAYS | LOG_MASK_ERROR | LOG_MASK_WARN |
-// /* LOG_MASK_REACH |*/ LOG_MASK_PARAMS | LOG_MASK_FILES;
+#ifndef DEFAULT_LOG_MASK
+  #define DEFAULT_LOG_MASK 0xFC7
+#endif
+static uint32_t sLogMask = DEFAULT_LOG_MASK;
 
 /**
 * @brief   i3_log_set_mask
@@ -114,7 +114,7 @@ uint32_t i3_log_get_mask(void)
     * @details Retrieve the pointer and size of the remote buffer.  Set the size to 
     *          zero before returning so that the next string can overwrite the
     *          buffer.
-    * @note    In case there is no CLI service there is no buffer.
+    *          In case there is no CLI service there is no buffer.
     * @param   pRcli   pointer to char pointer of buffer.
     * @return  number of bytes currently in use by the remote cli buffer.
     */
@@ -129,7 +129,7 @@ uint32_t i3_log_get_mask(void)
     * @details A printf style logging function conditioned on a mask. The mask is 
     *          and'ed with the control set by i3_log_set_mask(). The string is
     *          printed if the result is non-zero. See LOG_MASK_.
-    * @note    In case there is no CLI service, simply printf.
+    *          In case there is no CLI service, simply printf.
     * @param   mask See LOG_MASK_.
     * @param   fmt As in printf.
     */
@@ -169,7 +169,7 @@ uint32_t i3_log_get_mask(void)
     * @details Enabling the remote CLI can generate significant BLE traffic. This 
     *          can slow down speed related things like file transfer.  Hence this
     *          API allows the remote command line to be easily supressed.
-    * @note    The initial state can be set in reach-server.h 
+    *          The initial state can be set in reach-server.h 
     * @return  cr_ErrorCodes_NO_ERROR on success.
     */
     static bool sUseRemoteCLI = REMOTE_CLI_ECHO_ON_DEFAULT;  
@@ -179,6 +179,10 @@ uint32_t i3_log_get_mask(void)
         return cr_ErrorCodes_NO_ERROR;
     }
 
+    /**
+    * @brief   i3_log_get_remote_cli_enable
+    * @return  true if enabled.
+    */
     bool i3_log_get_remote_cli_enable()
     {
         return sUseRemoteCLI;
@@ -197,7 +201,7 @@ uint32_t i3_log_get_mask(void)
     * @details Retrieve the pointer and size of the remote buffer.  Set the size to 
     *          zero before returning so that the next string can overwrite the
     *          buffer.
-    * @note    The assumption is that the contents of the buffer will be quickly 
+    *          The assumption is that the contents of the buffer will be quickly 
     *          transmitted before anyone else writes into the buffer.
     * @param   pRcli   pointer to char pointer of buffer.
     * @return  number of bytes currently in use by the remote cli buffer.
@@ -215,7 +219,7 @@ uint32_t i3_log_get_mask(void)
     * @details A printf style logging function conditioned on a mask. The mask is 
     *          and'ed with the control set by i3_log_set_mask(). The string is
     *          printed if the result is non-zero. See LOG_MASK_.
-    * @note    ANSI color codes are inserted for errors (red), warnings (yellow) and
+    *          ANSI color codes are inserted for errors (red), warnings (yellow) and
     *          Reach logging (cyan).  The color reset code and a \r\n are appended
     *          to all strings except for LOG_MASK_BARE. When the remote CLI is
     *          enabled the string is copied to the remote buffer and sent via
@@ -329,7 +333,7 @@ uint32_t i3_log_get_mask(void)
     * @brief   i3_log_dump_buffer
     * @details Directly uses printf to produce a hex dump of a buffer. Used to view 
     *          the contents of coded buffers sent and received.
-    * @note    The buffer is dumped locally, and not remotely. The width of the dump 
+    *          The buffer is dumped locally, and not remotely. The width of the dump 
     *          is set by the DUMP_WIDTH defined just above this function.
     * @param   mask Enable or disable using the log module's mask feature..
     * @param   banner A header to be displayed describing the hex dump.

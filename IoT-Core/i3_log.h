@@ -90,23 +90,70 @@ extern "C"
 *              generates output. See defines starting with LOG_MASK_.
 */
 void i3_log_set_mask(uint32_t mask);
+
+
+/**
+* @brief   i3_log_set_mask
+* @details Gets the mask which determines whether or not a log statement 
+*              generates output. See defines starting with LOG_MASK_.
+*/
 uint32_t i3_log_get_mask(void);
 
-// if remote CLI is enabled at build, this can disable it at run time.
+/**
+* @brief   i3_log_set_remote_cli_enable
+* @details Enabling the remote CLI can generate significant BLE traffic. This 
+*          can slow down speed related things like file transfer.  Hence this
+*          API allows the remote command line to be easily
+*          supressed.  The initial state can be set in
+*          reach-server.h
+* @return  cr_ErrorCodes_NO_ERROR on success.
+*/
 int i3_log_set_remote_cli_enable(bool enable);
+
+/**
+* @brief   i3_log_get_remote_cli_enable
+* @return  true if enabled.
+*/
 bool i3_log_get_remote_cli_enable();
 
-// if remote CLI support is enabled this gets a pointer to the remote buffer.
-// Otherwise pRcli is set to NULL.
-// Returns the current (valid) size of the buffer.
+/**
+* @brief   i3_log_get_remote_buffer
+* @details Retrieve the pointer and size of the remote buffer.  Set the size to 
+*          zero before returning so that the next string can overwrite the
+*          buffer.
+*          The assumption is that the contents of the buffer will be quickly 
+*          transmitted before anyone else writes into the buffer.
+* @param   pRcli   pointer to char pointer of buffer.
+* @return  number of bytes currently in use by the remote cli buffer.
+*/
 int i3_log_get_remote_buffer(char **pRcli);
 
-// The basic log function, like printf.
-// The mask passed here is compared with the "log mask" for the system.
-// The string prints if the mask bit is enabled.
+/**
+* @brief   i3_log
+* @details A printf style logging function conditioned on a mask. The mask is 
+*          and'ed with the control set by i3_log_set_mask(). The string is
+*          printed if the result is non-zero. See LOG_MASK_.
+*          ANSI color codes are inserted for errors (red), warnings (yellow) and
+*          Reach logging (cyan).  The color reset code and a \r\n are appended
+*          to all strings except for LOG_MASK_BARE. When the remote CLI is
+*          enabled the string is copied to the remote buffer and sent via
+*          crcb_cli_respond().
+* @param   mask See LOG_MASK_.
+*/
 void i3_log(const uint32_t mask, const char *fmt, ...);
 
-// A utility used to display raw binary data.
+/**
+* @brief   i3_log_dump_buffer
+* @details Logs a hex dump of a buffer. Used to view the 
+*          contents of coded buffers sent and received. The
+*          buffer is dumped locally, and not remotely. The width
+*          of the dump is set by the DUMP_WIDTH defined just
+*          above this function.
+* @param   mask Enable or disable using the log module's mask feature..
+* @param   banner A header to be displayed describing the hex dump.
+* @param   ptr A buffer of bytes to be displayed.
+* @param   len The number of bytes to be displayed..
+*/
 void i3_log_dump_buffer(const uint32_t mask,
                         const char *banner,
                         const uint8_t *ptr,

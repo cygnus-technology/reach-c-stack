@@ -1097,13 +1097,13 @@ handle_discover_commands(const cr_DiscoverCommands *request,
         // Here implies we are responding to the initial request.
         num_commands = crcb_get_command_count();
         sCr_requested_command_index = 0;
-        I3_LOG(LOG_MASK_COMMAND, "%s: first request, num_commands %d", 
+        I3_LOG(LOG_MASK_DEBUG, "%s: first request, num_commands %d", 
                __FUNCTION__, num_commands);
     }
     else  // here the request was null and we are continuing the previous request;
     {
         num_commands = pvtCr_num_remaining_objects;
-        I3_LOG(LOG_MASK_COMMAND, "%s: continued request, num_commands %d from %d", 
+        I3_LOG(LOG_MASK_DEBUG, "%s: continued request, num_commands %d from %d", 
                __FUNCTION__, num_commands, sCr_requested_command_index);
 
     }
@@ -1132,7 +1132,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
         // they all fit in one response.
         pvtCr_num_remaining_objects = 0;
         pvtCr_num_continued_objects = 0;
-        I3_LOG(LOG_MASK_COMMAND, "%s: Completed with %d", __FUNCTION__, num_commands);
+        I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_commands);
         return 0;
         // and we're done.
     } 
@@ -1141,7 +1141,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_COMMANDS;
     pvtCr_num_remaining_objects = num_commands - REACH_NUM_COMMANDS_IN_RESPONSE;
     pvtCr_num_continued_objects = pvtCr_num_remaining_objects;
-    I3_LOG(LOG_MASK_COMMAND, "%s: Setup continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
+    I3_LOG(LOG_MASK_DEBUG, "%s: Setup continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
     return 0;
 }
 
