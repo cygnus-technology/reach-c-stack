@@ -63,7 +63,7 @@ extern "C"
 #define LOG_MASK_PARAMS     0x100
 #define LOG_MASK_FILES      0x200
 #define LOG_MASK_BLE        0x400
-#define LOG_MASK_ACME      0x4000
+#define LOG_MASK_COMMAND   0x4000
 #define LOG_MASK_DEBUG     0x8000
 #define LOG_MASK_TIMEOUT  0x10000
 

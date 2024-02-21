@@ -63,7 +63,7 @@
 // current transport means.  For example, BLE.
 #include "reach-server.h"
 
-static uint32_t sLogMask = 0x107C7; // 0x387;
+static uint32_t sLogMask = 0x147C7; // 0x387;
 //LOG_MASK_ALWAYS | LOG_MASK_ERROR | LOG_MASK_WARN |
 // /* LOG_MASK_REACH |*/ LOG_MASK_PARAMS | LOG_MASK_FILES;
 

@@ -184,6 +184,8 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
     static int handle_discover_commands(const cr_DiscoverCommands *,
                                         cr_DiscoverCommandsResponse *);
     static int handle_send_command(const cr_SendCommand *, cr_SendCommandResponse *);
+
+    static unsigned int sCr_requested_command_index = 0;
 #endif // def INCLUDE_COMMAND_SERVICE
 
 #ifdef INCLUDE_CLI_SERVICE
@@ -252,6 +254,15 @@ static int handle_continued_transactions()
         rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
         break;
     #endif  // def INCLUDE_PARAMETER_SERVICE
+
+    #ifdef INCLUDE_COMMAND_SERVICE
+    case cr_ReachMessageTypes_DISCOVER_COMMANDS:
+        I3_LOG(LOG_MASK_REACH, "%s(): Continued disc cmds.", __FUNCTION__);
+        rval = 
+            handle_discover_commands(NULL,
+                                     (cr_DiscoverCommandsResponse *)sCr_uncoded_response_buffer);
+        break;
+    #endif  // def INCLUDE_COMMAND_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -1069,6 +1080,9 @@ static int
 handle_discover_commands(const cr_DiscoverCommands *request,
                          cr_DiscoverCommandsResponse *response)
 {
+    int rval;
+    int num_commands;
+
     if (!pvtCr_challenge_key_is_valid()) {
         pvtCr_num_remaining_objects = 0;
         pvtCr_num_continued_objects = 0;
@@ -1076,18 +1090,25 @@ handle_discover_commands(const cr_DiscoverCommands *request,
         return cr_ErrorCodes_NO_DATA; 
     }
 
-    (void)request;
-    int num_commands = crcb_get_command_count();
-    int rval;
-    if (num_commands >= REACH_NUM_COMMANDS_IN_RESPONSE)
+
+    if (request != NULL) 
     {
-        // this is just because I'm lazy.  Write it if you need it.
-        i3_log(LOG_MASK_WARN, "%s: Found %d commands.  Will only report first %d.", 
-                  __FUNCTION__, num_commands, REACH_NUM_COMMANDS_IN_RESPONSE);
-        num_commands = 6;
+        // request will be null on repeated calls.
+        // Here implies we are responding to the initial request.
+        num_commands = crcb_get_command_count();
+        sCr_requested_command_index = 0;
+        I3_LOG(LOG_MASK_COMMAND, "%s: first request, num_commands %d", 
+               __FUNCTION__, num_commands);
     }
-    crcb_command_discover_reset(0);  // index, not really cid.
-    response->available_commands_count = num_commands;
+    else  // here the request was null and we are continuing the previous request;
+    {
+        num_commands = pvtCr_num_remaining_objects;
+        I3_LOG(LOG_MASK_COMMAND, "%s: continued request, num_commands %d from %d", 
+               __FUNCTION__, num_commands, sCr_requested_command_index);
+
+    }
+    crcb_command_discover_reset(sCr_requested_command_index);  // index, not really cid.
+
     for (int i=0; i<REACH_NUM_COMMANDS_IN_RESPONSE; i++)
     {
         rval = crcb_command_discover_next(&response->available_commands[i]);
@@ -1102,9 +1123,25 @@ handle_discover_commands(const cr_DiscoverCommands *request,
             }
             break;
         }
+        else
+            sCr_requested_command_index++;
     }
-    pvtCr_num_remaining_objects = 0;
-    pvtCr_num_continued_objects = 0;
+    if (num_commands <= REACH_NUM_COMMANDS_IN_RESPONSE)
+    {
+        response->available_commands_count = num_commands;
+        // they all fit in one response.
+        pvtCr_num_remaining_objects = 0;
+        pvtCr_num_continued_objects = 0;
+        I3_LOG(LOG_MASK_COMMAND, "%s: Completed with %d", __FUNCTION__, num_commands);
+        return 0;
+        // and we're done.
+    } 
+    // otherwise there are more so set up for continued commands
+    response->available_commands_count = REACH_NUM_COMMANDS_IN_RESPONSE;
+    pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_COMMANDS;
+    pvtCr_num_remaining_objects = num_commands - REACH_NUM_COMMANDS_IN_RESPONSE;
+    pvtCr_num_continued_objects = pvtCr_num_remaining_objects;
+    I3_LOG(LOG_MASK_COMMAND, "%s: Setup continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
     return 0;
 }
 
