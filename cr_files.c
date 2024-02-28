@@ -217,7 +217,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
         preferred_ack_rate = request->messages_per_ack;
     if (preferred_ack_rate == 0)
         preferred_ack_rate = 10;  // default
-
+    response->preferred_ack_rate = preferred_ack_rate;
     response->result = 0;
 
     // sCr_file_xfer_state was zero'ed above.
