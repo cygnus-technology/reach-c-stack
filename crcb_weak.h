@@ -533,6 +533,33 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
 
 #endif  // def INCLUDE_TIME_SERVICE
 
+#ifdef INCLUDE_WIFI_SERVICE
+
+    /**
+    * @brief   crcb_wifi_info
+    * @details Retrieve the requested information about the WiFi 
+    *          system.
+    * @param   request (input) What info to get
+    * @param   response (output) The requested info
+    * @return  returns zero or an error code
+    */
+    int crcb_wifi_info(const cr_WiFiInfoRequest *request, 
+                                cr_WiFiInfoReponse *response);
+
+    /**
+    * @brief   crcb_wifi_connection
+    * @details Establish or break a WiFi connection.
+    * @param   request (input) what needed to connect
+    * @param   response (output) result
+    * @return  returns zero or an error code
+    */
+    int crcb_wifi_connection(const cr_WiFiConnectionRequest *request, 
+                                      cr_WiFiConnectionResponse *response);
+#endif  // def INCLUDE_WIFI_SERVICE
+
+
+
+
 #ifdef INCLUDE_OTA_SERVICE
     ///*************************************************************************
     ///  OTA service not yet supported

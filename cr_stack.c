@@ -200,6 +200,14 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
                                cr_TimeGetResponse *response);
 #endif  // def INCLUDE_TIME_SERVICE
 
+#ifdef INCLUDE_WIFI_SERVICE
+    static int handle_wifi_info(const cr_WiFiInfoRequest *request, 
+                                cr_WiFiInfoReponse *response);
+    static int handle_wifi_connection(const cr_WiFiConnectionRequest *request, 
+                                      cr_WiFiConnectionResponse *response);
+#endif  // def INCLUDE_WIFI_SERVICE
+
+
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
 static
@@ -689,7 +697,7 @@ static int handle_coded_prompt()
 }
 
 
-// #define VERBOSE_SIZES
+#define VERBOSE_SIZES
 static size_t sCr_MaxBufferSize = 0;
 static int sCr_checkSize(size_t test, size_t limit, char *name)
 {
@@ -758,6 +766,17 @@ void cr_test_sizes()
     rval += sCr_checkSize(cr_StreamData_size, MAX_BLE_SZ, "cr_StreamData_size");
     rval += sCr_checkSize(cr_StreamInfo_size, MAX_BLE_SZ, "cr_StreamInfo_size");
 
+    rval += sCr_checkSize(cr_WiFiConnectionRequest_size,    MAX_BLE_SZ, "cr_WiFiConnectionRequest_size");
+    rval += sCr_checkSize(cr_WiFiConnectionResponse_size,   MAX_BLE_SZ, "cr_WiFiConnectionResponse_size");
+    rval += sCr_checkSize(cr_WiFiInfoReponse_size,          MAX_BLE_SZ, "cr_WiFiInfoReponse_size");
+    rval += sCr_checkSize(cr_WiFiInfoRequest_size,          MAX_BLE_SZ, "cr_WiFiInfoRequest_size");
+
+
+
+
+
+
+
     /// <summary>
     /// MAX_RAW_SZ is used to check the unencoded structure sizes. 
     /// </summary>
@@ -775,6 +794,13 @@ void cr_test_sizes()
     rval += sCr_checkSize(sizeof(cr_ParameterRead), MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
     rval += sCr_checkSize(sizeof(cr_FileTransferData), MAX_RAW_SZ, "sizeof(cr_FileTransferData)");
     rval += sCr_checkSize(sizeof(cr_ParameterInfo), MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
+
+
+    rval += sCr_checkSize(sizeof(cr_WiFiConnectionRequest),         MAX_RAW_SZ, "cr_WiFiConnectionRequest");
+    rval += sCr_checkSize(sizeof(cr_WiFiConnectionResponse_size),   MAX_RAW_SZ, "cr_WiFiConnectionResponse");
+    rval += sCr_checkSize(sizeof(cr_WiFiInfoReponse_size),          MAX_RAW_SZ, "cr_WiFiInfoReponse");
+    rval += sCr_checkSize(sizeof(cr_WiFiInfoRequest_size),          MAX_RAW_SZ, "cr_WiFiInfoRequest");
+
 
     // If these don't match, check the structures associated with them
     affirm(sizeof(reach_sizes_t) == REACH_SIZE_STRUCT_SIZE);
@@ -953,6 +979,17 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                                 (cr_TimeGetResponse *)sCr_uncoded_response_buffer);
         break;
   #endif  // def INCLUDE_TIME_SERVICE
+
+  #ifdef INCLUDE_WIFI_SERVICE
+    case cr_ReachMessageTypes_WIFI_INFO:
+        rval = handle_wifi_info((cr_WiFiInfoRequest *)sCr_decoded_prompt_buffer, 
+                                (cr_WiFiInfoReponse *)sCr_uncoded_response_buffer);
+        break;
+    case cr_ReachMessageTypes_WIFI_CONNECT:
+        rval = handle_wifi_connect((cr_WiFiConnectionRequest *)sCr_decoded_prompt_buffer, 
+                                   (cr_WiFiConnectionResponse *)sCr_uncoded_response_buffer);
+        break;
+  #endif  // def INCLUDE_WIFI_SERVICE
 
     default:
         cr_report_error(cr_ErrorCodes_NOT_IMPLEMENTED, "Unhandled message type %d.", message_type);
@@ -1203,6 +1240,32 @@ static int handle_send_command(const cr_SendCommand *request,
 #endif  // def INCLUDE_TIME_SERVICE
 
 
+#ifdef INCLUDE_WIFI_SERVICE
+    static int handle_wifi_info(const cr_WiFiInfoRequest *request, 
+                                cr_WiFiInfoReponse *response)
+    {
+        if (!pvtCr_challenge_key_is_valid()) {
+            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+            return 0;
+        }
+        crcb_wifi_info(request, response);
+        return 0;
+    }
+
+    static int handle_wifi_connection(const cr_WiFiConnectionRequest *request, 
+                                      cr_WiFiConnectionResponse *response)
+    {
+        (void)request;
+        if (!pvtCr_challenge_key_is_valid()) {
+            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+            return 0;
+        }
+        crcb_wifi_connection(request, response);
+        return 0;
+    }
+
+#endif  // def INCLUDE_WIFI_SERVICE
+
 // int32_t handle_discover_streams(const cr_StreamsRequest *,
 //                                 cr_StreamsResponse *) {
 
@@ -1437,6 +1500,24 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       }
       break;
 #endif  // def INCLUDE_TIME_SERVICE
+
+
+#ifdef INCLUDE_WIFI_SERVICE
+  case cr_ReachMessageTypes_WIFI_INFO:
+      status = pb_encode(&is_stream, cr_WiFiInfoResponse_fields, data);
+      if (status) {
+        LOG_REACH("WiFi Info response: \n%s\n",
+                  message_util_WiFi_info_response_json((cr_WiFiInfoResponse *)data));
+      }
+      break;
+  case cr_ReachMessageTypes_WIFI_CONNECT:
+      status = pb_encode(&is_stream, cr_WiFiConnectionResponse_fields, data);
+      if (status) {
+        LOG_REACH("WiFi Connect reqsponse: \n%s\n",
+                  message_util_WiFi_connect_request_json((cr_WiFiConnectionResponse *)data));
+      }
+      break;
+#endif  // def INCLUDE_WIFI_SERVICE
 
   default:
       LOG_ERROR("No encoder for %d", message_type);

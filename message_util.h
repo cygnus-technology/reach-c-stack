@@ -88,5 +88,13 @@
         char *message_util_time_set_request_json(const cr_TimeSetRequest *payload);
         char *message_util_time_get_request_json(const cr_TimeGetRequest *payload); 
     #endif // def INCLUDE_TIME_SERVICE
+
+    #ifdef INCLUDE_WIFI_SERVICE
+        char *message_util_WiFi_info_request_json(const cr_WiFiInfoRequest *payload);
+        char *message_util_WiFi_connect_request_json(const cr_WiFiConnectionRequest *payload);
+        char *message_util_WiFi_info_response_json(cr_WiFiInfoResponse *payload);
+        char *message_util_WiFi_connect_request_json(cr_WiFiConnectionResponse *payload);
+    #endif  // def INCLUDE_WIFI_SERVICE
+
   #endif // ndef NO_REACH_LOGGING
 #endif /* __MESSAGE_UTIL_H__ */

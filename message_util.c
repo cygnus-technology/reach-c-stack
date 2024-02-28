@@ -58,8 +58,13 @@
 // None of these message utilities are required without logging.
 #ifndef NO_REACH_LOGGING
 
-#if (defined(INCLUDE_PARAMETER_SERVICE) || defined(INCLUDE_TIME_SERVICE))
-  static char sMsgUtilBuffer[40];
+#if defined(INCLUDE_WIFI_SERVICE)
+  #define MSG_BUFFER_LEN    256
+  static char sMsgUtilBuffer[MSG_BUFFER_LEN];
+
+#elif (defined(INCLUDE_PARAMETER_SERVICE) || defined(INCLUDE_TIME_SERVICE))
+  #define MSG_BUFFER_LEN    40
+  static char sMsgUtilBuffer[MSG_BUFFER_LEN];
 #endif
 
   // msg_type_string(cr_ReachMessageTypes_GET_DEVICE_INFO)
@@ -734,5 +739,106 @@ char *message_util_ping_response_json(const cr_PingResponse *payload) {
         return sMsgUtilBuffer;
     }
 #endif  // def INCLUDE_TIME_SERVICE
+
+#ifdef INCLUDE_WIFI_SERVICE
+    char *message_util_WiFi_info_request_json(const cr_WiFiInfoRequest *payload)
+    {
+        if (payload->state == cr_WiFiState_CONNECTED)
+            sprintf(&sMsgUtilBuffer[0], "  WiFi Info request for connected link\r\n");
+        else
+            sprintf(&sMsgUtilBuffer[0], "  WiFi Info request for unconnected link(s)\r\n");
+        return sMsgUtilBuffer;
+    }
+
+    char *message_util_WiFi_connect_request_json(const cr_WiFiConnectionRequest *payload)
+    {
+        int ptr = 0;
+        // longest text is 234 bytes
+        if (payload->action == cr_WiFiState_CONNECTED)
+        {
+            if (!payload->has_cd)
+            {
+                sprintf(&sMsgUtilBuffer[ptr], "  WiFi connection request without description.\r\n");
+                LOG_ERROR("WiFi connection request without description.\r\n");
+                return sMsgUtilBuffer;
+            }
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  WiFi connect request for connection to:\r\n");
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "    SSID : '%s'\r\n", payload->cd.ssid;
+            if (payload->cd.has_password)
+                ptr += sprintf(&sMsgUtilBuffer[ptr], "    PW : '%s'\r\n", payload->cd.password);
+            else
+                ptr += sprintf(&sMsgUtilBuffer[ptr], "    PW : Not Provided.\r\n"(, payload->cd.password);
+            if (payload->cd.has_signal_strength)
+                ptr += sprintf(&sMsgUtilBuffer[ptr], "    Signal Strength : %d\r\n", payload->cd.signal_strength);
+            if (payload->cd.has_sec)
+            {
+                switch (payload->cd.sec)
+                {
+                case cr_WiFiSecurity_OPEN:
+                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    Open connection\r\n");
+                    break;
+                case cr_WiFiSecurity_WEP:
+                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WEP security\r\n");
+                    break;
+                case cr_WiFiSecurity_WPA:
+                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WPA security\r\n");
+                    break;
+                case cr_WiFiSecurity_WPA2:
+                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WPA2 security\r\n");
+                    break;
+                case cr_WiFiSecurity_WPA3:
+                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WPA3 security\r\n");
+                    break;
+                default:
+                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    Unknown security %d\r\n", payload->cd.sec);
+                    break;
+                }
+            }
+            else
+                ptr += sprintf(&sMsgUtilBuffer[ptr], "    No security specified\r\n");
+            if (payload->cd.has_band)
+                ptr += sprintf(&sMsgUtilBuffer[ptr], "    Radio band %d\r\n", payload->cd.band);
+            if (payload->has_autoconnect && payload->autoconnect)
+                ptr += sprintf(&sMsgUtilBuffer[ptr], "    Autoconnect requested\r\n");
+        }
+        else
+        {
+            sprintf(&sMsgUtilBuffer[ptr], "  WiFi connect request for disconnect.\r\n");
+        }
+        return sMsgUtilBuffer;
+    }
+
+    char *message_util_WiFi_info_response_json(cr_WiFiInfoResponse *payload)
+    {
+        int ptr = 0;
+        if (payload->state == cr_WiFiState_CONNECTED)
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Connected.\r\n");
+        else 
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Not Connected, connection ID %d.\r\n", payload->connectionId);
+        if (payload->has_cd) 
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  SSID : '%s'.\r\n", payload->cd.ssid);
+        if (payload->cd.has_signal_strength)
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Signal strength %d\r\n", payload->cd.signal_strength);
+        if (payload->cd.has_signal_strength)
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Signal strength %d\r\n", payload->cd.signal_strength);
+        if (payload->cd.has_band)
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "    Radio band %d\r\n", payload->cd.band);
+
+        return sMsgUtilBuffer;
+    }
+
+    char *message_util_WiFi_connect_request_json(cr_WiFiConnectionResponse *payload)
+    {
+        int ptr = 0;
+        ptr += sprintf(&sMsgUtilBuffer[ptr], "    Connection Result %d\r\n", payload->result);
+        if (payload->has_signal_strength)
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Signal strength %d\r\n", payload->signal_strength);
+        if (payload->has_error_message)
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Message: '%s'\r\n", payload->error_message);
+        return sMsgUtilBuffer;
+    }
+  #endif  // def INCLUDE_WIFI_SERVICE
+
+
 
 #endif  // ndef NO_REACH_LOGGING

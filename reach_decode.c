@@ -264,7 +264,25 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                   message_util_time_set_request_json((cr_TimeSetRequest *)data));
       }
       break;
-#endif  // def INCLUDE_CLI_SERVICE
+#endif  // def INCLUDE_TIME_SERVICE
+
+
+#ifdef INCLUDE_WIFI_SERVICE
+  case cr_ReachMessageTypes_WIFI_INFO:
+      status = pb_decode(&is_stream, cr_WiFiInfoRequest_fields, data);
+      if (status) {
+        LOG_REACH("WiFi Info request: \n%s\n",
+                  message_util_WiFi_info_request_json((cr_WiFiInfoRequest *)data));
+      }
+      break;
+  case cr_ReachMessageTypes_WIFI_CONNECT:
+      status = pb_decode(&is_stream, cr_WiFiConnectionRequest_fields, data);
+      if (status) {
+        LOG_REACH("WiFi Connect request: \n%s\n",
+                  message_util_WiFi_connect_request_json((cr_WiFiConnectionRequest *)data));
+      }
+      break;
+#endif  // def INCLUDE_WIFI_SERVICE
 
   default:
       break;

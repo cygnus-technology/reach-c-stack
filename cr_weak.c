@@ -706,6 +706,25 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     }
 #endif  /// def INCLUDE_TIME_SERVICE
 
+#ifdef INCLUDE_WIFI_SERVICE
+    int __attribute__((weak)) crcb_wifi_info(const cr_WiFiInfoRequest *request, 
+                                                cr_WiFiInfoReponse *response)
+    {
+        (void)request;
+        (void)response;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+    int __attribute__((weak)) crcb_wifi_connection(const cr_WiFiConnectionRequest *request, 
+                                                   cr_WiFiConnectionResponse *response)
+    {
+        (void)request;
+        (void)response;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+#endif  // def INCLUDE_WIFI_SERVICE
+
 #ifdef INCLUDE_OTA_SERVICE
     ///*************************************************************************
     ///  OTA service not yet supported
