@@ -12,4 +12,4 @@ pipelines:
           name: Mirror to GitHub
           script:
             - echo "Mirroring reach-c-stack to GitHub..."
-            - git push --mirror https://<Developer-i3PD>:${GITHUB_TOKEN}@github.com/cygnus-technology/reach-c-stack.git
+            - git push --mirror https://Developer-i3PD:${GITHUB_TOKEN}@github.com/cygnus-technology/reach-c-stack.git
