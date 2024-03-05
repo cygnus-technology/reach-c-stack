@@ -707,14 +707,73 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
 #endif  /// def INCLUDE_TIME_SERVICE
 
 #ifdef INCLUDE_WIFI_SERVICE
-    int __attribute__((weak)) crcb_wifi_info(const cr_WiFiInfoRequest *request, 
-                                                cr_WiFiInfoReponse *response)
+
+    /**
+    * @brief   crcb_discover_wifi
+    * @details Retrieve the requested information about the WiFi 
+    *          system.
+    * @param   request (input) What info to get
+    * @param   response (output) The requested info
+    * @return  returns zero or an error code
+    */
+    int crcb_discover_wifi(const cr_DiscoverWiFiRequest *request, 
+                                cr_DiscoverWiFiResponse *response)
     {
         (void)request;
         (void)response;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
+
+   /**
+    * @brief   crcb_get_wifi_count
+    * @return  The number of wifi access points available to the
+    *          the device.
+    */    
+    int __attribute__((weak)) crcb_get_wifi_count()
+    {
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
+
+    /**
+    * @brief   crcb_wifi_discover_reset
+    * @details The overriding implementation must reset a pointer 
+    *          into a table of the available wifi access points
+    *          such that the next call to
+    *          crcb_wifi_discover_next() will return the description
+    *          of this access point.
+    * @param   cid The ID to which the wifi table pointer 
+    *              should be reset.  0 for the first AP.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_wifi_discover_reset(const uint32_t cid)
+    {
+        (void)cid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
+
+    /**
+    * @brief   crcb_wifi_discover_next
+    * @details Gets the wifi description for the next wifi. 
+    *          The overriding implementation must post-increment its pointer into 
+    *          the wifi table.
+    * @param   cmd_desc Pointer to stack provided memory into which the 
+    *               wifi description is to be copied.
+    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
+    *          if the last wifi has already been returned.
+    */
+    int __attribute__((weak)) crcb_wifi_discover_next(cr_ConnectionDescription *AP_desc)
+    {
+        (void)AP_desc;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
     int __attribute__((weak)) crcb_wifi_connection(const cr_WiFiConnectionRequest *request, 
                                                    cr_WiFiConnectionResponse *response)
     {

@@ -90,10 +90,10 @@
     #endif // def INCLUDE_TIME_SERVICE
 
     #ifdef INCLUDE_WIFI_SERVICE
-        char *message_util_WiFi_info_request_json(const cr_WiFiInfoRequest *payload);
+        char *message_util_discover_wifi_request_json(const cr_DiscoverWiFiRequest *payload);
         char *message_util_WiFi_connect_request_json(const cr_WiFiConnectionRequest *payload);
-        char *message_util_WiFi_info_response_json(cr_WiFiInfoResponse *payload);
-        char *message_util_WiFi_connect_request_json(cr_WiFiConnectionResponse *payload);
+        char *message_util_discover_wifi_response_json(cr_DiscoverWiFiResponse *payload);
+        char *message_util_WiFi_connect_response_json(cr_WiFiConnectionResponse *payload);
     #endif  // def INCLUDE_WIFI_SERVICE
 
   #endif // ndef NO_REACH_LOGGING

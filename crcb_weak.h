@@ -536,15 +536,47 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
 #ifdef INCLUDE_WIFI_SERVICE
 
     /**
-    * @brief   crcb_wifi_info
+    * @brief   crcb_discover_wifi
     * @details Retrieve the requested information about the WiFi 
     *          system.
     * @param   request (input) What info to get
     * @param   response (output) The requested info
     * @return  returns zero or an error code
     */
-    int crcb_wifi_info(const cr_WiFiInfoRequest *request, 
-                                cr_WiFiInfoReponse *response);
+    int crcb_discover_wifi(const cr_DiscoverWiFiRequest *request, 
+                                cr_DiscoverWiFiResponse *response);
+   /**
+    * @brief   crcb_get_wifi_count
+    * @return  The number of wifi access points available to the
+    *          the device.
+    */    
+    int crcb_get_wifi_count();
+
+    /**
+    * @brief   crcb_wifi_discover_reset
+    * @details The overriding implementation must reset a pointer 
+    *          into a table of the available wifi access points
+    *          such that the next call to
+    *          crcb_wifi_discover_next() will return the description
+    *          of this access point.
+    * @param   cid The ID to which the wifi table pointer 
+    *              should be reset.  0 for the first AP.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_wifi_discover_reset(const uint32_t cid);
+
+    /**
+    * @brief   crcb_wifi_discover_next
+    * @details Gets the wifi description for the next wifi. 
+    *          The overriding implementation must post-increment its pointer into 
+    *          the wifi table.
+    * @param   cmd_desc Pointer to stack provided memory into which the 
+    *               wifi description is to be copied.
+    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
+    *          if the last wifi has already been returned.
+    */
+    int crcb_wifi_discover_next(cr_ConnectionDescription *conn_desc);
 
     /**
     * @brief   crcb_wifi_connection

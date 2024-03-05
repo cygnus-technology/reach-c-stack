@@ -741,7 +741,7 @@ char *message_util_ping_response_json(const cr_PingResponse *payload) {
 #endif  // def INCLUDE_TIME_SERVICE
 
 #ifdef INCLUDE_WIFI_SERVICE
-    char *message_util_WiFi_info_request_json(const cr_WiFiInfoRequest *payload)
+    char *message_util_discover_wifi_request_json(const cr_DiscoverWiFiRequest *payload)
     {
         if (payload->state == cr_WiFiState_CONNECTED)
             sprintf(&sMsgUtilBuffer[0], "  WiFi Info request for connected link\r\n");
@@ -763,11 +763,7 @@ char *message_util_ping_response_json(const cr_PingResponse *payload) {
                 return sMsgUtilBuffer;
             }
             ptr += sprintf(&sMsgUtilBuffer[ptr], "  WiFi connect request for connection to:\r\n");
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "    SSID : '%s'\r\n", payload->cd.ssid;
-            if (payload->cd.has_password)
-                ptr += sprintf(&sMsgUtilBuffer[ptr], "    PW : '%s'\r\n", payload->cd.password);
-            else
-                ptr += sprintf(&sMsgUtilBuffer[ptr], "    PW : Not Provided.\r\n"(, payload->cd.password);
+            ptr += sprintf(&sMsgUtilBuffer[ptr], "    SSID : '%s'\r\n", payload->cd.ssid);
             if (payload->cd.has_signal_strength)
                 ptr += sprintf(&sMsgUtilBuffer[ptr], "    Signal Strength : %d\r\n", payload->cd.signal_strength);
             if (payload->cd.has_sec)
@@ -808,7 +804,7 @@ char *message_util_ping_response_json(const cr_PingResponse *payload) {
         return sMsgUtilBuffer;
     }
 
-    char *message_util_WiFi_info_response_json(cr_WiFiInfoResponse *payload)
+    char *message_util_discover_wifi_response_json(cr_DiscoverWiFiResponse *payload)
     {
         int ptr = 0;
         if (payload->state == cr_WiFiState_CONNECTED)
@@ -827,7 +823,7 @@ char *message_util_ping_response_json(const cr_PingResponse *payload) {
         return sMsgUtilBuffer;
     }
 
-    char *message_util_WiFi_connect_request_json(cr_WiFiConnectionResponse *payload)
+    char *message_util_WiFi_connect_response_json(cr_WiFiConnectionResponse *payload)
     {
         int ptr = 0;
         ptr += sprintf(&sMsgUtilBuffer[ptr], "    Connection Result %d\r\n", payload->result);

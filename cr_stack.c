@@ -201,9 +201,9 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
 #endif  // def INCLUDE_TIME_SERVICE
 
 #ifdef INCLUDE_WIFI_SERVICE
-    static int handle_wifi_info(const cr_WiFiInfoRequest *request, 
-                                cr_WiFiInfoReponse *response);
-    static int handle_wifi_connection(const cr_WiFiConnectionRequest *request, 
+    static int handle_discover_wifi(const cr_DiscoverWiFiRequest *request, 
+                                cr_DiscoverWiFiResponse *response);
+    static int handle_wifi_connect(const cr_WiFiConnectionRequest *request, 
                                       cr_WiFiConnectionResponse *response);
 #endif  // def INCLUDE_WIFI_SERVICE
 
@@ -271,6 +271,15 @@ static int handle_continued_transactions()
                                      (cr_DiscoverCommandsResponse *)sCr_uncoded_response_buffer);
         break;
     #endif  // def INCLUDE_COMMAND_SERVICE
+
+    #ifdef INCLUDE_WIFI_SERVICE
+    case cr_ReachMessageTypes_DISCOVER_WIFI:
+        I3_LOG(LOG_MASK_REACH, "%s(): Continued disc wifi.", __FUNCTION__);
+        rval = 
+            handle_discover_wifi(NULL,
+                                     (cr_DiscoverWiFiResponse *)sCr_uncoded_response_buffer);
+        break;
+    #endif  // def INCLUDE_WIFI_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -768,8 +777,8 @@ void cr_test_sizes()
 
     rval += sCr_checkSize(cr_WiFiConnectionRequest_size,    MAX_BLE_SZ, "cr_WiFiConnectionRequest_size");
     rval += sCr_checkSize(cr_WiFiConnectionResponse_size,   MAX_BLE_SZ, "cr_WiFiConnectionResponse_size");
-    rval += sCr_checkSize(cr_WiFiInfoReponse_size,          MAX_BLE_SZ, "cr_WiFiInfoReponse_size");
-    rval += sCr_checkSize(cr_WiFiInfoRequest_size,          MAX_BLE_SZ, "cr_WiFiInfoRequest_size");
+    rval += sCr_checkSize(cr_DiscoverWiFiResponse_size,          MAX_BLE_SZ, "cr_DiscoverWiFiResponse_size");
+    rval += sCr_checkSize(cr_DiscoverWiFiRequest_size,          MAX_BLE_SZ, "cr_DiscoverWiFiRequest_size");
 
 
 
@@ -798,8 +807,8 @@ void cr_test_sizes()
 
     rval += sCr_checkSize(sizeof(cr_WiFiConnectionRequest),         MAX_RAW_SZ, "cr_WiFiConnectionRequest");
     rval += sCr_checkSize(sizeof(cr_WiFiConnectionResponse_size),   MAX_RAW_SZ, "cr_WiFiConnectionResponse");
-    rval += sCr_checkSize(sizeof(cr_WiFiInfoReponse_size),          MAX_RAW_SZ, "cr_WiFiInfoReponse");
-    rval += sCr_checkSize(sizeof(cr_WiFiInfoRequest_size),          MAX_RAW_SZ, "cr_WiFiInfoRequest");
+    rval += sCr_checkSize(sizeof(cr_DiscoverWiFiResponse_size),          MAX_RAW_SZ, "cr_DiscoverWiFiResponse");
+    rval += sCr_checkSize(sizeof(cr_DiscoverWiFiRequest_size),          MAX_RAW_SZ, "cr_DiscoverWiFiRequest");
 
 
     // If these don't match, check the structures associated with them
@@ -981,9 +990,9 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #endif  // def INCLUDE_TIME_SERVICE
 
   #ifdef INCLUDE_WIFI_SERVICE
-    case cr_ReachMessageTypes_WIFI_INFO:
-        rval = handle_wifi_info((cr_WiFiInfoRequest *)sCr_decoded_prompt_buffer, 
-                                (cr_WiFiInfoReponse *)sCr_uncoded_response_buffer);
+    case cr_ReachMessageTypes_DISCOVER_WIFI:
+        rval = handle_discover_wifi((cr_DiscoverWiFiRequest *)sCr_decoded_prompt_buffer, 
+                                (cr_DiscoverWiFiResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_WIFI_CONNECT:
         rval = handle_wifi_connect((cr_WiFiConnectionRequest *)sCr_decoded_prompt_buffer, 
@@ -1127,7 +1136,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
         return cr_ErrorCodes_NO_DATA; 
     }
 
-
     if (request != NULL) 
     {
         // request will be null on repeated calls.
@@ -1241,18 +1249,65 @@ static int handle_send_command(const cr_SendCommand *request,
 
 
 #ifdef INCLUDE_WIFI_SERVICE
-    static int handle_wifi_info(const cr_WiFiInfoRequest *request, 
-                                cr_WiFiInfoReponse *response)
+    static int handle_discover_wifi(const cr_DiscoverWiFiRequest *request, 
+                                    cr_DiscoverWiFiResponse *response)
     {
+        int rval;
+        int num_ap;
+
         if (!pvtCr_challenge_key_is_valid()) {
-            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
+            pvtCr_num_remaining_objects = 0;
+            pvtCr_num_continued_objects = 0;
+            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+            return cr_ErrorCodes_NO_DATA; 
+        }
+
+        if (request != NULL) 
+        {
+            // request will be null on repeated calls.
+            // Here implies we are responding to the initial request.
+            num_ap = crcb_get_wifi_count();
+            sCr_requested_command_index = 0;
+            I3_LOG(LOG_MASK_DEBUG, "%s: first request, num_ap %d", 
+                   __FUNCTION__, num_ap);
+        }
+        else  // here the request was null and we are continuing the previous request;
+        {
+            num_ap = pvtCr_num_remaining_objects;
+            I3_LOG(LOG_MASK_DEBUG, "%s: continued request, num_ap %d from %d", 
+                   __FUNCTION__, num_ap, sCr_requested_command_index);
+
+        }
+        crcb_wifi_discover_reset(sCr_requested_command_index);  // index, not really cid.
+
+        rval = crcb_wifi_discover_next(&response->available_AP);
+        if (rval != 0)
+        {
+            LOG_ERROR("Discover wifi found nothing.");
+            pvtCr_num_remaining_objects = 0;
+            pvtCr_num_continued_objects = 0;
+            response->result = cr_ErrorCodes_NO_SERVICE;
             return 0;
         }
-        crcb_wifi_info(request, response);
+        if (num_ap == 1)
+        {
+            response->result = 0;
+            // they all fit in one response.
+            pvtCr_num_remaining_objects = 0;
+            pvtCr_num_continued_objects = 0;
+            I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_ap);
+            return 0;
+            // and we're done.
+        } 
+        // otherwise there are more so set up for continued commands
+        pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_WIFI;
+        pvtCr_num_remaining_objects = num_ap - 1;
+        pvtCr_num_continued_objects = pvtCr_num_remaining_objects;
+        I3_LOG(LOG_MASK_DEBUG, "%s: continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
         return 0;
     }
 
-    static int handle_wifi_connection(const cr_WiFiConnectionRequest *request, 
+    static int handle_wifi_connect(const cr_WiFiConnectionRequest *request, 
                                       cr_WiFiConnectionResponse *response)
     {
         (void)request;
@@ -1503,15 +1558,15 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
 
 
 #ifdef INCLUDE_WIFI_SERVICE
-  case cr_ReachMessageTypes_WIFI_INFO:
-      status = pb_encode(&is_stream, cr_WiFiInfoResponse_fields, data);
+  case cr_ReachMessageTypes_DISCOVER_WIFI:
+      status = pb_encode(&os_stream, cr_DiscoverWiFiResponse_fields, data);
       if (status) {
         LOG_REACH("WiFi Info response: \n%s\n",
-                  message_util_WiFi_info_response_json((cr_WiFiInfoResponse *)data));
+                  message_util_discover_wifi_response_json((cr_DiscoverWiFiResponse *)data));
       }
       break;
   case cr_ReachMessageTypes_WIFI_CONNECT:
-      status = pb_encode(&is_stream, cr_WiFiConnectionResponse_fields, data);
+      status = pb_encode(&os_stream, cr_WiFiConnectionResponse_fields, data);
       if (status) {
         LOG_REACH("WiFi Connect reqsponse: \n%s\n",
                   message_util_WiFi_connect_request_json((cr_WiFiConnectionResponse *)data));

@@ -268,11 +268,11 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
 
 
 #ifdef INCLUDE_WIFI_SERVICE
-  case cr_ReachMessageTypes_WIFI_INFO:
-      status = pb_decode(&is_stream, cr_WiFiInfoRequest_fields, data);
+  case cr_ReachMessageTypes_DISCOVER_WIFI:
+      status = pb_decode(&is_stream, cr_DiscoverWiFiRequest_fields, data);
       if (status) {
         LOG_REACH("WiFi Info request: \n%s\n",
-                  message_util_WiFi_info_request_json((cr_WiFiInfoRequest *)data));
+                  message_util_discover_wifi_request_json((cr_DiscoverWiFiRequest *)data));
       }
       break;
   case cr_ReachMessageTypes_WIFI_CONNECT:
