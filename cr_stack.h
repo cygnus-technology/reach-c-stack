@@ -123,7 +123,6 @@ extern "C" {
 /**
 * @brief   cr_init
 * @details To be called before starting the stack.
-* @note    Not much happens here yet.
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
 */
 int cr_init();

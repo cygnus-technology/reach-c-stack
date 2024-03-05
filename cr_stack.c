@@ -314,39 +314,6 @@ static int handle_continued_transactions()
     return rval;
 }
 
-static bool sCr_challenge_key_valid = true;
-static bool test_challenge_key_is_valid(uint32_t challenge_key)
-{
-    #ifndef APP_REQUIRED_CHALLENGE_KEY 
-        (void)challenge_key;
-        return true;
-        sCr_challenge_key_valid = true;
-    #else
-        if (challenge_key == APP_REQUIRED_CHALLENGE_KEY) 
-        {
-            sCr_challenge_key_valid = true;
-            return true;
-        }
-        sCr_challenge_key_valid = false;
-        cr_report_error(cr_ErrorCodes_CHALLENGE_FAILED, 
-                        "Requred challenge key does not match.");
-        return false;
-    #endif
-}
-
-bool pvtCr_challenge_key_is_valid(void)
-{
-    #ifndef APP_REQUIRED_CHALLENGE_KEY 
-        return true;
-    #else
-        if (!sCr_challenge_key_valid) {
-            cr_report_error(cr_ErrorCodes_CHALLENGE_FAILED, 
-                            "Challenge failed.");
-        }
-        return sCr_challenge_key_valid;
-    #endif
-}
-
 /**
 * @brief   cr_init
 * @details To be called before starting the stack.
@@ -1030,7 +997,7 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 {
     int8_t rssi;
 
-    if (!pvtCr_challenge_key_is_valid()) {
+    if (!crcb_challenge_key_is_valid()) {
         return cr_ErrorCodes_NO_DATA;
     }
 
@@ -1096,11 +1063,10 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
 
-    if (!test_challenge_key_is_valid(request->challenge_key)) {
-        return cr_ErrorCodes_NO_DATA;
-    }
+    crcb_device_get_info(request, response);
 
-    crcb_device_get_info(response);
+
+
 #ifdef INCLUDE_PARAMETER_SERVICE
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
 #endif  // def INCLUDE_PARAMETER_SERVICE
@@ -1129,7 +1095,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     int rval;
     int num_commands;
 
-    if (!pvtCr_challenge_key_is_valid()) {
+    if (!crcb_challenge_key_is_valid()) {
         pvtCr_num_remaining_objects = 0;
         pvtCr_num_continued_objects = 0;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -1193,7 +1159,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
 static int handle_send_command(const cr_SendCommand *request,
                                    cr_SendCommandResponse *response) 
 {
-    if (!pvtCr_challenge_key_is_valid()) {
+    if (!crcb_challenge_key_is_valid()) {
         response->result = cr_ErrorCodes_CHALLENGE_FAILED;
         return 0;
     }
@@ -1222,7 +1188,7 @@ static int handle_send_command(const cr_SendCommand *request,
     static int handle_time_set(const cr_TimeSetRequest *request, 
                                cr_TimeSetResponse *response)
     {
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
         }
@@ -1237,7 +1203,7 @@ static int handle_send_command(const cr_SendCommand *request,
                                cr_TimeGetResponse *response)
     {
         (void)request;
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
         }
@@ -1255,7 +1221,7 @@ static int handle_send_command(const cr_SendCommand *request,
         int rval;
         int num_ap;
 
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             pvtCr_num_remaining_objects = 0;
             pvtCr_num_continued_objects = 0;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -1280,19 +1246,22 @@ static int handle_send_command(const cr_SendCommand *request,
         }
         crcb_wifi_discover_reset(sCr_requested_command_index);  // index, not really cid.
 
-        rval = crcb_wifi_discover_next(&response->available_AP);
+        rval = crcb_wifi_discover_next(&response->cd);
         if (rval != 0)
         {
-            LOG_ERROR("Discover wifi found nothing.");
+            if (request != NULL)
+            {
+                LOG_ERROR("Discover wifi found nothing.");
+                response->result = cr_ErrorCodes_NO_SERVICE;
+            }
             pvtCr_num_remaining_objects = 0;
             pvtCr_num_continued_objects = 0;
-            response->result = cr_ErrorCodes_NO_SERVICE;
             return 0;
         }
         if (num_ap == 1)
         {
             response->result = 0;
-            // they all fit in one response.
+            // One and done
             pvtCr_num_remaining_objects = 0;
             pvtCr_num_continued_objects = 0;
             I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_ap);
@@ -1311,7 +1280,7 @@ static int handle_send_command(const cr_SendCommand *request,
                                       cr_WiFiConnectionResponse *response)
     {
         (void)request;
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
         }
@@ -1569,7 +1538,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_WiFiConnectionResponse_fields, data);
       if (status) {
         LOG_REACH("WiFi Connect reqsponse: \n%s\n",
-                  message_util_WiFi_connect_request_json((cr_WiFiConnectionResponse *)data));
+                  message_util_WiFi_connect_request_json((cr_WiFiConnectionRequest *)data));
       }
       break;
 #endif  // def INCLUDE_WIFI_SERVICE

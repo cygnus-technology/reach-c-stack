@@ -80,8 +80,9 @@ int __attribute__((weak)) crcb_get_coded_prompt(uint8_t *prompt, size_t *len)
 
 /**
 * @brief   crcb_send_coded_response
-* @details The cr_process function calls this function to send responses to the client. 
-* @note    Must be overridden to send the data to the client.
+* @details The cr_process function calls this function to send 
+*          responses to the client. A complete implementation
+*          must overridde this to send the data to the client.
 * @param   response    Pointer to coded data to be send (input)
 * @param   len    Number of bytes to be sent (input)
 * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from the 
@@ -116,8 +117,9 @@ int __attribute__((weak)) crcb_send_coded_response(const uint8_t *response, size
 
 /**
 * @brief   crcb_notify_error
-* @details Called by cr_report_error().  Can be called at any point.
-* @note    The device must override this implementation to send 
+* @details Called by cr_report_error().  Can be called at any 
+*          point. A complete implementation
+*          must overridde this implementation to send 
 *          error messages to the client.
 * @param   err Pointer to a structure with a code and a string.
 * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from
@@ -138,21 +140,40 @@ int __attribute__((weak)) crcb_notify_error(cr_ErrorReport *err)
 
 /**
 * @brief   crcb_device_get_info
-* @details Called by the stack in response to a device info request.
-* @note    The device must override the weak implementation to provide a valid
-*         device info structure to the stack.  Response message members like
+* @details Called by the stack in response to a device info 
+*         request. The device must override the weak
+*         implementation to provide a valid device info
+*         structure to the stack.  Response message members like
 *         hash and services are computed by the reach stack.
+* @param   request Includes challenge key for access control.
 * @param   pDi A pointer to memory provided by the stack to be populated with 
 *             the basic device information.
 * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from
 *          the cr_ErrorCodes_ enumeration
 */
-int __attribute__((weak)) crcb_device_get_info(cr_DeviceInfoResponse *pDi)
+int __attribute__((weak)) crcb_device_get_info(const cr_DeviceInfoRequest *request,
+                                               cr_DeviceInfoResponse *pDi)
 {
     (void)pDi;
     I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
     return cr_ErrorCodes_NOT_IMPLEMENTED;
 }
+
+/**
+* @brief   crcb_challenge_key_is_valid
+* @details Called by the stack in various places to check 
+*          whether access is granted by the challenge key.
+*           The access grant here is binary.  Finer control
+*           based on the specific key is determined by the
+*           overriding application specific implementation.
+* @return  true if access is granted.
+*/
+bool __attribute__((weak)) crcb_challenge_key_is_valid(void)
+{
+    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+    return true;
+}
+
 
 
 ///*************************************************************************
@@ -161,9 +182,9 @@ int __attribute__((weak)) crcb_device_get_info(cr_DeviceInfoResponse *pDi)
 
 /**
 * @brief   crcb_ping_get_signal_strength
-* @details Called by the stack in response to a ping request.
-* @note    The device can override the weak implementation to provide an  
-*         estimate of the signal strength.
+* @details Called by the stack in response to a ping request. 
+*         The device can override the weak implementation to
+*         provide an estimate of the signal strength.
 * @param   rssi A pointer to be populated with a signal strength typically 
 *              negative in dB.
 * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably 
@@ -180,9 +201,10 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_cli_enter
     * @details When the CLI service is active, the stack can provide the device with 
-    *          remotely entered CLI input by calling crcb_cli_enter().
-    * @note    The device must override the weak implementation to support remote 
-     *         access to the command line.
+     *         remotely entered CLI input by calling
+     *         crcb_cli_enter(). The device must override the weak
+     *         implementation to support remote access to the
+     *         command line.
     * @param   cli A string being commanded to the CLI.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from the 
     *          cr_ErrorCodes_ enumeration
@@ -197,11 +219,11 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_cli_respond
     * @details When the device supports a CLI it is expected to share anything 
-    *          printed to the CLI back to the stack for remote display using
-    *          crcb_cli_respond()
-    * @note    The device must override the weak implementation to support remote 
-    *          access to the command line.  The implementation can call this at any
-    *          time to print to the remote CLI
+    *          printed to the CLI back to the stack for remote
+    *          display using crcb_cli_respond().  The device must
+    *          override the weak implementation to support remote
+    *          access to the command line.  The implementation can
+    *          call this at any time to print to the remote CLI
     * @param   cli A string being sent back to the remote CLI.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from the 
     *          cr_ErrorCodes_ enumeration.
@@ -215,10 +237,10 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
 
     /**
     * @brief   crcb_set_command_line
-    * @details store the command line to be parsed elsewhere.
-    * @note    When there are both the remote and local command lines, this set and 
-    *          get pair allow one set of functions to handle commands from either
-    *          source.
+    * @details store the command line to be parsed elsewhere.  When 
+    *          there are both the remote and local command lines,
+    *          this set and get pair allow one set of functions to
+    *          handle commands from either source.
     * @param   ins A string pointer to be retrieved by crcb_get_command_line 
     * @return  none
     */
@@ -230,10 +252,11 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
 
     /**
     * @brief   crcb_get_command_line
-    * @details Retrieve the command line stored with crcb_set_command_line().
-    * @note    When there are both the remote and local command lines, this set and 
-    *          get pair allow one set of functions to handle commands from either
-    *          source.
+    * @details Retrieve the command line stored with 
+    *          crcb_set_command_line(). When there are both the
+    *          remote and local command lines, this set and get pair
+    *          allow one set of functions to handle commands from
+    *          either source.
     * @return  A string pointer stored by crcb_set_command_line().
     */
     const char *__attribute__((weak)) crcb_get_command_line()
@@ -278,10 +301,10 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @details Gets the parameter description for the next parameter. Allows the 
     *              stack to iterate through the parameter list.  Implies an order in
     *              the parameter list that is known by the application, but not
-    *              directly by the stack.
-    * @note    The overriding implementation must post-increment its pointer into 
-    *          the parameter table.  Parameter ID's need not be continuous or in
-    *          order.
+    *              directly by the stack. The overriding
+    *              implementation must post-increment its pointer
+    *              into the parameter table.  Parameter ID's need
+    *              not be continuous or in order.
     * @param   pDesc Stack provided memory into which the description must be 
     *                copied.
     * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
@@ -327,9 +350,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_parameter_ex_discover_next
     * @details Gets the parameter extension for the next parameter. Parameter 
-    *          extensions allow more data to be provided about enumerations and
-    *          bitfields.
-    * @note    The overriding implementation must post-increment its pointer into 
+    *          extensions allow more data to be provided about
+    *          enumerations and bitfields. The overriding
+    *          implementation must post-increment its pointer into
     *          the parameter extension table.
     * @param   pDesc Pointer to stack provided memory into which the extension 
     *               is to be copied.
@@ -458,8 +481,8 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_command_discover_next
     * @details Gets the command description for the next command. 
-    * @note    The overriding implementation must post-increment its pointer into 
-    *          the command table.
+    *          The overriding implementation must post-increment its
+    *          pointer into the command table.
     * @param   cmd_desc Pointer to stack provided memory into which the 
     *               command description is to be copied.
     * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
@@ -520,9 +543,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
 
     /**
     * @brief   crcb_file_discover_next
-    * @details Gets the  description for the next file.
-    * @note    The overriding implementation must post-increment its pointer into 
-    *          the file table.
+    * @details Gets the  description for the next file. The 
+    *          overriding implementation must post-increment its
+    *          pointer into the file table.
     * @param   file_desc Pointer to stack provided memory into which the 
     *               file description is to be copied.
     * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
@@ -556,8 +579,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_file_get_preferred_ack_rate
     * @details If the device has a preferred acknowledge rate it can implement this 
-    *          function to advise the file transfer code of the rate.
-    * @note    Higher ack rates mean less acknowlegements and faster file trasnfer.
+    *          function to advise the file transfer code of the
+    *          rate. Higher ack rates mean less acknowlegements and
+    *          faster file trasnfer.
     * @param   is_write true if enquiring about write.
     * @return  A return value of zero means that there is no preferred rate and the 
     *          client can specify it.
@@ -676,9 +700,10 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
 #ifdef INCLUDE_TIME_SERVICE
     /**
     * @brief   crcb_time_get
-    * @details Retrieve the device's idea of the current time.
-    * @note    Time is specified in UTC Epoch format, seconds since 1970. More than 
-    *          32 bits are required to remain valid past 2030.
+    * @details Retrieve the device's idea of the current time. Time 
+    *          is specified in UTC Epoch format, seconds since 1970.
+    *          More than 32 bits are required to remain valid past
+    *          2030.
     * @param   response (output) with utc_seconds current time and zone 
     * @return  returns zero or an error code
     */
@@ -692,9 +717,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_time_set
     * @details Inform the device of the current time to support setting an internal 
-    *          time clock.
-    * @note    Time is specified in UTC Epoch format, seconds since 1970. More than 
-    *          32 bits are required to remain valid past 2030.
+    *          time clock. Time is specified in UTC Epoch format,
+    *          seconds since 1970. More than 32 bits are required to
+    *          remain valid past 2030.
     * @param   request : structure with seconds and timeszone
     * @return  returns zero or an error code
     */

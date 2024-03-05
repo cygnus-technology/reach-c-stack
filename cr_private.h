@@ -77,7 +77,7 @@ extern "C" {
     /// Returns the state of the challenge key which may block 
     /// access to the Reach interface 
     /// </summary>
-    bool pvtCr_challenge_key_is_valid(void);
+    bool crcb_challenge_key_is_valid(void);
 
     ///  
     /// pvtCrFile_ functions support the (optional) files service. 

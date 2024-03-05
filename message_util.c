@@ -138,8 +138,13 @@ char *message_util_get_null_value_json(const char *key) {
   return json_str;
 }
 
-char *message_util_get_device_info_json() {
-  return message_util_get_null_value_json(msg_type_string(cr_ReachMessageTypes_GET_DEVICE_INFO));
+char *message_util_get_device_info_json(cr_DeviceInfoRequest* data) {
+  if (data->has_challenge_key)
+    sprintf(sMsgUtilBuffer, "    Challenge key '%s'", data->challenge_key);
+  else
+    sprintf(sMsgUtilBuffer, "    No challenge key");
+  
+  return sMsgUtilBuffer;
 }
 
 char *message_util_get_device_info_response_json(

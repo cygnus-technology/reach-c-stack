@@ -110,12 +110,25 @@ int crcb_notify_error(cr_ErrorReport *err);
 *          The device must override the weak implementation to provide a valid
 *         device info structure to the stack.  Response message members like
 *         hash and services are computed by the reach stack.
+* @param   request Includes challenge key for access control.
 * @param   pDi A pointer to memory provided by the stack to be populated with 
 *             the basic device information.
 * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from
 *          the cr_ErrorCodes_ enumeration
 */
-int crcb_device_get_info(cr_DeviceInfoResponse *pDi);
+int crcb_device_get_info(const cr_DeviceInfoRequest *request,
+                         cr_DeviceInfoResponse *pDi);
+
+/**
+* @brief   crcb_challenge_key_is_valid
+* @details Called by the stack in various places to check 
+*          whether access is granted by the challenge key.
+*           The access grant here is binary.  Finer control
+*           based on the specific key is determined by the
+*           overriding application specific implementation.
+* @return  true if access is granted.
+*/
+bool crcb_challenge_key_is_valid(void);
 
 
 ///*************************************************************************

@@ -40,10 +40,10 @@
 /**
  * @file      cr_params.c
  * @brief     Contains the private parts of the Cygnus Reach firmware stack 
- *            supporting the parameter repository.
- * @note      Functions that are not static are prefixed with pvtCrParam_.  The 
- *            entire contents can be excluded from the build when
- *            INCLUDE_PARAMETER_SERVICE is not defined.
+ *            supporting the parameter repository. Functions
+ *            that are not static are prefixed with pvtCrParam_.
+ *            The entire contents can be excluded from the build
+ *            when INCLUDE_PARAMETER_SERVICE is not defined.
  * @author    Chuck Peplinski
  * @date      2024-01-17
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
@@ -93,10 +93,10 @@
 
     /**
     * @brief   pvtCrParam_discover_parameters
-    * @details Private function responsible to respond to a discover parameter 
-    *          request.
-    * @note    This can be called directly in response to the discovery request or 
-    *          it can be called on a continuing basis to complete the discovery
+    * @details Private function responsible to respond to a discover 
+    *          parameter request. This can be called directly in
+    *          response to the discovery request or it can be called
+    *          on a continuing basis to complete the discovery
     *          transaction.
     * @param   request decoded request.
     * @param   response uncoded response structure is produced here. 
@@ -109,7 +109,7 @@
     {
         int rval;
 
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             sCr_requested_param_info_count = 0;
             pvtCr_num_continued_objects = 0;
             response->parameter_infos_count = 0;
@@ -249,7 +249,7 @@
     pvtCrParam_discover_parameters_ex(const cr_ParameterInfoRequest *request,
                                       cr_ParamExInfoResponse *response) 
     {
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             sCr_requested_param_info_count = 0;
             pvtCr_num_continued_objects = response->enumerations_count = 0;
             return cr_ErrorCodes_NO_DATA;
@@ -381,7 +381,7 @@
     int pvtCrParam_read_param(const cr_ParameterRead *request,
                               cr_ParameterReadResult *response) 
     {
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             pvtCr_num_continued_objects = 
                     pvtCr_num_remaining_objects = 0;
             memset(response, 0, sizeof(cr_ParameterReadResult));
@@ -518,7 +518,7 @@
     int pvtCrParam_write_param(const cr_ParameterWrite *request,
                                cr_ParameterWriteResult *response) 
     {
-        if (!pvtCr_challenge_key_is_valid()) {
+        if (!crcb_challenge_key_is_valid()) {
             pvtCr_num_continued_objects = 
                     pvtCr_num_remaining_objects = 0;
             memset(response, 0, sizeof(cr_ParameterWriteResult));

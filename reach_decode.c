@@ -122,7 +122,7 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
         if (status) {
           LOG_REACH(
               "Get device info request: \n%s\n",
-              message_util_get_device_info_json());
+              message_util_get_device_info_json((cr_DeviceInfoRequest*)data));
         }
         break;
   case cr_ReachMessageTypes_PING:

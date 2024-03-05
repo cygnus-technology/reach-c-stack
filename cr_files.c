@@ -88,7 +88,7 @@
 int pvtCrFile_discover(const cr_DiscoverFiles *request,
                                 cr_DiscoverFilesResponse *response)
 {
-    if (!pvtCr_challenge_key_is_valid()) {
+    if (!crcb_challenge_key_is_valid()) {
         pvtCr_num_continued_objects = pvtCr_num_remaining_objects = 0;
         memset(response, 0, sizeof(cr_DiscoverFilesResponse));
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -152,7 +152,7 @@ cr_FileTransferStateMachine sCr_file_xfer_state;
 int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
                                cr_FileTransferInitResponse *response)
 {
-    if (!pvtCr_challenge_key_is_valid()) {
+    if (!crcb_challenge_key_is_valid()) {
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
         response->result = cr_ErrorCodes_CHALLENGE_FAILED;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -275,7 +275,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
 int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                          cr_FileTransferDataNotification *response)
 {
-    if (!pvtCr_challenge_key_is_valid()) {
+    if (!crcb_challenge_key_is_valid()) {
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
         response->result = cr_ErrorCodes_CHALLENGE_FAILED;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -438,7 +438,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
 int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *request,
                                       cr_FileTransferData *dataTransfer)
 {
-    if (!pvtCr_challenge_key_is_valid()) {
+    if (!crcb_challenge_key_is_valid()) {
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         return cr_ErrorCodes_NO_DATA; 
