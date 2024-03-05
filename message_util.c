@@ -117,6 +117,10 @@ const char *msg_type_string(int32_t message_type) {
       return "Get Time";
   case cr_ReachMessageTypes_SET_TIME:
       return "Set Time";
+  case cr_ReachMessageTypes_DISCOVER_WIFI:
+      return "Discover WiFi";
+  case cr_ReachMessageTypes_WIFI_CONNECT:
+      return "WiFi Connect";
   default:
     break;
   }
