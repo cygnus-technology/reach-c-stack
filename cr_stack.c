@@ -302,7 +302,7 @@ static int handle_continued_transactions()
     memset(&msg_header, 0, sizeof(msg_header));
     msg_header.message_type      = encode_message_type;
     msg_header.endpoint_id       = 0;
-    msg_header.number_of_objects = pvtCr_num_continued_objects;
+    // msg_header.number_of_objects = pvtCr_num_continued_objects;
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
     msg_header.transaction_id    = sCr_transaction_id;
     rval = sCr_encode_message(encode_message_type,          // in
@@ -608,7 +608,7 @@ void cr_report_error(int error_code, const char *fmt, ...)
   #else
     cr_ReachMessageHeader msg_header;
     msg_header.message_type      = cr_ReachMessageTypes_ERROR_REPORT;
-    msg_header.number_of_objects = 0;
+    // msg_header.number_of_objects = 0;
     msg_header.remaining_objects = 0;
     msg_header.transaction_id    = 0;
     int rval = sCr_encode_message(cr_ReachMessageTypes_ERROR_REPORT, // in
@@ -973,7 +973,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 
     cr_ReachMessageHeader msg_header;
     msg_header.message_type      = encode_message_type;
-    msg_header.number_of_objects = pvtCr_num_continued_objects;
+    // msg_header.number_of_objects = pvtCr_num_continued_objects;
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
     msg_header.transaction_id    = sCr_transaction_id;
     rval = sCr_encode_message(encode_message_type,
@@ -1602,7 +1602,7 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,    // in
 
     I3_LOG(LOG_MASK_REACH, "%s(): type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
            sCr_uncoded_message_structure.header.message_type, 
-           sCr_uncoded_message_structure.header.number_of_objects, 
+           // sCr_uncoded_message_structure.header.number_of_objects, 
            sCr_uncoded_message_structure.header.remaining_objects, 
            sCr_uncoded_message_structure.header.transaction_id);
 
