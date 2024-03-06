@@ -1,6 +1,6 @@
 
 
-![alt_text](images/CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
+![alt_text](_images/CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
 
 
 # Cygnus Reach Programmers Introduction
@@ -10,9 +10,6 @@ I3 Product Design
 Version 	2.0
 
 Date		February 9, 2024
-
-
-# 
 
 
 # Executive Summary
@@ -43,9 +40,6 @@ This document is addressed to the embedded developer who is considering using th
 1.1 : January 8, 2024, first public release.
 
 2.0:  February 9, 2024.  Adds features such as parameter notifications.  Provided with a separate release note.
-
-
-# 
 
 
 # Product Vision
@@ -92,9 +86,6 @@ The two demo systems illustrate Reach on systems of different complexity.  The L
 The three system approach to support (device, phone, web page) is a key concept.  This acknowledges the three users in the system.  The product user has access to an embedded device as well as a mobile phone.  The support engineer uses a web browser so as to display data on a larger screen.  The embedded system designer is the third user, as the embedded system builder must include the support required.
 
 A proper Cygnus Reach system design includes much input from customer support engineers.  The Cygnus Reach system exists to facilitate field support.  Hence the information presented to the support engineers must be what they need.  With new products the embedded system designer often has no customer support engineers available to provide design guidance.  Hence Cygnus Reach systems are often deployed in two phases.  The first phase exposes the things that the embedded system designer finds necessary.  The second phase tunes this to emphasize the things customer support needs to see first.
-
-
-## 
 
 
 ## Bluetooth Low Energy (BLE)
@@ -154,7 +145,7 @@ The REACH API characteristic is all that is needed to enable access to the proto
 
 The BLE device must advertise this UUID so that mobile apps can identify it as a Cygnus device.  Note that the “Generic Access” service must also advertise to support long device names.
 
-![alt_text](images/SiLabsBLE.png "image_tooltip")
+![alt_text](_images/SiLabsBLE.png "image_tooltip")
 
 
 
@@ -226,9 +217,6 @@ The directory “app” defines the specific behavior of the demo.  It is struct
 ### Integrations 
 
 Code used to integrate Reach with a SiLabs system is stored here in a SiLabs directory.  Code for other integrations such as Nordic and Linux can also be placed here.  Each one implements the same set of callback functions.
-
-
-# 
 
 
 # Application Structure
@@ -326,9 +314,6 @@ The “lm” command (for log mask) enables the user to see more or less logging
 
 
 
-# 
-
-
 # Using Protobufs
 
 We use nanopb to convert the .proto file into C structures.  Following nanopb guidelines, we use a .options file to avoid the use of malloc().  All arrays are converted to fixed sizes which are set in the .options file.  The .options file is generated using a python script, reach_proto\proto\preprocess_options.py.  This reads in reach-c-stack/reach_ble_proto_sizes.h and a prototype of the options file and outputs an options file that reflects the sizes set by the device.  The sizes here are optimized for efficient BLE transfer.  A system that does not use BLE could adjust these sizes.  The UI applications are designed to respect these size constraints that are advertised in the device info structure.
@@ -344,9 +329,6 @@ The device information structure includes a protocol_version member.  The device
 2. While this version should not change in release, an application in development might see different versions of the proto file.  It is expected behavior that the client will compare the protocol version it reads from its local .proto file with the protocol version received from the server.  Warn the user if these two do not match!
 
 The protobuf version is available as an enum in the device C code.  The example application currently exposes it to the client using parameter ID 25.
-
-
-# 
 
 
 # On Memory Allocation
@@ -502,9 +484,6 @@ Parameters are supported using a simple key-value pair structure.  The decision 
 Commands provide a simple means to remotely trigger a function with fixed parameters.  Commands could always be implemented in other ways.  An example is the command to enable the remote CLI.  This can also be engaged using the command line, but providing a command makes it easier to get started with these features.
 
 
-# 
-
-
 # Multi-Message (Continuing) Transactions
 
 The response to DISCOVER_PARAMETERS, and in fact to any “discover” command could extend over multiple “messages”.  To define terms:
@@ -526,9 +505,6 @@ The system stores a “continued_message_type” as well as at “num_remaining_
 The various messages in a multi-message transaction are tagged with the same transaction_id in their header.  This is helpful when checking for timeouts in the communication.  Each transaction has a defined timeout and its completion is easily determined.
 
 File transfers are made in a series of transactions.  A transfer_id is included in the payload to tie this series of transactions together. 
-
-
-# 
 
 
 ## Read File Sequence
@@ -561,7 +537,7 @@ Repeat:
 
 (phone sends)		Final Transfer Data Notification, with “is_complete” : true
 
-![alt_text](images/file_read_sequence.png "image_tooltip")
+![alt_text](_images/file_read_sequence.png "image_tooltip")
 
 
 
@@ -595,9 +571,7 @@ Repeat:
 * OK, is_complete
 
 
-# 
-
-![alt_text](images/file_write_sequence.png "image_tooltip")
+![alt_text](_images/file_write_sequence.png "image_tooltip")
 
 
 
