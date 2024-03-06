@@ -555,12 +555,7 @@ void cr_set_comm_link_connected(bool connected)
        pvtCr_num_continued_objects = 0; 
        pvtCr_num_remaining_objects = 0;
        pvtCrParam_clear_notifications();
-     #ifdef APP_REQUIRED_CHALLENGE_KEY
-       sCr_challenge_key_valid = false;
-     #endif 
-     #ifdef APP_REQUIRED_PARAMETER_KEY
-       sCr_parameter_key_valid = false;
-     #endif
+       crcb_invalidate_challenge_key();
    }
    sCr_comm_link_is_connected = connected;
 } 

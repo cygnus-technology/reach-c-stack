@@ -174,6 +174,28 @@ bool __attribute__((weak)) crcb_challenge_key_is_valid(void)
     return true;
 }
 
+/**
+* @brief   crcb_invalidate_challenge_key
+* @details Called by the stack on disconnect or other condition 
+*          that warrants invalidating access.
+*/
+void __attribute__((weak)) crcb_invalidate_challenge_key(void)
+{
+    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+}
+
+/**
+* @brief   crcb_enable_remote_cli
+* @details As the logging utility is technically part of Reach, 
+*          this callback lets the app block the remote CLI.
+* @return  true if access is granted.
+*/
+bool __attribute__((weak)) crcb_enable_remote_cli(void)
+{
+    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+    return true;
+}
+
 
 
 ///*************************************************************************

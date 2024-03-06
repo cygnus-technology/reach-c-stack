@@ -116,12 +116,6 @@
             return cr_ErrorCodes_NO_DATA;
         }
 
-        #ifdef APP_REQUIRED_PARAMETER_KEY
-          #error No support yet for the paramter_key
-        // To Do:  Handle parameter_key.
-        // If specified, not all parameters may be available.
-        #endif
-
         if (request != NULL) {
             // request will be null on repeated calls.
             // Here implies we are responding to the initial request.
@@ -180,6 +174,8 @@
                     if (i==0)
                     {
                         I3_LOG(LOG_MASK_PARAMS, "No data on i=0.");
+                        pvtCr_num_remaining_objects = 0;
+                        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                         return cr_ErrorCodes_NO_DATA; 
                     }
                     I3_LOG(LOG_MASK_PARAMS, "Added %d.", response->parameter_infos_count);
@@ -254,12 +250,6 @@
             pvtCr_num_continued_objects = response->enumerations_count = 0;
             return cr_ErrorCodes_NO_DATA;
         }
-
-        #ifdef APP_REQUIRED_PARAMETER_KEY
-        // No support yet for the paramter_key
-        // To Do:  Handle parameter_key.
-        // If specified, not all parameters may be available.
-        #endif
 
         int rval;
         if (request != NULL) 
@@ -388,12 +378,6 @@
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
-
-        #ifdef APP_REQUIRED_PARAMETER_KEY
-        // No support yet for the paramter_key
-        // To Do:  Handle parameter_key.
-        // If specified, not all parameters may be available.
-        #endif
 
         int rval;
         if (request != NULL) {
@@ -525,12 +509,6 @@
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
-
-      #ifdef APP_REQUIRED_PARAMETER_KEY
-        // No support yet for the paramter_key
-        // To Do:  Handle parameter_key.
-        // If specified, not all parameters may be available.
-      #endif
 
         int rval;
         affirm(request);

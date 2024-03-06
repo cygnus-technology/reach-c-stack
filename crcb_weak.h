@@ -130,6 +130,20 @@ int crcb_device_get_info(const cr_DeviceInfoRequest *request,
 */
 bool crcb_challenge_key_is_valid(void);
 
+/**
+* @brief   crcb_invalidate_challenge_key
+* @details Called by the stack on disconnect or other condition 
+*          that warrants invalidating access.
+*/
+void crcb_invalidate_challenge_key(void);
+
+/**
+* @brief   crcb_enable_remote_cli
+* @details As the logging utility is technically part of Reach, 
+*          this callback lets the app block the remote CLI.
+* @return  true if access is granted.
+*/
+bool crcb_enable_remote_cli(void);
 
 ///*************************************************************************
 ///  Link (ping) Service 

@@ -116,6 +116,7 @@ int i3_log_set_remote_cli_enable(bool enable);
 */
 bool i3_log_get_remote_cli_enable();
 
+#if 0
 /**
 * @brief   i3_log_get_remote_buffer
 * @details Retrieve the pointer and size of the remote buffer.  Set the size to 
@@ -127,6 +128,7 @@ bool i3_log_get_remote_cli_enable();
 * @return  number of bytes currently in use by the remote cli buffer.
 */
 int i3_log_get_remote_buffer(char **pRcli);
+#endif
 
 /**
 * @brief   i3_log

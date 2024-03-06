@@ -185,6 +185,8 @@ uint32_t i3_log_get_mask(void)
     */
     bool i3_log_get_remote_cli_enable()
     {
+        if (!crcb_enable_remote_cli())
+            return false;
         return sUseRemoteCLI;
     }
 
@@ -195,7 +197,7 @@ uint32_t i3_log_get_mask(void)
     static char sLog_rcliBuf[REACH_ERROR_BUFFER_LEN];
     static size_t sLog_rcliPtr = 0;
 
-
+    #if 0  // obsolete
     /**
     * @brief   i3_log_get_remote_buffer
     * @details Retrieve the pointer and size of the remote buffer.  Set the size to 
@@ -213,6 +215,7 @@ uint32_t i3_log_get_mask(void)
         sLog_rcliPtr = 0;
         return rval;
     }
+    #endif
 
     /**
     * @brief   i3_log
@@ -258,7 +261,8 @@ uint32_t i3_log_get_mask(void)
 
         if (0 == (mask & LOG_MASK_BARE)) printf("\r\n");
 
-        if (!sUseRemoteCLI) return;
+        if (!i3_log_get_remote_cli_enable()) 
+            return;
 
         // Then record any remote messages.
         localMask = LOG_MASK_ALWAYS | LOG_MASK_ERROR | LOG_MASK_WARN | LOG_MASK_REMOTE;
