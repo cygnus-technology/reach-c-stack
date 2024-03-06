@@ -1,11 +1,8 @@
-### Programmers Guide `programmers_guide/index.md`
-This file will be in the `programmers_guide` directory.
-
-```markdown
 # Programmer's Guide
+
+The programmer's guide provides a tour of the code with the back story.
 
 ```{toctree}
 :maxdepth: 2
+Introduction
 
-architecture/index
-services/index
