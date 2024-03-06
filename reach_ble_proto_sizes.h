@@ -60,6 +60,7 @@
 #define REACH_FILE_NAME_LEN                     REACH_MEDIUM_STRING_LEN 
 #define REACH_STREAM_NAME_LEN                   REACH_MEDIUM_STRING_LEN 
 #define REACH_COMMAND_NAME_LEN                  REACH_MEDIUM_STRING_LEN 
+#define REACH_COMMAND_DESCRIPTION_LEN           48
 #define REACH_PARAM_INFO_UNITS_LEN              REACH_SHORT_STRING_LEN 
 #define REACH_FW_VERSION_LEN                    REACH_SHORT_STRING_LEN
 #define REACH_UUID_BYTE_LEN                     16 // this is constant.
