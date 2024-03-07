@@ -26,7 +26,7 @@
 // payload before header is added
 #define REACH_MESSAGE_PAYLOAD_MAX             208
 #define REACH_BIG_DATA_BUFFER_LEN             194
-#define REACH_DEVICE_INFO_LEN                  48
+#define REACH_DESCRIPTION_LEN                  48
 #define REACH_LONG_STRING_LEN                  32 
 #define REACH_COUNT_PARAM_IDS                  32
 #define REACH_MEDIUM_STRING_LEN                24 
@@ -60,7 +60,7 @@
 #define REACH_FILE_NAME_LEN                     REACH_MEDIUM_STRING_LEN 
 #define REACH_STREAM_NAME_LEN                   REACH_MEDIUM_STRING_LEN 
 #define REACH_COMMAND_NAME_LEN                  REACH_MEDIUM_STRING_LEN 
-#define REACH_COMMAND_DESCRIPTION_LEN           48
+#define REACH_COMMAND_DESCRIPTION_LEN           REACH_LONG_STRING_LEN
 #define REACH_PARAM_INFO_UNITS_LEN              REACH_SHORT_STRING_LEN 
 #define REACH_FW_VERSION_LEN                    REACH_SHORT_STRING_LEN
 #define REACH_UUID_BYTE_LEN                     16 // this is constant.

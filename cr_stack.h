@@ -254,7 +254,7 @@ typedef struct {
     uint8_t   num_params_in_response;
     /// The length of the description field in the 
     /// device info structure
-    uint8_t   device_description_len;
+    uint8_t   description_len;
     /// The number of bytes in the largest parameter types
     /// eg, strings and byte array 
     uint8_t   max_param_bytes;

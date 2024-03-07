@@ -1024,7 +1024,7 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     sizes_struct.big_data_buffer_size         = REACH_BIG_DATA_BUFFER_LEN;
     sizes_struct.parameter_buffer_count       = REACH_COUNT_PARAM_IDS;
     sizes_struct.num_params_in_response       = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
-    sizes_struct.device_description_len       = REACH_DEVICE_INFO_LEN;
+    sizes_struct.description_len              = REACH_DESCRIPTION_LEN;
     sizes_struct.max_param_bytes              = REACH_NUM_PARAM_BYTES;
     sizes_struct.param_info_description_len   = REACH_PARAM_INFO_DESCRIPTION_LEN;
     sizes_struct.medium_string_len            = REACH_MEDIUM_STRING_LEN;
