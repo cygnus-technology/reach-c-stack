@@ -34,7 +34,7 @@
 #define REACH_PARAM_INFO_ENUM_COUNT            12
 #define REACH_SERVICES_COUNT                    8
 #define REACH_PI_ENUM_COUNT                     8
-#define REACH_NUM_COMMANDS_IN_RESPONSE          6
+#define REACH_NUM_COMMANDS_IN_RESPONSE          2
 #define REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE     4
 #define REACH_COUNT_PARAM_DESC_IN_RESPONSE      2
 
