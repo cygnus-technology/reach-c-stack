@@ -425,6 +425,8 @@ char *message_util_discover_commands_response_json(
 
       cJSON_AddNumberToObject(json_1, "id", payload->available_commands[i].id);
       cJSON_AddStringToObject(json_1, "name", payload->available_commands[i].name);
+      cJSON_AddStringToObject(json_1, "desc", payload->available_commands[i].description);
+      cJSON_AddNumberToObject(json_1, "timeout", payload->available_commands[i].timeout);
     }
     cJSON_AddItemToArray(jsonArray, json_1);
   }
