@@ -211,7 +211,7 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
 static
-int sCr_encode_message(cr_ReachMessageTypes message_type,        // in
+int sCr_encode_message(cr_ReachMessageTypes message_type,       // in
                       const void *payload,                      // in:  to be encoded
                       cr_ReachMessageHeader *hdr);              // in
 
@@ -302,7 +302,6 @@ static int handle_continued_transactions()
     memset(&msg_header, 0, sizeof(msg_header));
     msg_header.message_type      = encode_message_type;
     msg_header.endpoint_id       = 0;
-    // msg_header.number_of_objects = pvtCr_num_continued_objects;
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
     msg_header.transaction_id    = sCr_transaction_id;
     rval = sCr_encode_message(encode_message_type,          // in
@@ -340,7 +339,7 @@ int cr_init()
 
 #ifndef APP_ADVERTISED_NAME_LENGTH
     /// APP_ADVERTISED_NAME_LENGTH is the length of the string
-    /// holding the adveritsed name.  It can be set by the app in
+    /// holding the advertised name.  It can be set by the app in
     /// reach-server.h
   #define APP_ADVERTISED_NAME_LENGTH    REACH_SHORT_STRING_LEN
 #endif
@@ -608,7 +607,6 @@ void cr_report_error(int error_code, const char *fmt, ...)
   #else
     cr_ReachMessageHeader msg_header;
     msg_header.message_type      = cr_ReachMessageTypes_ERROR_REPORT;
-    // msg_header.number_of_objects = 0;
     msg_header.remaining_objects = 0;
     msg_header.transaction_id    = 0;
     int rval = sCr_encode_message(cr_ReachMessageTypes_ERROR_REPORT, // in
@@ -973,7 +971,6 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 
     cr_ReachMessageHeader msg_header;
     msg_header.message_type      = encode_message_type;
-    // msg_header.number_of_objects = pvtCr_num_continued_objects;
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
     msg_header.transaction_id    = sCr_transaction_id;
     rval = sCr_encode_message(encode_message_type,
@@ -1576,12 +1573,12 @@ bool encode_reach_message(const cr_ReachMessage *message,   // in:  message to b
 
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
-static int sCr_encode_message(cr_ReachMessageTypes message_type,    // in
+static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
                              const void *payload,                  // in:  to be encoded
                              cr_ReachMessageHeader *hdr)           // in
 {
-    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
-    //        hdr->message_type, hdr->number_of_objects, hdr->remaining_objects, hdr->transaction_id);
+    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
+    //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
 
     if (!encode_reach_payload(message_type, payload,
                               sCr_encoded_payload_buffer,
@@ -1602,7 +1599,6 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,    // in
 
     I3_LOG(LOG_MASK_REACH, "%s(): type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
            sCr_uncoded_message_structure.header.message_type, 
-           // sCr_uncoded_message_structure.header.number_of_objects, 
            sCr_uncoded_message_structure.header.remaining_objects, 
            sCr_uncoded_message_structure.header.transaction_id);
 
