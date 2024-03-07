@@ -8,6 +8,6 @@
 #define _REACH_VERSION_H_
 
 // Major version.Minor version.Build version with possible note
-#define REACH_VERSION_STRING "2.4.4"
+#define REACH_VERSION_STRING "2.5.0"
 
 #endif  // ndef _REACH_VERSION_H_
