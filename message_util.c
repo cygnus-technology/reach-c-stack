@@ -349,7 +349,7 @@ char *message_util_param_info_response_json(
 
       cJSON_AddNumberToObject(json_1, "id", response->parameter_infos[i].id);
       cJSON_AddNumberToObject(json_1, "data type", response->parameter_infos[i].data_type);
-      cJSON_AddNumberToObject(json_1, "sz in bytes", response->parameter_infos[i].size_in_bytes);
+      cJSON_AddNumberToObject(json_1, "sz in bytes", response->parameter_infos[i].fp_precision);
       cJSON_AddStringToObject(json_1, "name", response->parameter_infos[i].name);
       cJSON_AddStringToObject(json_1, "description", response->parameter_infos[i].description);
       cJSON_AddStringToObject(json_1, "units", response->parameter_infos[i].units);
