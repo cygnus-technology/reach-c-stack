@@ -420,9 +420,8 @@ char *message_util_discover_commands_response_json(
   cJSON *json = cJSON_CreateObject();
   cJSON *jsonArray = cJSON_CreateArray();
   if (payload->available_commands_count > 0) {
-    cJSON *json_1 = cJSON_CreateObject();
     for (size_t i = 0; i < payload->available_commands_count; i++) {
-
+      cJSON *json_1 = cJSON_CreateObject();
       cJSON_AddNumberToObject(json_1, "id", payload->available_commands[i].id);
       cJSON_AddStringToObject(json_1, "name", payload->available_commands[i].name);
       if ( payload->available_commands[i].has_description ) {
@@ -431,8 +430,8 @@ char *message_util_discover_commands_response_json(
       if ( payload->available_commands[i].has_timeout ) {
         cJSON_AddNumberToObject(json_1, "timeout", payload->available_commands[i].timeout);
       }
+      cJSON_AddItemToArray(jsonArray, json_1);
     }
-    cJSON_AddItemToArray(jsonArray, json_1);
   }
 
   cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_DISCOVER_COMMANDS), jsonArray);
