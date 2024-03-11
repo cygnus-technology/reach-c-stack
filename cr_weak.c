@@ -154,6 +154,7 @@ int __attribute__((weak)) crcb_notify_error(cr_ErrorReport *err)
 int __attribute__((weak)) crcb_device_get_info(const cr_DeviceInfoRequest *request,
                                                cr_DeviceInfoResponse *pDi)
 {
+    (void)request;
     (void)pDi;
     I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
     return cr_ErrorCodes_NOT_IMPLEMENTED;

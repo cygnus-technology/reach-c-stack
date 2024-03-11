@@ -52,6 +52,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include "crcb_weak.h"
 #include "i3_log.h"
 #include "text_colors.h"
 
