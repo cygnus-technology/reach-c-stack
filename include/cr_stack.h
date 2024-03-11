@@ -163,9 +163,10 @@ int cr_process(uint32_t ticks);
 
 /**
 * @brief   cr_store_coded_prompt
-* @details allows the application to store the prompt where the Reach stack can 
-*          see it.  The byte data and length are copied into private storage.
-*          This data is retrieved using crcb_get_coded_prompt().
+* @details Allows the application to store the prompt where the 
+*          Reach stack can see it.  The byte data and length are
+*          copied into private storage. This data is retrieved
+*          using crcb_get_coded_prompt().
 * @param   data: The coded prompt to be stored. 
 * @param   len : number of bytes to be stored. 
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
@@ -238,25 +239,27 @@ void cr_test_sizes();
 /** The reach_sizes_t is used to communicate the sizes of device structures to
  *  clients.  These sizes can vary from one server to another and the client
  *   is required to respect these sizes.  Many of them are determined by the
- *   chosen communication link, such as BLE. It uses smaller member sizes that
- *   the uint32 favored by protobufs. Hence it communicates these sizes without
- *   blowing up the size of the
- *  Refer also to enum SizesOffsets reach.proto */
+ *   chosen communication link, such as BLE. reach_sizes_t uses
+ *   smaller member sizes that the uint32 favored by protobufs.
+ *   Hence it communicates these sizes without blowing up the
+ *   size of the device info packet.
+ *  Refer also to enum SizesOffsets reach.proto and
+ *  sCr_populate_device_info_sizes() which populates the
+ *  structure.
+ *   */
 typedef struct {
     uint16_t  max_message_size;             /**< The largest message that can be communicated */
-    uint16_t  big_data_buffer_size;         /**< The size of the buffer used for the longest strings. */
+    uint16_t  big_data_buffer_size;         /**< The size of the buffer most of the packet is one string. */
     /// The number of parameter buffers kept by the device.
     /// This determines the number of parameters that can be
     /// handled in a single message.
     uint8_t   parameter_buffer_count;
-    /// The number of parameter values that 
-    /// fit in one message.
+    /// The number of parameter values that fit in one message. 
     uint8_t   num_params_in_response;
-    /// The length of the description field in the 
-    /// device info structure
+    /// The length of the device and command description fields. 
     uint8_t   description_len;
     /// The number of bytes in the largest parameter types
-    /// eg, strings and byte array 
+    /// eg, strings and byte array.
     uint8_t   max_param_bytes;
     /// Length of the text string for parameter info description. 
     uint8_t   param_info_description_len;
@@ -282,6 +285,11 @@ typedef struct {
 // reach_ble_proto_sizes.h, or the analogous file used to set structure sizes.
 // #define REACH_SIZE_STRUCT_SIZE      16
 
+
+/**
+* @brief   cr_get_reach_version
+* @return  A pointer to a string in semantic version format.
+*/
 const char *cr_get_reach_version();
 
 #ifdef __cplusplus
