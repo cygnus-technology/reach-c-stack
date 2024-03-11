@@ -161,8 +161,8 @@ static int
 rs_notification_message(cr_ReachMessageTypes message_type,    // in
                         const void *payload)                  // in:  to be encoded
 {
-    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
-    //        hdr->message_type, hdr->number_of_objects, hdr->remaining_objects, hdr->transaction_id);
+    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
+    //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
 
    if (psRs_pong == NULL)
    {
