@@ -54,18 +54,13 @@
 #include "i3_log.h"
 #include "cJSON.h"
 
-
 // None of these message utilities are required without logging.
 #ifndef NO_REACH_LOGGING
 
-#if defined(INCLUDE_WIFI_SERVICE)
-  #define MSG_BUFFER_LEN    256
-  static char sMsgUtilBuffer[MSG_BUFFER_LEN];
-
-#elif (defined(INCLUDE_PARAMETER_SERVICE) || defined(INCLUDE_TIME_SERVICE))
-  #define MSG_BUFFER_LEN    40
-  static char sMsgUtilBuffer[MSG_BUFFER_LEN];
-#endif
+// This could be smaller.  It's the WiFi service that requires 
+// it to be this large.  64 is enough for time.  40 for params.
+#define MSG_BUFFER_LEN    256
+static char sMsgUtilBuffer[MSG_BUFFER_LEN];
 
   // msg_type_string(cr_ReachMessageTypes_GET_DEVICE_INFO)
 const char *msg_type_string(int32_t message_type) {
