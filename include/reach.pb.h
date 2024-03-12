@@ -13,7 +13,7 @@
 /* Enum definitions */
 typedef enum _cr_ReachProtoVersion {
     cr_ReachProtoVersion_NOT_USED = 0, /* Must have a zero */
-    cr_ReachProtoVersion_CURRENT_VERSION = 20 /* update this when you change this file. */
+    cr_ReachProtoVersion_CURRENT_VERSION = 22 /* update this when you change this file. */
 } cr_ReachProtoVersion;
 
 typedef enum _cr_ReachMessageTypes {
@@ -352,8 +352,7 @@ typedef struct _cr_ParameterInfoRequest {
 typedef struct _cr_ParameterInfo {
     uint32_t id; /* Id */
     cr_ParameterDataType data_type; /* DataType */
-    bool has_fp_precision;
-    uint32_t fp_precision; /* Float precision */
+    uint32_t size_in_bytes; /* app dependent usage */
     char name[24]; /* Name */
     cr_AccessLevel access; /* Access */
     bool has_description;
@@ -890,7 +889,7 @@ extern "C" {
 #define cr_DeviceInfoResponse_init_default       {0, "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_default     {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_default    {0, {cr_ParameterInfo_init_default, cr_ParameterInfo_init_default}}
-#define cr_ParameterInfo_init_default            {0, _cr_ParameterDataType_MIN, false, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
+#define cr_ParameterInfo_init_default            {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
 #define cr_ParamExKey_init_default               {0, ""}
 #define cr_ParamExInfoResponse_init_default      {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default}}
 #define cr_ParameterRead_init_default            {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
@@ -944,7 +943,7 @@ extern "C" {
 #define cr_DeviceInfoResponse_init_zero          {0, "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_zero        {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_zero       {0, {cr_ParameterInfo_init_zero, cr_ParameterInfo_init_zero}}
-#define cr_ParameterInfo_init_zero               {0, _cr_ParameterDataType_MIN, false, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
+#define cr_ParameterInfo_init_zero               {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
 #define cr_ParamExKey_init_zero                  {0, ""}
 #define cr_ParamExInfoResponse_init_zero         {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero}}
 #define cr_ParameterRead_init_zero               {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
@@ -1027,7 +1026,7 @@ extern "C" {
 #define cr_ParameterInfoRequest_parameter_ids_tag 2
 #define cr_ParameterInfo_id_tag                  1
 #define cr_ParameterInfo_data_type_tag           2
-#define cr_ParameterInfo_fp_precision_tag        3
+#define cr_ParameterInfo_size_in_bytes_tag       3
 #define cr_ParameterInfo_name_tag                4
 #define cr_ParameterInfo_access_tag              5
 #define cr_ParameterInfo_description_tag         6
@@ -1250,7 +1249,7 @@ X(a, STATIC,   REPEATED, MESSAGE,  parameter_infos,   1)
 #define cr_ParameterInfo_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
 X(a, STATIC,   SINGULAR, UENUM,    data_type,         2) \
-X(a, STATIC,   OPTIONAL, UINT32,   fp_precision,      3) \
+X(a, STATIC,   SINGULAR, UINT32,   size_in_bytes,     3) \
 X(a, STATIC,   SINGULAR, STRING,   name,              4) \
 X(a, STATIC,   SINGULAR, UENUM,    access,            5) \
 X(a, STATIC,   OPTIONAL, STRING,   description,       6) \
