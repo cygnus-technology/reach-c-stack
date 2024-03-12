@@ -344,13 +344,18 @@ char *message_util_param_info_response_json(
 
       cJSON_AddNumberToObject(json_1, "id", response->parameter_infos[i].id);
       cJSON_AddNumberToObject(json_1, "data type", response->parameter_infos[i].data_type);
-      cJSON_AddNumberToObject(json_1, "sz in bytes", response->parameter_infos[i].fp_precision);
+      cJSON_AddNumberToObject(json_1, "sz in bytes", response->parameter_infos[i].size_in_bytes);
       cJSON_AddStringToObject(json_1, "name", response->parameter_infos[i].name);
-      cJSON_AddStringToObject(json_1, "description", response->parameter_infos[i].description);
-      cJSON_AddStringToObject(json_1, "units", response->parameter_infos[i].units);
-      cJSON_AddNumberToObject(json_1, "min", response->parameter_infos[i].range_min);
-      cJSON_AddNumberToObject(json_1, "max", response->parameter_infos[i].range_max);
       cJSON_AddNumberToObject(json_1, "access", response->parameter_infos[i].access);
+      if (response->parameter_infos[i].has_description)
+          cJSON_AddStringToObject(json_1, "description", response->parameter_infos[i].description);
+      cJSON_AddStringToObject(json_1, "units", response->parameter_infos[i].units);
+      if (response->parameter_infos[i].has_range_min)
+          cJSON_AddNumberToObject(json_1, "min", response->parameter_infos[i].range_min);
+      if (response->parameter_infos[i].has_range_max)
+          cJSON_AddNumberToObject(json_1, "max", response->parameter_infos[i].range_max);
+      if (response->parameter_infos[i].has_default_value)
+          cJSON_AddNumberToObject(json_1, "default", response->parameter_infos[i].default_value);
       cJSON_AddNumberToObject(json_1, "storage location", response->parameter_infos[i].storage_location);
 
       cJSON_AddItemToArray(jsonArray, json_1);
