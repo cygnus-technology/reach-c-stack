@@ -180,15 +180,14 @@ Earlier releases had you build up the project from the SiLabs "empty" example.  
 
 Right click in the project explorer and select "Import->MCU Project".  
 
-
-<img src="_images/import1.PNG" title="image_tooltip" alt="alt_text" width="379">
+![alt_text](_images/import1.PNG "image_tooltip")
 
 Choose the "**More Import Options**" at the bottom of the dialog box.
 
 Choose "**Projects from Folder or Archive**". Navigate to the reach-firmware directory you cloned and complete the import of an Eclipse project.
 
 Click on “Next”.
-<img src="_images/import2.PNG" title="image_tooltip" alt="alt_text" width="408">
+![alt_text](_images/import2.PNG "image_tooltip")
 This should bring the "reach-silabs" project into your workspace and it should build as is.  
 
 You should be able to “Debug As” a “Silicon Labs ARM Program” by right clicking on the project in the explorer.  You may need to set up a debug configuration.  You should see the startup banner in your serial console with the new build date.
