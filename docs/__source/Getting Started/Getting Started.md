@@ -4,9 +4,13 @@
 
 I3 Product Design
 
-Version 2.02
+Version 3.01
 
-Date        February 13, 2024
+Date        March 12, 2024
+
+
+
+***The project structure has changed between v2 and v3 of this document.***
 
 # Executive Summary
 
@@ -31,9 +35,11 @@ The Cygnus Reach Evaluation Kit for the Silicon Labs Thunderboard assumes that t
 
 2.01:  February 9, 2024.  Adds features such as parameter notifications.  Provided with a separate release note.
 
+3,01: March 12, 2024.  The project structure has changed allowing for complete import.
+
 # Running the Demo
 
-The demo requires a Reach enabled IoT device.  The Thunderboard fills this role conveniently.
+The demo requires a Reach enabled IoT device.  The Thunderboard fills this role conveniently.  The Nordic nRCP is also an option, but this document describes the Silicon Labs demo.
 
 ## Preparation
 
@@ -47,7 +53,7 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
   
         [https://www.silabs.com/developers/simplicity-studio](https://www.silabs.com/developers/simplicity-studio)
   
-  * The code is updated to match version 5.8 with Gecko 4.4.
+  * The code is updated to match version 5.8 with Gecko 4.4.0.
   * For any Linux users, be aware that the default installation can go a lot faster if you set the make to use multiple threads.
 
 * If you are only going to flash the prebuilt binary, you can more quickly install only the Simplicity Commander tool.  Google “[download Simplicity Commande](https://community.silabs.com/s/article/simplicity-commander?language=en_US)r” and choose the version you like.  They offer Windows, Mac and Linux.
@@ -68,7 +74,7 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
 
 * Choose the kit in the upper left.  
 
-* Select “prebuilt/reacher-tboard-v320.hex” (or the latest) for flashing.  This includes both the bootloader and the application.  Separate bootloader and app hex files are also available.
+* Select “prebuilt/reacher-tboard-v352.hex” (or the latest) for flashing.  This includes both the bootloader and the application.  Separate bootloader and app hex files are also available.
 
 * Poke the “Flash” button.  The program will boot when the download is complete.
 
@@ -168,65 +174,21 @@ You can also see the phone’s screen and chat with the user.
 
 You can rebuild the application and modify it to your needs.  The process is described here.  It assumes that you have already run the demo on a Thunderboard.
 
-## Create a new Project
+## Import the Project
 
-Use the New menu entry to access the “Silicon Labs New Project Wizard”.
-![alt_text](_images/silabs_sdk.png "image_tooltip")
+Earlier releases had you build up the project from the SiLabs "empty" example.  This is replaced with a direct import of the entire project.  If you have an existing github clone, update it to the latest master (tagged 2.5.3).  Then command "git submodule update --init" to get the matching submodule.  The Reach-c-stack is provided as a submodule because multiple projects use the C stack.
 
-Choose the Thunderboard EFR32BG22 (BRD4184A) using the EFR32BG22C224F512IM40.  If your thunderboard is attached to the USB port these should be selected automatically.  You want the latest Gecko SDK, here 4.4.0, and the GCC compiler, here “Simplicity IDE / GNU ARM v12.2.1”
+Right click in the project explorer and select "Import->MCU Project".  
+
+![alt_text](_images/import1.PNG "image_tooltip")
+
+Choose the "**More Import Options**" at the bottom of the dialog box.
+
+Choose "**Projects from Folder or Archive**". Navigate to the reach-firmware directory you cloned and complete the import of an Eclipse project.
 
 Click on “Next”.
-![alt_text](_images/silabs_examples.png "image_tooltip")
-Select the “Bluetooth SoC Empty” project.  This will work best to duplicate the demo.  Other starting points might be more appropriate for a larger project.  For instance, SoC Empty has no RTOS, but this small device doesn’t have much use for an RTOS.
-
-Click on Next.
-![alt_text](_images/silabs_config.png "image_tooltip")
-**Important!  Rename the project to “reach_tboard”.**
-
-You can accept the default location or choose your own location.  
-
-You can choose “Link SDK and copy project sources”, but “Copy Contents” has the advantage of copying in the SiLabs source code. 
-
-More advanced users of Simplicity Studio might change these settings.  They may have an impact on various configuration files.
-
-## Copy in the Reach Source
-
-Copy the contents of the Reach source package over the new project.  A handful of files are overwritten, most importantly app.c, the .pintool file and the gatt_configuration.btconf file.  Most files are new to the project.
-
-## Fill in Dependencies
-
-With the project open in Simplicity Studio, double click on reach_tboard.slcp file and open the software component manager.  For each listed component, enter the name in the search box and install it with any given comments.
-
-Install the following components:
-
-![alt_text](_images/silabs_components.png "image_tooltip")
-
-1. Iostream_retarget_stdio
-   1. Depends on iostream_usart_core
-2. CLI Instance
-   2. Create an instance “inst”
-3. Iostream_usart
-   3. Create an instance named “vcom”
-   4. Disable flow control.
-   5. Convert \n to \r\n
-4. Iostream_stdlib_config
-5. Tiny Printf
-6. Simple LED
-   6. With instance led0 connected GPIO B0
-
-Add the necessary include paths.  Right click on the project in the project explorer and select properties.  Open the C/C++ build tab and choose settings.  Select “Includes” for the GNU ARM C Compiler.   Add the following:
-
-![alt_text](_images/silabs_includes.png "image_tooltip")
-
-1. ${workspace_loc:/${ProjName}/App}
-2. ${workspace_loc:/${ProjName}/reach-c-stack}
-3. ${workspace_loc:/${ProjName}/reach_proto/ansic/built}
-4. ${workspace_loc:/${ProjName}/reach_proto/ansic/nanopb}
-5. ${workspace_loc:/${ProjName}/reach-c-stack/IoT-Core}
-6. ${workspace_loc:/${ProjName}/reach-c-stack/lib}
-7. ${workspace_loc:/${ProjName}/reach-c-stack/silabs}
-
-The project should build with this configuration.
+![alt_text](_images/import2.PNG "image_tooltip")
+This should bring the "reach-silabs" project into your workspace and it should build as is.  
 
 You should be able to “Debug As” a “Silicon Labs ARM Program” by right clicking on the project in the explorer.  You may need to set up a debug configuration.  You should see the startup banner in your serial console with the new build date.
 
