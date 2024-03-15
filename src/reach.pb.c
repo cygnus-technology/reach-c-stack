@@ -12,12 +12,6 @@ PB_BIND(cr_ReachMessageHeader, cr_ReachMessageHeader, AUTO)
 PB_BIND(cr_ReachMessage, cr_ReachMessage, AUTO)
 
 
-PB_BIND(cr_Ahsoka_ReachMessageHeader, cr_Ahsoka_ReachMessageHeader, AUTO)
-
-
-PB_BIND(cr_AhsokaMessageHeader, cr_AhsokaMessageHeader, AUTO)
-
-
 PB_BIND(cr_ErrorReport, cr_ErrorReport, AUTO)
 
 

@@ -13,7 +13,7 @@
 /* Enum definitions */
 typedef enum _cr_ReachProtoVersion {
     cr_ReachProtoVersion_NOT_USED = 0, /* Must have a zero */
-    cr_ReachProtoVersion_CURRENT_VERSION = 22 /* update this when you change this file. */
+    cr_ReachProtoVersion_CURRENT_VERSION = 19 /* update this when you change this file. */
 } cr_ReachProtoVersion;
 
 typedef enum _cr_ReachMessageTypes {
@@ -96,35 +96,7 @@ typedef enum _cr_AccessLevel {
     cr_AccessLevel_NO_ACCESS = 0,
     cr_AccessLevel_READ = 1,
     cr_AccessLevel_WRITE = 2,
-    cr_AccessLevel_READ_WRITE = 3,
-    cr_AccessLevel_NONE_L1 = 4,
-    cr_AccessLevel_READ_L1 = 5,
-    cr_AccessLevel_WRITE_L1 = 6,
-    cr_AccessLevel_READ_WRITE_l1 = 7,
-    cr_AccessLevel_NONE_L2 = 8,
-    cr_AccessLevel_READ_L2 = 9,
-    cr_AccessLevel_WRITE_L2 = 10,
-    cr_AccessLevel_READ_WRITE_l2 = 11,
-    cr_AccessLevel_NONE_L1_L2 = 12,
-    cr_AccessLevel_READ_L1_L2 = 13,
-    cr_AccessLevel_WRITE_L1_L2 = 14,
-    cr_AccessLevel_READ_WRITE_L1_l2 = 15,
-    cr_AccessLevel_NONE_L3 = 16, /* 0x10 */
-    cr_AccessLevel_READ_L3 = 17,
-    cr_AccessLevel_WRITE_L3 = 18,
-    cr_AccessLevel_READ_WRITE_L3 = 19,
-    cr_AccessLevel_NONE_L1_L3 = 20, /* 0x14 */
-    cr_AccessLevel_READ_L1_L3 = 21,
-    cr_AccessLevel_WRITE_L1_L3 = 22,
-    cr_AccessLevel_READ_WRITE_L1_L3 = 23,
-    cr_AccessLevel_NONE_L2_L3 = 24, /* 0x18 */
-    cr_AccessLevel_READ_L2_L3 = 25,
-    cr_AccessLevel_WRITE_L2_L3 = 26,
-    cr_AccessLevel_READ_WRITE_L2_L3 = 27,
-    cr_AccessLevel_NONE_L1_L2_L3 = 28, /* 0x1C */
-    cr_AccessLevel_READ_L1_L2_L3 = 29,
-    cr_AccessLevel_WRITE_L1_L2_L3 = 30,
-    cr_AccessLevel_READ_WRITE_L1_L2_L3 = 31
+    cr_AccessLevel_READ_WRITE = 3
 } cr_AccessLevel;
 
 typedef enum _cr_StorageLocation {
@@ -228,63 +200,6 @@ typedef struct _cr_ReachMessage {
     cr_ReachMessage_payload_t payload;
 } cr_ReachMessage;
 
-/* ----------------------------
- This represents a merger between Ahsoka and Reach for testing.
- The names and ordinals match Reach.
- #define AHSOKA_HEADER and rename to ReachMessageHeader to use this.
----------------------------- */
-typedef struct _cr_Ahsoka_ReachMessageHeader {
-    /* This ID defines the Type of Message being carried in the Envelop / Header
- Note: Existing OpenPV / Ahsoka Message Architecture 
- Ahsoka calls this transport_id */
-    uint32_t message_type;
-    /* (Optional) Routing for Non-Endpoint Style Transports. 
- Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports
- Note: New for OpenPV / Ahsoka Message Architecture */
-    uint32_t endpoint_id;
-    /* (Optional) Unique ID for a Client used in Services that support Multiple Clients (usually autopopulated with GUID)
- Note: Part of Existing OpenPV / Ahsoka Message Architecture 
- Ahsoka makes this a byte array (16 byte UUID) */
-    uint32_t client_id;
-    /* Note:  Added for Reach
- Zero when transaction is complete */
-    uint32_t remaining_objects;
-    /* (Optional) This ID defines a unique Message / Response used when out of order messages are needed
- usually left empty since OpenPV Endpoints gaurantee message order
- Note: Existing OpenPV / Ahsoka Message Architecture 
- Ahsoka calls this client_message_id */
-    uint32_t transaction_id;
-    /* (Optional) The size of the message payload that follows this header */
-    int32_t message_size;
-} cr_Ahsoka_ReachMessageHeader;
-
-/* ----------------------------
- For Reference:  This is used in the OpenPV system.
- Service Routing Message Header
- This object represents the Layer 2 Message Format for OpenPV Service Messages.
----------------------------- */
-typedef struct _cr_AhsokaMessageHeader {
-    /* This ID defines the Type of Message being carried in the Envelop / Header
- Note: Existing OpenPV / Ahsoka Message Architecture */
-    int32_t transport_id;
-    /* (Optional) This ID defines a unique Message / Response used when out of order messages are needed
- usually left empty since OpenPV Endpoints gaurantee message order
- Note: Existing OpenPV / Ahsoka Message Architecture */
-    int32_t client_message_id;
-    /* (Optional) Unique ID for a Client used in Services that support Multiple Clients (usually autopopulated with GUID)
- Note: Part of Existing OpenPV / Ahsoka Message Architecture */
-    pb_callback_t client_id;
-    /* (Optional) The size of the message payload that follows this header */
-    int32_t message_size;
-    /* (Optional) Routing for Non-Endpoint Style Transports. 
- Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports
- Note: New for OpenPV / Ahsoka Message Architecture */
-    uint32_t endpoint_id;
-    /* (Optional) Indicates that the message has used deflate compression in addition to pbuff encoding
- Note: New for OpenPV / Ahsoka Message Architecture */
-    bool is_message_compressed;
-} cr_AhsokaMessageHeader;
-
 /* ERROR_REPORT: Could be sent asynchronously to indicate an error. */
 typedef struct _cr_ErrorReport {
     int32_t result_value; /* Error Result */
@@ -322,13 +237,15 @@ typedef struct _cr_DeviceInfoRequest {
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_sizes_struct_t;
 typedef struct _cr_DeviceInfoResponse {
-    int32_t protocol_version; /* Supported Protocol Version */
+    int32_t protocol_version; /* Supported Protocol Version (deprecated) */
     char device_name[24]; /* Name, Typically Model Name */
     char manufacturer[24];
     char device_description[48]; /* Description */
     /* Each endpoint advertises a "main" FW version.
  If there are other FW versions, put them in the parameter repo. */
     char firmware_version[16];
+    /* protocol version as a string */
+    char protocol_version_string[16];
     /* A bit mask, allowing support for up to 32 services */
     uint32_t services;
     /* Used to avoid reloading the parameter descriptions */
@@ -352,7 +269,7 @@ typedef struct _cr_ParameterInfoRequest {
 typedef struct _cr_ParameterInfo {
     uint32_t id; /* Id */
     cr_ParameterDataType data_type; /* DataType */
-    uint32_t size_in_bytes; /* app dependent usage */
+    uint32_t size_in_bytes; /* used by some devices */
     char name[24]; /* Name */
     cr_AccessLevel access; /* Access */
     bool has_description;
@@ -778,8 +695,8 @@ extern "C" {
 #define _cr_CLIType_ARRAYSIZE ((cr_CLIType)(cr_CLIType_REPORT+1))
 
 #define _cr_AccessLevel_MIN cr_AccessLevel_NO_ACCESS
-#define _cr_AccessLevel_MAX cr_AccessLevel_READ_WRITE_L1_L2_L3
-#define _cr_AccessLevel_ARRAYSIZE ((cr_AccessLevel)(cr_AccessLevel_READ_WRITE_L1_L2_L3+1))
+#define _cr_AccessLevel_MAX cr_AccessLevel_READ_WRITE
+#define _cr_AccessLevel_ARRAYSIZE ((cr_AccessLevel)(cr_AccessLevel_READ_WRITE+1))
 
 #define _cr_StorageLocation_MIN cr_StorageLocation_STORAGE_LOCATION_INVALID
 #define _cr_StorageLocation_MAX cr_StorageLocation_NONVOLATILE_EXTENDED
@@ -808,8 +725,6 @@ extern "C" {
 #define _cr_SizesOffsets_MIN cr_SizesOffsets_MAX_MESSAGE_SIZE_OFFSET
 #define _cr_SizesOffsets_MAX cr_SizesOffsets_STRUCTURE_SIZE
 #define _cr_SizesOffsets_ARRAYSIZE ((cr_SizesOffsets)(cr_SizesOffsets_STRUCTURE_SIZE+1))
-
-
 
 
 
@@ -880,13 +795,11 @@ extern "C" {
 /* Initializer values for message structs */
 #define cr_ReachMessageHeader_init_default       {0, 0, 0, 0, 0}
 #define cr_ReachMessage_init_default             {false, cr_ReachMessageHeader_init_default, {0, {0}}}
-#define cr_Ahsoka_ReachMessageHeader_init_default {0, 0, 0, 0, 0, 0}
-#define cr_AhsokaMessageHeader_init_default      {0, 0, {{NULL}, NULL}, 0, 0, 0}
 #define cr_ErrorReport_init_default              {0, ""}
 #define cr_PingRequest_init_default              {{0, {0}}}
 #define cr_PingResponse_init_default             {{0, {0}}, 0}
 #define cr_DeviceInfoRequest_init_default        {false, ""}
-#define cr_DeviceInfoResponse_init_default       {0, "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
+#define cr_DeviceInfoResponse_init_default       {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_default     {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_default    {0, {cr_ParameterInfo_init_default, cr_ParameterInfo_init_default}}
 #define cr_ParameterInfo_init_default            {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
@@ -934,13 +847,11 @@ extern "C" {
 #define cr_BufferSizes_init_default              {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define cr_ReachMessageHeader_init_zero          {0, 0, 0, 0, 0}
 #define cr_ReachMessage_init_zero                {false, cr_ReachMessageHeader_init_zero, {0, {0}}}
-#define cr_Ahsoka_ReachMessageHeader_init_zero   {0, 0, 0, 0, 0, 0}
-#define cr_AhsokaMessageHeader_init_zero         {0, 0, {{NULL}, NULL}, 0, 0, 0}
 #define cr_ErrorReport_init_zero                 {0, ""}
 #define cr_PingRequest_init_zero                 {{0, {0}}}
 #define cr_PingResponse_init_zero                {{0, {0}}, 0}
 #define cr_DeviceInfoRequest_init_zero           {false, ""}
-#define cr_DeviceInfoResponse_init_zero          {0, "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
+#define cr_DeviceInfoResponse_init_zero          {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_zero        {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_zero       {0, {cr_ParameterInfo_init_zero, cr_ParameterInfo_init_zero}}
 #define cr_ParameterInfo_init_zero               {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
@@ -995,18 +906,6 @@ extern "C" {
 #define cr_ReachMessageHeader_transaction_id_tag 5
 #define cr_ReachMessage_header_tag               1
 #define cr_ReachMessage_payload_tag              2
-#define cr_Ahsoka_ReachMessageHeader_message_type_tag 1
-#define cr_Ahsoka_ReachMessageHeader_endpoint_id_tag 2
-#define cr_Ahsoka_ReachMessageHeader_client_id_tag 3
-#define cr_Ahsoka_ReachMessageHeader_remaining_objects_tag 4
-#define cr_Ahsoka_ReachMessageHeader_transaction_id_tag 5
-#define cr_Ahsoka_ReachMessageHeader_message_size_tag 6
-#define cr_AhsokaMessageHeader_transport_id_tag  1
-#define cr_AhsokaMessageHeader_client_message_id_tag 2
-#define cr_AhsokaMessageHeader_client_id_tag     3
-#define cr_AhsokaMessageHeader_message_size_tag  4
-#define cr_AhsokaMessageHeader_endpoint_id_tag   5
-#define cr_AhsokaMessageHeader_is_message_compressed_tag 6
 #define cr_ErrorReport_result_value_tag          1
 #define cr_ErrorReport_result_string_tag         2
 #define cr_PingRequest_echo_data_tag             1
@@ -1018,6 +917,7 @@ extern "C" {
 #define cr_DeviceInfoResponse_manufacturer_tag   3
 #define cr_DeviceInfoResponse_device_description_tag 4
 #define cr_DeviceInfoResponse_firmware_version_tag 6
+#define cr_DeviceInfoResponse_protocol_version_string_tag 7
 #define cr_DeviceInfoResponse_services_tag       8
 #define cr_DeviceInfoResponse_parameter_metadata_hash_tag 9
 #define cr_DeviceInfoResponse_application_identifier_tag 10
@@ -1179,26 +1079,6 @@ X(a, STATIC,   SINGULAR, BYTES,    payload,           2)
 #define cr_ReachMessage_DEFAULT NULL
 #define cr_ReachMessage_header_MSGTYPE cr_ReachMessageHeader
 
-#define cr_Ahsoka_ReachMessageHeader_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   message_type,      1) \
-X(a, STATIC,   SINGULAR, UINT32,   endpoint_id,       2) \
-X(a, STATIC,   SINGULAR, UINT32,   client_id,         3) \
-X(a, STATIC,   SINGULAR, UINT32,   remaining_objects,   4) \
-X(a, STATIC,   SINGULAR, UINT32,   transaction_id,    5) \
-X(a, STATIC,   SINGULAR, INT32,    message_size,      6)
-#define cr_Ahsoka_ReachMessageHeader_CALLBACK NULL
-#define cr_Ahsoka_ReachMessageHeader_DEFAULT NULL
-
-#define cr_AhsokaMessageHeader_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    transport_id,      1) \
-X(a, STATIC,   SINGULAR, INT32,    client_message_id,   2) \
-X(a, CALLBACK, SINGULAR, BYTES,    client_id,         3) \
-X(a, STATIC,   SINGULAR, INT32,    message_size,      4) \
-X(a, STATIC,   SINGULAR, UINT32,   endpoint_id,       5) \
-X(a, STATIC,   SINGULAR, BOOL,     is_message_compressed,   6)
-#define cr_AhsokaMessageHeader_CALLBACK pb_default_field_callback
-#define cr_AhsokaMessageHeader_DEFAULT NULL
-
 #define cr_ErrorReport_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result_value,      1) \
 X(a, STATIC,   SINGULAR, STRING,   result_string,     2)
@@ -1227,6 +1107,7 @@ X(a, STATIC,   SINGULAR, STRING,   device_name,       2) \
 X(a, STATIC,   SINGULAR, STRING,   manufacturer,      3) \
 X(a, STATIC,   SINGULAR, STRING,   device_description,   4) \
 X(a, STATIC,   SINGULAR, STRING,   firmware_version,   6) \
+X(a, STATIC,   SINGULAR, STRING,   protocol_version_string,   7) \
 X(a, STATIC,   SINGULAR, UINT32,   services,          8) \
 X(a, STATIC,   SINGULAR, UINT32,   parameter_metadata_hash,   9) \
 X(a, STATIC,   OPTIONAL, BYTES,    application_identifier,  10) \
@@ -1569,8 +1450,6 @@ X(a, STATIC,   SINGULAR, UINT32,   param_info_enum_count,  15)
 
 extern const pb_msgdesc_t cr_ReachMessageHeader_msg;
 extern const pb_msgdesc_t cr_ReachMessage_msg;
-extern const pb_msgdesc_t cr_Ahsoka_ReachMessageHeader_msg;
-extern const pb_msgdesc_t cr_AhsokaMessageHeader_msg;
 extern const pb_msgdesc_t cr_ErrorReport_msg;
 extern const pb_msgdesc_t cr_PingRequest_msg;
 extern const pb_msgdesc_t cr_PingResponse_msg;
@@ -1625,8 +1504,6 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define cr_ReachMessageHeader_fields &cr_ReachMessageHeader_msg
 #define cr_ReachMessage_fields &cr_ReachMessage_msg
-#define cr_Ahsoka_ReachMessageHeader_fields &cr_Ahsoka_ReachMessageHeader_msg
-#define cr_AhsokaMessageHeader_fields &cr_AhsokaMessageHeader_msg
 #define cr_ErrorReport_fields &cr_ErrorReport_msg
 #define cr_PingRequest_fields &cr_PingRequest_msg
 #define cr_PingResponse_fields &cr_PingResponse_msg
@@ -1679,14 +1556,12 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_BufferSizes_fields &cr_BufferSizes_msg
 
 /* Maximum encoded size of messages (where known) */
-/* cr_AhsokaMessageHeader_size depends on runtime parameters */
-#define cr_Ahsoka_ReachMessageHeader_size        41
 #define cr_BufferSizes_size                      84
 #define cr_CLIData_size                          198
 #define cr_CommandInfo_size                      86
 #define cr_ConnectionDescription_size            48
 #define cr_DeviceInfoRequest_size                33
-#define cr_DeviceInfoResponse_size               182
+#define cr_DeviceInfoResponse_size               199
 #define cr_DiscoverCommandsResponse_size         176
 #define cr_DiscoverCommands_size                 0
 #define cr_DiscoverFilesResponse_size            192

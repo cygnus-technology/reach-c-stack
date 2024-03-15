@@ -285,12 +285,24 @@ typedef struct {
 // reach_ble_proto_sizes.h, or the analogous file used to set structure sizes.
 // #define REACH_SIZE_STRUCT_SIZE      16
 
-
 /**
-* @brief   cr_get_reach_version
-* @return  A pointer to a string in semantic version format.
+* @brief   cr_get_reach_version 
+* @details The version is in semantic version format: 
+*          MAJOR.MINOR.BUILD.PATCH
+*          with an optional string appended. 
+* @return  Returns a string pointer with the C stack version.
 */
 const char *cr_get_reach_version();
+#define CR_STACK_VERSION_LEN    16
+
+/**
+* @brief   cr_get_proto_version 
+* @details The version is in semantic version format: 
+*          MAJOR.MINOR.BUILD.PATCH
+*          with an optional string appended. 
+* @return  Returns a string pointer with the protobuf version.
+*/
+const char *cr_get_proto_version();
 
 #ifdef __cplusplus
 }
