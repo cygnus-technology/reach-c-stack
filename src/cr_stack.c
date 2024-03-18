@@ -575,60 +575,85 @@ bool cr_get_comm_link_connected(void)
 
 /**
 * @brief   cr_report_error
-* @details Report an error condition to the client.  This can be called at any 
-*          point as the report to the client is asynchronous and immediate.  The
-*          stack can be configured to use only the error code, but the
-*          printf-like string describing the error condition is encouraged.
-*          This is intended to make it easier to find and eliminate errors
-*          during development.
+* @details The system can report errors to the client.  This 
+*          takes some memory and so users are given the option
+*          to configure this with ERROR_REPORT_FORMAT defined in
+*          reach-server.h.  ERROR_FORMAT_FULL causes another 240
+*          byte buffer to be allocated so that the error string
+*          can be forwarded to the client at any time without
+*          sharing buffers.  ERROR_FORMAT_SHORT causes only the
+*          error code to be passed to the client.
+*          ERROR_FORMAT_LOG_ONLY disables the remote
+*          notification and only prints the error code in the
+*          local log.
 * @param error_code : Use of the cr_ErrorCodes_ enum is encouraged but not 
 *                   required.
 * @param fmt : A printf-like string with variables. 
 */
-void cr_report_error(int error_code, const char *fmt, ...)
-{
-    va_list args;
-    cr_ErrorReport *err = (cr_ErrorReport *)sCr_uncoded_response_buffer;
-    err->result_value = error_code;
 
-    va_start(args, fmt);
-    int ptr = snprintf(err->result_string,
-                       REACH_BYTES_IN_A_FILE_PACKET,
-                       "Error %d: ", error_code);
-    vsnprintf(&err->result_string[ptr],
-              REACH_BYTES_IN_A_FILE_PACKET-ptr, fmt, args);
-    // force termination
-    err->result_string[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
-    va_end(args);
-    // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
-
-    /// @private
-  #define ASYNC_ERROR_NOTIFCATION
-  #ifdef ASYNC_ERROR_NOTIFCATION
-    crcb_notify_error(err);
-    i3_log(LOG_MASK_WARN, "Logged Error report:");
-    i3_log(LOG_MASK_ERROR, "%s", err->result_string);
-  #else
-    cr_ReachMessageHeader msg_header;
-    msg_header.message_type      = cr_ReachMessageTypes_ERROR_REPORT;
-    msg_header.remaining_objects = 0;
-    msg_header.endpoint_id       = sCr_endpoint_id;
-    msg_header.client_id         = sCr_client_id;
-    msg_header.transaction_id    = 0;
-    int rval = sCr_encode_message(cr_ReachMessageTypes_ERROR_REPORT, // in
-                                  sCr_uncoded_response_buffer,       // in:  to be encoded
-                                  &msg_header);                      // in
-    if (0 != rval)
+#ifndef ERROR_REPORT_FORMAT
+    #warning  ERROR_REPORT_FORMAT should be defined in reach-server.h
+    void cr_report_error(int error_code, const char *fmt, ...)
     {
-        i3_log(LOG_MASK_ERROR, "Error Encoding an error report:\r\n"
-                               "%s", err->result_string);
-        return;
+        (void)fmt;
+        i3_log(LOG_MASK_ERROR, "cr_report_error(%d) is disabled", error_code);
     }
-    i3_log(LOG_MASK_WARN, "Logged Error report:");
-    i3_log(LOG_MASK_ERROR, "%s", err->result_string);
-    sCr_error_reported = true;
-  #endif
-}
+#else
+  #if (ERROR_REPORT_FORMAT == ERROR_FORMAT_LOG_ONLY)
+    void cr_report_error(int error_code, const char *fmt, ...)
+    {
+        (void)fmt;
+        i3_log(LOG_MASK_ERROR, "cr_report_error(%d) to log only", err);
+    }
+  #elif (ERROR_REPORT_FORMAT == ERROR_FORMAT_SHORT)
+    #define SHORT_ERROR_BUF_LEN  16
+    // The asynchronous version requires a buffer.
+    /// @private
+    static uint8_t sCr_short_error_buffer[SHORT_ERROR_BUF_LEN] ALIGN_TO_WORD;
+
+    void cr_report_error(int error_code, const char *fmt, ...)
+    {
+        (void)fmt;
+
+        cr_ErrorReport *err = (cr_ErrorReport *)sCr_short_error_buffer;
+        memset(err, 0, SHORT_ERROR_BUF_LEN);
+        err->result_value = error_code;
+        int ptr = snprintf(err->result_string,
+                           SHORT_ERROR_BUF_LEN,
+                           "Error %d.", error_code);
+        crcb_notify_error(err);
+        i3_log(LOG_MASK_ERROR, "Logged short error report, code %d:", error_code);
+    }
+  #else  // (ERROR_REPORT_FORMAT == ERROR_FORMAT_FULL)
+    // The asynchronous version requires a buffer.
+    /// @private
+    static uint8_t sCr_async_error_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+
+    void cr_report_error(int error_code, const char *fmt, ...)
+    {
+        va_list args;
+
+        cr_ErrorReport *err = (cr_ErrorReport *)sCr_async_error_buffer;
+        err->result_value = error_code;
+
+        va_start(args, fmt);
+        int ptr = snprintf(err->result_string,
+                           REACH_BYTES_IN_A_FILE_PACKET,
+                           "Error %d: ", error_code);
+        vsnprintf(&err->result_string[ptr],
+                  REACH_BYTES_IN_A_FILE_PACKET-ptr, fmt, args);
+        // force termination
+        err->result_string[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
+        va_end(args);
+        // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
+
+        crcb_notify_error(err);
+        i3_log(LOG_MASK_WARN, "Logged Error full report:");
+        i3_log(LOG_MASK_ERROR, "%s", err->result_string);
+    }
+  #endif  // ERROR_REPORT_FORMAT ==
+#endif // #ifndef ERROR_REPORT_FORMAT
+
 
 // 
 // Static functions 
@@ -1205,7 +1230,7 @@ const char *cr_get_proto_version()
   #endif
 
   #else
-    uint8_t major, minor, build, patch;
+    uint8_t major, minor, build;
 
     major = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>16);
     minor = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>8);
