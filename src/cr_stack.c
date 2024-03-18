@@ -137,7 +137,9 @@ uint32_t pvtCr_num_remaining_objects = 0;
 ///----------------------------------------------------------------------------
 /// static (private) "member" variables
 ///----------------------------------------------------------------------------
-static int sCr_transaction_id = 0;
+static uint32_t sCr_transaction_id = 0;
+static uint32_t sCr_client_id = 0;
+static uint32_t sCr_endpoint_id = 0;
 static bool sCr_error_reported = false;
 
 ///----------------------------------------------------------------------------
@@ -301,10 +303,12 @@ static int handle_continued_transactions()
     cr_ReachMessageHeader msg_header;
     memset(&msg_header, 0, sizeof(msg_header));
     msg_header.message_type      = encode_message_type;
-    msg_header.endpoint_id       = 0;
-    msg_header.remaining_objects = pvtCr_num_remaining_objects;
+    msg_header.endpoint_id       = sCr_endpoint_id;
+    msg_header.client_id         = sCr_client_id;
     msg_header.transaction_id    = sCr_transaction_id;
-    rval = sCr_encode_message(encode_message_type,          // in
+    msg_header.remaining_objects = pvtCr_num_remaining_objects;
+
+    rval = sCr_encode_message(encode_message_type,         // in
                              sCr_uncoded_response_buffer,  // in:  to be encoded
                              &msg_header);
 
@@ -608,10 +612,12 @@ void cr_report_error(int error_code, const char *fmt, ...)
     cr_ReachMessageHeader msg_header;
     msg_header.message_type      = cr_ReachMessageTypes_ERROR_REPORT;
     msg_header.remaining_objects = 0;
+    msg_header.endpoint_id       = sCr_endpoint_id;
+    msg_header.client_id         = sCr_client_id;
     msg_header.transaction_id    = 0;
     int rval = sCr_encode_message(cr_ReachMessageTypes_ERROR_REPORT, // in
-                                 sCr_uncoded_response_buffer,       // in:  to be encoded
-                                 &msg_header);                      // in
+                                  sCr_uncoded_response_buffer,       // in:  to be encoded
+                                  &msg_header);                      // in
     if (0 != rval)
     {
         i3_log(LOG_MASK_ERROR, "Error Encoding an error report:\r\n"
@@ -677,6 +683,8 @@ static int handle_coded_prompt()
 
     // save the things we need out of the header.
     sCr_transaction_id = header.transaction_id;
+    sCr_endpoint_id    = header.endpoint_id;
+    sCr_client_id      = header.client_id;
     pvtCr_num_remaining_objects = header.remaining_objects;
 
     // The coded data begins after the header
@@ -687,8 +695,8 @@ static int handle_coded_prompt()
            msg_type_string(header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        *coded_data, header.message_size);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d", 
-           header.message_size, sCr_transaction_id);
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint_id %d.", 
+           header.message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
     // The result will be fully encoded at sCr_encoded_response_buffer[]
@@ -723,13 +731,15 @@ static int handle_coded_prompt()
     cr_ReachMessageHeader *hdr = &msgPtr->header;
     uint8_t *coded_data = (uint8_t *)msgPtr->payload.bytes;
     sCr_transaction_id = hdr->transaction_id;
+    sCr_endpoint_id    = hdr->endpoint_id;
+    sCr_client_id      = hdr->client_id;
 
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
            msg_type_string(msgPtr->header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d", 
-           msgPtr->payload.size, sCr_transaction_id);
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint %d.", 
+           msgPtr->payload.size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
     // The result will be fully encoded at sCr_encoded_response_buffer[]
@@ -1047,9 +1057,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     msg_header.message_type      = encode_message_type;
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
     msg_header.transaction_id    = sCr_transaction_id;
+    msg_header.endpoint_id       = sCr_endpoint_id;
+    msg_header.client_id         = sCr_client_id;
+
     rval = sCr_encode_message(encode_message_type,
-                             sCr_uncoded_response_buffer,
-                             &msg_header);
+                              sCr_uncoded_response_buffer,
+                              &msg_header);
     if (rval != 0)
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "Reach encode failed (%d).", rval);
@@ -1788,10 +1801,13 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
            sCr_encoded_payload_size);
     sCr_uncoded_message_structure.payload.size = sCr_encoded_payload_size;  
 
-    I3_LOG(LOG_MASK_REACH, "%s(): type %d, num_obj %d, remain %d, trans_id %d.", __FUNCTION__,
+    I3_LOG(LOG_MASK_REACH, "%s(): type %d, remain %d, trans_id %d, client %d, ep %d.", 
+           __FUNCTION__,
            sCr_uncoded_message_structure.header.message_type, 
            sCr_uncoded_message_structure.header.remaining_objects, 
-           sCr_uncoded_message_structure.header.transaction_id);
+           sCr_uncoded_message_structure.header.transaction_id,
+           sCr_uncoded_message_structure.header.client_id,
+           sCr_uncoded_message_structure.header.endpoint_id);
 
     // encode the wrapped message
     if (!encode_reach_message(&sCr_uncoded_message_structure,

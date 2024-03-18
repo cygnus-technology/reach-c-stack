@@ -181,7 +181,10 @@ rs_notification_message(cr_ReachMessageTypes message_type,    // in
     psRs_uncoded_message_structure->header.message_type = message_type;
     psRs_uncoded_message_structure->header.remaining_objects = 0;
     // The transaction ID should always be 0 for the app
-    psRs_uncoded_message_structure->header.transaction_id    = 0;
+    // To Do:  Get the endpoint and client ID's from cr_stack.c
+    psRs_uncoded_message_structure->header.client_id      = 0;
+    psRs_uncoded_message_structure->header.endpoint_id    = 0;
+    psRs_uncoded_message_structure->header.transaction_id = 0;
     psRs_uncoded_message_structure->has_header = true;
     psRs_uncoded_message_structure->payload.size = sRs_encoded_payload_size;
     // psRs_uncoded_message_structure->payload.bytes  is already sRs_pong
