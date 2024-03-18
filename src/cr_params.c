@@ -478,11 +478,22 @@
                    sCr_requested_param_index, sCr_requested_param_read_count);
             cr_ParameterValue paramVal;
             rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], &paramVal);
-            if (rval != cr_ErrorCodes_NO_ERROR) {
-                // we've done them all.
-                pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-                sCr_requested_param_read_count = 0;
-                break;
+            if (rval == cr_ErrorCodes_INVALID_PARAMETER) {
+                I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d, INVALID_PARAMETER.", 
+                          sCr_requested_param_array[sCr_requested_param_index], rval);
+                cr_report_error(rval, "pid %d is not valid.", 
+                                sCr_requested_param_array[sCr_requested_param_index]);
+
+                memset(&paramVal, 0, sizeof(paramVal));
+                paramVal.parameter_id = sCr_requested_param_array[sCr_requested_param_index];
+            }
+            else if (rval != cr_ErrorCodes_NO_ERROR) {
+                cr_report_error(rval, "pid %d is not valid, ret %d.", 
+                                sCr_requested_param_array[sCr_requested_param_index], rval);
+                I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d.",
+                          sCr_requested_param_array[sCr_requested_param_index], rval);
+                memset(&paramVal, 0, sizeof(paramVal));
+                paramVal.parameter_id = sCr_requested_param_array[sCr_requested_param_index];
             }
             response->values[i] = paramVal;
             sCr_requested_param_array[sCr_requested_param_index] = -1;
