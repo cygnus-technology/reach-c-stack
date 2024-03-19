@@ -537,7 +537,6 @@ typedef struct _cr_SendCommandResponse {
  CLI_DATA */
 typedef struct _cr_CLIData {
     char message_data[194]; /* Data */
-    bool is_complete;
 } cr_CLIData;
 
 /* ------------------------------------------------------
@@ -834,7 +833,7 @@ extern "C" {
 #define cr_CommandInfo_init_default              {0, "", false, "", false, 0}
 #define cr_SendCommand_init_default              {0}
 #define cr_SendCommandResponse_init_default      {0, ""}
-#define cr_CLIData_init_default                  {"", 0}
+#define cr_CLIData_init_default                  {""}
 #define cr_TimeSetRequest_init_default           {0, false, 0}
 #define cr_TimeSetResponse_init_default          {0, ""}
 #define cr_TimeGetRequest_init_default           {0}
@@ -886,7 +885,7 @@ extern "C" {
 #define cr_CommandInfo_init_zero                 {0, "", false, "", false, 0}
 #define cr_SendCommand_init_zero                 {0}
 #define cr_SendCommandResponse_init_zero         {0, ""}
-#define cr_CLIData_init_zero                     {"", 0}
+#define cr_CLIData_init_zero                     {""}
 #define cr_TimeSetRequest_init_zero              {0, false, 0}
 #define cr_TimeSetResponse_init_zero             {0, ""}
 #define cr_TimeGetRequest_init_zero              {0}
@@ -1021,7 +1020,6 @@ extern "C" {
 #define cr_SendCommandResponse_result_tag        1
 #define cr_SendCommandResponse_result_message_tag 2
 #define cr_CLIData_message_data_tag              1
-#define cr_CLIData_is_complete_tag               2
 #define cr_TimeSetRequest_seconds_utc_tag        1
 #define cr_TimeSetRequest_timezone_tag           2
 #define cr_TimeSetResponse_result_tag            1
@@ -1361,8 +1359,7 @@ X(a, STATIC,   SINGULAR, STRING,   result_message,    2)
 #define cr_SendCommandResponse_DEFAULT NULL
 
 #define cr_CLIData_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, STRING,   message_data,      1) \
-X(a, STATIC,   SINGULAR, BOOL,     is_complete,       2)
+X(a, STATIC,   SINGULAR, STRING,   message_data,      1)
 #define cr_CLIData_CALLBACK NULL
 #define cr_CLIData_DEFAULT NULL
 
@@ -1557,7 +1554,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define cr_BufferSizes_size                      84
-#define cr_CLIData_size                          198
+#define cr_CLIData_size                          196
 #define cr_CommandInfo_size                      86
 #define cr_ConnectionDescription_size            48
 #define cr_DeviceInfoRequest_size                33
