@@ -1184,19 +1184,20 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 /**
 * @brief   cr_get_reach_version 
 * @details The version is in semantic version format: 
-*          MAJOR.MINOR.BUILD.PATCH
+*          MAJOR.MINOR.PATCH
 *          with an optional string appended. 
-* @return  Returns a string pointer with the stack version.
+* @return  Returns a pointer to a null terminated string 
+*          containing the C stack version.
 */
 const char *cr_get_reach_version()
 {
     static char sCr_c_stack_version[CR_STACK_VERSION_LEN];
   #ifdef BUILT_BY_PIPELINE 
-    snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u.%u",
-            REACH_C_MAJOR_VERSION, REACH_C_MINOR_VERSION, REACH_C_BUILD_VERSION, REACH_C_PATCH_VERSION);
+    snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
+            REACH_C_MAJOR_VERSION, REACH_C_MINOR_VERSION, REACH_C_PATCH_VERSION);
   #else
-    snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u.%u-dev",
-            REACH_C_MAJOR_VERSION, REACH_C_MINOR_VERSION, REACH_C_BUILD_VERSION, REACH_C_PATCH_VERSION);
+    snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u-dev",
+            REACH_C_MAJOR_VERSION, REACH_C_MINOR_VERSION, REACH_C_PATCH_VERSION);
   #endif
      return sCr_c_stack_version;
 }
@@ -1205,45 +1206,27 @@ const char *cr_get_reach_version()
 /**
 * @brief   cr_get_proto_version 
 * @details The version is in semantic version format: 
-*          MAJOR.MINOR.BUILD.PATCH
+*          MAJOR.MINOR.PATCH
 *          with an optional string appended. 
-* @return  Returns a string pointer with the protobuf version.
+* @return  Returns a pointer to a null terminated string 
+*          containing the C protobuf version.
 */
 const char *cr_get_proto_version()
 {
     static char sCr_proto_version[CR_STACK_VERSION_LEN];
 
-  #if 0  // this is what we want to achieve
-    uint8_t major, minor, build, patch;
-
-    major = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>24);
-    minor = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>16);
-    build = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>8);
-    patch = 0xFF & cr_ReachProtoVersion_CURRENT_VERSION;
-
-  #ifdef BUILT_BY_PIPELINE 
-    snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u.%u",
-            major, minor, build, patch);
-  #else
-    snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u.%u-dev",
-            major, minor, build, patch);
-  #endif
-
-  #else
-    uint8_t major, minor, build;
+    uint8_t major, minor, patch;
 
     major = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>16);
     minor = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>8);
-    build = 0xFF & cr_ReachProtoVersion_CURRENT_VERSION;
+    patch = 0xFF & cr_ReachProtoVersion_CURRENT_VERSION;
 
   #ifdef BUILT_BY_PIPELINE 
     snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
-            major, minor, build);
+            major, minor, patch);
   #else
     snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u-dev",
-            major, minor, build);
-  #endif
-
+            major, minor, patch);
   #endif
      return sCr_proto_version;
 

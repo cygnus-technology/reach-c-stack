@@ -209,7 +209,6 @@ int crcb_cli_respond(char *cli)
     I3_LOG(LOG_MASK_WIRE, TEXT_GREEN "%s for CLI" TEXT_RESET, __FUNCTION__);
     cr_CLIData *cld = (cr_CLIData*)sRs_ping;
     strncpy(cld->message_data, cli, REACH_ERROR_BUFFER_LEN);
-    cld->is_complete = true;
 
     rs_notification_message(cr_ReachMessageTypes_CLI_NOTIFICATION, sRs_ping);
 
