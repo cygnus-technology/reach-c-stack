@@ -11,19 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_DOCUMENTATION_KEY }}
-
     - name: Checkout "reach-c-stack"
       uses: actions/checkout@v3
       with:
         path: reach-c-stack
 
     - name: Clone Repository "reach-documentation"
+      env:
+        REACH_DOCUMENTATION_PAT: ${{ secrets.REACH_DOCUMENTATION_PAT }}
       run: |
-        git clone git@github.com:cygnus-technology/reach-documentation.git reach-documentation
+        git clone -b development https://github.com/cygnus-technology/reach-documentation.git reach-documentation
       working-directory: ${{ github.workspace }}
 
     - name: Install prerequisites
@@ -90,21 +87,34 @@ jobs:
         echo "Documentation generation complete."
       working-directory: reach-c-stack/docs
 
-    - name: Setup Git configuration
+    - name: Setup Git for "reach-documentation"
       run: |
-        git config --global user.name "Developer-i3PD"
-        git config --global user.email "Developer@i3pd.com"
+        git config user.name "Developer-i3PD"
+        git config user.email "Developer@i3pd.com"
+      working-directory: reach-documentation
 
-    - name: Copy documentation to "reach-documentation"
+    - name: Create a new feature branch in "reach-documentation"
       run: |
-        cp -R __build/* ../reach-documentation
-      working-directory: reach-c-stack/docs
+        git checkout -b feature/update-documentation-${GITHUB_SHA}
+      working-directory: reach-documentation
 
-    - name: Commit and push changes to "reach-documentation""
+    - name: Copy documentation to the feature branch in "reach-documentation"
+      run: |
+        cp -R ../reach-c-stack/docs/__build/* .
+      working-directory: reach-documentation
+
+    - name: Commit and push changes to the feature branch in "reach-documenation"
+      env:
+        REACH_DOCUMENTATION_PAT: ${{ secrets.REACH_DOCUMENTATION_PAT }}
       run: |
         git add .
         git commit -m "Update documentation"
-        git push origin main
+        git push https://${REACH_DOCUMENTATION_PAT}@github.com/cygnus-technology/reach-documentation.git feature/update-documentation-${GITHUB_SHA}
       working-directory: reach-documentation
+
+    - name: Create Pull Request using GitHub CLI
       env:
-        GIT_SSH_COMMAND: ssh -v
+        GH_TOKEN: ${{ secrets.REACH_DOCUMENTATION_PAT }}
+      run: |
+        gh auth setup-git
+        gh pr create --title "Update Documentation" --body "Automated documentation update." --base development --head feature/update-documentation-${GITHUB_SHA}
