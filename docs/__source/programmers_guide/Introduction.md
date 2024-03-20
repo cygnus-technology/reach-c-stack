@@ -4,9 +4,9 @@
 
 I3 Product Design
 
-Version     3.0
+Version     3.1
 
-Date        March 12, 2024
+Date        March 20, 2024
 
 # Executive Summary
 
@@ -34,6 +34,8 @@ This document is addressed to the embedded developer who is considering using th
 2.0:  February 9, 2024.  Adds features such as parameter notifications.  Provided with a separate release note.
 
 3.0: March 12, 2024.  The directory structure of the code is changed to simplify maintenance.
+
+3.1: March 20, 2024. Editing pass to reflectd the latest (stack 2.5) changes.
 
 # Product Vision
 
@@ -67,7 +69,7 @@ The key features of the implementation include:
 * A “file access” mechanism that supports high rate transfers of larger blocks of data.
 * A simple means to issue “commands” to the device.
 
-The two demo systems illustrate Reach on systems of different complexity.  The Linux based OpenPV displays from Enovation are an example of Reach in a sophisticated system.  The Thunderboard demo shows Reach with no OS as appropriate for tiny embedded systems.  Reach can certainly be deployed in everything in between, and there is ongoing development in other common systems.
+The three demo systems illustrate Reach on systems of different complexity.  The Linux based OpenPV displays from Enovation are an example of Reach in a sophisticated system.  The reach-silabs Thunderboard demo shows Reach with no OS as appropriate for tiny embedded systems.  The "reacher-nfc" demo shows Reach running on a Nordic development board.  Reach can certainly be deployed in everything in between, and there is ongoing development in other common systems.
 
 The three system approach to support (device, phone, web page) is a key concept.  This acknowledges the three users in the system.  The product user has access to an embedded device as well as a mobile phone.  The support engineer uses a web browser so as to display data on a larger screen.  The embedded system designer is the third user, as the embedded system builder must include the support required.
 
@@ -130,33 +132,53 @@ The BLE device must advertise this UUID so that mobile apps can identify it as a
 
 ![alt_text](_images/SiLabsBLE.png "image_tooltip")
 
+## Protobufs
+
+The Reach communication protocol is implemented using Google's open source "protobuf" tool.  The big advantage of this tool is how easily it is used on the client side where Reach devices are addressed using multiple high level languages like Kotlin, Swift, and C#.  All of these languages rely on garbage collection to support memory allocation.  Since C does not support garbage collection, we elect to use static buffers to implement the protobuf structures.
+
+The reach.proto file is available on the cygnus-technology github site in the reach-protobuf repository.  As the .proto file defines the communication standard we don't expect users to modify it.  
+
+We use nanopb to convert the .proto file into C structures. Following nanopb guidelines, we use a .options file to avoid the use of malloc(). All arrays are converted to fixed sizes which are set in the .options file. The .options file is generated using a python script, reach_proto\proto\preprocess_options.py. This reads in reach-c-stack/reach_ble_proto_sizes.h and a prototype of the options file and outputs an options file that reflects the sizes set by the device. The sizes here are optimized for efficient BLE transfer. A system that does not use BLE could adjust these sizes. The UI applications are designed to respect these size constraints that are advertised in the device info structure.
+
+If you find you are interested in rebuilding the C code from the protobuf source, feel free to contact Cygnus support or open an issue on github.
+
 ## System Structure
 
-The Thunderboard demo has two parts, namely a “server” written in C and a “client” written in Kotlin or Swift or typescript.  The demo server runs on a Silicon Labs (SiLabs) Thunderboard.  It advertises itself as a Reach device on BLE.  Android and iOS mobile apps are available as the demo client.  These are available in the corresponding play/app store.  Cygnus also supports a web client.
+The Thunderboard demo has two parts, namely a “server” written in C and a “client” written in Kotlin or Swift or typescript.  The demo server we describe here runs on a Silicon Labs (SiLabs) Thunderboard.  It advertises itself as a Reach device on BLE.  Android and iOS mobile apps are available as the demo client.  These are available in the corresponding play/app store.  Cygnus also supports a web client.
 
-The SiLabs demo is available on the Cygnus Technology github site ([https://github.com/cygnus-technology](https://github.com/cygnus-technology))
+All of the Reach code, including the SiLabs demo is available on the Cygnus Technology github site: 
 
-The code can be seen as three parts.  The “app” is specific to the product, which is the demonstration here.  A protobuf module defines the Reach protocolo and is shared with other systems.  The C language “Reach stack” (reach-c-stack) is reusable code that implements the Reach protocol with an appropriate interface to the app.  The entire set is built to port easily to other systems, whether in the SiLabs ecosystem or other BLE centric systems like those from Nordic.  The C-stack includes two files that target the SiLabs BLE interface.  These use a small and well defined interface to the rest of the stack.  
+    ([https://github.com/cygnus-technology](https://github.com/cygnus-technology))
+
+The code can be seen as three parts.  The “app” is specific to the product, which is the demonstration by the reach-silabs program.  A protobuf module defines the Reach protocol and is shared with other systems.  The C language “Reach stack” (reach-c-stack) is reusable code that implements the Reach protocol with an appropriate interface to the app.  The entire set is built to port easily to other systems, whether in the SiLabs ecosystem or other BLE centric systems like those from Nordic.  The reach-silabs demo includes two files that target the SiLabs BLE interface.  These use a small and well defined interface to the rest of the stack.  
 
 How to build and run the demo is described elsewhere in the “Getting Started” document.
 
 ## Porting the Demo
 
-We encourage you to run the demo as is on the Thunderboard as it gives you a concrete reference.  This section outlines the process of porting the code to another system.  Here I assume it is a C project.  
+We encourage you to run the reach-silabs demo as is on the Thunderboard as it gives you a concrete reference.  This section outlines the process of porting the code to another system.  Here I assume it is a C project.  
 
 The demo uses no RTOS.  Everything goes through an event loop which is part of the SiLabs BLE architecture.  Reach could easily be broken off into a separate RTOS task, but this is not demonstrated.
 
 The recommendation in general is to bring up your application so that it behaves just like the Reach demo, and then go on to customize it for your own usage.  The rest of this document attempts to give some background to better understand the application.
 
-The demo application can be configured to print out the “wire” traffic in the form of the bytes sent over BLE.  This can be helpful when porting.
-
-Begin by getting your BLE to work.  Get your system to advertise the Reach characteristic.
-
-Next drop in the proto and c-stack parts of the project.  These should compile.
-
-In the apps directory, the files that are prefixed with “reach” may need to be changed for your system.  The other files there can be thought of as a dummy database which you can use for testing.
+The demo application can be configured to print out the “wire” traffic in the form of the bytes sent over BLE.  This can be a helpful reference when porting.
 
 A similar demo version is available for the Nordic nRCS.
+
+### Porting Tasks
+
+The Getting Started document has more instructions if you are porting to a SiLabs system.  The following is a very general outline.  It's helpful to consider the task of getting your device to respond to the Reach client in some isolation from the task of customizing you list of parameters and service.
+
+1. Configure the BLE stack to advertise the Reach characteristic.
+
+2. Begin by getting your BLE to work.  Get your system to advertise the Reach characteristic.
+
+3. Next drop in the reach-c-stack folder.  
+
+4. The top level src and includes directories contain files that are designed to be customized for your application.  These are application specific implementations of the "weak" callback functions.  A couple of files have "silabs" in their names, and these connect the Reach stack to the BLE stack.  Other files like "params.c" implement what can be thought of as a dummy database which you can use for testing.
+
+Now that you are talking to the client you can focus on customizing the services to meet your needs.
 
 ## Directory Structure
 
@@ -178,23 +200,11 @@ The directory (git submodule) “reach-c-stack” is designed to be used unchang
 * The reach-c-stack defines the “weak” functions that the app must implement.
 * It includes a logging function which relies on printf().
 * A "docs" directory includes a web page which includes Doxygen generated API references. 
-* reach.pb.c and reach.pb.h are generated off of reach.proto.
+* reach.pb.c and reach.pb.h are generated off of reach.proto.  The protobuf source file is available on the Cygnus github site in the public reach-protobuf repository.
 
-### reach_proto
+### Application Structure
 
-The reach protobuf source files are contained in another git repository. Projects in other languages are encouraged to include this code as a submodule.  
-
-To Do:  Is this here as a submodule?  Just the .proto file?  .txt file with link?
-
-The directory “reach_proto” is the protobuf source.  Along with the .proto file there is a script that creates a .options file that matches the device code for BLE.  You can use the prebuilt C code for protobufs if you don’t want to bother with this script.  Nothing else in this directory should need to change.
-
-* Includes a “proto” directory which includes the .proto source files.
-* Includes ansic/built directory with the generated .pb.c/.pb.h files.  These are provided so that users do not have to regenerate the files.  The procedure to regenerate the files is found in the readme.md file.
-* Maintained as a git submodule to be reused by other projects..
-
-# Application Structure
-
-The Reach embedded system is written in C specifically to remain attractive to very small and simple embedded systems.  A number of design decisions follow from this.
+The Reach embedded system demonstrated here is written in C specifically to remain attractive to very small and simple embedded systems.  A number of design decisions follow from this.
 
 1. The core Reach stack, which is provided by i3, should be reusable without changes on multiple platforms.
 2. The core Reach stack relies on a set of callback functions that must be implemented by the target application.  We refer to these as “the weak functions” because they are implemented using the gcc “weak” feature.  This allows us to avoid the function pointers which add complexity to debugging.  These functions are prefixed with “crcb_”
@@ -271,19 +281,9 @@ The “lm” command (for log mask) enables the user to see more or less logging
 #define LOG_MASK_FILES      0x200
 ```
 
-# Using Protobufs
+# Version Handling
 
-We use nanopb to convert the .proto file into C structures.  Following nanopb guidelines, we use a .options file to avoid the use of malloc().  All arrays are converted to fixed sizes which are set in the .options file.  The .options file is generated using a python script, reach_proto\proto\preprocess_options.py.  This reads in reach-c-stack/reach_ble_proto_sizes.h and a prototype of the options file and outputs an options file that reflects the sizes set by the device.  The sizes here are optimized for efficient BLE transfer.  A system that does not use BLE could adjust these sizes.  The UI applications are designed to respect these size constraints that are advertised in the device info structure.
-
-## Protobuf Version Handling
-
-The device information structure includes a protocol_version member.  The device populates this with cr_ReachProtoVersion_CURRENT_VERSION which comes from the proto file.  This 32 bit number is treated as a semantic version with the three low bytes being major, minor, and build versions.  As the C stack goes is released as vers 2.5, the protobuf version is updated to 0x010000 (65536) indicating a commitment to compatibility.  The build version will be updated for every change.  Only the build number changes when everything is compatible.
-
-The minor version will be incremented if the clients of the .proto file can easily be updated with minor changes.  The existing apps will still work, but changes will be required to rebuild.  This happens when the name changes but the ordinal does not.
-
-The major version will be updated for incompatible changes.
-
-The protobuf version is available as an enum in the device C code.  The version of the protobuf file used to build a device is available in the device info structure.
+All of the Reach components use the "semantic version" format (semver.org).  The component versions are provided as a string.  The device information structure includes a protocol_version string.  The device populates this with constants that are defined in the .proto file.  
 
 # On Memory Allocation
 
@@ -312,6 +312,8 @@ The Reach thunderboard application version 3.1.9 was analyzed for memory usage b
 
 Reach 3.3.0 consistently deployed #defines such as “INCLUDE_PARAMETER_SERVICE” for each optional service.  The difference in code size between all optional services included and all optional services excluded was about 22k (250k - 228k).
 
+With Reach 3.5, the error reporting mechanism can be configured via a #define an additional 240 byte buffer can be allocated to support verbose message reporting to the client.  
+
 ## Communication Buffer Structure
 
 Reach conceptually uses six buffers to exchange prompts and replies.  Each buffer is nominally 244 bytes, matching the BLE buffer size.  The third buffer points to the first buffer as it can easily be reused.  A further reduction of one buffer could be accomplished by encoding the payload directly into the outer message structure, but this makes the code rather confusing so this optimization is not shared.
@@ -323,13 +325,13 @@ Reach conceptually uses six buffers to exchange prompts and replies.  Each buffe
 2. **cr_ReachMessage sCr_uncoded_message_structure**
    
         Contains the encoded prompt separated from the header.
-
+       
         Also used for enccoding.
 
 3. **sCr_decoded_prompt_buffer**
    
         Decoded prompt to be processed.
-
+       
         Reuses the sCr_encoded_message_buffer.
 
 4. **sCr_uncoded_response_buffer**
@@ -339,7 +341,7 @@ Reach conceptually uses six buffers to exchange prompts and replies.  Each buffe
 5. **sCr_encoded_payload_buffer**
    
         Payload encoded.
-
+       
         The payload could be encoded directly into sCr_uncoded_message_structure saving a buffer at the cost of added complexity.  The encoded payload is currently copied into the **sCr_uncoded_message_structure**
 
 6. **sCr_encoded_response_buffer**
@@ -354,11 +356,11 @@ Reach devices advertise that they support a set of “services” such as “par
 
 ## Configuration
 
-The file App/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  
+The file includes/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  reach-server.h also includes #defines to configure the security of the Reach system.
 
 ## Device Information Service
 
-Device.c implements the crcb_device_get_info() callback function, overriding its weak prototype.  The device info service is required so this function is required.  The basic description of the product can be constant in flash but a copy is made so that parts can be overridden.  Version 2.5 of the reach stack implements the "challenge key" as described in a following section about security.
+Device.c implements the crcb_device_get_info() callback function, overriding its weak prototype.  The device info service is required so this function is required.  The basic description of the product can be constant in flash but a copy is made so that parts can be overridden.  The device info request can include a "challenge key" as described in a following section about security.
 
 ## Parameter Service
 
@@ -391,7 +393,7 @@ Some items to keep in mind are:
 
 ## Command Service
 
-The command service provides an easy way to execute simple functions not requiring parameters.
+The command service provides an easy way to execute simple functions not requiring parameters.  Commands can be described as having a long timeout which the client should respect.
 
 ## File Service
 
@@ -404,6 +406,10 @@ The CLI service allows for debug access to aspects of the system that might not 
 ## Time Service
 
 The time service is designed to support setting and checking the time on devices that use a real time clock (RTC).  The time is represented by a 64 bit seconds field which should contain the UTC time in the Linux Epoch (since 1970).  The time also includes a “timezone” field which is a correction to the UTC time, also given in seconds.  The timezone field is optional, and so in theory timezones could be ignored, but we don’t recommend this for a collection or reasons that come up in development.
+
+## WiFi Service
+
+The WiFi service is designed to let devices that include WiFi use an existing UI to connect to an access point.  The WiFi service is not yet fully supported.
 
 ## Files, Parameters, and Commands
 
@@ -451,6 +457,7 @@ Repeat:
     (Device Responds)    (multiple) Transfer Data messages.
 
 * device sends N messages before waiting for an ACK.
+
 * Phone should be able to timeout.
 
 (phone sends)        Final Transfer Data Notification, with “is_complete” : true
@@ -485,13 +492,13 @@ Repeat:
 
 # Security
 
-The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.
+The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.  Reach-server.h contains #defines that configure the BLE interface.  The GATT database must also be configured appropriately.  "Level 2" encryption can be achieved with devices that have no display.  Some sort of display or keypad is necssary to achieve "level 4" encryption.
 
 Reach supports access control in the the form of a "challenge key" which is presented when the client requests device info.  If the device is configured to require a challenge key and none is presented then no services will be visible to the client.  The device can be coded to support multiple challenge keys, each with its own level of access.  The demonstration shows "basic" and "full" access based on two keys.
 
 # Error Handling
 
-Error reporting is considered important and hence Reach provides a method by which a textual error message can be delivered to the remote client.  This is demonstrated in a number of ways, including under the “TEST_ERROR_REPORT” define in cr_stack.c.
+Error reporting is considered important and hence Reach provides a method by which a textual error message can be delivered to the remote client.  Commands 7 and 9 trigger error reports for testing.  It can be quite helpful during development to allow device errors to be displayed at the client.  The extra 240 bytes of memory taken by the fully asynchronous error reporter can be eliminated with a #define in reach-server.h if necessary.
 
 # Endpoints
 
