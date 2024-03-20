@@ -120,8 +120,10 @@ jobs:
       working-directory: reach-documentation
 
     - name: Create Pull Request using GitHub CLI
+      run: |
+        echo "${{ secrets.REACH_DOCUMENTATION_PAT }}" | gh auth login --with-token
+        gh pr create --title "Update Documentation" --body "Automated documentation update." --base development --head feature/update-documentation-${GITHUB_SHA}
       env:
         GH_TOKEN: ${{ secrets.REACH_DOCUMENTATION_PAT }}
-      run: |
-        gh auth setup-git
-        gh pr create --title "Update Documentation" --body "Automated documentation update." --base development --head feature/update-documentation-${GITHUB_SHA}
+      working-directory: reach-documentation
+
