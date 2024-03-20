@@ -1192,13 +1192,8 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 const char *cr_get_reach_version()
 {
     static char sCr_c_stack_version[CR_STACK_VERSION_LEN];
-  #ifdef BUILT_BY_PIPELINE 
     snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
             REACH_C_MAJOR_VERSION, REACH_C_MINOR_VERSION, REACH_C_PATCH_VERSION);
-  #else
-    snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u-dev",
-            REACH_C_MAJOR_VERSION, REACH_C_MINOR_VERSION, REACH_C_PATCH_VERSION);
-  #endif
      return sCr_c_stack_version;
 }
 
@@ -1221,13 +1216,10 @@ const char *cr_get_proto_version()
     minor = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>8);
     patch = 0xFF & cr_ReachProtoVersion_CURRENT_VERSION;
 
-  #ifdef BUILT_BY_PIPELINE 
     snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
-            major, minor, patch);
-  #else
-    snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u-dev",
-            major, minor, patch);
-  #endif
+             cr_ReachProto_MAJOR_Version_MAJOR_VERSION,
+             cr_ReachProto_MINOR_Version_MINOR_VERSION,
+             cr_ReachProto_PATCH_Version_PATCH_VERSION);
      return sCr_proto_version;
 
 }
