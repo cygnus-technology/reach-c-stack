@@ -4,11 +4,9 @@
 
 I3 Product Design
 
-Version 3.01
+Version 3.02
 
-Date        March 12, 2024
-
-
+Date        March 20, 2024
 
 ***The project structure has changed between v2 and v3 of this document.***
 
@@ -199,6 +197,23 @@ The Cygnus app should be able to connect to you.
 By default the advertised name will contain the last three octets of the system ID.  You can use the “sn” command to set a device serial number and then this will be advertised.  This demonstrates how each Reach device can have a unique name.  
 
 You might also note that the first time you run the program it will print red as it initializes the non-volatile storage.
+
+### Adding Reach to another SiLabs Project
+
+The reach-silabs demo depends on a few components on the Thunderboard.  You may need to bring these in to your SiLabs project:
+
+- Iostream_retarget_stdio
+  1. Depends on iostream_usart_core
+- CLI Instance
+  2. Create an instance “inst”
+- Iostream_usart
+  3. Create an instance named “vcom”
+  4. Disable flow control.
+  5. Convert \n to \r\n
+- Iostream_stdlib_config
+- Tiny Printf
+- Simple LED (LED on the Thunderboard)
+  6. With instance led0 connected GPIO B0
 
 ## Beyond the Demo
 
