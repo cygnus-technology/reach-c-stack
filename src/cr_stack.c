@@ -775,7 +775,6 @@ static int handle_coded_prompt()
 #endif  // def AHSOKA_HEADER
 
 
-#define VERBOSE_SIZES
 static size_t sCr_MaxBufferSize = 0;
 static int sCr_checkSize(size_t test, size_t limit, char *name)
 {
@@ -1209,12 +1208,6 @@ const char *cr_get_reach_version()
 const char *cr_get_proto_version()
 {
     static char sCr_proto_version[CR_STACK_VERSION_LEN];
-
-    uint8_t major, minor, patch;
-
-    major = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>16);
-    minor = 0xFF & (cr_ReachProtoVersion_CURRENT_VERSION>>8);
-    patch = 0xFF & cr_ReachProtoVersion_CURRENT_VERSION;
 
     snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
              cr_ReachProto_MAJOR_Version_MAJOR_VERSION,
