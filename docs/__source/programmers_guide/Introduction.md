@@ -164,11 +164,11 @@ The recommendation in general is to bring up your application so that it behaves
 
 The demo application can be configured to print out the “wire” traffic in the form of the bytes sent over BLE.  This can be a helpful reference when porting.
 
-A similar demo version is available for the Nordic nRCS.
+A similar demo version is available for the Nordic nRCS.  The Enovation Systems OpenPV platform also supports Reach.
 
 ### Porting Tasks
 
-The Getting Started document has more instructions if you are porting to a SiLabs system.  The following is a very general outline.  It's helpful to consider the task of getting your device to respond to the Reach client in some isolation from the task of customizing you list of parameters and service.
+The Getting Started document includes the necessary instructions if you are porting to a SiLabs system.  The following is a very general outline.  It's helpful to consider the task of getting your device to respond to the Reach client in some isolation from the task of customizing you list of parameters and service.
 
 1. Configure the BLE stack to advertise the Reach characteristic.
 
@@ -190,7 +190,7 @@ The src and include folders at the top level of the project implement the callba
 
 The two silabs specific files are also present here.
 
-### Reach-c-stack
+### reach-c-stack
 
 The directory (git submodule) “reach-c-stack” is designed to be used unchanged by multiple projects.  There is no “silabs” dependent code here.  All dependencies are to be satisfied by callback functions.  The sources are provided to help you understand and debug.  If you believe changes are appropriate, feel free to submit a ticket and a pull request on github.
 
@@ -199,10 +199,10 @@ The directory (git submodule) “reach-c-stack” is designed to be used unchang
 * A "third_party" folder contains utilities from the open source web.
 * The reach-c-stack defines the “weak” functions that the app must implement.
 * It includes a logging function which relies on printf().
-* A "docs" directory includes a web page which includes Doxygen generated API references. 
+* A "docs" directory includes the source for a web page which includes Doxygen generated API references.  This is accessible on the github site.
 * reach.pb.c and reach.pb.h are generated off of reach.proto.  The protobuf source file is available on the Cygnus github site in the public reach-protobuf repository.
 
-### Application Structure
+## Application Structure
 
 The Reach embedded system demonstrated here is written in C specifically to remain attractive to very small and simple embedded systems.  A number of design decisions follow from this.
 
@@ -291,7 +291,7 @@ The thunderboard reach system does not rely on malloc.  All memory allocation is
 
 ## Memory Usage
 
-The Reach thunderboard application version 3.1.9 was analyzed for memory usage by sorting the output of the “nm” tool.  These numbers are approximate.  The code was compiled with -Os for size.  These values are intended to give an order of magnitude overview of memory usage.  Consider in particular the memory requirements that scale with the number of parameters.
+The Reach thunderboard application version 3.1.9 was analyzed for memory usage by sorting the output of the “nm” tool.  These numbers are approximate, and they have certainly grown as we have added features.  The code was compiled with -Os for size.  These values are intended to give an order of magnitude overview of memory usage.  Consider in particular the memory requirements that scale with the number of parameters.
 
 * The reach demo application takes up about 245k of flash memory with logging enabled.
   * The “NO_LOGGING” macro reduces this by about 14k.
@@ -325,13 +325,11 @@ Reach conceptually uses six buffers to exchange prompts and replies.  Each buffe
 2. **cr_ReachMessage sCr_uncoded_message_structure**
    
         Contains the encoded prompt separated from the header.
-       
         Also used for enccoding.
 
 3. **sCr_decoded_prompt_buffer**
    
         Decoded prompt to be processed.
-       
         Reuses the sCr_encoded_message_buffer.
 
 4. **sCr_uncoded_response_buffer**
@@ -341,7 +339,6 @@ Reach conceptually uses six buffers to exchange prompts and replies.  Each buffe
 5. **sCr_encoded_payload_buffer**
    
         Payload encoded.
-       
         The payload could be encoded directly into sCr_uncoded_message_structure saving a buffer at the cost of added complexity.  The encoded payload is currently copied into the **sCr_uncoded_message_structure**
 
 6. **sCr_encoded_response_buffer**
@@ -356,7 +353,7 @@ Reach devices advertise that they support a set of “services” such as “par
 
 ## Configuration
 
-The file includes/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  reach-server.h also includes #defines to configure the security of the Reach system.
+The file includes/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  reach-server.h also demonstrates #defines to configure the security of the Reach system.
 
 ## Device Information Service
 
@@ -385,11 +382,15 @@ When the BLE connection is made and the reach stack is active the parameters tha
 
 Some items to keep in mind are:
 
-* The number of parameters that can generate notifications is set by NUM_SUPPORTED_PARAM_NOTIFY in reach-server.h.  Each notification requires another 56+20 bytes.
-* Parameters are only monitored when the BLE client is connected.
-* All parameter notifications are canceled when the client connects to the device.  The client must enable all desired notifications when it connects.
-* Setting any of the notification parameters to zero means they will be ignored.  Setting all of them to zero (delta, min, max) is the same as disabling that notification.
-* No delta applies for strings and byte arrays.  They are checked for any change by strcmp() and memcmp() respectively.
+- The number of parameters that can generate notifications is set by NUM_SUPPORTED_PARAM_NOTIFY in reach-server.h. Each notification requires another 56+20 bytes.
+- Parameters are only monitored when the BLE client is connected.
+- All parameter notifications are canceled when the client connects to the device. The client must enable all desired notifications when it connects.
+- Setting any of the notification parameters to zero means they will be ignored. Setting all of them to zero (delta, min, max) is the same as disabling that notification.
+- No delta applies for strings and byte arrays. They are checked for any change by strcmp() and memcmp() respectively.
+
+### Access Control
+
+The "challenge key" concept exists to allow different users different levels of access to the services and parameters.  Code in params.c demonstrates a trivial implementation of this.  Reach doesn't impose any specific model of access control, but it is able to support it.
 
 ## Command Service
 
@@ -492,13 +493,13 @@ Repeat:
 
 # Security
 
-The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.  Reach-server.h contains #defines that configure the BLE interface.  The GATT database must also be configured appropriately.  "Level 2" encryption can be achieved with devices that have no display.  Some sort of display or keypad is necssary to achieve "level 4" encryption.
+The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.  Reach-server.h contains #defines that configure the BLE interface.  The GATT database must also be configured appropriately.  "Level 2" protection can be achieved with devices that have no display.  Some sort of display or keypad is necssary to achieve "level 4" protection.
 
 Reach supports access control in the the form of a "challenge key" which is presented when the client requests device info.  If the device is configured to require a challenge key and none is presented then no services will be visible to the client.  The device can be coded to support multiple challenge keys, each with its own level of access.  The demonstration shows "basic" and "full" access based on two keys.
 
 # Error Handling
 
-Error reporting is considered important and hence Reach provides a method by which a textual error message can be delivered to the remote client.  Commands 7 and 9 trigger error reports for testing.  It can be quite helpful during development to allow device errors to be displayed at the client.  The extra 240 bytes of memory taken by the fully asynchronous error reporter can be eliminated with a #define in reach-server.h if necessary.
+Error reporting is considered important and hence Reach provides a method by which a textual error message can be delivered to the remote client.  Commands 6 through 10 trigger error reports for testing.  It can be quite helpful during development to allow device errors to be displayed at the client.  The extra 240 bytes of memory taken by the fully asynchronous error reporter can be eliminated with a #define in reach-server.h if necessary.
 
 # Endpoints
 
