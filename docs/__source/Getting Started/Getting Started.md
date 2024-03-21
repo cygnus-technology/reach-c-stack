@@ -206,17 +206,21 @@ You might also note that the first time you run the program it will print red as
 The reach-silabs demo depends on a few components on the Thunderboard.  You may need to bring these in to your SiLabs project:
 
 - Iostream_retarget_stdio
-  1. Depends on iostream_usart_core
+  - Depends on iostream_usart_core
+
 - CLI Instance
-  2. Create an instance “inst”
+  - Create an instance “inst”
+
 - Iostream_usart
-  3. Create an instance named “vcom”
-  4. Disable flow control.
-  5. Convert \n to \r\n
+  - Create an instance named “vcom”
+  - Disable flow control.
+  - Convert \n to \r\n
+
 - Iostream_stdlib_config
 - Tiny Printf
 - Simple LED (LED on the Thunderboard)
-  6. With instance led0 connected GPIO B0
+  - With instance led0 connected GPIO B0
+
 
 ## Beyond the Demo
 
