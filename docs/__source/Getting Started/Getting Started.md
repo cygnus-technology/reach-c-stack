@@ -4,11 +4,9 @@
 
 I3 Product Design
 
-Version 3.01
+Version 3.02
 
-Date        March 12, 2024
-
-
+Date        March 20, 2024
 
 ***The project structure has changed between v2 and v3 of this document.***
 
@@ -90,8 +88,10 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
     Connecting with the Cygnus App
 
 * Open the Cygnus app on your phone and select this device.  You can see that it has the Cygnus logo.  The app can also view the characteristics on other BLE devices.
+    ![alt_text](_images/connect.png "image_tooltip")
 
-* You can pull down the name tab to see the complete device info.
+* Connecting, you see a pane for each "service" that the device supports.  You can pull down the name tab to see the complete device info.
+    ![alt_text](_images/connected.png "image_tooltip")
 
 * Poke the Device Parameters button.  This will bring up the basic parameter inspection frame.  
   
@@ -103,27 +103,28 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
     
     * The blue LED monitors USB activity.
   
-  * Parameter ID 23 is increasing.  Refresh to see that.
-    
-    Reach provides for a remote command line interface (CLI).  The Thunderboard provides a CLI on the USB based serial port.  Reach also supports a remote CLI using the app.  This can be very helpful in development and troubleshooting.
-    ![alt_text](_images/connect.png "image_tooltip")
-    
-    Commands provide a simple way to execute a function on the device.  The command tab has several useful functions.
+  * Parameter ID 69 is always increasing.  Refresh to see that.  Using the web page you can also enable notifications to update without refreshing.
+    ![alt_text](_images/phone_params.png "image_tooltip")
+
+* Reach provides for a remote command line interface (CLI).  The Thunderboard provides a CLI on the USB based serial port.  Reach also supports a remote CLI using the app.  This can be very helpful in development and troubleshooting.
 
 * You can enable and disable the remote command line interface.
 
-* You can adjust the amount of serial port logging.
-  
-    Reach supports high speed data transfer as “files”.  
+* Commands provide a simple way to execute a function on the device.  The command tab has several useful functions.
+    ![alt_text](_images/phone_commands.png "image_tooltip")
 
-![alt_text](_images/connected.png "image_tooltip")
-![alt_text](_images/phone_params.png "image_tooltip")
-![alt_text](_images/phone_commands.png "image_tooltip")
+* You can adjust the amount of serial port logging using the "lm" command for "log mask".
+
+* Reach supports high speed data transfer as “files”.  
+
+The Programmers Introduction document provides more background on each of these services.
 
 ## File Access and the Debug Interface
 
+The Reach apps include a "debug" interface.  This gives you a way to exercise features with more fine grained control.  The web app has more features than the mobile apps.
+
 The file access features of Cygnus support the efficient transfer of larger blocks of data.  The “simple” interface interacts with files on your phone and gives you the option of emailing received files.  The debug interface gives you more control.  Access the debug interface from the three dots in the upper right corner.
-![alt_text](_images/diagnostics1.png "image_tooltip")
+    ![alt_text](_images/diagnostics1.png "image_tooltip")
 Here a button represents each of the basic message commands in the Reach protocol.  The phone issues the request and the resulting action is printed on the screen.  The response is shown in hex.  The message is decoded into a JSON like format.  The hex bytes that were sent are not displayed here.  They are visible on the serial console of the device.
 ![alt_text](_images/diagnostics_file.png "image_tooltip")
 You can exercise finer control over the file operations on the debug screen.  First minimize logging using command 3.  Then select a fairly large size to read.  These tests send synthetic data, just increasing numbers to exercise the transfer rate.  You can experiment with the Acknowledgement rate and easily achieve transfer rates over 200kbps.
@@ -199,6 +200,23 @@ The Cygnus app should be able to connect to you.
 By default the advertised name will contain the last three octets of the system ID.  You can use the “sn” command to set a device serial number and then this will be advertised.  This demonstrates how each Reach device can have a unique name.  
 
 You might also note that the first time you run the program it will print red as it initializes the non-volatile storage.
+
+### Adding Reach to another SiLabs Project
+
+The reach-silabs demo depends on a few components on the Thunderboard.  You may need to bring these in to your SiLabs project:
+
+- Iostream_retarget_stdio
+  1. Depends on iostream_usart_core
+- CLI Instance
+  2. Create an instance “inst”
+- Iostream_usart
+  3. Create an instance named “vcom”
+  4. Disable flow control.
+  5. Convert \n to \r\n
+- Iostream_stdlib_config
+- Tiny Printf
+- Simple LED (LED on the Thunderboard)
+  6. With instance led0 connected GPIO B0
 
 ## Beyond the Demo
 

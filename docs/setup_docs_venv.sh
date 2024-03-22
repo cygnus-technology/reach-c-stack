@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# Author: Peter S. Jamrozinski
+# Organization: i3 Product Development
+# Email: Peter.Jamrozinski@i3pd.com
+
 # Initialize a variable to hold the auto-decision flag (-Y or -N), empty means no decision made
-AUTO_DECISION=""
+AUTO_DECISION="-Y"
 SILENT_MODE=""
 
 check_prerequisites() {

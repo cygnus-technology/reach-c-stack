@@ -11,10 +11,24 @@
 #endif
 
 /* Enum definitions */
+/* ReachProtoVersion will be replaced by the MAJOR, MINOR and PATCH, below. */
 typedef enum _cr_ReachProtoVersion {
     cr_ReachProtoVersion_NOT_USED = 0, /* Must have a zero */
-    cr_ReachProtoVersion_CURRENT_VERSION = 20 /* update this when you change this file. */
+    cr_ReachProtoVersion_CURRENT_VERSION = 21 /* update this when you change this file. */
 } cr_ReachProtoVersion;
+
+typedef enum _cr_ReachProto_MAJOR_Version {
+    cr_ReachProto_MAJOR_Version_MAJOR_VERSION = 0 /* Must have a zero */
+} cr_ReachProto_MAJOR_Version;
+
+typedef enum _cr_ReachProto_MINOR_Version {
+    cr_ReachProto_MINOR_Version_MINOR_VERSION = 0 /* Must have a zero */
+} cr_ReachProto_MINOR_Version;
+
+typedef enum _cr_ReachProto_PATCH_Version {
+    cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 21 /* To be updated by relase script */
+} cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_INVALID = 0, /* No Valid Message */
@@ -672,6 +686,18 @@ extern "C" {
 #define _cr_ReachProtoVersion_MIN cr_ReachProtoVersion_NOT_USED
 #define _cr_ReachProtoVersion_MAX cr_ReachProtoVersion_CURRENT_VERSION
 #define _cr_ReachProtoVersion_ARRAYSIZE ((cr_ReachProtoVersion)(cr_ReachProtoVersion_CURRENT_VERSION+1))
+
+#define _cr_ReachProto_MAJOR_Version_MIN cr_ReachProto_MAJOR_Version_MAJOR_VERSION
+#define _cr_ReachProto_MAJOR_Version_MAX cr_ReachProto_MAJOR_Version_MAJOR_VERSION
+#define _cr_ReachProto_MAJOR_Version_ARRAYSIZE ((cr_ReachProto_MAJOR_Version)(cr_ReachProto_MAJOR_Version_MAJOR_VERSION+1))
+
+#define _cr_ReachProto_MINOR_Version_MIN cr_ReachProto_MINOR_Version_MINOR_VERSION
+#define _cr_ReachProto_MINOR_Version_MAX cr_ReachProto_MINOR_Version_MINOR_VERSION
+#define _cr_ReachProto_MINOR_Version_ARRAYSIZE ((cr_ReachProto_MINOR_Version)(cr_ReachProto_MINOR_Version_MINOR_VERSION+1))
+
+#define _cr_ReachProto_PATCH_Version_MIN cr_ReachProto_PATCH_Version_PATCH_V0
+#define _cr_ReachProto_PATCH_Version_MAX cr_ReachProto_PATCH_Version_PATCH_VERSION
+#define _cr_ReachProto_PATCH_Version_ARRAYSIZE ((cr_ReachProto_PATCH_Version)(cr_ReachProto_PATCH_Version_PATCH_VERSION+1))
 
 #define _cr_ReachMessageTypes_MIN cr_ReachMessageTypes_INVALID
 #define _cr_ReachMessageTypes_MAX cr_ReachMessageTypes_WIFI_CONNECT

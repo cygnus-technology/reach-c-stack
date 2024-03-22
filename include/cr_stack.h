@@ -288,9 +288,10 @@ typedef struct {
 /**
 * @brief   cr_get_reach_version 
 * @details The version is in semantic version format: 
-*          MAJOR.MINOR.BUILD.PATCH
+*          MAJOR.MINOR.PATCH
 *          with an optional string appended. 
-* @return  Returns a string pointer with the C stack version.
+* @return  Returns a pointer to a null terminated string 
+*          containing the C stack version.
 */
 const char *cr_get_reach_version();
 #define CR_STACK_VERSION_LEN    16
@@ -298,9 +299,10 @@ const char *cr_get_reach_version();
 /**
 * @brief   cr_get_proto_version 
 * @details The version is in semantic version format: 
-*          MAJOR.MINOR.BUILD.PATCH
+*          MAJOR.MINOR.PATCH
 *          with an optional string appended. 
-* @return  Returns a string pointer with the protobuf version.
+* @return  Returns a pointer to a null terminated string 
+*          containing the C protobuf version.
 */
 const char *cr_get_proto_version();
 

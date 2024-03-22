@@ -1,0 +1,128 @@
+name: Documentation Build Pipeline - Development
+
+on:
+  push:
+    branches:
+      - development
+  workflow_dispatch:
+
+jobs:
+  build-and-generate-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout "reach-c-stack"
+      uses: actions/checkout@v3
+      with:
+        path: reach-c-stack
+
+    - name: Clone Repository "reach-documentation"
+      env:
+        REACH_DOCUMENTATION_PAT: ${{ secrets.REACH_DOCUMENTATION_PAT }}
+      run: |
+        git clone -b development https://github.com/cygnus-technology/reach-documentation.git reach-documentation
+      working-directory: ${{ github.workspace }}
+
+    - name: Install prerequisites
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential curl libssl-dev libbz2-dev libreadline-dev \
+        libsqlite3-dev libffi-dev zlib1g-dev liblzma-dev libncurses5-dev \
+        libncursesw5-dev xz-utils tk-dev libdb-dev libgdbm-dev \
+        libsqlite3-dev openssl libbz2-dev libreadline-dev doxygen
+      working-directory: reach-c-stack
+
+    - name: Check for Doxygen installation
+      run: |
+        if ! command -v doxygen &> /dev/null; then
+          echo "Doxygen is not installed."
+          sudo apt-get install -y doxygen
+        fi
+        echo "Doxygen is installed."
+      working-directory: reach-c-stack
+
+    - name: Install pyenv
+      run: |
+        if ! command -v pyenv &> /dev/null; then
+          curl -L https://pyenv.run | bash
+          echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> $GITHUB_ENV
+          # Directly execute the necessary commands instead of trying to modify the environment
+          export PYENV_ROOT="$HOME/.pyenv"
+          export PATH="$PYENV_ROOT/bin:$PATH"
+          eval "$(pyenv init --path)"
+          eval "$(pyenv virtualenv-init -)"
+        fi
+        echo "pyenv is installed."
+      working-directory: reach-c-stack
+    
+    - name: Set local Python version
+      run: |
+        export PYENV_ROOT="$HOME/.pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        eval "$(pyenv init --path)"
+        eval "$(pyenv virtualenv-init -)"
+        if [ -f ".python-version" ]; then
+          pythonVersion=$(cat .python-version)
+          pyenv install $pythonVersion
+          pyenv local $pythonVersion
+        else
+          echo ".python-version file not found."
+          exit 1
+        fi
+      working-directory: reach-c-stack/docs
+
+    - name: Create and activate virtual environment
+      run: |
+        if [ ! -d "__venv" ]; then
+          python -m venv __venv
+        fi
+        source __venv/bin/activate
+      working-directory: reach-c-stack/docs
+
+    - name: Ensure package versions
+      run: |
+        pip list --format=freeze
+        while IFS== read -r package version; do
+          pip install "$package==$version"
+        done < "requirements.txt"
+      working-directory: reach-c-stack/docs
+
+    - name: Generate documentation
+      run: |
+        doxygen ./reach.doxyfile.in > doxygen_build.log 2> doxygen_error.log
+        sphinx-build -b html ./__source ./__build > sphinx_build.log 2> sphinx_error.log
+        echo "Documentation generation complete."
+      working-directory: reach-c-stack/docs
+
+    - name: Setup Git for "reach-documentation"
+      run: |
+        git config user.name "Developer-i3PD"
+        git config user.email "Developer@i3pd.com"
+      working-directory: reach-documentation
+
+    - name: Create a new feature branch in "reach-documentation"
+      run: |
+        git checkout -b feature/update-documentation-${GITHUB_SHA}
+      working-directory: reach-documentation
+
+    - name: Copy documentation to the feature branch in "reach-documentation"
+      run: |
+        cp -R ../reach-c-stack/docs/__build/* .
+      working-directory: reach-documentation
+
+    - name: Commit and push changes to the feature branch in "reach-documenation"
+      env:
+        REACH_DOCUMENTATION_PAT: ${{ secrets.REACH_DOCUMENTATION_PAT }}
+      run: |
+        git add .
+        git commit -m "Update documentation"
+        git push https://${REACH_DOCUMENTATION_PAT}@github.com/cygnus-technology/reach-documentation.git feature/update-documentation-${GITHUB_SHA}
+      working-directory: reach-documentation
+
+    - name: Create Pull Request using GitHub CLI
+      run: |
+        echo "${{ secrets.REACH_DOCUMENTATION_PAT }}" | gh auth login --with-token
+        gh pr create --title "Update Documentation" --body "Automated documentation update." --base development --head feature/update-documentation-${GITHUB_SHA}
+      working-directory: reach-documentation
+
+
