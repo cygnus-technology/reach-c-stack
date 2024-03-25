@@ -233,8 +233,9 @@ char *message_util_transfer_init_response_json(
   cJSON_AddNumberToObject(json1, "result", response->result);
   cJSON_AddNumberToObject(json1, "transfer_id", response->transfer_id);
   cJSON_AddNumberToObject(json1, "preferred_ack_rate", response->preferred_ack_rate);
-  if (response->result != 0)
-    cJSON_AddStringToObject(json1, "error_message", response->error_message);
+  if (response->has_result_message) {
+      cJSON_AddStringToObject(json1, "result_message", response->result_message);
+  }
   cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_TRANSFER_INIT), json1);
 
   // convert the cJSON object to a JSON string
@@ -297,7 +298,8 @@ char *message_util_transfer_data_notification_json(
   if (request->result != 0)
   {
     cJSON_AddNumberToObject(json1, "retry_offset", request->retry_offset);
-    cJSON_AddStringToObject(json1, "error_message", request->error_message);
+    if (request->has_result_message)
+      cJSON_AddStringToObject(json1, "error_message", request->result_message);
   }
   cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION), json1);
 
@@ -521,7 +523,7 @@ char *message_util_read_param_json(const cr_ParameterRead *request) {
 }
 
 char *
-message_util_read_param_response_json(const cr_ParameterReadResult *response) {
+message_util_read_param_response_json(const cr_ParameterReadResponse *response) {
 
   // // I3_LOG(LOG_MASK_REACH,
   // "message_util_read_param_response_json\n");
@@ -675,16 +677,28 @@ char *message_util_write_param_json(const cr_ParameterWrite *payload) {
 
 char *
 message_util_write_param_response_json(
-    const cr_ParameterWriteResult *payload)
+    const cr_ParameterWriteResponse *payload)
 {
-  sprintf(sMsgUtilBuffer, "  write param response: %d", (int)payload->result);
+  int ptr = sprintf(sMsgUtilBuffer, "  write param response: %d\n",
+                    (int)payload->result);
+  if (payload->has_result_message)
+  {
+      sprintf(&sMsgUtilBuffer[ptr], "  result message: %s",
+                        payload->result_message);
+  }
   return sMsgUtilBuffer;
 }
 
 char *message_util_config_notify_param_json(
     const cr_ParameterNotifyConfigResponse *payload)
 {
-  sprintf(sMsgUtilBuffer, "  write param response: %d", (int)payload->result);
+  int ptr = sprintf(sMsgUtilBuffer, "  write param response: %d\n",
+                    (int)payload->result);
+  if (payload->has_result_message)
+  {
+      sprintf(&sMsgUtilBuffer[ptr], "  result message: %s",
+                        payload->result_message);
+  }
   return sMsgUtilBuffer;
 }
 #endif  // def INCLUDE_PARAMETER_SERVICE

@@ -373,7 +373,8 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         response->result = cr_ErrorCodes_PACKET_COUNT_ERR;
         // tell the client the offset at which to retry.
         response->retry_offset = sCr_file_xfer_state.request_offset + sCr_file_xfer_state.bytes_transfered;
-        sprintf(response->error_message,  
+        response->has_result_message = true;
+        sprintf(response->result_message,
                 "At %d, message number mismatch. Got %d, not %d", 
                 (int)sCr_file_xfer_state.bytes_transfered,
                 (int)dataTransfer->message_number,

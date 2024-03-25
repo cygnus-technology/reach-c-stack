@@ -129,10 +129,10 @@ extern "C" {
 
     ///  Private helper function to read a parameter
     int pvtCrParam_read_param(const cr_ParameterRead *, 
-                              cr_ParameterReadResult *);
+                              cr_ParameterReadResponse *);
     ///  Private helper function to write a parameter
     int pvtCrParam_write_param(const cr_ParameterWrite *, 
-                               cr_ParameterWriteResult *);
+                               cr_ParameterWriteResponse *);
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     ///  Private helper function to configure parameter
     ///  notifications

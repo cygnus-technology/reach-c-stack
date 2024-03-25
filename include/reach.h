@@ -319,9 +319,9 @@ typedef struct _cr_ParameterRead {
     uint32_t read_after_timestamp; /** Allows for retrieval of only new / changed values. */
 } cr_ParameterRead;
 
-typedef struct _cr_ParameterWriteResult {
+typedef struct _cr_ParameterReadResponse {
     int32_t result; /** 0 if OK */
-} cr_ParameterWriteResult;
+} cr_ParameterReadResponse;
 
 /** Parameter Notification configuration Notification can be
  *  enabled or disabled */
@@ -359,14 +359,14 @@ typedef struct _cr_ParameterValue {
     } value;
 } cr_ParameterValue;
 
-typedef struct _cr_ParameterReadResult {
+typedef struct _cr_ParameterReadResponse {
     /** The read_timestamp indicates when this param was last read.  
  Reading resets this value to now. */
     uint32_t read_timestamp; /** Returns timestamp of last read...useful for */
     /** polling large variable lists. */
     pb_size_t values_count;
     cr_ParameterValue values[4]; /** Array of Result Values */
-} cr_ParameterReadResult;
+} cr_ParameterReadResponse;
 
 /** Parameter Writes */
 typedef struct _cr_ParameterWrite {

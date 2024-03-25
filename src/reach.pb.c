@@ -45,13 +45,13 @@ PB_BIND(cr_ParamExInfoResponse, cr_ParamExInfoResponse, AUTO)
 PB_BIND(cr_ParameterRead, cr_ParameterRead, AUTO)
 
 
-PB_BIND(cr_ParameterReadResult, cr_ParameterReadResult, AUTO)
+PB_BIND(cr_ParameterReadResponse, cr_ParameterReadResponse, AUTO)
 
 
 PB_BIND(cr_ParameterWrite, cr_ParameterWrite, AUTO)
 
 
-PB_BIND(cr_ParameterWriteResult, cr_ParameterWriteResult, AUTO)
+PB_BIND(cr_ParameterWriteResponse, cr_ParameterWriteResponse, AUTO)
 
 
 PB_BIND(cr_ParameterNotifyConfig, cr_ParameterNotifyConfig, AUTO)
