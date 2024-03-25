@@ -343,19 +343,12 @@ char *message_util_param_info_response_json(
       cJSON *json_1 = cJSON_CreateObject();
 
       cJSON_AddNumberToObject(json_1, "id", response->parameter_infos[i].id);
-      cJSON_AddNumberToObject(json_1, "data type", response->parameter_infos[i].data_type);
-      cJSON_AddNumberToObject(json_1, "sz in bytes", response->parameter_infos[i].size_in_bytes);
+      cJSON_AddNumberToObject(json_1, "data type", response->parameter_infos[i].which_desc);
+      // NOTE: Skipping the type-specific data descriptions for now, this would require a large switch statement
       cJSON_AddStringToObject(json_1, "name", response->parameter_infos[i].name);
       cJSON_AddNumberToObject(json_1, "access", response->parameter_infos[i].access);
       if (response->parameter_infos[i].has_description)
           cJSON_AddStringToObject(json_1, "description", response->parameter_infos[i].description);
-      cJSON_AddStringToObject(json_1, "units", response->parameter_infos[i].units);
-      if (response->parameter_infos[i].has_range_min)
-          cJSON_AddNumberToObject(json_1, "min", response->parameter_infos[i].range_min);
-      if (response->parameter_infos[i].has_range_max)
-          cJSON_AddNumberToObject(json_1, "max", response->parameter_infos[i].range_max);
-      if (response->parameter_infos[i].has_default_value)
-          cJSON_AddNumberToObject(json_1, "default", response->parameter_infos[i].default_value);
       cJSON_AddNumberToObject(json_1, "storage location", response->parameter_infos[i].storage_location);
 
       cJSON_AddItemToArray(jsonArray, json_1);
@@ -378,17 +371,17 @@ char *message_util_param_info_ex_response_json(
   cJSON *json = cJSON_CreateObject();
   cJSON *jsonArray = cJSON_CreateArray();
 
-  cJSON_AddNumberToObject(json, "associated_pid", response->associated_pid);
+  cJSON_AddNumberToObject(json, "enum_bitfield_id", response->enum_bitfield_id);
   cJSON_AddNumberToObject(json, "data_type", response->data_type);
-  cJSON_AddNumberToObject(json, "enumerations_count", response->enumerations_count);
-  if (response->enumerations_count > 0) 
+  cJSON_AddNumberToObject(json, "enums_bits_count", response->enums_bits_count);
+  if (response->enums_bits_count > 0) 
   {
     cJSON *jsonArray2 = cJSON_CreateArray();
-    for (size_t i = 0; i < response->enumerations_count; i++) 
+    for (size_t i = 0; i < response->enums_bits_count; i++) 
     {
       cJSON *json1 = cJSON_CreateObject();
-      cJSON_AddNumberToObject(json1, "id", response->enumerations[i].id);
-      cJSON_AddStringToObject(json1, "name", response->enumerations[i].name);
+      cJSON_AddNumberToObject(json1, "id", response->enums_bits[i].id);
+      cJSON_AddStringToObject(json1, "name", response->enums_bits[i].name);
       cJSON_AddItemToArray(jsonArray2, json1);
     }
     cJSON_AddItemToObject(json, "enumerations", jsonArray2);
