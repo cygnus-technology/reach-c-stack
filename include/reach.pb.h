@@ -11,23 +11,25 @@
 #endif
 
 /* Enum definitions */
-/* ReachProtoVersion will be replaced by the MAJOR, MINOR and PATCH, below. */
+/* ReachProtoVersion is replaced by the MAJOR, MINOR and PATCH, below. */
 typedef enum _cr_ReachProtoVersion {
     cr_ReachProtoVersion_NOT_USED = 0, /* Must have a zero */
-    cr_ReachProtoVersion_CURRENT_VERSION = 21 /* update this when you change this file. */
+    cr_ReachProtoVersion_CURRENT_VERSION = 257 /* update this when you change this file. */
 } cr_ReachProtoVersion;
 
 typedef enum _cr_ReachProto_MAJOR_Version {
-    cr_ReachProto_MAJOR_Version_MAJOR_VERSION = 0 /* Must have a zero */
+    /* MAJOR_V0       = 0;   // Must have a zero */
+    cr_ReachProto_MAJOR_Version_MAJOR_VERSION = 0
 } cr_ReachProto_MAJOR_Version;
 
 typedef enum _cr_ReachProto_MINOR_Version {
-    cr_ReachProto_MINOR_Version_MINOR_VERSION = 0 /* Must have a zero */
+    cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /* Must have a zero */
+    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /* Update at a release */
 } cr_ReachProto_MINOR_Version;
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 21 /* To be updated by relase script */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 1 /* To be updated by relase script */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -194,7 +196,7 @@ typedef enum _cr_SizesOffsets {
 /* ----------------------------
  Service Routing Message Header
 ---------------------------- */
-typedef struct _cr_ReachMessageHeader {
+typedef struct _cr_classic_ReachMessageHeader {
     /* This ID defines the Type of Message being carried in the Envelope / Header */
     uint32_t message_type;
     /* Routing for endpoints other than zero. */
@@ -205,6 +207,36 @@ typedef struct _cr_ReachMessageHeader {
     uint32_t remaining_objects;
     /* An ID for a series of messages */
     uint32_t transaction_id;
+} cr_classic_ReachMessageHeader;
+
+/* ----------------------------
+ This represents a merger between Ahsoka and Reach for testing.
+ The names and ordinals match Reach.
+ #define AHSOKA_HEADER and rename to ReachMessageHeader to use this.
+---------------------------- */
+typedef struct _cr_ReachMessageHeader {
+    /* This ID defines the Type of Message being carried in the Envelop / Header
+ Note: Existing OpenPV / Ahsoka Message Architecture 
+ Ahsoka calls this transport_id */
+    uint32_t message_type;
+    /* (Optional) Routing for Non-Endpoint Style Transports. 
+ Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports
+ Note: New for OpenPV / Ahsoka Message Architecture */
+    uint32_t endpoint_id;
+    /* (Optional) Unique ID for a Client used in Services that support Multiple Clients (usually autopopulated with GUID)
+ Note: Part of Existing OpenPV / Ahsoka Message Architecture 
+ Ahsoka makes this a byte array (16 byte UUID) */
+    uint32_t client_id;
+    /* Note:  Added for Reach
+ Zero when transaction is complete */
+    uint32_t remaining_objects;
+    /* (Optional) This ID defines a unique Message / Response used when out of order messages are needed
+ usually left empty since OpenPV Endpoints gaurantee message order
+ Note: Existing OpenPV / Ahsoka Message Architecture 
+ Ahsoka calls this client_message_id */
+    uint32_t transaction_id;
+    /* (Optional) The size of the message payload that follows this header */
+    int32_t message_size;
 } cr_ReachMessageHeader;
 
 typedef PB_BYTES_ARRAY_T(208) cr_ReachMessage_payload_t;
@@ -213,6 +245,33 @@ typedef struct _cr_ReachMessage {
     cr_ReachMessageHeader header;
     cr_ReachMessage_payload_t payload;
 } cr_ReachMessage;
+
+/* ----------------------------
+ For Reference:  This is used in the OpenPV system.
+ Service Routing Message Header
+ This object represents the Layer 2 Message Format for OpenPV Service Messages.
+---------------------------- */
+typedef struct _cr_AhsokaMessageHeader {
+    /* This ID defines the Type of Message being carried in the Envelop / Header
+ Note: Existing OpenPV / Ahsoka Message Architecture */
+    int32_t transport_id;
+    /* (Optional) This ID defines a unique Message / Response used when out of order messages are needed
+ usually left empty since OpenPV Endpoints gaurantee message order
+ Note: Existing OpenPV / Ahsoka Message Architecture */
+    int32_t client_message_id;
+    /* (Optional) Unique ID for a Client used in Services that support Multiple Clients (usually autopopulated with GUID)
+ Note: Part of Existing OpenPV / Ahsoka Message Architecture */
+    pb_callback_t client_id;
+    /* (Optional) The size of the message payload that follows this header */
+    int32_t message_size;
+    /* (Optional) Routing for Non-Endpoint Style Transports. 
+ Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports
+ Note: New for OpenPV / Ahsoka Message Architecture */
+    uint32_t endpoint_id;
+    /* (Optional) Indicates that the message has used deflate compression in addition to pbuff encoding
+ Note: New for OpenPV / Ahsoka Message Architecture */
+    bool is_message_compressed;
+} cr_AhsokaMessageHeader;
 
 /* ERROR_REPORT: Could be sent asynchronously to indicate an error. */
 typedef struct _cr_ErrorReport {
@@ -691,7 +750,7 @@ extern "C" {
 #define _cr_ReachProto_MAJOR_Version_MAX cr_ReachProto_MAJOR_Version_MAJOR_VERSION
 #define _cr_ReachProto_MAJOR_Version_ARRAYSIZE ((cr_ReachProto_MAJOR_Version)(cr_ReachProto_MAJOR_Version_MAJOR_VERSION+1))
 
-#define _cr_ReachProto_MINOR_Version_MIN cr_ReachProto_MINOR_Version_MINOR_VERSION
+#define _cr_ReachProto_MINOR_Version_MIN cr_ReachProto_MINOR_Version_MINOR_V0
 #define _cr_ReachProto_MINOR_Version_MAX cr_ReachProto_MINOR_Version_MINOR_VERSION
 #define _cr_ReachProto_MINOR_Version_ARRAYSIZE ((cr_ReachProto_MINOR_Version)(cr_ReachProto_MINOR_Version_MINOR_VERSION+1))
 
@@ -760,6 +819,8 @@ extern "C" {
 
 
 
+
+
 #define cr_ParameterInfo_data_type_ENUMTYPE cr_ParameterDataType
 #define cr_ParameterInfo_access_ENUMTYPE cr_AccessLevel
 #define cr_ParameterInfo_storage_location_ENUMTYPE cr_StorageLocation
@@ -818,8 +879,10 @@ extern "C" {
 
 
 /* Initializer values for message structs */
-#define cr_ReachMessageHeader_init_default       {0, 0, 0, 0, 0}
+#define cr_classic_ReachMessageHeader_init_default {0, 0, 0, 0, 0}
 #define cr_ReachMessage_init_default             {false, cr_ReachMessageHeader_init_default, {0, {0}}}
+#define cr_ReachMessageHeader_init_default       {0, 0, 0, 0, 0, 0}
+#define cr_AhsokaMessageHeader_init_default      {0, 0, {{NULL}, NULL}, 0, 0, 0}
 #define cr_ErrorReport_init_default              {0, ""}
 #define cr_PingRequest_init_default              {{0, {0}}}
 #define cr_PingResponse_init_default             {{0, {0}}, 0}
@@ -870,8 +933,10 @@ extern "C" {
 #define cr_WiFiConnectionRequest_init_default    {_cr_WiFiState_MIN, false, "", false, cr_ConnectionDescription_init_default, false, 0}
 #define cr_WiFiConnectionResponse_init_default   {0, false, 0, false, ""}
 #define cr_BufferSizes_init_default              {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-#define cr_ReachMessageHeader_init_zero          {0, 0, 0, 0, 0}
+#define cr_classic_ReachMessageHeader_init_zero  {0, 0, 0, 0, 0}
 #define cr_ReachMessage_init_zero                {false, cr_ReachMessageHeader_init_zero, {0, {0}}}
+#define cr_ReachMessageHeader_init_zero          {0, 0, 0, 0, 0, 0}
+#define cr_AhsokaMessageHeader_init_zero         {0, 0, {{NULL}, NULL}, 0, 0, 0}
 #define cr_ErrorReport_init_zero                 {0, ""}
 #define cr_PingRequest_init_zero                 {{0, {0}}}
 #define cr_PingResponse_init_zero                {{0, {0}}, 0}
@@ -924,13 +989,25 @@ extern "C" {
 #define cr_BufferSizes_init_zero                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
+#define cr_classic_ReachMessageHeader_message_type_tag 1
+#define cr_classic_ReachMessageHeader_endpoint_id_tag 2
+#define cr_classic_ReachMessageHeader_client_id_tag 3
+#define cr_classic_ReachMessageHeader_remaining_objects_tag 4
+#define cr_classic_ReachMessageHeader_transaction_id_tag 5
 #define cr_ReachMessageHeader_message_type_tag   1
 #define cr_ReachMessageHeader_endpoint_id_tag    2
 #define cr_ReachMessageHeader_client_id_tag      3
 #define cr_ReachMessageHeader_remaining_objects_tag 4
 #define cr_ReachMessageHeader_transaction_id_tag 5
+#define cr_ReachMessageHeader_message_size_tag   6
 #define cr_ReachMessage_header_tag               1
 #define cr_ReachMessage_payload_tag              2
+#define cr_AhsokaMessageHeader_transport_id_tag  1
+#define cr_AhsokaMessageHeader_client_message_id_tag 2
+#define cr_AhsokaMessageHeader_client_id_tag     3
+#define cr_AhsokaMessageHeader_message_size_tag  4
+#define cr_AhsokaMessageHeader_endpoint_id_tag   5
+#define cr_AhsokaMessageHeader_is_message_compressed_tag 6
 #define cr_ErrorReport_result_value_tag          1
 #define cr_ErrorReport_result_string_tag         2
 #define cr_PingRequest_echo_data_tag             1
@@ -1087,14 +1164,14 @@ extern "C" {
 #define cr_BufferSizes_param_info_enum_count_tag 15
 
 /* Struct field encoding specification for nanopb */
-#define cr_ReachMessageHeader_FIELDLIST(X, a) \
+#define cr_classic_ReachMessageHeader_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   message_type,      1) \
 X(a, STATIC,   SINGULAR, UINT32,   endpoint_id,       2) \
 X(a, STATIC,   SINGULAR, UINT32,   client_id,         3) \
 X(a, STATIC,   SINGULAR, UINT32,   remaining_objects,   4) \
 X(a, STATIC,   SINGULAR, UINT32,   transaction_id,    5)
-#define cr_ReachMessageHeader_CALLBACK NULL
-#define cr_ReachMessageHeader_DEFAULT NULL
+#define cr_classic_ReachMessageHeader_CALLBACK NULL
+#define cr_classic_ReachMessageHeader_DEFAULT NULL
 
 #define cr_ReachMessage_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  header,            1) \
@@ -1102,6 +1179,26 @@ X(a, STATIC,   SINGULAR, BYTES,    payload,           2)
 #define cr_ReachMessage_CALLBACK NULL
 #define cr_ReachMessage_DEFAULT NULL
 #define cr_ReachMessage_header_MSGTYPE cr_ReachMessageHeader
+
+#define cr_ReachMessageHeader_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, UINT32,   message_type,      1) \
+X(a, STATIC,   SINGULAR, UINT32,   endpoint_id,       2) \
+X(a, STATIC,   SINGULAR, UINT32,   client_id,         3) \
+X(a, STATIC,   SINGULAR, UINT32,   remaining_objects,   4) \
+X(a, STATIC,   SINGULAR, UINT32,   transaction_id,    5) \
+X(a, STATIC,   SINGULAR, INT32,    message_size,      6)
+#define cr_ReachMessageHeader_CALLBACK NULL
+#define cr_ReachMessageHeader_DEFAULT NULL
+
+#define cr_AhsokaMessageHeader_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, INT32,    transport_id,      1) \
+X(a, STATIC,   SINGULAR, INT32,    client_message_id,   2) \
+X(a, CALLBACK, SINGULAR, BYTES,    client_id,         3) \
+X(a, STATIC,   SINGULAR, INT32,    message_size,      4) \
+X(a, STATIC,   SINGULAR, UINT32,   endpoint_id,       5) \
+X(a, STATIC,   SINGULAR, BOOL,     is_message_compressed,   6)
+#define cr_AhsokaMessageHeader_CALLBACK pb_default_field_callback
+#define cr_AhsokaMessageHeader_DEFAULT NULL
 
 #define cr_ErrorReport_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result_value,      1) \
@@ -1471,8 +1568,10 @@ X(a, STATIC,   SINGULAR, UINT32,   param_info_enum_count,  15)
 #define cr_BufferSizes_CALLBACK NULL
 #define cr_BufferSizes_DEFAULT NULL
 
-extern const pb_msgdesc_t cr_ReachMessageHeader_msg;
+extern const pb_msgdesc_t cr_classic_ReachMessageHeader_msg;
 extern const pb_msgdesc_t cr_ReachMessage_msg;
+extern const pb_msgdesc_t cr_ReachMessageHeader_msg;
+extern const pb_msgdesc_t cr_AhsokaMessageHeader_msg;
 extern const pb_msgdesc_t cr_ErrorReport_msg;
 extern const pb_msgdesc_t cr_PingRequest_msg;
 extern const pb_msgdesc_t cr_PingResponse_msg;
@@ -1525,8 +1624,10 @@ extern const pb_msgdesc_t cr_WiFiConnectionResponse_msg;
 extern const pb_msgdesc_t cr_BufferSizes_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
-#define cr_ReachMessageHeader_fields &cr_ReachMessageHeader_msg
+#define cr_classic_ReachMessageHeader_fields &cr_classic_ReachMessageHeader_msg
 #define cr_ReachMessage_fields &cr_ReachMessage_msg
+#define cr_ReachMessageHeader_fields &cr_ReachMessageHeader_msg
+#define cr_AhsokaMessageHeader_fields &cr_AhsokaMessageHeader_msg
 #define cr_ErrorReport_fields &cr_ErrorReport_msg
 #define cr_PingRequest_fields &cr_PingRequest_msg
 #define cr_PingResponse_fields &cr_PingResponse_msg
@@ -1579,6 +1680,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_BufferSizes_fields &cr_BufferSizes_msg
 
 /* Maximum encoded size of messages (where known) */
+/* cr_AhsokaMessageHeader_size depends on runtime parameters */
 #define cr_BufferSizes_size                      84
 #define cr_CLIData_size                          196
 #define cr_CommandInfo_size                      86
@@ -1616,8 +1718,8 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ParameterWrite_size                   192
 #define cr_PingRequest_size                      197
 #define cr_PingResponse_size                     208
-#define cr_ReachMessageHeader_size               30
-#define cr_ReachMessage_size                     243
+#define cr_ReachMessageHeader_size               41
+#define cr_ReachMessage_size                     254
 #define cr_SendCommandResponse_size              207
 #define cr_SendCommand_size                      6
 #define cr_StreamClose_size                      11
@@ -1631,6 +1733,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_TimeSetResponse_size                  207
 #define cr_WiFiConnectionRequest_size            87
 #define cr_WiFiConnectionResponse_size           218
+#define cr_classic_ReachMessageHeader_size       30
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -672,6 +672,47 @@ bool cr_get_comm_link_connected(void)
  * of the header,
 */
 
+static bool sClassic_header_format = true;
+
+/*
+* @brief   handle_coded_classic_prompt
+* @details A static (private) function to decode the wrapper and
+*          dispatch the appropriate message handlers.
+* @return Zero on success or an error code.
+*/
+/// @private
+static int handle_coded_classic_prompt() 
+{
+    // sCr_uncoded_message_structure will hold the decoded message.
+    cr_ReachMessage *msgPtr = &sCr_uncoded_message_structure;
+    memset(msgPtr, 0, sizeof(cr_ReachMessage));
+    if(!decode_reach_message(msgPtr, 
+                             (pb_byte_t *)sCr_encoded_message_buffer, 
+                             sCr_encoded_message_size))
+    {
+        cr_report_error(cr_ErrorCodes_DECODING_FAILED, "%s:Reach header Decode failed", __FUNCTION__);
+        return cr_ErrorCodes_DECODING_FAILED;
+    }
+
+    cr_ReachMessageHeader *hdr = &msgPtr->header;
+    uint8_t *coded_data = (uint8_t *)msgPtr->payload.bytes;
+    sCr_transaction_id = hdr->transaction_id;
+    sCr_endpoint_id    = hdr->endpoint_id;
+    sCr_client_id      = hdr->client_id;
+
+    I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
+           msg_type_string(msgPtr->header.message_type));
+    LOG_DUMP_WIRE("handle_coded_prompt (message): ",
+                       msgPtr->payload.bytes, msgPtr->payload.size);
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint %d.", 
+           msgPtr->payload.size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
+
+    // further decode and process the message
+    // The result will be fully encoded at sCr_encoded_response_buffer[]
+    // in case of a non-zero return there will be an encoded error report.
+    return handle_message(hdr, coded_data, msgPtr->payload.size);
+}
+
 /*
 * @brief   handle_coded_prompt
 * @details A static (private) function to decode the wrapper and
@@ -681,6 +722,15 @@ bool cr_get_comm_link_connected(void)
 /// @private
 static int handle_coded_prompt() 
 {
+    // Is this a classic Reach header or an Ahsoka header?
+    // Classic reach witll start with 0x0A
+    if (*sCr_encoded_message_buffer == 0x0A)
+    {
+        sClassic_header_format = true;
+        return handle_coded_classic_prompt(); 
+    }
+    sClassic_header_format = false;
+
     // We will first decode the header, skipping over the two byte 
     // packet size at the front. This can go on the stack as it's not large and 
     // we won't need it after this function.  The key parts are saved to statics.
@@ -713,13 +763,13 @@ static int handle_coded_prompt()
     pvtCr_num_remaining_objects = header.remaining_objects;
 
     // The coded data begins after the header
-    uint8_t *coded_data = (uint8_t *)(&sCr_encoded_message_buffer) 
-                                      + 2 + coded_header_size;
+    uint8_t *coded_data = (uint8_t *)((unsigned int)(&sCr_encoded_message_buffer)
+                                      + 2 + coded_header_size);
 
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
            msg_type_string(header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
-                       *coded_data, header.message_size);
+                       coded_data, header.message_size);
     I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint_id %d.", 
            header.message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
@@ -1711,6 +1761,54 @@ bool encode_reach_message(const cr_ReachMessage *message,   // in:  message to b
 }
 
 #ifdef AHSOKA_HEADER
+
+
+// encodes message to sCr_encoded_response_buffer.
+// The caller must populate the header
+static int sCr_encode_classic_message(cr_ReachMessageTypes message_type,   // in
+                             const void *payload,                  // in:  to be encoded
+                             cr_ReachMessageHeader *hdr)           // in
+{
+    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
+    //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
+
+    if (!encode_reach_payload(message_type, payload,
+                              sCr_encoded_payload_buffer,
+                              sizeof(sCr_encoded_payload_buffer),
+                              &sCr_encoded_payload_size))
+    {
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
+        return cr_ErrorCodes_ENCODING_FAILED;
+    }
+
+    // build the message envelope
+    sCr_uncoded_message_structure.header     = *hdr;
+    sCr_uncoded_message_structure.has_header = true;
+    memcpy(sCr_uncoded_message_structure.payload.bytes, 
+           sCr_encoded_payload_buffer, 
+           sCr_encoded_payload_size);
+    sCr_uncoded_message_structure.payload.size = sCr_encoded_payload_size;  
+
+    I3_LOG(LOG_MASK_REACH, "%s(): type %d, remain %d, trans_id %d, client %d, ep %d.", 
+           __FUNCTION__,
+           sCr_uncoded_message_structure.header.message_type, 
+           sCr_uncoded_message_structure.header.remaining_objects, 
+           sCr_uncoded_message_structure.header.transaction_id,
+           sCr_uncoded_message_structure.header.client_id,
+           sCr_uncoded_message_structure.header.endpoint_id);
+
+    // encode the wrapped message
+    if (!encode_reach_message(&sCr_uncoded_message_structure,
+                              sCr_encoded_response_buffer,
+                              sizeof(sCr_encoded_response_buffer),
+                              &sCr_encoded_response_size))
+    {
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode message %d failed.", message_type);
+        return cr_ErrorCodes_ENCODING_FAILED;
+    }
+    return 0;
+}
+
 static
 bool encode_reach_header(const cr_ReachMessageHeader *header,  // in:  message to be encoded
                           uint8_t *buffer,                      // out: Buffer to encode into
@@ -1737,6 +1835,12 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
                              const void *payload,                  // in:  to be encoded
                              cr_ReachMessageHeader *hdr)           // in
 {
+    if (sClassic_header_format)
+    {
+        return sCr_encode_classic_message(message_type, payload, hdr);
+    }
+
+
     // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
     //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
 

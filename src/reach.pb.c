@@ -6,10 +6,16 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
-PB_BIND(cr_ReachMessageHeader, cr_ReachMessageHeader, AUTO)
+PB_BIND(cr_classic_ReachMessageHeader, cr_classic_ReachMessageHeader, AUTO)
 
 
 PB_BIND(cr_ReachMessage, cr_ReachMessage, AUTO)
+
+
+PB_BIND(cr_ReachMessageHeader, cr_ReachMessageHeader, AUTO)
+
+
+PB_BIND(cr_AhsokaMessageHeader, cr_AhsokaMessageHeader, AUTO)
 
 
 PB_BIND(cr_ErrorReport, cr_ErrorReport, AUTO)
