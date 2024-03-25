@@ -730,6 +730,7 @@ static int handle_coded_prompt()
         return handle_coded_classic_prompt(); 
     }
     sClassic_header_format = false;
+    i3_log(LOG_MASK_REACH, TEXT_MAGENTA "Decode Ahsoka-ish header:");
 
     // We will first decode the header, skipping over the two byte 
     // packet size at the front. This can go on the stack as it's not large and 
@@ -746,42 +747,43 @@ static int handle_coded_prompt()
                                coded_header_size);
 
     // Decode the header from the incoming buffer.
-    memset(&header, 0, sizeof(cr_ReachMessageHeader));
-    bool status = pb_decode(&is_stream, cr_ReachMessageHeader_fields, (void *)&header);
+    memset(&header, 0, sizeof(cr_AhsokaMessageHeader));
+    bool status = pb_decode(&is_stream, cr_AhsokaMessageHeader_fields, (void *)&header);
     if (!status)
     {
-        LOG_ERROR("Header Decoding failed: %s\n", PB_GET_ERROR(&is_stream));
+        LOG_ERROR("Ahsoka Header Decoding failed: %s\n", PB_GET_ERROR(&is_stream));
         cr_report_error(cr_ErrorCodes_DECODING_FAILED, 
-                        "%s: Reach header Decode failed", __FUNCTION__);
+                        "%s: Ahsoka header Decode failed", __FUNCTION__);
         return cr_ErrorCodes_DECODING_FAILED;
     }
 
     // save the things we need out of the header.
-    sCr_transaction_id = header.transaction_id;
+    sCr_transaction_id = header.client_message_id;
     sCr_endpoint_id    = header.endpoint_id;
     sCr_client_id      = header.client_id;
-    pvtCr_num_remaining_objects = header.remaining_objects;
+    pvtCr_num_remaining_objects = header.message_size;
 
     // The coded data begins after the header
     uint8_t *coded_data = (uint8_t *)((unsigned int)(&sCr_encoded_message_buffer)
                                       + 2 + coded_header_size);
+    uint16_t message_size = sCr_encoded_message_size - 2 - coded_header_size;
 
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
-           msg_type_string(header.message_type));
-    LOG_DUMP_WIRE("handle_coded_prompt (message): ",
-                       coded_data, header.message_size);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint_id %d.", 
-           header.message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
+           msg_type_string(header.transport_id));
+
+    // I don't see how to get the size without decoding.
+    LOG_DUMP_WIRE("handle_coded_prompt payload: ",
+                       coded_data, message_size);
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload: size: %d, Transaction ID %d, client_id %d, endpoint_id %d.", 
+           message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
     // The result will be fully encoded at sCr_encoded_response_buffer[]
     // in case of a non-zero return there will be an encoded error report.
-    return handle_message(&header, 
-                          coded_data, 
-                          header.message_size);
+    return handle_message(&header, coded_data, message_size);
 }
 
-#else
+#else // classic reach header
 
 /*
 * @brief   handle_coded_prompt
@@ -1780,6 +1782,7 @@ static int sCr_encode_classic_message(cr_ReachMessageTypes message_type,   // in
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
+    i3_log(LOG_MASK_REACH, TEXT_MAGENTA "Encode Ahsoka-ish header:");
 
     // build the message envelope
     sCr_uncoded_message_structure.header     = *hdr;
@@ -1840,6 +1843,13 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
         return sCr_encode_classic_message(message_type, payload, hdr);
     }
 
+    cr_AhsokaMessageHeader hdr;
+    hdr.transport_id          = message_type;
+    hdr.client_id             = sCr_client_id;
+    hdr.endpoint_id           = sCr_endpoint_id;
+    hdr.client_message_id     = sCr_transaction_id;
+    hdr.message_size          = pvtCr_num_remaining_objects;
+    hdr.is_message_compressed = false;
 
     // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
     //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
@@ -1847,9 +1857,9 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
     uint8_t *encBuffer = (uint8_t *)sCr_encoded_response_buffer;
     // encode the header
     if (!encode_reach_header(hdr,
-                              &encBuffer[2],
-                              sizeof(sCr_encoded_response_buffer) - 2,
-                              &sCr_encoded_response_size))
+                             &encBuffer[2],
+                             sizeof(sCr_encoded_response_buffer) - 2,
+                             &sCr_encoded_response_size))
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode header %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
