@@ -724,7 +724,7 @@ static int handle_coded_prompt() // ahsoka version
 {
     // Is this a classic Reach header or an Ahsoka header?
     // Classic reach witll start with 0x0A
-    if (*sCr_encoded_message_buffer == 0x0A)
+    if ((sCr_encoded_message_buffer[0] == 0x0A) && (sCr_encoded_message_buffer[1] != 0x0))
     {
         sClassic_header_format = true;
         return handle_coded_classic_prompt(); 
