@@ -774,7 +774,7 @@ static int handle_coded_prompt() // ahsoka version
            msg_type_string(header.transport_id));
 
     // I don't see how to get the size without decoding.
-    LOG_DUMP_WIRE("handle_coded_prompt payload: ",
+    LOG_DUMP_WIRE("handle_coded_prompt ahsoka payload: ",
                        coded_payload, message_size);
     I3_LOG(LOG_MASK_REACH, "Prompt Payload: size: %d, Transaction ID %d, client_id %d, endpoint_id %d.", 
            message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
@@ -1895,8 +1895,8 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
     uint16_t header_size = sCr_encoded_response_size;
     *(uint16_t *)encBuffer = header_size;
     // memcpy(encBuffer, &header_size, sizeof(header_size));
-    LOG_REACH("Place header_size %d at head of buffer.", header_size);
-    LOG_DUMP_WIRE("ahsoka header with size prefix: ",
+    I3_LOG(LOG_MASK_AHSOKA, "Place header_size %d at head of buffer.", header_size);
+    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka header with size prefix: ",
                   encBuffer, header_size+2);
 
     // encode the payload
@@ -1909,7 +1909,7 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
         return cr_ErrorCodes_ENCODING_FAILED;
     }
     sCr_encoded_response_size = sCr_encoded_payload_size + header_size + 2;
-    LOG_DUMP_WIRE("ahsoka message complete: ",
+    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka message complete: ",
                   encBuffer, sCr_encoded_response_size);
     return 0;
 }
