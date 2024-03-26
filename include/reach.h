@@ -22,9 +22,27 @@
 #error Regenerate this file with the current version of nanopb generator.
 #endif
 
+/* Enum definitions */
+/* ReachProtoVersion is replaced by the MAJOR, MINOR and PATCH, below. */
+typedef enum _cr_ReachProtoVersion {
+    cr_ReachProtoVersion_NOT_USED = 0, /* Must have a zero */
+    cr_ReachProtoVersion_CURRENT_VERSION = 257 /* update this when you change this file. */
+} cr_ReachProtoVersion;
 
-/// The current version of the protobuf file
-#define cr_ReachProtoVersion_CURRENT_VERSION    20
+typedef enum _cr_ReachProto_MAJOR_Version {
+    /* MAJOR_V0       = 0;   // Must have a zero */
+    cr_ReachProto_MAJOR_Version_MAJOR_VERSION = 0
+} cr_ReachProto_MAJOR_Version;
+
+typedef enum _cr_ReachProto_MINOR_Version {
+    cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /* Must have a zero */
+    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /* Update at a release */
+} cr_ReachProto_MINOR_Version;
+
+typedef enum _cr_ReachProto_PATCH_Version {
+    cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 1 /* To be updated by relase script */
+} cr_ReachProto_PATCH_Version;
 
 /// These values identify the type of the Reach message.
 typedef enum _cr_ReachMessageTypes {
@@ -100,40 +118,18 @@ typedef enum _cr_ParameterDataType {
     cr_ParameterDataType_BYTE_ARRAY = 10
 } cr_ParameterDataType;
 
+typedef enum _cr_CLIType {
+    cr_CLIType_NO_CLI = 0,
+    cr_CLIType_COMMAND = 1,
+    cr_CLIType_REPORT = 2
+} cr_CLIType;
+
 /** Bits identifying parameter access rules */
 typedef enum _cr_AccessLevel {
     cr_AccessLevel_NO_ACCESS = 0,
     cr_AccessLevel_READ = 1,
     cr_AccessLevel_WRITE = 2,
-    cr_AccessLevel_READ_WRITE = 3,
-    cr_AccessLevel_NONE_L1 = 4,
-    cr_AccessLevel_READ_L1 = 5,
-    cr_AccessLevel_WRITE_L1 = 6,
-    cr_AccessLevel_READ_WRITE_l1 = 7,
-    cr_AccessLevel_NONE_L2 = 8,
-    cr_AccessLevel_READ_L2 = 9,
-    cr_AccessLevel_WRITE_L2 = 10,
-    cr_AccessLevel_READ_WRITE_l2 = 11,
-    cr_AccessLevel_NONE_L1_L2 = 12,
-    cr_AccessLevel_READ_L1_L2 = 13,
-    cr_AccessLevel_WRITE_L1_L2 = 14,
-    cr_AccessLevel_READ_WRITE_L1_l2 = 15,
-    cr_AccessLevel_NONE_L3 = 16, /** 0x10 */
-    cr_AccessLevel_READ_L3 = 17,
-    cr_AccessLevel_WRITE_L3 = 18,
-    cr_AccessLevel_READ_WRITE_L3 = 19,
-    cr_AccessLevel_NONE_L1_L3 = 20, /** 0x14 */
-    cr_AccessLevel_READ_L1_L3 = 21,
-    cr_AccessLevel_WRITE_L1_L3 = 22,
-    cr_AccessLevel_READ_WRITE_L1_L3 = 23,
-    cr_AccessLevel_NONE_L2_L3 = 24, /** 0x18 */
-    cr_AccessLevel_READ_L2_L3 = 25,
-    cr_AccessLevel_WRITE_L2_L3 = 26,
-    cr_AccessLevel_READ_WRITE_L2_L3 = 27,
-    cr_AccessLevel_NONE_L1_L2_L3 = 28, /** 0x1C */
-    cr_AccessLevel_READ_L1_L2_L3 = 29,
-    cr_AccessLevel_WRITE_L1_L2_L3 = 30,
-    cr_AccessLevel_READ_WRITE_L1_L2_L3 = 31
+    cr_AccessLevel_READ_WRITE = 3
 } cr_AccessLevel;
 
 /** The types of memory in which parameters are stored.  RAM
@@ -145,6 +141,25 @@ typedef enum _cr_StorageLocation {
     cr_StorageLocation_RAM_EXTENDED = 3,
     cr_StorageLocation_NONVOLATILE_EXTENDED = 4
 } cr_StorageLocation;
+
+typedef enum _cr_WiFiSecurity {
+    cr_WiFiSecurity_OPEN = 0, /* No security */
+    cr_WiFiSecurity_WEP = 1, /* WEP */
+    cr_WiFiSecurity_WPA = 2, /* WPA */
+    cr_WiFiSecurity_WPA2 = 3, /* WPA2 */
+    cr_WiFiSecurity_WPA3 = 4 /* WPA3 */
+} cr_WiFiSecurity;
+
+typedef enum _cr_WiFiBand {
+    cr_WiFiBand_NO_BAND = 0, /* Not specified */
+    cr_WiFiBand_BAND_2 = 2, /* 2.4GHz */
+    cr_WiFiBand_BAND_5 = 5 /* 5GHz */
+} cr_WiFiBand;
+
+typedef enum _cr_WiFiState {
+    cr_WiFiState_NOT_CONNECTED = 0, /* connected, active */
+    cr_WiFiState_CONNECTED = 1 /* disconnected */
+} cr_WiFiState;
 
 /** Error codes used by Reach functions   */
 typedef enum _cr_ErrorCodes {
@@ -206,8 +221,8 @@ typedef struct _cr_ReachMessage {
 
 /** ERROR_REPORT: Could be sent asynchronously to indicate an error. */
 typedef struct _cr_ErrorReport {
-    int32_t result_value; /** Error Result */
-    char result_string[194]; /** Error String */
+    int32_t result; /** Error Result */
+    char result_message[194]; /** Error String */
 } cr_ErrorReport;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
@@ -243,13 +258,15 @@ typedef struct _cr_DeviceInfoRequest {
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_sizes_struct_t;
 typedef struct _cr_DeviceInfoResponse {
-    int32_t protocol_version; /** Supported Protocol Version */
+    int32_t protocol_version; /** Supported Protocol Version (deprecated) */
     char device_name[24]; /** Name, Typically Model Name */
     char manufacturer[24];
     char device_description[48]; /** Description */
     /** Each endpoint advertises a "main" FW version.
  If there are other FW versions, put them in the parameter repo. */
     char firmware_version[16];
+    /** protocol version as a string */
+    char protocol_version_string[16];
     /** A bit mask, allowing support for up to 32 services */
     uint32_t services;
     /** Used to avoid reloading the parameter descriptions */
@@ -278,8 +295,7 @@ typedef struct _cr_ParameterInfoRequest {
 typedef struct _cr_ParameterInfo {
     uint32_t id; /** Id */
     cr_ParameterDataType data_type; /** DataType */
-    bool has_fp_precision;
-    uint32_t fp_precision; /** Float precision */
+    uint32_t size_in_bytes; /** used by some devices */
     char name[24]; /** Name */
     cr_AccessLevel access; /** Access */
     bool has_description;
@@ -319,9 +335,11 @@ typedef struct _cr_ParameterRead {
     uint32_t read_after_timestamp; /** Allows for retrieval of only new / changed values. */
 } cr_ParameterRead;
 
-typedef struct _cr_ParameterReadResponse {
+typedef struct _cr_ParameterWriteResponse {
     int32_t result; /** 0 if OK */
-} cr_ParameterReadResponse;
+    bool has_result_message;
+    char result_message[194]; /** Error String */
+} cr_ParameterWriteResponse;
 
 /** Parameter Notification configuration Notification can be
  *  enabled or disabled */
@@ -335,6 +353,8 @@ typedef struct _cr_ParameterNotifyConfig {
 
 typedef struct _cr_ParameterNotifyConfigResponse {
     int32_t result; /** zero if all OK */
+    bool has_result_message;
+    char result_message[194]; /** Error String */
 } cr_ParameterNotifyConfigResponse;
 
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
@@ -417,7 +437,8 @@ typedef struct _cr_FileTransferInitResponse {
     int32_t result; /** 0 if OK */
     uint32_t transfer_id; /** Transfer ID */
     uint32_t preferred_ack_rate; /** overrides request */
-    char error_message[194];
+    bool has_result_message;
+    char result_message[194];
 } cr_FileTransferInitResponse;
 
 typedef PB_BYTES_ARRAY_T(194) cr_FileTransferData_message_data_t;
@@ -433,7 +454,8 @@ typedef struct _cr_FileTransferData {
 
 typedef struct _cr_FileTransferDataNotification {
     int32_t result; /** err~ */
-    char error_message[194];
+    bool has_result_message;
+    char result_message[194];
     bool is_complete;
     uint32_t transfer_id; /** Transfer ID */
     uint32_t retry_offset; /** file offset where error occurred */
@@ -446,7 +468,8 @@ typedef struct _cr_FileEraseRequest {
 typedef struct _cr_FileEraseResponse {
     uint32_t file_id; /** File ID */
     int32_t result; /** err~ */
-    char error_message[194];
+    bool has_result_message;
+    char result_message[194];
 } cr_FileEraseResponse;
 
 
@@ -484,7 +507,6 @@ typedef struct _cr_SendCommandResponse {
 /** Bi-Directional Message supporting the CLI service */
 typedef struct _cr_CLIData {
     char message_data[194]; /** Data */
-    bool is_complete;
 } cr_CLIData;
 
 /** Optional Time Service
@@ -500,6 +522,7 @@ typedef struct _cr_TimeSetRequest {
 
 typedef struct _cr_TimeSetResponse {
     int32_t result; /** Carries Success / Result */
+    bool has_result_message;
     char result_message[194];
 } cr_TimeSetResponse;
 
@@ -509,6 +532,7 @@ typedef struct _cr_TimeGetRequest {
 
 typedef struct _cr_TimeGetResponse {
     int32_t result; /** Carries Success / Result */
+    bool has_result_message;
     char result_message[194];
     int64_t seconds_utc; /** linux epoch */
     bool has_timezone;
