@@ -123,20 +123,6 @@ const char *msg_type_string(int32_t message_type) {
 }
 
 
-char *message_util_get_null_value_json(const char *key) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON_AddNullToObject(json, key);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
 char *message_util_get_device_info_json(cr_DeviceInfoRequest* data) {
   if (data->has_challenge_key)
     sprintf(sMsgUtilBuffer, "    Challenge key '%s'", data->challenge_key);
@@ -146,33 +132,68 @@ char *message_util_get_device_info_json(cr_DeviceInfoRequest* data) {
   return sMsgUtilBuffer;
 }
 
+static void byte_array_to_hex_string(const uint8_t *array, size_t array_size, char *hex_string) {
+    size_t i;
+    for (i = 0; i < array_size; i++) {
+        sprintf(hex_string + (i * 2), "%02X", array[i]);
+    }
+}
+
+
 char *message_util_get_device_info_response_json(
     const cr_DeviceInfoResponse *response) {
 
     cJSON *json = cJSON_CreateObject();
     cJSON *json1 = cJSON_CreateObject();
-    cJSON_AddNumberToObject(json1, "protocol version", response->protocol_version);
-    cJSON_AddStringToObject(json1, "name", response->device_name);
-    cJSON_AddStringToObject(json1, "firmware version", response->firmware_version);
-    cJSON_AddStringToObject(json1, "manufacturer", response->manufacturer);
-    cJSON_AddStringToObject(json1, "device description", response->device_description);
-    cJSON_AddNumberToObject(json1, "services", response->services);
-    cJSON_AddNumberToObject(json1, "hash", response->parameter_metadata_hash);
-    // not yet: application_identifier
-    cJSON_AddNumberToObject(json1, "endpoints", response->endpoints);
+
+    // Convert the integer to a hex string
+    char hex_string[33]; // 16 bytes * 2 (for hex representation)
+                         //+ 1 for null terminator
+
+    cJSON_AddStringToObject(json1, "name                  ", response->device_name);
+    cJSON_AddStringToObject(json1, "protocol version      ", response->protocol_version_string);
+    cJSON_AddStringToObject(json1, "firmware version      ", response->firmware_version);
+    cJSON_AddStringToObject(json1, "manufacturer          ", response->manufacturer);
+    cJSON_AddStringToObject(json1, "device description    ", response->device_description);
+
+    sprintf(hex_string, "0x%x", (unsigned int)response->services);
+    // Add the hexadecimal string to the JSON object
+    cJSON_AddStringToObject(json1, "services              ", hex_string);
+
+    sprintf(hex_string, "0x%x", (unsigned int)response->parameter_metadata_hash);
+    // Add the hexadecimal string to the JSON object
+    cJSON_AddStringToObject(json1, "hash                  ", hex_string);
+
+    sprintf(hex_string, "0x%x", (unsigned int)response->endpoints);
+    // Add the hexadecimal string to the JSON object
+    cJSON_AddStringToObject(json1, "endpoints             ", hex_string);
+
+    if (response->has_application_identifier)
+    {
+        // Convert byte array to hex string
+        byte_array_to_hex_string(response->application_identifier.bytes,
+                                 response->application_identifier.size,
+                                 hex_string);
+        // Add the hexadecimal string to the JSON object
+        cJSON_AddStringToObject(json1, "application_identifier", hex_string);
+    }
+
     cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_GET_DEVICE_INFO), json1);
 
     // convert the cJSON object to a JSON string
     char *json_str = cJSON_Print(json);
 
     // free the JSON string and cJSON object
+    cJSON_Delete(json1);
     cJSON_Delete(json);
 
     return json_str;
 }
 
 char *message_util_discover_files_json() {
-  return message_util_get_null_value_json(msg_type_string(cr_ReachMessageTypes_DISCOVER_FILES));
+  sprintf(sMsgUtilBuffer, "Message type:    %s", 
+          msg_type_string(cr_ReachMessageTypes_DISCOVER_FILES));
+  return sMsgUtilBuffer;
 }
 
 char *message_util_discover_files_response_json(
@@ -189,6 +210,7 @@ char *message_util_discover_files_response_json(
     cJSON_AddNumberToObject(json1, "access", response->file_infos[i].access);
     cJSON_AddNumberToObject(json1, "current byte length", response->file_infos[i].current_size_bytes);
     cJSON_AddItemToArray(jsonArray, json1);
+    cJSON_Delete(json1);
   }
 
   cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_DISCOVER_FILES), jsonArray);
@@ -408,12 +430,18 @@ char *message_util_param_info_ex_response_json(
 }
 
 char *message_util_discover_streams_json() {
-  return message_util_get_null_value_json(msg_type_string(cr_ReachMessageTypes_DISCOVER_STREAMS));
+
+  sprintf(sMsgUtilBuffer, "Message type:    %s", 
+          msg_type_string(cr_ReachMessageTypes_DISCOVER_STREAMS));
+  return sMsgUtilBuffer;
 }
 
 /** Commands */
 char *message_util_discover_commands_json() {
-  return message_util_get_null_value_json(msg_type_string(cr_ReachMessageTypes_DISCOVER_COMMANDS));
+
+  sprintf(sMsgUtilBuffer, "Message type:    %s", 
+          msg_type_string(cr_ReachMessageTypes_DISCOVER_COMMANDS));
+  return sMsgUtilBuffer;
 }
 
 char *message_util_discover_commands_response_json(
@@ -596,8 +624,6 @@ message_util_read_param_response_json(const cr_ParameterReadResponse *response) 
       default:
           break;
       }
-      // }
-
       cJSON_AddItemToArray(jsonArray, json_1);
     }
     cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_READ_PARAMETERS), jsonArray);
@@ -606,7 +632,7 @@ message_util_read_param_response_json(const cr_ParameterReadResponse *response) 
   // convert the cJSON object to a JSON string
   char *json_str = cJSON_Print(json);
 
-  // free the JSON string and cJSON object
+  // free the cJSON objects.  Remember to free the string?
   cJSON_Delete(json);
 
   return json_str;

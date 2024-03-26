@@ -31,7 +31,6 @@
   #ifndef NO_REACH_LOGGING
     const char *msg_type_string(int32_t);
 
-    char *message_util_get_null_value_json(const char *);
     char *message_util_get_device_info_json();
     char *message_util_get_device_info_response_json(const cr_DeviceInfoResponse *);
 

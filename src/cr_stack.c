@@ -1231,6 +1231,8 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 #endif  // def INCLUDE_PARAMETER_SERVICE
 
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
+    snprintf(response->protocol_version_string, REACH_SHORT_STRING_LEN, "%s",
+             cr_get_proto_version() ); 
     sCr_populate_device_info_sizes(response);
     return 0;
 }
@@ -1922,7 +1924,7 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
 
         // make up payload of type cr_DeviceInfoRequest
         cr_PingRequest payload = {0};
-        payload.echo_data.size = sprintf(payload.echo_data.bytes, "aaa bbb ccc");
+        payload.echo_data.size = sprintf((char*)payload.echo_data.bytes, "aaa bbb ccc");
         // encodes to sCr_encoded_response_buffer 
         cr_ReachMessageHeader hdr;
         hdr.message_type = cr_ReachMessageTypes_PING;
