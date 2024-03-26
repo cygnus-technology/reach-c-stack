@@ -14,7 +14,7 @@
 /* ReachProtoVersion is replaced by the MAJOR, MINOR and PATCH, below. */
 typedef enum _cr_ReachProtoVersion {
     cr_ReachProtoVersion_NOT_USED = 0, /* Must have a zero */
-    cr_ReachProtoVersion_CURRENT_VERSION = 257 /* update this when you change this file. */
+    cr_ReachProtoVersion_CURRENT_VERSION = 258 /* update this when you change this file. */
 } cr_ReachProtoVersion;
 
 typedef enum _cr_ReachProto_MAJOR_Version {
@@ -29,7 +29,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 1 /* To be updated by relase script */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 2 /* To be updated by relase script */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -218,8 +218,8 @@ typedef struct _cr_ReachMessage {
 
 typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
 /* ----------------------------
- For Reference:  This is used in the OpenPV system.
- Service Routing Message Header
+ This Service Routing Message Header is used in the OpenPV system.
+ Reach can speake it.
  This object represents the Layer 2 Message Format for OpenPV Service Messages.
 ---------------------------- */
 typedef struct _cr_AhsokaMessageHeader {
@@ -246,8 +246,8 @@ typedef struct _cr_AhsokaMessageHeader {
 
 /* ERROR_REPORT: Could be sent asynchronously to indicate an error. */
 typedef struct _cr_ErrorReport {
-    int32_t result_value; /* Error Result */
-    char result_string[194]; /* Error String */
+    int32_t result; /* Error Result */
+    char result_message[194]; /* Error String */
 } cr_ErrorReport;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
@@ -357,9 +357,11 @@ typedef struct _cr_ParameterRead {
     uint32_t read_after_timestamp; /* Allows for retrieval of only new / changed values. */
 } cr_ParameterRead;
 
-typedef struct _cr_ParameterWriteResult {
+typedef struct _cr_ParameterWriteResponse {
     int32_t result; /* 0 if OK */
-} cr_ParameterWriteResult;
+    bool has_result_message;
+    char result_message[194]; /* Error String */
+} cr_ParameterWriteResponse;
 
 /* ------------------------------------------------------
  Parameter Notification configuration
@@ -375,6 +377,8 @@ typedef struct _cr_ParameterNotifyConfig {
 
 typedef struct _cr_ParameterNotifyConfigResponse {
     int32_t result; /* zero if all OK */
+    bool has_result_message;
+    char result_message[194]; /* Error String */
 } cr_ParameterNotifyConfigResponse;
 
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
@@ -401,14 +405,14 @@ typedef struct _cr_ParameterValue {
     } value;
 } cr_ParameterValue;
 
-typedef struct _cr_ParameterReadResult {
+typedef struct _cr_ParameterReadResponse {
     /* The read_timestamp indicates when this param was last read.  
  Reading resets this value to now. */
     uint32_t read_timestamp; /* Returns timestamp of last read...useful for */
     /* polling large variable lists. */
     pb_size_t values_count;
     cr_ParameterValue values[4]; /* Array of Result Values */
-} cr_ParameterReadResult;
+} cr_ParameterReadResponse;
 
 /* ------------------------------------------------------
  Parameter Writes
@@ -464,7 +468,8 @@ typedef struct _cr_FileTransferInitResponse {
     int32_t result; /* 0 if OK */
     uint32_t transfer_id; /* Transfer ID */
     uint32_t preferred_ack_rate; /* overrides request */
-    char error_message[194];
+    bool has_result_message;
+    char result_message[194];
 } cr_FileTransferInitResponse;
 
 typedef PB_BYTES_ARRAY_T(194) cr_FileTransferData_message_data_t;
@@ -480,7 +485,8 @@ typedef struct _cr_FileTransferData {
 
 typedef struct _cr_FileTransferDataNotification {
     int32_t result; /* err~ */
-    char error_message[194];
+    bool has_result_message;
+    char result_message[194];
     bool is_complete;
     uint32_t transfer_id; /* Transfer ID */
     uint32_t retry_offset; /* file offset where error occurred */
@@ -493,7 +499,8 @@ typedef struct _cr_FileEraseRequest {
 typedef struct _cr_FileEraseResponse {
     uint32_t file_id; /* File ID */
     int32_t result; /* err~ */
-    char error_message[194];
+    bool has_result_message;
+    char result_message[194];
 } cr_FileEraseResponse;
 
 /* ------------------------------------------------------
@@ -525,6 +532,8 @@ typedef struct _cr_StreamOpen {
 typedef struct _cr_StreamOpenResponse {
     int32_t stream_id; /* Stream ID */
     int32_t result; /* Carries Success / Result */
+    bool has_result_message;
+    char result_message[194];
 } cr_StreamOpenResponse;
 
 typedef struct _cr_StreamClose {
@@ -574,6 +583,7 @@ typedef struct _cr_SendCommand {
 
 typedef struct _cr_SendCommandResponse {
     int32_t result; /* Carries Success / Result */
+    bool has_result_message;
     char result_message[194];
 } cr_SendCommandResponse;
 
@@ -598,6 +608,7 @@ typedef struct _cr_TimeSetRequest {
 
 typedef struct _cr_TimeSetResponse {
     int32_t result; /* Carries Success / Result */
+    bool has_result_message;
     char result_message[194];
 } cr_TimeSetResponse;
 
@@ -607,6 +618,7 @@ typedef struct _cr_TimeGetRequest {
 
 typedef struct _cr_TimeGetResponse {
     int32_t result; /* Carries Success / Result */
+    bool has_result_message;
     char result_message[194];
     int64_t seconds_utc; /* linux epoch */
     bool has_timezone;
@@ -635,6 +647,8 @@ typedef struct _cr_DiscoverWiFiRequest {
 
 typedef struct _cr_DiscoverWiFiResponse {
     int32_t result; /* 0 for success */
+    bool has_result_message;
+    char result_message[48];
     int32_t available_AP;
     cr_WiFiState state;
     uint32_t connectionId; /* connected is 0, others increment. */
@@ -656,8 +670,8 @@ typedef struct _cr_WiFiConnectionResponse {
     int32_t result; /* 0 for success */
     bool has_signal_strength;
     int32_t signal_strength; /* RSSI */
-    bool has_error_message;
-    char error_message[194]; /* describes any error */
+    bool has_result_message;
+    char result_message[194]; /* describes any error */
 } cr_WiFiConnectionResponse;
 
 /* This data describing the sizes of the structures used in C code is 
@@ -863,42 +877,42 @@ extern "C" {
 #define cr_ParamExKey_init_default               {0, ""}
 #define cr_ParamExInfoResponse_init_default      {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default}}
 #define cr_ParameterRead_init_default            {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
-#define cr_ParameterReadResult_init_default      {0, 0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
+#define cr_ParameterReadResponse_init_default    {0, 0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterWrite_init_default           {0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
-#define cr_ParameterWriteResult_init_default     {0}
+#define cr_ParameterWriteResponse_init_default   {0, false, ""}
 #define cr_ParameterNotifyConfig_init_default    {0, 0, 0, 0, 0}
-#define cr_ParameterNotifyConfigResponse_init_default {0}
+#define cr_ParameterNotifyConfigResponse_init_default {0, false, ""}
 #define cr_ParameterNotification_init_default    {0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterValue_init_default           {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_default            {0}
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
 #define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN}
 #define cr_FileTransferInit_init_default         {0, 0, 0, 0, 0, 0, 0}
-#define cr_FileTransferInitResponse_init_default {0, 0, 0, ""}
+#define cr_FileTransferInitResponse_init_default {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
-#define cr_FileTransferDataNotification_init_default {0, "", 0, 0, 0}
+#define cr_FileTransferDataNotification_init_default {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_default         {0}
-#define cr_FileEraseResponse_init_default        {0, 0, ""}
+#define cr_FileEraseResponse_init_default        {0, 0, false, ""}
 #define cr_DiscoverStreams_init_default          {0}
 #define cr_DiscoverStreamsResponse_init_default  {0, {cr_StreamInfo_init_default, cr_StreamInfo_init_default, cr_StreamInfo_init_default, cr_StreamInfo_init_default}}
 #define cr_StreamInfo_init_default               {0, _cr_AccessLevel_MIN, "", 0}
 #define cr_StreamOpen_init_default               {0, _cr_AccessLevel_MIN}
-#define cr_StreamOpenResponse_init_default       {0, 0}
+#define cr_StreamOpenResponse_init_default       {0, 0, false, ""}
 #define cr_StreamClose_init_default              {0}
 #define cr_StreamData_init_default               {0, 0, {0, {0}}, 0}
 #define cr_DiscoverCommands_init_default         {0}
 #define cr_DiscoverCommandsResponse_init_default {0, {cr_CommandInfo_init_default, cr_CommandInfo_init_default}}
 #define cr_CommandInfo_init_default              {0, "", false, "", false, 0}
 #define cr_SendCommand_init_default              {0}
-#define cr_SendCommandResponse_init_default      {0, ""}
+#define cr_SendCommandResponse_init_default      {0, false, ""}
 #define cr_CLIData_init_default                  {""}
 #define cr_TimeSetRequest_init_default           {0, false, 0}
-#define cr_TimeSetResponse_init_default          {0, ""}
+#define cr_TimeSetResponse_init_default          {0, false, ""}
 #define cr_TimeGetRequest_init_default           {0}
-#define cr_TimeGetResponse_init_default          {0, "", 0, false, 0}
+#define cr_TimeGetResponse_init_default          {0, false, "", 0, false, 0}
 #define cr_ConnectionDescription_init_default    {"", false, 0, false, _cr_WiFiSecurity_MIN, false, _cr_WiFiBand_MIN}
 #define cr_DiscoverWiFiRequest_init_default      {_cr_WiFiState_MIN}
-#define cr_DiscoverWiFiResponse_init_default     {0, 0, _cr_WiFiState_MIN, 0, false, cr_ConnectionDescription_init_default}
+#define cr_DiscoverWiFiResponse_init_default     {0, false, "", 0, _cr_WiFiState_MIN, 0, false, cr_ConnectionDescription_init_default}
 #define cr_WiFiConnectionRequest_init_default    {_cr_WiFiState_MIN, false, "", false, cr_ConnectionDescription_init_default, false, 0}
 #define cr_WiFiConnectionResponse_init_default   {0, false, 0, false, ""}
 #define cr_BufferSizes_init_default              {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -916,42 +930,42 @@ extern "C" {
 #define cr_ParamExKey_init_zero                  {0, ""}
 #define cr_ParamExInfoResponse_init_zero         {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero}}
 #define cr_ParameterRead_init_zero               {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
-#define cr_ParameterReadResult_init_zero         {0, 0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
+#define cr_ParameterReadResponse_init_zero       {0, 0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterWrite_init_zero              {0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
-#define cr_ParameterWriteResult_init_zero        {0}
+#define cr_ParameterWriteResponse_init_zero      {0, false, ""}
 #define cr_ParameterNotifyConfig_init_zero       {0, 0, 0, 0, 0}
-#define cr_ParameterNotifyConfigResponse_init_zero {0}
+#define cr_ParameterNotifyConfigResponse_init_zero {0, false, ""}
 #define cr_ParameterNotification_init_zero       {0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterValue_init_zero              {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_zero               {0}
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
 #define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN}
 #define cr_FileTransferInit_init_zero            {0, 0, 0, 0, 0, 0, 0}
-#define cr_FileTransferInitResponse_init_zero    {0, 0, 0, ""}
+#define cr_FileTransferInitResponse_init_zero    {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
-#define cr_FileTransferDataNotification_init_zero {0, "", 0, 0, 0}
+#define cr_FileTransferDataNotification_init_zero {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_zero            {0}
-#define cr_FileEraseResponse_init_zero           {0, 0, ""}
+#define cr_FileEraseResponse_init_zero           {0, 0, false, ""}
 #define cr_DiscoverStreams_init_zero             {0}
 #define cr_DiscoverStreamsResponse_init_zero     {0, {cr_StreamInfo_init_zero, cr_StreamInfo_init_zero, cr_StreamInfo_init_zero, cr_StreamInfo_init_zero}}
 #define cr_StreamInfo_init_zero                  {0, _cr_AccessLevel_MIN, "", 0}
 #define cr_StreamOpen_init_zero                  {0, _cr_AccessLevel_MIN}
-#define cr_StreamOpenResponse_init_zero          {0, 0}
+#define cr_StreamOpenResponse_init_zero          {0, 0, false, ""}
 #define cr_StreamClose_init_zero                 {0}
 #define cr_StreamData_init_zero                  {0, 0, {0, {0}}, 0}
 #define cr_DiscoverCommands_init_zero            {0}
 #define cr_DiscoverCommandsResponse_init_zero    {0, {cr_CommandInfo_init_zero, cr_CommandInfo_init_zero}}
 #define cr_CommandInfo_init_zero                 {0, "", false, "", false, 0}
 #define cr_SendCommand_init_zero                 {0}
-#define cr_SendCommandResponse_init_zero         {0, ""}
+#define cr_SendCommandResponse_init_zero         {0, false, ""}
 #define cr_CLIData_init_zero                     {""}
 #define cr_TimeSetRequest_init_zero              {0, false, 0}
-#define cr_TimeSetResponse_init_zero             {0, ""}
+#define cr_TimeSetResponse_init_zero             {0, false, ""}
 #define cr_TimeGetRequest_init_zero              {0}
-#define cr_TimeGetResponse_init_zero             {0, "", 0, false, 0}
+#define cr_TimeGetResponse_init_zero             {0, false, "", 0, false, 0}
 #define cr_ConnectionDescription_init_zero       {"", false, 0, false, _cr_WiFiSecurity_MIN, false, _cr_WiFiBand_MIN}
 #define cr_DiscoverWiFiRequest_init_zero         {_cr_WiFiState_MIN}
-#define cr_DiscoverWiFiResponse_init_zero        {0, 0, _cr_WiFiState_MIN, 0, false, cr_ConnectionDescription_init_zero}
+#define cr_DiscoverWiFiResponse_init_zero        {0, false, "", 0, _cr_WiFiState_MIN, 0, false, cr_ConnectionDescription_init_zero}
 #define cr_WiFiConnectionRequest_init_zero       {_cr_WiFiState_MIN, false, "", false, cr_ConnectionDescription_init_zero, false, 0}
 #define cr_WiFiConnectionResponse_init_zero      {0, false, 0, false, ""}
 #define cr_BufferSizes_init_zero                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -970,8 +984,8 @@ extern "C" {
 #define cr_AhsokaMessageHeader_message_size_tag  4
 #define cr_AhsokaMessageHeader_endpoint_id_tag   5
 #define cr_AhsokaMessageHeader_is_message_compressed_tag 6
-#define cr_ErrorReport_result_value_tag          1
-#define cr_ErrorReport_result_string_tag         2
+#define cr_ErrorReport_result_tag                1
+#define cr_ErrorReport_result_message_tag        2
 #define cr_PingRequest_echo_data_tag             1
 #define cr_PingResponse_echo_data_tag            1
 #define cr_PingResponse_signal_strength_tag      2
@@ -1007,13 +1021,15 @@ extern "C" {
 #define cr_ParamExInfoResponse_enumerations_tag  3
 #define cr_ParameterRead_parameter_ids_tag       2
 #define cr_ParameterRead_read_after_timestamp_tag 3
-#define cr_ParameterWriteResult_result_tag       1
+#define cr_ParameterWriteResponse_result_tag     1
+#define cr_ParameterWriteResponse_result_message_tag 2
 #define cr_ParameterNotifyConfig_parameter_id_tag 1
 #define cr_ParameterNotifyConfig_enabled_tag     2
 #define cr_ParameterNotifyConfig_minimum_notification_period_tag 3
 #define cr_ParameterNotifyConfig_maximum_notification_period_tag 4
 #define cr_ParameterNotifyConfig_minimum_delta_tag 5
 #define cr_ParameterNotifyConfigResponse_result_tag 1
+#define cr_ParameterNotifyConfigResponse_result_message_tag 2
 #define cr_ParameterValue_parameter_id_tag       1
 #define cr_ParameterValue_timestamp_tag          2
 #define cr_ParameterValue_uint32_value_tag       3
@@ -1027,8 +1043,8 @@ extern "C" {
 #define cr_ParameterValue_enum_value_tag         11
 #define cr_ParameterValue_bitfield_value_tag     12
 #define cr_ParameterValue_bytes_value_tag        13
-#define cr_ParameterReadResult_read_timestamp_tag 1
-#define cr_ParameterReadResult_values_tag        3
+#define cr_ParameterReadResponse_read_timestamp_tag 1
+#define cr_ParameterReadResponse_values_tag      3
 #define cr_ParameterWrite_values_tag             3
 #define cr_ParameterNotification_values_tag      2
 #define cr_FileInfo_file_id_tag                  1
@@ -1047,21 +1063,21 @@ extern "C" {
 #define cr_FileTransferInitResponse_result_tag   1
 #define cr_FileTransferInitResponse_transfer_id_tag 2
 #define cr_FileTransferInitResponse_preferred_ack_rate_tag 3
-#define cr_FileTransferInitResponse_error_message_tag 4
+#define cr_FileTransferInitResponse_result_message_tag 4
 #define cr_FileTransferData_result_tag           1
 #define cr_FileTransferData_transfer_id_tag      2
 #define cr_FileTransferData_message_number_tag   3
 #define cr_FileTransferData_message_data_tag     4
 #define cr_FileTransferData_crc32_tag            5
 #define cr_FileTransferDataNotification_result_tag 1
-#define cr_FileTransferDataNotification_error_message_tag 2
+#define cr_FileTransferDataNotification_result_message_tag 2
 #define cr_FileTransferDataNotification_is_complete_tag 3
 #define cr_FileTransferDataNotification_transfer_id_tag 4
 #define cr_FileTransferDataNotification_retry_offset_tag 5
 #define cr_FileEraseRequest_file_id_tag          1
 #define cr_FileEraseResponse_file_id_tag         1
 #define cr_FileEraseResponse_result_tag          2
-#define cr_FileEraseResponse_error_message_tag   3
+#define cr_FileEraseResponse_result_message_tag  3
 #define cr_StreamInfo_stream_id_tag              1
 #define cr_StreamInfo_access_tag                 2
 #define cr_StreamInfo_name_tag                   3
@@ -1071,6 +1087,7 @@ extern "C" {
 #define cr_StreamOpen_access_tag                 2
 #define cr_StreamOpenResponse_stream_id_tag      1
 #define cr_StreamOpenResponse_result_tag         2
+#define cr_StreamOpenResponse_result_message_tag 3
 #define cr_StreamClose_stream_id_tag             1
 #define cr_StreamData_stream_id_tag              1
 #define cr_StreamData_roll_count_tag             2
@@ -1099,17 +1116,18 @@ extern "C" {
 #define cr_ConnectionDescription_band_tag        4
 #define cr_DiscoverWiFiRequest_state_tag         2
 #define cr_DiscoverWiFiResponse_result_tag       1
-#define cr_DiscoverWiFiResponse_available_AP_tag 2
-#define cr_DiscoverWiFiResponse_state_tag        3
-#define cr_DiscoverWiFiResponse_connectionId_tag 4
-#define cr_DiscoverWiFiResponse_cd_tag           5
+#define cr_DiscoverWiFiResponse_result_message_tag 2
+#define cr_DiscoverWiFiResponse_available_AP_tag 3
+#define cr_DiscoverWiFiResponse_state_tag        4
+#define cr_DiscoverWiFiResponse_connectionId_tag 5
+#define cr_DiscoverWiFiResponse_cd_tag           6
 #define cr_WiFiConnectionRequest_action_tag      1
 #define cr_WiFiConnectionRequest_password_tag    2
 #define cr_WiFiConnectionRequest_cd_tag          3
 #define cr_WiFiConnectionRequest_autoconnect_tag 4
 #define cr_WiFiConnectionResponse_result_tag     1
 #define cr_WiFiConnectionResponse_signal_strength_tag 2
-#define cr_WiFiConnectionResponse_error_message_tag 3
+#define cr_WiFiConnectionResponse_result_message_tag 3
 #define cr_BufferSizes_max_message_size_tag      1
 #define cr_BufferSizes_big_data_buffer_size_tag  2
 #define cr_BufferSizes_parameter_buffer_count_tag 3
@@ -1153,8 +1171,8 @@ X(a, STATIC,   SINGULAR, BOOL,     is_message_compressed,   6)
 #define cr_AhsokaMessageHeader_DEFAULT NULL
 
 #define cr_ErrorReport_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    result_value,      1) \
-X(a, STATIC,   SINGULAR, STRING,   result_string,     2)
+X(a, STATIC,   SINGULAR, INT32,    result,            1) \
+X(a, STATIC,   SINGULAR, STRING,   result_message,    2)
 #define cr_ErrorReport_CALLBACK NULL
 #define cr_ErrorReport_DEFAULT NULL
 
@@ -1235,12 +1253,12 @@ X(a, STATIC,   SINGULAR, UINT32,   read_after_timestamp,   3)
 #define cr_ParameterRead_CALLBACK NULL
 #define cr_ParameterRead_DEFAULT NULL
 
-#define cr_ParameterReadResult_FIELDLIST(X, a) \
+#define cr_ParameterReadResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   read_timestamp,    1) \
 X(a, STATIC,   REPEATED, MESSAGE,  values,            3)
-#define cr_ParameterReadResult_CALLBACK NULL
-#define cr_ParameterReadResult_DEFAULT NULL
-#define cr_ParameterReadResult_values_MSGTYPE cr_ParameterValue
+#define cr_ParameterReadResponse_CALLBACK NULL
+#define cr_ParameterReadResponse_DEFAULT NULL
+#define cr_ParameterReadResponse_values_MSGTYPE cr_ParameterValue
 
 #define cr_ParameterWrite_FIELDLIST(X, a) \
 X(a, STATIC,   REPEATED, MESSAGE,  values,            3)
@@ -1248,10 +1266,11 @@ X(a, STATIC,   REPEATED, MESSAGE,  values,            3)
 #define cr_ParameterWrite_DEFAULT NULL
 #define cr_ParameterWrite_values_MSGTYPE cr_ParameterValue
 
-#define cr_ParameterWriteResult_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    result,            1)
-#define cr_ParameterWriteResult_CALLBACK NULL
-#define cr_ParameterWriteResult_DEFAULT NULL
+#define cr_ParameterWriteResponse_FIELDLIST(X, a) \
+X(a, STATIC,   SINGULAR, INT32,    result,            1) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    2)
+#define cr_ParameterWriteResponse_CALLBACK NULL
+#define cr_ParameterWriteResponse_DEFAULT NULL
 
 #define cr_ParameterNotifyConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   parameter_id,      1) \
@@ -1263,7 +1282,8 @@ X(a, STATIC,   SINGULAR, FLOAT,    minimum_delta,     5)
 #define cr_ParameterNotifyConfig_DEFAULT NULL
 
 #define cr_ParameterNotifyConfigResponse_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    result,            1)
+X(a, STATIC,   SINGULAR, INT32,    result,            1) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    2)
 #define cr_ParameterNotifyConfigResponse_CALLBACK NULL
 #define cr_ParameterNotifyConfigResponse_DEFAULT NULL
 
@@ -1325,7 +1345,7 @@ X(a, STATIC,   SINGULAR, UINT32,   timeout_in_ms,     7)
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       2) \
 X(a, STATIC,   SINGULAR, UINT32,   preferred_ack_rate,   3) \
-X(a, STATIC,   SINGULAR, STRING,   error_message,     4)
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    4)
 #define cr_FileTransferInitResponse_CALLBACK NULL
 #define cr_FileTransferInitResponse_DEFAULT NULL
 
@@ -1340,7 +1360,7 @@ X(a, STATIC,   OPTIONAL, INT32,    crc32,             5)
 
 #define cr_FileTransferDataNotification_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
-X(a, STATIC,   SINGULAR, STRING,   error_message,     2) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    2) \
 X(a, STATIC,   SINGULAR, BOOL,     is_complete,       3) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       4) \
 X(a, STATIC,   SINGULAR, UINT32,   retry_offset,      5)
@@ -1355,7 +1375,7 @@ X(a, STATIC,   SINGULAR, UINT32,   file_id,           1)
 #define cr_FileEraseResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   file_id,           1) \
 X(a, STATIC,   SINGULAR, INT32,    result,            2) \
-X(a, STATIC,   SINGULAR, STRING,   error_message,     3)
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    3)
 #define cr_FileEraseResponse_CALLBACK NULL
 #define cr_FileEraseResponse_DEFAULT NULL
 
@@ -1386,7 +1406,8 @@ X(a, STATIC,   SINGULAR, UENUM,    access,            2)
 
 #define cr_StreamOpenResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
-X(a, STATIC,   SINGULAR, INT32,    result,            2)
+X(a, STATIC,   SINGULAR, INT32,    result,            2) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    3)
 #define cr_StreamOpenResponse_CALLBACK NULL
 #define cr_StreamOpenResponse_DEFAULT NULL
 
@@ -1429,7 +1450,7 @@ X(a, STATIC,   SINGULAR, UINT32,   command_id,        1)
 
 #define cr_SendCommandResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
-X(a, STATIC,   SINGULAR, STRING,   result_message,    2)
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    2)
 #define cr_SendCommandResponse_CALLBACK NULL
 #define cr_SendCommandResponse_DEFAULT NULL
 
@@ -1446,7 +1467,7 @@ X(a, STATIC,   OPTIONAL, INT32,    timezone,          2)
 
 #define cr_TimeSetResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
-X(a, STATIC,   SINGULAR, STRING,   result_message,    2)
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    2)
 #define cr_TimeSetResponse_CALLBACK NULL
 #define cr_TimeSetResponse_DEFAULT NULL
 
@@ -1457,7 +1478,7 @@ X(a, STATIC,   SINGULAR, STRING,   result_message,    2)
 
 #define cr_TimeGetResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
-X(a, STATIC,   SINGULAR, STRING,   result_message,    2) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    2) \
 X(a, STATIC,   SINGULAR, INT64,    seconds_utc,       3) \
 X(a, STATIC,   OPTIONAL, INT32,    timezone,          4)
 #define cr_TimeGetResponse_CALLBACK NULL
@@ -1478,10 +1499,11 @@ X(a, STATIC,   SINGULAR, UENUM,    state,             2)
 
 #define cr_DiscoverWiFiResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
-X(a, STATIC,   SINGULAR, INT32,    available_AP,      2) \
-X(a, STATIC,   SINGULAR, UENUM,    state,             3) \
-X(a, STATIC,   SINGULAR, UINT32,   connectionId,      4) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  cd,                5)
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    2) \
+X(a, STATIC,   SINGULAR, INT32,    available_AP,      3) \
+X(a, STATIC,   SINGULAR, UENUM,    state,             4) \
+X(a, STATIC,   SINGULAR, UINT32,   connectionId,      5) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  cd,                6)
 #define cr_DiscoverWiFiResponse_CALLBACK NULL
 #define cr_DiscoverWiFiResponse_DEFAULT NULL
 #define cr_DiscoverWiFiResponse_cd_MSGTYPE cr_ConnectionDescription
@@ -1498,7 +1520,7 @@ X(a, STATIC,   OPTIONAL, BOOL,     autoconnect,       4)
 #define cr_WiFiConnectionResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   OPTIONAL, INT32,    signal_strength,   2) \
-X(a, STATIC,   OPTIONAL, STRING,   error_message,     3)
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    3)
 #define cr_WiFiConnectionResponse_CALLBACK NULL
 #define cr_WiFiConnectionResponse_DEFAULT NULL
 
@@ -1534,9 +1556,9 @@ extern const pb_msgdesc_t cr_ParameterInfo_msg;
 extern const pb_msgdesc_t cr_ParamExKey_msg;
 extern const pb_msgdesc_t cr_ParamExInfoResponse_msg;
 extern const pb_msgdesc_t cr_ParameterRead_msg;
-extern const pb_msgdesc_t cr_ParameterReadResult_msg;
+extern const pb_msgdesc_t cr_ParameterReadResponse_msg;
 extern const pb_msgdesc_t cr_ParameterWrite_msg;
-extern const pb_msgdesc_t cr_ParameterWriteResult_msg;
+extern const pb_msgdesc_t cr_ParameterWriteResponse_msg;
 extern const pb_msgdesc_t cr_ParameterNotifyConfig_msg;
 extern const pb_msgdesc_t cr_ParameterNotifyConfigResponse_msg;
 extern const pb_msgdesc_t cr_ParameterNotification_msg;
@@ -1589,9 +1611,9 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ParamExKey_fields &cr_ParamExKey_msg
 #define cr_ParamExInfoResponse_fields &cr_ParamExInfoResponse_msg
 #define cr_ParameterRead_fields &cr_ParameterRead_msg
-#define cr_ParameterReadResult_fields &cr_ParameterReadResult_msg
+#define cr_ParameterReadResponse_fields &cr_ParameterReadResponse_msg
 #define cr_ParameterWrite_fields &cr_ParameterWrite_msg
-#define cr_ParameterWriteResult_fields &cr_ParameterWriteResult_msg
+#define cr_ParameterWriteResponse_fields &cr_ParameterWriteResponse_msg
 #define cr_ParameterNotifyConfig_fields &cr_ParameterNotifyConfig_msg
 #define cr_ParameterNotifyConfigResponse_fields &cr_ParameterNotifyConfigResponse_msg
 #define cr_ParameterNotification_fields &cr_ParameterNotification_msg
@@ -1644,7 +1666,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DiscoverStreamsResponse_size          204
 #define cr_DiscoverStreams_size                  0
 #define cr_DiscoverWiFiRequest_size              2
-#define cr_DiscoverWiFiResponse_size             80
+#define cr_DiscoverWiFiResponse_size             129
 #define cr_ErrorReport_size                      207
 #define cr_FileEraseRequest_size                 6
 #define cr_FileEraseResponse_size                213
@@ -1659,12 +1681,12 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ParameterInfoResponse_size            244
 #define cr_ParameterInfo_size                    120
 #define cr_ParameterNotification_size            192
-#define cr_ParameterNotifyConfigResponse_size    11
+#define cr_ParameterNotifyConfigResponse_size    207
 #define cr_ParameterNotifyConfig_size            25
-#define cr_ParameterReadResult_size              198
+#define cr_ParameterReadResponse_size            198
 #define cr_ParameterRead_size                    198
 #define cr_ParameterValue_size                   46
-#define cr_ParameterWriteResult_size             11
+#define cr_ParameterWriteResponse_size           207
 #define cr_ParameterWrite_size                   192
 #define cr_PingRequest_size                      197
 #define cr_PingResponse_size                     208
@@ -1675,7 +1697,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_StreamClose_size                      11
 #define cr_StreamData_size                       225
 #define cr_StreamInfo_size                       49
-#define cr_StreamOpenResponse_size               22
+#define cr_StreamOpenResponse_size               218
 #define cr_StreamOpen_size                       13
 #define cr_TimeGetRequest_size                   0
 #define cr_TimeGetResponse_size                  229

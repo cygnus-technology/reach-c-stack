@@ -43,9 +43,9 @@
         char *message_util_param_info_response_json(const cr_ParameterInfoResponse *);
         char *message_util_param_info_ex_response_json(const cr_ParamExInfoResponse *);
         char *message_util_read_param_json(const cr_ParameterRead *);
-        char *message_util_read_param_response_json(const cr_ParameterReadResult *);
+        char *message_util_read_param_response_json(const cr_ParameterReadResponse *);
         char *message_util_write_param_json(const cr_ParameterWrite *);
-        char *message_util_write_param_response_json(const cr_ParameterWriteResult *);
+        char *message_util_write_param_response_json(const cr_ParameterWriteResponse *);
         // char *message_util_write_param_request_json(const cr_ParameterWrite *);
         char *message_util_config_notify_param_json(const cr_ParameterNotifyConfigResponse *);
     #endif  // INCLUDE_PARAMETER_SERVICE

@@ -261,7 +261,7 @@ static int handle_continued_transactions()
         break;
     case cr_ReachMessageTypes_READ_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
-        rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
+        rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
         break;
     #endif  // def INCLUDE_PARAMETER_SERVICE
 
@@ -634,22 +634,22 @@ bool cr_get_comm_link_connected(void)
         va_list args;
 
         cr_ErrorReport *err = (cr_ErrorReport *)sCr_async_error_buffer;
-        err->result_value = error_code;
+        err->result = error_code;
 
         va_start(args, fmt);
-        int ptr = snprintf(err->result_string,
+        int ptr = snprintf(err->result_message,
                            REACH_BYTES_IN_A_FILE_PACKET,
                            "Error %d: ", error_code);
-        vsnprintf(&err->result_string[ptr],
+        vsnprintf(&err->result_message[ptr],
                   REACH_BYTES_IN_A_FILE_PACKET-ptr, fmt, args);
         // force termination
-        err->result_string[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
+        err->result_message[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
         va_end(args);
         // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
 
         crcb_notify_error(err);
         i3_log(LOG_MASK_WARN, "Logged Error full report:");
-        i3_log(LOG_MASK_ERROR, "%s", err->result_string);
+        i3_log(LOG_MASK_ERROR, "%s", err->result_message);
     }
   #endif  // ERROR_REPORT_FORMAT ==
 #endif // #ifndef ERROR_REPORT_FORMAT
@@ -887,10 +887,11 @@ void cr_test_sizes()
     rval += sCr_checkSize(cr_ParameterNotification_size, MAX_BLE_SZ, "cr_ParameterNotification_size");
     rval += sCr_checkSize(cr_ParameterNotifyConfigResponse_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResponse_size");
     rval += sCr_checkSize(cr_ParameterNotifyConfig_size, MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
-    rval += sCr_checkSize(cr_ParameterReadResult_size, MAX_BLE_SZ, "cr_ParameterReadResult_size");
+    rval += sCr_checkSize(cr_ParameterReadResponse_size, MAX_BLE_SZ, "cr_ParameterReadResponse_size");
     rval += sCr_checkSize(cr_ParameterRead_size, MAX_BLE_SZ, "cr_ParameterRead_size");
     rval += sCr_checkSize(cr_ParameterValue_size, MAX_BLE_SZ, "cr_ParameterValue_size");
     rval += sCr_checkSize(cr_ParameterWrite_size, MAX_BLE_SZ, "cr_ParameterWrite_size");
+    rval += sCr_checkSize(cr_ParameterWriteResponse_size, MAX_BLE_SZ, "cr_ParameterWriteResponse_size");
     rval += sCr_checkSize(cr_PingRequest_size, MAX_BLE_SZ, "cr_PingRequest_size");
     rval += sCr_checkSize(cr_PingResponse_size, MAX_BLE_SZ, "cr_PingResponse_size");
     rval += sCr_checkSize(cr_ReachMessageHeader_size, MAX_BLE_SZ, "cr_ReachMessageHeader_size");
@@ -906,10 +907,6 @@ void cr_test_sizes()
 
 
 
-
-
-
-
     /// <summary>
     /// MAX_RAW_SZ is used to check the unencoded structure sizes. 
     /// </summary>
@@ -917,7 +914,7 @@ void cr_test_sizes()
 
     rval += sCr_checkSize(sizeof(cr_StreamInfo), MAX_RAW_SZ, "sizeof(cr_StreamInfo)");
     rval += sCr_checkSize(sizeof(cr_ErrorReport), MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
-    rval += sCr_checkSize(sizeof(cr_ParameterReadResult), MAX_RAW_SZ, "sizeof(cr_ParameterReadResult)");
+    rval += sCr_checkSize(sizeof(cr_ParameterReadResponse), MAX_RAW_SZ, "sizeof(cr_ParameterReadResponse)");
     rval += sCr_checkSize(sizeof(cr_ParameterWrite), MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
@@ -1017,12 +1014,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 
     case cr_ReachMessageTypes_READ_PARAMETERS:
         rval = pvtCrParam_read_param((cr_ParameterRead *)sCr_decoded_prompt_buffer,
-                          (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
+                          (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_WRITE_PARAMETERS:
         rval = pvtCrParam_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
-                           (cr_ParameterWriteResult *)sCr_uncoded_response_buffer);
+                           (cr_ParameterWriteResponse *)sCr_uncoded_response_buffer);
         break;
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
@@ -1584,21 +1581,21 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       }
       break;
   case cr_ReachMessageTypes_READ_PARAMETERS:
-      status = pb_encode(&os_stream, cr_ParameterReadResult_fields, data);
+      status = pb_encode(&os_stream, cr_ParameterReadResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Read parameter response: \n%s\n",
                   message_util_read_param_response_json(
-                      (cr_ParameterReadResult *)data));
+                      (cr_ParameterReadResponse *)data));
       }
       break;
   case cr_ReachMessageTypes_WRITE_PARAMETERS:
-      status = pb_encode(&os_stream, cr_ParameterWriteResult_fields, data);
+      status = pb_encode(&os_stream, cr_ParameterWriteResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         LOG_REACH("Write parameter response: \n%s\n",
                   message_util_write_param_response_json(
-                      (cr_ParameterWriteResult *)data));
+                      (cr_ParameterWriteResponse *)data));
       }
       else
       {
