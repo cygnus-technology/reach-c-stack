@@ -75,7 +75,6 @@
 #include "cr_private.h"
 #include "i3_log.h"
 
-#include "cJSON.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
 
@@ -700,8 +699,7 @@ static int handle_coded_classic_prompt()
     sCr_endpoint_id    = hdr->endpoint_id;
     sCr_client_id      = hdr->client_id;
 
-    I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
-           msg_type_string(msgPtr->header.message_type));
+    I3_LOG(LOG_MASK_REACH, "Message type: \t%s", msg_type_string(msgPtr->header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
     I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint %d.", 
@@ -974,8 +972,8 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     cr_ReachMessageTypes message_type = (cr_ReachMessageTypes)hdr->message_type;
     cr_ReachMessageTypes encode_message_type = message_type; // default 
 
-    LOG_REACH("call decode_reach_payload(from 0x%x, to 0x%x, sz %d)", 
-              coded_data, sCr_decoded_prompt_buffer, size);
+    //LOG_REACH("call decode_reach_payload(from 0x%x, to 0x%x, sz %d)", 
+    //          coded_data, sCr_decoded_prompt_buffer, size);
 
     if (!decode_reach_payload(message_type,
                               sCr_decoded_prompt_buffer,
@@ -1221,18 +1219,13 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     (void)request;
 
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
-
     crcb_device_get_info(request, response);
 
-
-
-#ifdef INCLUDE_PARAMETER_SERVICE
+  #ifdef INCLUDE_PARAMETER_SERVICE
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
-#endif  // def INCLUDE_PARAMETER_SERVICE
+  #endif  // def INCLUDE_PARAMETER_SERVICE
 
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
-    snprintf(response->protocol_version_string, REACH_SHORT_STRING_LEN, "%s",
-             cr_get_proto_version() ); 
     sCr_populate_device_info_sizes(response);
     return 0;
 }
@@ -1367,6 +1360,8 @@ static int handle_send_command(const cr_SendCommand *request,
     {
         (void)response;
         i3_log(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
+        if (!i3_log_get_remote_cli_enable()) 
+            i3_log(LOG_MASK_WARN, "  -> Command received, remote CLI response is disabled.");
         crcb_cli_enter(request->message_data);
         return cr_ErrorCodes_NO_RESPONSE;
     }
@@ -1531,9 +1526,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_DeviceInfoResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Get device info response: \n%s\n",
-                  message_util_get_device_info_response_json(
-                      (cr_DeviceInfoResponse *)data));
+        message_util_log_device_info_response((cr_DeviceInfoResponse *)data);
       }
       break;
 
@@ -1558,8 +1551,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_PingResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Ping response: \n%s\n",
-                  message_util_ping_response_json((cr_PingResponse *)data));
+        message_util_log_ping_response((cr_PingResponse *)data);
       }
       break;
 
@@ -1568,36 +1560,28 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_ParameterInfoResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover parameter response: \n%s\n",
-                  message_util_param_info_response_json(
-                      (cr_ParameterInfoResponse *)data));
+        message_util_log_param_info_response((cr_ParameterInfoResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
       status = pb_encode(&os_stream, cr_ParamExInfoResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover parameter EX response: \n%s\n",
-                  message_util_param_info_ex_response_json(
-                      (cr_ParamExInfoResponse *)data));
+        message_util_log_param_info_ex_response((cr_ParamExInfoResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_READ_PARAMETERS:
       status = pb_encode(&os_stream, cr_ParameterReadResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Read parameter response: \n%s\n",
-                  message_util_read_param_response_json(
-                      (cr_ParameterReadResponse *)data));
+        message_util_log_read_param_response((cr_ParameterReadResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_WRITE_PARAMETERS:
       status = pb_encode(&os_stream, cr_ParameterWriteResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Write parameter response: \n%s\n",
-                  message_util_write_param_response_json(
-                      (cr_ParameterWriteResponse *)data));
+        message_util_log_write_param_response((cr_ParameterWriteResponse *)data);
       }
       else
       {
@@ -1610,9 +1594,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_ParameterNotifyConfigResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("parameter notify config response: \n%s\n",
-                  message_util_config_notify_param_json(
-                      (cr_ParameterNotifyConfigResponse *)data));
+        message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
       }
       break;
   #endif
@@ -1623,9 +1605,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_DiscoverFilesResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover files response: \n%s\n",
-                  message_util_discover_files_response_json(
-                      (cr_DiscoverFilesResponse *)data));
+        message_util_log_discover_files_response((cr_DiscoverFilesResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_INIT:
@@ -1633,9 +1613,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_FileTransferInitResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Transfer init response: \n%s\n",
-                  message_util_transfer_init_response_json(
-                      (cr_FileTransferInitResponse *)data));
+        message_util_log_file_transfer_init_response((cr_FileTransferInitResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -1643,7 +1621,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       if (status) {
           *encode_size = os_stream.bytes_written;
           cr_FileTransferData *td = (cr_FileTransferData *)data;
-          LOG_REACH(" Transfer Data encoded: \n%s\n", message_util_transfer_data_json(td));
+          message_util_log_transfer_data(td);
           LOG_DUMP_MASK(LOG_MASK_REACH, "Data Sent", 
                         td->message_data.bytes, td->message_data.size);
       }
@@ -1653,9 +1631,8 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
           pb_encode(&os_stream, cr_FileTransferDataNotification_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Transfer data notification response: \n%s\n",
-                  message_util_transfer_data_notification_json(
-                      (cr_FileTransferDataNotification *)data));
+        message_util_log_transfer_data_notification(false,
+                      (cr_FileTransferDataNotification *)data);
       }
       break;
 #endif // def INCLUDE_FILE_SERVICE
@@ -1668,7 +1645,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
     //     *encode_size = os_stream.bytes_written;
     //     LOG_REACH(
     //         "Discover streams request: \n%s\n",
-    //         message_util_discover_streams_json((cr_StreamsRequest *)data));
+    //         message_util_log_discover_streams((cr_StreamsRequest *)data));
     //   }
     // } else {
     //   status = pb_encode(&os_stream, cr_StreamsResponse_fields, data);
@@ -1687,18 +1664,14 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_DiscoverCommandsResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover commands response: \n%s\n",
-                  message_util_discover_commands_response_json(
-                      (cr_DiscoverCommandsResponse *)data));
+        message_util_log_discover_commands_response((cr_DiscoverCommandsResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_SEND_COMMAND:
       status = pb_encode(&os_stream, cr_SendCommandResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Send Command response: \n%s\n",
-                  message_util_send_command_response_json(
-                      (cr_SendCommandResponse *)data));
+        message_util_log_command_response((cr_SendCommandResponse *)data);
       }
       break;
 #endif  // def INCLUDE_COMMAND_SERVICE
@@ -1708,8 +1681,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_CLIData_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("CLI Notification response: \n%s\n",
-                  message_util_cli_notification_json((cr_CLIData *)data));
+        message_util_log_cli_notification(true, (cr_CLIData *)data);
       }
       break;
 #endif  // def INCLUDE_CLI_SERVICE
@@ -1719,18 +1691,14 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_TimeSetResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Time set response: \n%s\n",
-                  message_util_time_set_response_json(
-                      (cr_TimeSetResponse *)data));
+        message_util_log_time_set_response((cr_TimeSetResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_GET_TIME:
       status = pb_encode(&os_stream, cr_TimeGetResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Time set response: \n%s\n",
-                  message_util_time_get_response_json(
-                      (cr_TimeGetResponse *)data));
+        message_util_log_time_get_response((cr_TimeGetResponse *)data);
       }
       break;
 #endif  // def INCLUDE_TIME_SERVICE
@@ -1740,15 +1708,13 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
   case cr_ReachMessageTypes_DISCOVER_WIFI:
       status = pb_encode(&os_stream, cr_DiscoverWiFiResponse_fields, data);
       if (status) {
-        LOG_REACH("WiFi Info response: \n%s\n",
-                  message_util_discover_wifi_response_json((cr_DiscoverWiFiResponse *)data));
+        message_util_log_discover_wifi_response((cr_DiscoverWiFiResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_WIFI_CONNECT:
       status = pb_encode(&os_stream, cr_WiFiConnectionResponse_fields, data);
       if (status) {
-        LOG_REACH("WiFi Connect reqsponse: \n%s\n",
-                  message_util_WiFi_connect_request_json((cr_WiFiConnectionRequest *)data));
+        message_util_log_WiFi_connect_request((cr_WiFiConnectionRequest *)data);
       }
       break;
 #endif  // def INCLUDE_WIFI_SERVICE

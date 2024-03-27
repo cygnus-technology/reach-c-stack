@@ -99,9 +99,7 @@ bool encode_notification_payload(cr_ReachMessageTypes message_type,    // in
     //   status = pb_encode(&os_stream, cr_StreamsRequest_fields, data);
     //   if (status) {
     //     *encode_size = os_stream.bytes_written;
-    //     LOG_REACH(
-    //         "Discover streams request: \n%s\n",
-    //         message_util_discover_streams_json((cr_StreamsRequest *)data));
+    //     message_util_log_discover_streams((cr_StreamsRequest *)data);
     //   }
     // } else {
     //   status = pb_encode(&os_stream, cr_StreamsResponse_fields, data);

@@ -67,7 +67,6 @@
 #include "cr_private.h"
 #include "i3_log.h"
 
-#include "cJSON.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
 
