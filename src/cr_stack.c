@@ -1200,18 +1200,20 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
 }
 
-// <summary>
-// In response to a request for device info, get the raw data 
-// from the app via a crcb function, then update the provided 
-// pointer with the latest accurate data. 
-// </summary>
-// <param name="request"> A pointer to the request 
-// which may include a challenge key.</param> 
-// <param name="response">A pointer to memory where the 
-// complete device info response will be composed.</param> 
-// <returns>0 on success.  cr_ErrorCodes_NO_DATA if 
-// the device was built to require a challenge key 
-// and the provided key does not match.</returns> 
+/**
+ * @brief   handle_get_device_info 
+ * @details In response to a request for device info, get the 
+ *         raw data from the app via a crcb function, then
+ *         update the provided pointer with the latest accurate
+ *         data.
+ *@param   request : A pointer to the request which may include  
+ *                 a challenge key.
+ *@param   response : A pointer to memory where the complete  
+ *                  device info response will be composed.
+ *@return  0 on success.  cr_ErrorCodes_NO_DATA if the device 
+ *          was built to require a challenge key and the
+ *          provided key does not match.
+*/
 static int 
 handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
                        cr_DeviceInfoResponse     *response)  // out
@@ -1226,6 +1228,8 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
   #endif  // def INCLUDE_PARAMETER_SERVICE
 
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
+    snprintf(response->protocol_version_string, CR_STACK_VERSION_LEN, 
+             cr_get_proto_version());
     sCr_populate_device_info_sizes(response);
     return 0;
 }
