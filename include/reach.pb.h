@@ -29,7 +29,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 2 /* To be updated by relase script */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 3 /* Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -276,6 +276,7 @@ typedef struct _cr_DeviceInfoRequest {
  verification is needed. */
     bool has_challenge_key;
     char challenge_key[32];
+    char client_protocol_version[16];
 } cr_DeviceInfoRequest;
 
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;

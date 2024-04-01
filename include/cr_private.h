@@ -143,6 +143,16 @@ extern "C" {
     ///  notifications
     void pvtCrParam_check_for_notifications(void);
 
+    /**
+    * @brief   pvtCr_compare_proto_version 
+    * @details Used to support backward compatibility.
+    * @return  Returns 0 if the client's protocol version is equal 
+    *          to the specified version.  A positive value means the
+    *          client is greater (newer).  A negative value means
+    *          the client version is older than the specified
+    *          version.
+    */
+    int pvtCr_compare_proto_version(uint8_t major, uint8_t minor, uint8_t patch);
 
 #ifdef __cplusplus
 }

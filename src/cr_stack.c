@@ -1200,6 +1200,7 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
 }
 
+uint8_t sClientProtocolVersion[3];
 /**
  * @brief   handle_get_device_info 
  * @details In response to a request for device info, get the 
@@ -1218,8 +1219,8 @@ static int
 handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
                        cr_DeviceInfoResponse     *response)  // out
 {
-    (void)request;
-
+    int major = 0, minor = 0, patch = 0;
+    memset(sClientProtocolVersion, 0, 3);
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
     crcb_device_get_info(request, response);
 
@@ -1227,9 +1228,22 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
   #endif  // def INCLUDE_PARAMETER_SERVICE
 
+    // Store the client's protocol version to be used in compatibility checks.
+    int numRead = sscanf(request->client_protocol_version, "%d.%d.%d", &major, &minor, &patch);
+    if (numRead != 3)
+    {
+        I3_LOG(LOG_MASK_WARN, "Did not read complete client protocol version.  Got %d, %d.%d.%d.  Assume 0.0.21\n",
+               numRead, major, minor, patch);
+        sClientProtocolVersion[0] = 0;
+        sClientProtocolVersion[1] = 0;
+        sClientProtocolVersion[2] = 21;
+    }
+    sClientProtocolVersion[0] = 0xFF & major;
+    sClientProtocolVersion[1] = 0xFF & minor;
+    sClientProtocolVersion[2] = 0xFF & patch;
+
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
-    snprintf(response->protocol_version_string, CR_STACK_VERSION_LEN, 
-             cr_get_proto_version());
+    snprintf(response->protocol_version_string, CR_STACK_VERSION_LEN, cr_get_proto_version());
     sCr_populate_device_info_sizes(response);
     return 0;
 }
@@ -1269,9 +1283,41 @@ const char *cr_get_proto_version()
              cr_ReachProto_MINOR_Version_MINOR_VERSION,
              cr_ReachProto_PATCH_Version_PATCH_VERSION);
      return sCr_proto_version;
-
 }
 
+ /**
+ * @brief   pvtCr_compare_proto_version 
+ * @details Used to support backward compatibility.
+ * @return  Returns 0 if the client's protocol version is equal 
+ *          to the specified version.  A positive value means the
+ *          client is greater (newer).  A negative value means
+ *          the client version is older than the specified
+ *          version.
+ */
+int pvtCr_compare_proto_version(uint8_t major, uint8_t minor, uint8_t patch)
+{
+    if ((sClientProtocolVersion[0] == major)
+        && (sClientProtocolVersion[1] == minor) 
+        && (sClientProtocolVersion[2] == patch))
+    {
+        return 0;
+    }
+    if (sClientProtocolVersion[0] > major)
+        return 1;
+    if (sClientProtocolVersion[0] < major)
+        return -1;
+    // major must now be equal.
+    if (sClientProtocolVersion[1] > minor)
+        return 1;
+    if (sClientProtocolVersion[1] < minor)
+        return -1;
+    // minor must now be equal.
+    if (sClientProtocolVersion[2] > patch)
+        return 1;
+    if (sClientProtocolVersion[2] < patch)
+        return -1;
+    return -2;  // cannot get here.
+}
 
 #ifdef INCLUDE_COMMAND_SERVICE
 static int 
