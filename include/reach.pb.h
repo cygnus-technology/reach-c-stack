@@ -445,6 +445,7 @@ typedef struct _cr_FileInfo {
     cr_AccessLevel access; /* Access Level (Read / Write) */
     int32_t current_size_bytes; /* size in bytes */
     cr_StorageLocation storage_location;
+    bool require_checksum; /* set true to request checksum generation and validation. */
 } cr_FileInfo;
 
 typedef struct _cr_DiscoverFilesResponse {
@@ -455,23 +456,26 @@ typedef struct _cr_DiscoverFilesResponse {
 /* ------------------------------------------------------
  Begins a File Transfer (Upload / Download)
  ------------------------------------------------------ */
-typedef struct _cr_FileTransferInit {
+typedef struct _cr_FileTransferRequest {
     uint32_t file_id; /* File ID */
     uint32_t read_write; /* 0 for read, 1 for write. */
     uint32_t request_offset; /* where to access in the file */
     uint32_t transfer_length; /* bytes to read or write */
     uint32_t transfer_id; /* In case of multiple transfers */
-    uint32_t messages_per_ack; /* number of messages before ACK. */
+    uint32_t messages_per_ack; /* obsolete.  Use requested_ack_rate. */
     uint32_t timeout_in_ms; /* ms before abandonment */
-} cr_FileTransferInit;
+    bool has_requested_ack_rate;
+    uint32_t requested_ack_rate; /* number of messages before ACK. */
+    bool require_checksum; /* set true to enable checksum generation and validation. */
+} cr_FileTransferRequest;
 
-typedef struct _cr_FileTransferInitResponse {
+typedef struct _cr_FileTransferResponse {
     int32_t result; /* 0 if OK */
     uint32_t transfer_id; /* Transfer ID */
-    uint32_t preferred_ack_rate; /* overrides request */
+    uint32_t ack_rate; /* confirms or overrides request */
     bool has_result_message;
     char result_message[194];
-} cr_FileTransferInitResponse;
+} cr_FileTransferResponse;
 
 typedef PB_BYTES_ARRAY_T(194) cr_FileTransferData_message_data_t;
 /* Bi-Directional Message */
@@ -480,12 +484,12 @@ typedef struct _cr_FileTransferData {
     uint32_t transfer_id; /* Transfer ID */
     uint32_t message_number; /* counts up */
     cr_FileTransferData_message_data_t message_data; /* Data */
-    bool has_crc32;
-    int32_t crc32; /* Optional crc for integrity checking */
+    bool has_checksum;
+    int32_t checksum; /* Optional RFC 1071 checksum for integrity checking */
 } cr_FileTransferData;
 
 typedef struct _cr_FileTransferDataNotification {
-    int32_t result; /* err~ */
+    int32_t result; /* 0 for success */
     bool has_result_message;
     char result_message[194];
     bool is_complete;
@@ -548,7 +552,7 @@ typedef struct _cr_StreamData {
     int32_t stream_id; /* Stream ID */
     uint32_t roll_count; /* Message Number (Roll Count) */
     cr_StreamData_message_data_t message_data; /* Data */
-    int32_t crc32; /* Optional for integrity checking */
+    int32_t checksum; /* Optional for integrity checking */
 } cr_StreamData;
 
 /* ------------------------------------------------------
@@ -870,7 +874,7 @@ extern "C" {
 #define cr_ErrorReport_init_default              {0, ""}
 #define cr_PingRequest_init_default              {{0, {0}}}
 #define cr_PingResponse_init_default             {{0, {0}}, 0}
-#define cr_DeviceInfoRequest_init_default        {false, ""}
+#define cr_DeviceInfoRequest_init_default        {false, "", ""}
 #define cr_DeviceInfoResponse_init_default       {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_default     {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_default    {0, {cr_ParameterInfo_init_default, cr_ParameterInfo_init_default}}
@@ -887,9 +891,9 @@ extern "C" {
 #define cr_ParameterValue_init_default           {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_default            {0}
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
-#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN}
-#define cr_FileTransferInit_init_default         {0, 0, 0, 0, 0, 0, 0}
-#define cr_FileTransferInitResponse_init_default {0, 0, 0, false, ""}
+#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
+#define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
+#define cr_FileTransferResponse_init_default     {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_default {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_default         {0}
@@ -923,7 +927,7 @@ extern "C" {
 #define cr_ErrorReport_init_zero                 {0, ""}
 #define cr_PingRequest_init_zero                 {{0, {0}}}
 #define cr_PingResponse_init_zero                {{0, {0}}, 0}
-#define cr_DeviceInfoRequest_init_zero           {false, ""}
+#define cr_DeviceInfoRequest_init_zero           {false, "", ""}
 #define cr_DeviceInfoResponse_init_zero          {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_zero        {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_zero       {0, {cr_ParameterInfo_init_zero, cr_ParameterInfo_init_zero}}
@@ -940,9 +944,9 @@ extern "C" {
 #define cr_ParameterValue_init_zero              {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_zero               {0}
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
-#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN}
-#define cr_FileTransferInit_init_zero            {0, 0, 0, 0, 0, 0, 0}
-#define cr_FileTransferInitResponse_init_zero    {0, 0, 0, false, ""}
+#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
+#define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
+#define cr_FileTransferResponse_init_zero        {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_zero {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_zero            {0}
@@ -991,6 +995,7 @@ extern "C" {
 #define cr_PingResponse_echo_data_tag            1
 #define cr_PingResponse_signal_strength_tag      2
 #define cr_DeviceInfoRequest_challenge_key_tag   1
+#define cr_DeviceInfoRequest_client_protocol_version_tag 2
 #define cr_DeviceInfoResponse_protocol_version_tag 1
 #define cr_DeviceInfoResponse_device_name_tag    2
 #define cr_DeviceInfoResponse_manufacturer_tag   3
@@ -1053,23 +1058,26 @@ extern "C" {
 #define cr_FileInfo_access_tag                   3
 #define cr_FileInfo_current_size_bytes_tag       4
 #define cr_FileInfo_storage_location_tag         5
+#define cr_FileInfo_require_checksum_tag         6
 #define cr_DiscoverFilesResponse_file_infos_tag  1
-#define cr_FileTransferInit_file_id_tag          1
-#define cr_FileTransferInit_read_write_tag       2
-#define cr_FileTransferInit_request_offset_tag   3
-#define cr_FileTransferInit_transfer_length_tag  4
-#define cr_FileTransferInit_transfer_id_tag      5
-#define cr_FileTransferInit_messages_per_ack_tag 6
-#define cr_FileTransferInit_timeout_in_ms_tag    7
-#define cr_FileTransferInitResponse_result_tag   1
-#define cr_FileTransferInitResponse_transfer_id_tag 2
-#define cr_FileTransferInitResponse_preferred_ack_rate_tag 3
-#define cr_FileTransferInitResponse_result_message_tag 4
+#define cr_FileTransferRequest_file_id_tag       1
+#define cr_FileTransferRequest_read_write_tag    2
+#define cr_FileTransferRequest_request_offset_tag 3
+#define cr_FileTransferRequest_transfer_length_tag 4
+#define cr_FileTransferRequest_transfer_id_tag   5
+#define cr_FileTransferRequest_messages_per_ack_tag 6
+#define cr_FileTransferRequest_timeout_in_ms_tag 7
+#define cr_FileTransferRequest_requested_ack_rate_tag 8
+#define cr_FileTransferRequest_require_checksum_tag 9
+#define cr_FileTransferResponse_result_tag       1
+#define cr_FileTransferResponse_transfer_id_tag  2
+#define cr_FileTransferResponse_ack_rate_tag     3
+#define cr_FileTransferResponse_result_message_tag 4
 #define cr_FileTransferData_result_tag           1
 #define cr_FileTransferData_transfer_id_tag      2
 #define cr_FileTransferData_message_number_tag   3
 #define cr_FileTransferData_message_data_tag     4
-#define cr_FileTransferData_crc32_tag            5
+#define cr_FileTransferData_checksum_tag         5
 #define cr_FileTransferDataNotification_result_tag 1
 #define cr_FileTransferDataNotification_result_message_tag 2
 #define cr_FileTransferDataNotification_is_complete_tag 3
@@ -1093,7 +1101,7 @@ extern "C" {
 #define cr_StreamData_stream_id_tag              1
 #define cr_StreamData_roll_count_tag             2
 #define cr_StreamData_message_data_tag           3
-#define cr_StreamData_crc32_tag                  4
+#define cr_StreamData_checksum_tag               4
 #define cr_CommandInfo_id_tag                    1
 #define cr_CommandInfo_name_tag                  2
 #define cr_CommandInfo_description_tag           3
@@ -1189,7 +1197,8 @@ X(a, STATIC,   SINGULAR, INT32,    signal_strength,   2)
 #define cr_PingResponse_DEFAULT NULL
 
 #define cr_DeviceInfoRequest_FIELDLIST(X, a) \
-X(a, STATIC,   OPTIONAL, STRING,   challenge_key,     1)
+X(a, STATIC,   OPTIONAL, STRING,   challenge_key,     1) \
+X(a, STATIC,   SINGULAR, STRING,   client_protocol_version,   2)
 #define cr_DeviceInfoRequest_CALLBACK NULL
 #define cr_DeviceInfoRequest_DEFAULT NULL
 
@@ -1327,35 +1336,38 @@ X(a, STATIC,   SINGULAR, UINT32,   file_id,           1) \
 X(a, STATIC,   SINGULAR, STRING,   file_name,         2) \
 X(a, STATIC,   SINGULAR, UENUM,    access,            3) \
 X(a, STATIC,   SINGULAR, INT32,    current_size_bytes,   4) \
-X(a, STATIC,   SINGULAR, UENUM,    storage_location,   5)
+X(a, STATIC,   SINGULAR, UENUM,    storage_location,   5) \
+X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   6)
 #define cr_FileInfo_CALLBACK NULL
 #define cr_FileInfo_DEFAULT NULL
 
-#define cr_FileTransferInit_FIELDLIST(X, a) \
+#define cr_FileTransferRequest_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   file_id,           1) \
 X(a, STATIC,   SINGULAR, UINT32,   read_write,        2) \
 X(a, STATIC,   SINGULAR, UINT32,   request_offset,    3) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_length,   4) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       5) \
 X(a, STATIC,   SINGULAR, UINT32,   messages_per_ack,   6) \
-X(a, STATIC,   SINGULAR, UINT32,   timeout_in_ms,     7)
-#define cr_FileTransferInit_CALLBACK NULL
-#define cr_FileTransferInit_DEFAULT NULL
+X(a, STATIC,   SINGULAR, UINT32,   timeout_in_ms,     7) \
+X(a, STATIC,   OPTIONAL, UINT32,   requested_ack_rate,   8) \
+X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   9)
+#define cr_FileTransferRequest_CALLBACK NULL
+#define cr_FileTransferRequest_DEFAULT NULL
 
-#define cr_FileTransferInitResponse_FIELDLIST(X, a) \
+#define cr_FileTransferResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       2) \
-X(a, STATIC,   SINGULAR, UINT32,   preferred_ack_rate,   3) \
+X(a, STATIC,   SINGULAR, UINT32,   ack_rate,          3) \
 X(a, STATIC,   OPTIONAL, STRING,   result_message,    4)
-#define cr_FileTransferInitResponse_CALLBACK NULL
-#define cr_FileTransferInitResponse_DEFAULT NULL
+#define cr_FileTransferResponse_CALLBACK NULL
+#define cr_FileTransferResponse_DEFAULT NULL
 
 #define cr_FileTransferData_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       2) \
 X(a, STATIC,   SINGULAR, UINT32,   message_number,    3) \
 X(a, STATIC,   SINGULAR, BYTES,    message_data,      4) \
-X(a, STATIC,   OPTIONAL, INT32,    crc32,             5)
+X(a, STATIC,   OPTIONAL, INT32,    checksum,          5)
 #define cr_FileTransferData_CALLBACK NULL
 #define cr_FileTransferData_DEFAULT NULL
 
@@ -1421,7 +1433,7 @@ X(a, STATIC,   SINGULAR, INT32,    stream_id,         1)
 X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
 X(a, STATIC,   SINGULAR, UINT32,   roll_count,        2) \
 X(a, STATIC,   SINGULAR, BYTES,    message_data,      3) \
-X(a, STATIC,   SINGULAR, INT32,    crc32,             4)
+X(a, STATIC,   SINGULAR, INT32,    checksum,          4)
 #define cr_StreamData_CALLBACK NULL
 #define cr_StreamData_DEFAULT NULL
 
@@ -1567,8 +1579,8 @@ extern const pb_msgdesc_t cr_ParameterValue_msg;
 extern const pb_msgdesc_t cr_DiscoverFiles_msg;
 extern const pb_msgdesc_t cr_DiscoverFilesResponse_msg;
 extern const pb_msgdesc_t cr_FileInfo_msg;
-extern const pb_msgdesc_t cr_FileTransferInit_msg;
-extern const pb_msgdesc_t cr_FileTransferInitResponse_msg;
+extern const pb_msgdesc_t cr_FileTransferRequest_msg;
+extern const pb_msgdesc_t cr_FileTransferResponse_msg;
 extern const pb_msgdesc_t cr_FileTransferData_msg;
 extern const pb_msgdesc_t cr_FileTransferDataNotification_msg;
 extern const pb_msgdesc_t cr_FileEraseRequest_msg;
@@ -1622,8 +1634,8 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DiscoverFiles_fields &cr_DiscoverFiles_msg
 #define cr_DiscoverFilesResponse_fields &cr_DiscoverFilesResponse_msg
 #define cr_FileInfo_fields &cr_FileInfo_msg
-#define cr_FileTransferInit_fields &cr_FileTransferInit_msg
-#define cr_FileTransferInitResponse_fields &cr_FileTransferInitResponse_msg
+#define cr_FileTransferRequest_fields &cr_FileTransferRequest_msg
+#define cr_FileTransferResponse_fields &cr_FileTransferResponse_msg
 #define cr_FileTransferData_fields &cr_FileTransferData_msg
 #define cr_FileTransferDataNotification_fields &cr_FileTransferDataNotification_msg
 #define cr_FileEraseRequest_fields &cr_FileEraseRequest_msg
@@ -1658,11 +1670,11 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_CLIData_size                          196
 #define cr_CommandInfo_size                      86
 #define cr_ConnectionDescription_size            48
-#define cr_DeviceInfoRequest_size                33
+#define cr_DeviceInfoRequest_size                50
 #define cr_DeviceInfoResponse_size               199
 #define cr_DiscoverCommandsResponse_size         176
 #define cr_DiscoverCommands_size                 0
-#define cr_DiscoverFilesResponse_size            192
+#define cr_DiscoverFilesResponse_size            200
 #define cr_DiscoverFiles_size                    0
 #define cr_DiscoverStreamsResponse_size          204
 #define cr_DiscoverStreams_size                  0
@@ -1671,11 +1683,11 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ErrorReport_size                      207
 #define cr_FileEraseRequest_size                 6
 #define cr_FileEraseResponse_size                213
-#define cr_FileInfo_size                         46
+#define cr_FileInfo_size                         48
 #define cr_FileTransferDataNotification_size     221
 #define cr_FileTransferData_size                 231
-#define cr_FileTransferInitResponse_size         219
-#define cr_FileTransferInit_size                 42
+#define cr_FileTransferRequest_size              50
+#define cr_FileTransferResponse_size             219
 #define cr_ParamExInfoResponse_size              208
 #define cr_ParamExKey_size                       23
 #define cr_ParameterInfoRequest_size             192

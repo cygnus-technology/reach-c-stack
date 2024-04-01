@@ -78,10 +78,10 @@ PB_BIND(cr_DiscoverFilesResponse, cr_DiscoverFilesResponse, AUTO)
 PB_BIND(cr_FileInfo, cr_FileInfo, AUTO)
 
 
-PB_BIND(cr_FileTransferInit, cr_FileTransferInit, AUTO)
+PB_BIND(cr_FileTransferRequest, cr_FileTransferRequest, AUTO)
 
 
-PB_BIND(cr_FileTransferInitResponse, cr_FileTransferInitResponse, AUTO)
+PB_BIND(cr_FileTransferResponse, cr_FileTransferResponse, AUTO)
 
 
 PB_BIND(cr_FileTransferData, cr_FileTransferData, AUTO)

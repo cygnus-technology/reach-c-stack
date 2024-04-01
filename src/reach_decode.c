@@ -171,9 +171,9 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_INIT:
-      status = pb_decode(&is_stream, cr_FileTransferInit_fields, data);
+      status = pb_decode(&is_stream, cr_FileTransferRequest_fields, data);
       if (status) {
-        message_util_log_file_transfer_init((cr_FileTransferInit *)data);
+        message_util_log_file_transfer_request((cr_FileTransferRequest *)data);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_DATA:

@@ -279,26 +279,26 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
   i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-void message_util_log_file_transfer_init(const cr_FileTransferInit *request)
+void message_util_log_file_transfer_request(const cr_FileTransferRequest *request)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Request:");
-  i3_log(LOG_MASK_REACH, "    id               : %d", request->file_id);
-  i3_log(LOG_MASK_REACH, "    read_write       : %d", request->read_write);
-  i3_log(LOG_MASK_REACH, "    request offset   : %d", request->request_offset);
-  i3_log(LOG_MASK_REACH, "    transfer length  : %d", request->transfer_length);
-  i3_log(LOG_MASK_REACH, "    transfer id      : %d", request->transfer_id);
-  i3_log(LOG_MASK_REACH, "    messages per ack : %d", request->messages_per_ack);
-  i3_log(LOG_MASK_REACH, "    timeout          : %d\r\n", request->timeout_in_ms);
+  i3_log(LOG_MASK_REACH, "    id                 : %d", request->file_id);
+  i3_log(LOG_MASK_REACH, "    read_write         : %d", request->read_write);
+  i3_log(LOG_MASK_REACH, "    request offset     : %d", request->request_offset);
+  i3_log(LOG_MASK_REACH, "    transfer length    : %d", request->transfer_length);
+  i3_log(LOG_MASK_REACH, "    transfer id        : %d", request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    requested_ack_rate : %d", request->requested_ack_rate);
+  i3_log(LOG_MASK_REACH, "    timeout            : %d\r\n", request->timeout_in_ms);
 }
 
-void message_util_log_file_transfer_init_response(const cr_FileTransferInitResponse *response)
+void message_util_log_file_transfer_response(const cr_FileTransferResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Response:");
-  i3_log(LOG_MASK_REACH, "    result             :", response->result);
-  i3_log(LOG_MASK_REACH, "    transfer_id        :", response->transfer_id);
-  i3_log(LOG_MASK_REACH, "    preferred_ack_rate :", response->preferred_ack_rate);
+  i3_log(LOG_MASK_REACH, "    result            :", response->result);
+  i3_log(LOG_MASK_REACH, "    transfer_id       :", response->transfer_id);
+  i3_log(LOG_MASK_REACH, "    ack_rate          :", response->ack_rate);
   if (response->has_result_message) {            
-    i3_log(LOG_MASK_REACH, "    result_message     :", response->result_message);
+    i3_log(LOG_MASK_REACH, "    result_message  :", response->result_message);
   }
   i3_log(LOG_MASK_REACH, "\r\n");
 }
@@ -310,9 +310,9 @@ void message_util_log_transfer_data(const cr_FileTransferData *request)
   i3_log(LOG_MASK_REACH, "    message number : %d", request->message_number);
   i3_log(LOG_MASK_REACH, "    messsage size  : %d", request->message_data.size);
   // don't print the data here.
-  if (request->has_crc32)
+  if (request->has_checksum)
   {
-    i3_log(LOG_MASK_REACH, "    crc32           : 0x%x\r\n", request->crc32);
+    i3_log(LOG_MASK_REACH, "    checksum       : 0x%x\r\n", request->checksum);
   }
   i3_log(LOG_MASK_REACH, "    No CRC\r\n");
 }
@@ -326,9 +326,9 @@ message_util_log_transfer_data_response(const cr_FileTransferData *request)
   i3_log(LOG_MASK_REACH, "    message number : %d", request->message_number);
   i3_log(LOG_MASK_REACH, "    messsage size  : %d", request->message_data.size);
   // don't print the data here.
-  if (request->has_crc32)
+  if (request->has_checksum)
   {
-    i3_log(LOG_MASK_REACH, "    crc32           : 0x%x\r\n", request->crc32);
+    i3_log(LOG_MASK_REACH, "    checksum       : 0x%x\r\n", request->checksum);
   }
   i3_log(LOG_MASK_REACH, "    No CRC\r\n");
 } 
@@ -710,8 +710,8 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
     #ifdef INCLUDE_FILE_SERVICE
         void message_util_log_discover_files(){}
         void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *){}
-        void message_util_log_file_transfer_init(const cr_FileTransferInit *){}
-        void message_util_log_file_transfer_init_response(const cr_FileTransferInitResponse *){}
+        void message_util_log_file_transfer_request(const cr_FileTransferRequest *){}
+        void message_util_log_file_transfer_response(const cr_FileTransferResponse *){}
         void message_util_log_transfer_data(const cr_FileTransferData *){}
         void message_util_log_transfer_data_response(const cr_FileTransferData *){}
         void message_util_log_transfer_data_notification(bool is_request,

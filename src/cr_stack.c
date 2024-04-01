@@ -876,8 +876,8 @@ void cr_test_sizes()
     rval += sCr_checkSize(cr_FileInfo_size, MAX_BLE_SZ, "cr_FileInfo_size");
     rval += sCr_checkSize(cr_FileTransferDataNotification_size, MAX_BLE_SZ, "cr_FileTransferDataNotification_size");
     rval += sCr_checkSize(cr_FileTransferData_size, MAX_BLE_SZ, "cr_FileTransferData_size");
-    rval += sCr_checkSize(cr_FileTransferInitResponse_size, MAX_BLE_SZ, "cr_FileTransferInitResponse_size");
-    rval += sCr_checkSize(cr_FileTransferInit_size, MAX_BLE_SZ, "cr_FileTransferInit_size");
+    rval += sCr_checkSize(cr_FileTransferResponse_size, MAX_BLE_SZ, "cr_FileTransferResponse_size");
+    rval += sCr_checkSize(cr_FileTransferRequest_size, MAX_BLE_SZ, "cr_FileTransferRequest_size");
     rval += sCr_checkSize(cr_ParamExInfoResponse_size, MAX_BLE_SZ, "cr_ParamExInfoResponse_size");
     rval += sCr_checkSize(cr_ParameterInfoRequest_size, MAX_BLE_SZ, "cr_ParameterInfoRequest_size");
     rval += sCr_checkSize(cr_ParameterInfoResponse_size, MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
@@ -1035,8 +1035,8 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         break;
 
     case cr_ReachMessageTypes_TRANSFER_INIT:
-        rval = pvtCrFile_transfer_init((cr_FileTransferInit *)sCr_decoded_prompt_buffer,
-                             (cr_FileTransferInitResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCrFile_transfer_init((cr_FileTransferRequest *)sCr_decoded_prompt_buffer,
+                             (cr_FileTransferResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -1660,10 +1660,10 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       break;
   case cr_ReachMessageTypes_TRANSFER_INIT:
 
-      status = pb_encode(&os_stream, cr_FileTransferInitResponse_fields, data);
+      status = pb_encode(&os_stream, cr_FileTransferResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        message_util_log_file_transfer_init_response((cr_FileTransferInitResponse *)data);
+        message_util_log_file_transfer_response((cr_FileTransferResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_DATA:

@@ -51,8 +51,8 @@
     #ifdef INCLUDE_FILE_SERVICE
         void message_util_log_discover_files();
         void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *);
-        void message_util_log_file_transfer_init(const cr_FileTransferInit *);
-        void message_util_log_file_transfer_init_response(const cr_FileTransferInitResponse *);
+        void message_util_log_file_transfer_request(const cr_FileTransferRequest *);
+        void message_util_log_file_transfer_response(const cr_FileTransferResponse *);
         void message_util_log_transfer_data(const cr_FileTransferData *);
         void message_util_log_transfer_data_response(const cr_FileTransferData *);
         void message_util_log_transfer_data_notification(bool is_request,

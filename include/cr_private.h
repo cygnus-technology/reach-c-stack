@@ -86,8 +86,8 @@ extern "C" {
     int pvtCrFile_discover(const cr_DiscoverFiles *request,
                               cr_DiscoverFilesResponse *response);
     /// Private function for file transfer init
-    int pvtCrFile_transfer_init(const cr_FileTransferInit *request,
-                             cr_FileTransferInitResponse *response);
+    int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
+                             cr_FileTransferResponse *response);
     /// Private function for file transfer data
     int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                              cr_FileTransferDataNotification *response);
