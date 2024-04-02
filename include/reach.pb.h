@@ -219,28 +219,23 @@ typedef struct _cr_ReachMessage {
 typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
 /* ----------------------------
  This Service Routing Message Header is used in the OpenPV system.
- Reach can speake it.
+ Reach can speak it.
  This object represents the Layer 2 Message Format for OpenPV Service Messages.
 ---------------------------- */
 typedef struct _cr_AhsokaMessageHeader {
-    /* This ID defines the Type of Message being carried in the Envelop / Header
- Note: Existing OpenPV / Ahsoka Message Architecture */
+    /* This ID defines the Type of Message being carried in the Envelope / Header */
     int32_t transport_id;
-    /* (Optional) This ID defines a unique Message / Response used when out of order messages are needed
- usually left empty since OpenPV Endpoints gaurantee message order
- Note: Existing OpenPV / Ahsoka Message Architecture */
+    /* This ID defines a unique Message / Response used when out of order messages are needed */
     int32_t client_message_id;
-    /* (Optional) Unique ID for a Client used in Services that support Multiple Clients (usually autopopulated with GUID)
- Note: Part of Existing OpenPV / Ahsoka Message Architecture */
+    /* Unique ID for a Client used in Services that support Multiple Clients 
+ OpenPV would use a GUID but Reach uses a 4 byte integer */
     cr_AhsokaMessageHeader_client_id_t client_id;
-    /* (Optional) The size of the message payload that follows this header */
+    /* The size of the message payload (in packets) that follows this header */
     int32_t message_size;
-    /* (Optional) Routing for Non-Endpoint Style Transports. 
- Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports
- Note: New for OpenPV / Ahsoka Message Architecture */
+    /* Routing for Non-Endpoint Style Transports. 
+ Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports */
     uint32_t endpoint_id;
-    /* (Optional) Indicates that the message has used deflate compression in addition to pbuff encoding
- Note: New for OpenPV / Ahsoka Message Architecture */
+    /* (Not supported) Indicates that the message has used deflate compression in addition to pbuff encoding */
     bool is_message_compressed;
 } cr_AhsokaMessageHeader;
 
@@ -263,19 +258,14 @@ typedef struct _cr_PingResponse {
     int32_t signal_strength; /* rssi : Rssi express in strength so clients don't have to interpret */
 } cr_PingResponse;
 
-/* ------------------------------------------------------
- Device Information Request / Response
- GET_DEVICE_INFO
- gdi : gdi~
- ------------------------------------------------------ */
+/* ------------------------------------------------------ */
 typedef struct _cr_DeviceInfoRequest {
-    /* (Optional) Value to Display Prior to Sharing Device Info.
- if not accepted, Message Result will Return False.
-
- Used when native transport does not include security features and local
- verification is needed. */
+    /* * A device can be configured to require a challenge_key before
+  access is granted to the various services.  How the
+  challenge key is handled is up the designer of the device. */
     bool has_challenge_key;
     char challenge_key[32];
+    /* The client shares its version to enable backward compatibility. */
     char client_protocol_version[16];
 } cr_DeviceInfoRequest;
 
