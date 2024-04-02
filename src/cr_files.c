@@ -247,7 +247,10 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     {
         requested_ack_rate = request->requested_ack_rate;
     }
-    int preferred_ack_rate = crcb_file_get_preferred_ack_rate(request->read_write);
+    int preferred_ack_rate =
+        crcb_file_get_preferred_ack_rate(request->file_id,
+                                         requested_ack_rate,
+                                         request->read_write);
     if (   (preferred_ack_rate != requested_ack_rate)
         && (preferred_ack_rate != 0)
         && (requested_ack_rate != 0))

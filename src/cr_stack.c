@@ -1232,7 +1232,8 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     int numRead = sscanf(request->client_protocol_version, "%d.%d.%d", &major, &minor, &patch);
     if (numRead != 3)
     {
-        I3_LOG(LOG_MASK_WARN, "Did not read complete client protocol version.  Got %d, %d.%d.%d.  Assume 0.0.21\n",
+        // the client protocol version is added at 0.1.3.
+        I3_LOG(LOG_MASK_WARN, "  Invalid client protocol version (%d), %d.%d.%d replaced with 0.0.21\n",
                numRead, major, minor, patch);
         sClientProtocolVersion[0] = 0;
         sClientProtocolVersion[1] = 0;

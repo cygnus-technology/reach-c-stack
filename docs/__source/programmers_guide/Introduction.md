@@ -414,13 +414,13 @@ The time service is designed to support setting and checking the time on devices
 
 The WiFi service is designed to let devices that include WiFi use an existing UI to connect to an access point.  The WiFi service is not yet fully supported.
 
-## Files, Parameters, and Commands
+# Files, Parameters, and Commands
 
 Parameters are supported using a simple key-value pair structure.  The decision to avoid dynamic memory allocation causes the parameter storage structure to have a fixed and limited size.  The limit is set to 32 bytes for a string.  Data that is too large for this is easily handled using the “file” construct.  Reach provides no formal file system.  Files can instead be thought of as a key-value pair in which the value size is not limited.  While the parameter structure is optimized to fetch several parameters together, the file structure is optimized to transfer a larger block of data as quickly as possible.  “Files” can be mapped to a file system if that is appropriate for the application.  They can also simply be larger blocks of data maintained by the app.
 
 Commands provide a simple means to remotely trigger a function with fixed parameters.  Commands could always be implemented in other ways.  An example is the command to enable the remote CLI.  This can also be engaged using the command line, but providing a command makes it easier to get started with these features.
 
-# Multi-Message (Continuing) Transactions
+## Multi-Message (Continuing) Transactions
 
 The response to DISCOVER_PARAMETERS, and in fact to any “discover” command could extend over multiple “messages”.  To define terms:
 
@@ -493,25 +493,23 @@ Repeat:
 
 ![alt_text](_images/file_write_sequence.png "image_tooltip")
 
-## File Acknowlegement Rate (ack_rate)
+## File Acknowledgement Rate (ack_rate)
 
-An "ack_rate" is specified for each file transfer.  This determines how many messages are transmitted before an acknowledge is required.  A high ack_rate enables the highest possible data transfer rates over BLE.  The ack rate is specified (requested) in the FileTransferRequest (formerly FileTransferInit) message and answered (confirmed) in the FileTransferResponse (formerly FileTransferInitResponse). 
+An "ack_rate" is specified for each file transfer.  This specifies the number of messages transmitted before an acknowledge is required.  A high ack_rate enables the highest possible data transfer rates over BLE. A low ack rate allows the system to efficiently respond to transmission errors.  In a BLE system, the BLE layer is already correcting errors, so high ack rates are appropriate. 
 
-**
+The server finally decides the ack rate.  The client can request a different ack rate using the optional requested_ack_rate in the FileTransferRequest (formerly FileTransferInit) message. 
 
-- The requested_ack_rate is optional.
+- The requested_ack_rate is optionally sent by the client when requesting a file transfer.  
 
-- The responding ack_rate is not optional (required).
+- The responding "ack_rate" is always present.
+- If the requested_ack_rate is provided, then the server should use it.
+  - The weak callback crcb_file_get_preferred_ack_rate() allows the application designer to choose this rate.
 
-- If the requested_ack_rate is provided, then the server should try to use it.
+  - The server may confirm the requested ack_rate in its response.
 
-- The server may confirm the requested ack_rate in its response.
+  - The server may override the requested ack rate with its own preference if there is a good reason.  Ideally this reason would be communicated in the result_message field.
 
-- The server may override the requested ack rate with its own preference if there is a good reason.  Ideally this reason would be communicated in the result_message field.
-
-- If no requested_ack_rate is provided, the server must provide the ack_rate which can be one or a higher number
-
-**
+- If no requested_ack_rate is provided, the server will provide the ack_rate via the crcb_file_get_preferred_ack_rate() callback.
 
 # Security
 
