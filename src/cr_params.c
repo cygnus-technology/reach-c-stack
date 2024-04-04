@@ -89,7 +89,6 @@
     static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
   #endif
 
-
     /**
     * @brief   pvtCrParam_discover_parameters
     * @details Private function responsible to respond to a discover 
@@ -622,7 +621,54 @@
     }
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
 
+    ///  Private helper function to initialize parameter notificaitons.
+    ///  Calls crcb_parameter_notification_init()
+    void  pvtCrParam_init_notifications(void)
+    {
+      #if NUM_SUPPORTED_PARAM_NOTIFY == 0
+        return;
+      #else
+        int rval;
+        cr_ParameterNotifyConfig *pNoteArray;
+        size_t num;
+        crcb_parameter_notification_init(&pNoteArray, &num);
+
+        if (num > NUM_SUPPORTED_PARAM_NOTIFY)
+        {
+            cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Not enough notifications slots (%d) for init (%d).\n",
+                            NUM_SUPPORTED_PARAM_NOTIFY, num);
+            return;
+        }
+
+        for (size_t i=0; i<num; i++)
+        {
+            cr_ParameterInfo paramInfo;
+            sCr_param_notify_list[i].parameter_id = pNoteArray[i].parameter_id;
+            sCr_param_notify_list[i].enabled = true;
+            sCr_param_notify_list[i].minimum_notification_period = pNoteArray[i].minimum_notification_period;
+            sCr_param_notify_list[i].maximum_notification_period = pNoteArray[i].maximum_notification_period;
+            sCr_param_notify_list[i].minimum_delta = pNoteArray[i].minimum_delta;
+            sCr_last_param_values[i].parameter_id = pNoteArray[i].parameter_id;
+            sCr_last_param_values[i].timestamp = 0;
+            rval = crcb_parameter_discover_reset(pNoteArray[i].parameter_id);
+            if (rval != 0)
+            {
+                cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "PID %d doesn't exist for notify[%d].\n",
+                                pNoteArray[i].parameter_id, i);
+                continue;  // try to do the other ones.
+            }
+            // I don't see how this can fail right after discover.
+            crcb_parameter_discover_next(&paramInfo);
+            sCr_last_param_values[i].which_value = paramInfo.data_type;
+            sCr_last_param_values[i].value.sint32_value = 0;
+        }
+        return;
+      #endif
+    }
+
 #endif // def INCLUDE_PARAMETER_SERVICE
+
+
 
 /// <summary>
 /// clears any stale notifications. 

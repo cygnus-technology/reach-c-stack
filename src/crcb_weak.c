@@ -467,6 +467,26 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return 0;
     }
+
+    /**
+    * @brief   crcb_parameter_notification_init
+    * @details Called in cr_init() to enable any notifications that the device 
+    *          wishes to be active.
+    * @param   pNoteArray pointer to an array of cr_ParameterNotifyConfig structures
+    *          describing the desired notifications.
+    * @param   pNum How many are in the array.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray, size_t *pNum)
+    {
+        *pNoteArray = NULL;
+        *pNum = 0;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
+
+
   #endif /// NUM_SUPPORTED_PARAM_NOTIFY >= 0
 #endif /// INCLUDE_PARAMETER_SERVICE
 

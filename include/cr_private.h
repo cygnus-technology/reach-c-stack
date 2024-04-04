@@ -119,6 +119,10 @@ extern "C" {
     ///  Private helper function to clear parameter notificaitons
     void pvtCrParam_clear_notifications(void);
 
+    ///  Private helper function to initialize parameter notificaitons.
+    ///  Calls crcb_parameter_notification_init()
+    void  pvtCrParam_init_notifications(void);
+
     ///  Private helper function to discover parameters
     int pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *,
                                        cr_ParameterInfoResponse *);

@@ -323,20 +323,6 @@ static int handle_continued_transactions()
 */
 int cr_init() 
 {
-  // #define TEST_NOTIFICATION
-  #ifdef TEST_NOTIFICATION
-    // Test notification
-    sCr_param_notify_list[0].parameter_id = 69;  // [11]
-    sCr_param_notify_list[0].enabled = true;
-    sCr_param_notify_list[0].minimum_notification_period = SYS_TICK_RATE;
-    sCr_param_notify_list[0].maximum_notification_period = 100*SYS_TICK_RATE;
-    sCr_param_notify_list[0].minimum_delta = 15.0;
-    sCr_last_param_values[0].parameter_id = 69;
-    sCr_last_param_values[0].timestamp = 0;
-    sCr_last_param_values[0].which_value = cr_ParameterDataType_INT32;
-    sCr_last_param_values[0].value.sint32_value = 1;
-  #endif  // def TEST_NOTIFICATION
-
     return cr_ErrorCodes_NO_ERROR;
 }
 

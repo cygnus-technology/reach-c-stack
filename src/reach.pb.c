@@ -63,6 +63,12 @@ PB_BIND(cr_ParameterNotifyConfig, cr_ParameterNotifyConfig, AUTO)
 PB_BIND(cr_ParameterNotifyConfigResponse, cr_ParameterNotifyConfigResponse, AUTO)
 
 
+PB_BIND(cr_ParameterNotifySetupRequest, cr_ParameterNotifySetupRequest, AUTO)
+
+
+PB_BIND(cr_ParameterNotifySetupResponse, cr_ParameterNotifySetupResponse, AUTO)
+
+
 PB_BIND(cr_ParameterNotification, cr_ParameterNotification, AUTO)
 
 
