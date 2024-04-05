@@ -113,7 +113,7 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
                                 cr_DiscoverFilesResponse *response)
 {
     if (!crcb_challenge_key_is_valid()) {
-        pvtCr_num_continued_objects = pvtCr_num_remaining_objects = 0;
+        pvtCr_num_remaining_objects = 0;
         memset(response, 0, sizeof(cr_DiscoverFilesResponse));
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         return cr_ErrorCodes_NO_DATA; 
@@ -124,7 +124,7 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
         // request will be null on repeated calls.
         // Here implies we are responding to the initial request.
         crcb_file_discover_reset(0);
-        pvtCr_num_continued_objects = pvtCr_num_remaining_objects = crcb_file_get_file_count();
+        pvtCr_num_remaining_objects = crcb_file_get_file_count();
         if (pvtCr_num_remaining_objects > REACH_COUNT_PARAM_READ_VALUES)
         {
             pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_FILES;
@@ -564,7 +564,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
                 sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
                 pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                 pvtCr_num_remaining_objects = 0;
-                pvtCr_num_continued_objects = 0;
                 I3_LOG(LOG_MASK_FILES, "Completing the file read.");
                 pvtCr_watchdog_end_timeout();
                 return 0;
@@ -597,7 +596,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             dataTransfer->result = 0;
             pvtCr_watchdog_end_timeout();
             return 0;
@@ -605,7 +603,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
 
         pvtCr_continued_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         pvtCr_num_remaining_objects = sCr_file_xfer_state.messages_until_ack;
-        pvtCr_num_continued_objects = sCr_file_xfer_state.messages_per_ack;
         sCr_file_xfer_state.messages_until_ack = sCr_file_xfer_state.messages_per_ack;
         sCr_file_xfer_state.message_number = 0;
     }
@@ -640,7 +637,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
                         __FUNCTION__, bytes_requested, sCr_file_xfer_state.file_id, rval);
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         pvtCr_num_remaining_objects = 0;
-        pvtCr_num_continued_objects = 0;
         pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_READ_FAILED;
     }
@@ -670,7 +666,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     }
     
     pvtCr_num_remaining_objects = sCr_file_xfer_state.messages_until_ack;
-    pvtCr_num_continued_objects = sCr_file_xfer_state.messages_per_ack;
     pvtCr_continued_message_type = pvtCr_num_remaining_objects == 0  ? 
             cr_ReachMessageTypes_INVALID : cr_ReachMessageTypes_TRANSFER_DATA;
 

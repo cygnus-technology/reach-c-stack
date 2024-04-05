@@ -67,9 +67,6 @@ extern "C" {
     /// The type of the current continued message
     extern cr_ReachMessageTypes pvtCr_continued_message_type;
 
-    /// The number of continued objects (total)
-    extern uint32_t             pvtCr_num_continued_objects;
-
     /// The number of continued objects (remaining)
     extern uint32_t             pvtCr_num_remaining_objects;
 

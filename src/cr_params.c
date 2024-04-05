@@ -109,7 +109,6 @@
 
         if (!crcb_challenge_key_is_valid()) {
             sCr_requested_param_info_count = 0;
-            pvtCr_num_continued_objects = 0;
             response->parameter_infos_count = 0;
             return cr_ErrorCodes_NO_DATA;
         }
@@ -133,13 +132,11 @@
                 sCr_requested_param_index = 0;
                 // default on first.
                 pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
-                pvtCr_num_continued_objects = 
-                    pvtCr_num_remaining_objects = request->parameter_ids_count;
+                pvtCr_num_remaining_objects = request->parameter_ids_count;
             }
             else
             {
-                pvtCr_num_continued_objects = 
-                    pvtCr_num_remaining_objects = crcb_parameter_get_count();
+                pvtCr_num_remaining_objects = crcb_parameter_get_count();
             }
             if (pvtCr_num_remaining_objects > REACH_COUNT_PARAM_DESC_IN_RESPONSE)
             {
@@ -155,8 +152,7 @@
             {   // first time
                 crcb_parameter_discover_reset(0);
                 sCr_requested_param_info_count = 0;
-                pvtCr_num_continued_objects =  
-                    pvtCr_num_remaining_objects = crcb_parameter_get_count();
+                pvtCr_num_remaining_objects = crcb_parameter_get_count();
                 // default on first.
                 pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAMETERS;
             }
@@ -245,7 +241,7 @@
     {
         if (!crcb_challenge_key_is_valid()) {
             sCr_requested_param_info_count = 0;
-            pvtCr_num_continued_objects = response->enumerations_count = 0;
+            pvtCr_num_remaining_objects = response->enumerations_count = 0;
             return cr_ErrorCodes_NO_DATA;
         }
 
@@ -266,17 +262,16 @@
                 sCr_requested_param_index = 0;
                 // init them all to -1 meaning invalid.
                 memset(sCr_requested_param_array, -1, sizeof(sCr_requested_param_array));
-                pvtCr_num_continued_objects = 0;
+                pvtCr_num_remaining_objects = 0;
                 // copy the requested numbers
                 for (int i=0; i < request->parameter_ids_count; i++) {
                     affirm(request->parameter_ids[i] < MAX_NUM_PARAM_ID);
                     sCr_requested_param_array[i] = request->parameter_ids[i];
-                    pvtCr_num_continued_objects += crcb_parameter_ex_get_count(
+                    pvtCr_num_remaining_objects += crcb_parameter_ex_get_count(
                         request->parameter_ids[i]);
                 }
-                if (pvtCr_num_continued_objects == 0)
+                if (pvtCr_num_remaining_objects == 0)
                 {   // there is no ex data
-                    pvtCr_num_remaining_objects = 0;
                     response->enumerations_count = 0;
                     I3_LOG(LOG_MASK_PARAMS, "dpx: %d params, no ex.", 
                            request->parameter_ids_count);
@@ -285,15 +280,13 @@
                 sCr_requested_param_index = 0;
                 // default on first.
                 pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_PARAM_EX;
-                pvtCr_num_remaining_objects = pvtCr_num_continued_objects;
             }
             else
             {
                 // count is zero, so setup for all
                 crcb_parameter_ex_discover_reset(-1);
-                pvtCr_num_continued_objects = 
-                    pvtCr_num_remaining_objects = crcb_parameter_ex_get_count(-1);
-                if (pvtCr_num_continued_objects == 0)
+                pvtCr_num_remaining_objects = crcb_parameter_ex_get_count(-1);
+                if (pvtCr_num_remaining_objects == 0)
                 {
                     I3_LOG(LOG_MASK_PARAMS, "discover params ex, object found no ex.");
                     pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -301,7 +294,7 @@
                 }
             }
             // one object in each response.
-            I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.", pvtCr_num_continued_objects);
+            I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.", pvtCr_num_remaining_objects);
 
             // here we've found at least one so use it.
             rval = crcb_parameter_ex_discover_next(response);
@@ -338,7 +331,7 @@
         sCr_requested_param_index++;
         if (sCr_requested_param_index >= sCr_requested_param_info_count)
         {
-            pvtCr_num_continued_objects = 0;
+            pvtCr_num_remaining_objects = 0;
             I3_LOG(LOG_MASK_PARAMS, "No more params.");
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA;
@@ -370,8 +363,7 @@
                               cr_ParameterReadResponse *response) 
     {
         if (!crcb_challenge_key_is_valid()) {
-            pvtCr_num_continued_objects = 
-                    pvtCr_num_remaining_objects = 0;
+            pvtCr_num_remaining_objects = 0;
             memset(response, 0, sizeof(cr_ParameterReadResponse));
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
@@ -395,15 +387,13 @@
                 }
                 // default on first.
                 pvtCr_continued_message_type = cr_ReachMessageTypes_READ_PARAMETERS;
-                pvtCr_num_continued_objects = 
-                    pvtCr_num_remaining_objects = request->parameter_ids_count;
+                pvtCr_num_remaining_objects = request->parameter_ids_count;
             }
             else
             {
                 sCr_requested_param_index = 0;
                 I3_LOG(LOG_MASK_PARAMS, "READ all PARAMETERS.");
-                pvtCr_num_continued_objects = 
-                    pvtCr_num_remaining_objects = crcb_parameter_get_count();
+                pvtCr_num_remaining_objects = crcb_parameter_get_count();
             }
             if (pvtCr_num_remaining_objects > REACH_COUNT_PARAM_READ_VALUES)
             {
@@ -418,8 +408,7 @@
             if (request != NULL)
             {   // first time
                 crcb_parameter_discover_reset(0);
-                pvtCr_num_continued_objects =  
-                    pvtCr_num_remaining_objects = crcb_parameter_get_count();
+                pvtCr_num_remaining_objects = crcb_parameter_get_count();
                 // default on first.
                 pvtCr_continued_message_type = cr_ReachMessageTypes_READ_PARAMETERS;
             }
@@ -512,8 +501,7 @@
                                cr_ParameterWriteResponse *response) 
     {
         if (!crcb_challenge_key_is_valid()) {
-            pvtCr_num_continued_objects = 
-                    pvtCr_num_remaining_objects = 0;
+            pvtCr_num_remaining_objects = 0;
             memset(response, 0, sizeof(cr_ParameterWriteResponse));
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 

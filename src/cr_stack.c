@@ -130,7 +130,6 @@ static size_t  sCr_encoded_response_size = 0;
 /// private but global variables shared with the Reach stack
 ///----------------------------------------------------------------------------
 cr_ReachMessageTypes pvtCr_continued_message_type;
-uint32_t pvtCr_num_continued_objects = 0;
 uint32_t pvtCr_num_remaining_objects = 0;
 
 ///----------------------------------------------------------------------------
@@ -523,7 +522,6 @@ void cr_set_comm_link_connected(bool connected)
    {
        // we are newly connected, so clear any stale data.
        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-       pvtCr_num_continued_objects = 0; 
        pvtCr_num_remaining_objects = 0;
        cr_clear_param_notifications();
        crcb_invalidate_challenge_key();
@@ -953,7 +951,6 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         return cr_ErrorCodes_DECODING_FAILED;
     }
 
-    pvtCr_num_continued_objects = 0;  // default
     pvtCr_num_remaining_objects = 0;  // default
 
     int rval = 0;
@@ -1299,7 +1296,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
 
     if (!crcb_challenge_key_is_valid()) {
         pvtCr_num_remaining_objects = 0;
-        pvtCr_num_continued_objects = 0;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         return cr_ErrorCodes_NO_DATA; 
     }
@@ -1331,7 +1327,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
             {
                 LOG_ERROR("Discover commands found nothing.");
                 pvtCr_num_remaining_objects = 0;
-                pvtCr_num_continued_objects = 0;
                 return 0;
             }
             break;
@@ -1344,7 +1339,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
         response->available_commands_count = num_commands;
         // they all fit in one response.
         pvtCr_num_remaining_objects = 0;
-        pvtCr_num_continued_objects = 0;
         I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_commands);
         return 0;
         // and we're done.
@@ -1353,7 +1347,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     response->available_commands_count = REACH_NUM_COMMANDS_IN_RESPONSE;
     pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_COMMANDS;
     pvtCr_num_remaining_objects = num_commands - REACH_NUM_COMMANDS_IN_RESPONSE;
-    pvtCr_num_continued_objects = pvtCr_num_remaining_objects;
     I3_LOG(LOG_MASK_DEBUG, "%s: Setup continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
     return 0;
 }
@@ -1427,7 +1420,6 @@ static int handle_send_command(const cr_SendCommand *request,
 
         if (!crcb_challenge_key_is_valid()) {
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
@@ -1459,7 +1451,6 @@ static int handle_send_command(const cr_SendCommand *request,
                 response->result = cr_ErrorCodes_NO_SERVICE;
             }
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             return 0;
         }
         if (num_ap == 1)
@@ -1467,7 +1458,6 @@ static int handle_send_command(const cr_SendCommand *request,
             response->result = 0;
             // One and done
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_ap);
             return 0;
             // and we're done.
@@ -1475,7 +1465,6 @@ static int handle_send_command(const cr_SendCommand *request,
         // otherwise there are more so set up for continued commands
         pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_WIFI;
         pvtCr_num_remaining_objects = num_ap - 1;
-        pvtCr_num_continued_objects = pvtCr_num_remaining_objects;
         I3_LOG(LOG_MASK_DEBUG, "%s: continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
         return 0;
     }
