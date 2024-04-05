@@ -186,14 +186,15 @@ void __attribute__((weak)) crcb_invalidate_challenge_key(void)
 }
 
 /**
-* @brief   crcb_enable_remote_cli
-* @details As the logging utility is technically part of Reach, 
-*          this callback lets the app block the remote CLI.
-* @return  true if access is granted.
+* @brief   crcb_is_remote_cli_allowed
+* @details If access control features are implemented this 
+* function can return false based on access permissions.
+* @return  true if access is allowed.
 */
-bool __attribute__((weak)) crcb_enable_remote_cli(void)
+bool __attribute__((weak)) crcb_is_remote_cli_allowed(void)
 {
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+    // don't print as this it gets called too often.
+    // I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
     return true;
 }
 

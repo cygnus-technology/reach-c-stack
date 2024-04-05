@@ -186,7 +186,7 @@ uint32_t i3_log_get_mask(void)
     */
     bool i3_log_get_remote_cli_enable()
     {
-        if (!crcb_enable_remote_cli())
+        if (!crcb_is_remote_cli_allowed())
             return false;
         return sUseRemoteCLI;
     }

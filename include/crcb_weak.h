@@ -138,12 +138,12 @@ bool crcb_challenge_key_is_valid(void);
 void crcb_invalidate_challenge_key(void);
 
 /**
-* @brief   crcb_enable_remote_cli
+* @brief   crcb_is_remote_cli_allowed
 * @details As the logging utility is technically part of Reach, 
 *          this callback lets the app block the remote CLI.
 * @return  true if access is granted.
 */
-bool crcb_enable_remote_cli(void);
+bool crcb_is_remote_cli_allowed(void);
 
 ///*************************************************************************
 ///  Link (ping) Service 
