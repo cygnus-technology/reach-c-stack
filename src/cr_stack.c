@@ -451,23 +451,6 @@ int cr_process(uint32_t ticks)
     memset(sCr_encoded_payload_buffer,      0, sizeof(sCr_encoded_payload_buffer));
     // memset(sCr_encoded_response_buffer,     0, sizeof(sCr_encoded_response_buffer));
 
-  // #define TEST_ERROR_REPORT
-  #ifdef TEST_ERROR_REPORT
-    if (sCr_CallCount == 500)
-    {
-        i3_log(LOG_MASK_ALWAYS, "On tick 500, test the error report using Future Legend:");
-        // Tick 2 error test: Send 190 characters to test too long string.
-        cr_report_error(0, "And in the death, as the last few corpses "
-                        "lay rotting on the slimy thoroughfare, "
-                        "Fleas the size of rats sucked on rats the size of cats "
-                        "and ten thousand peoploids split into small tribes...\n");
-        // Credit to David Bowie for the text...
-        crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
-        return 0;
-    }
-    if (sCr_CallCount > 5000) sCr_CallCount = 5000;
-  #endif  // def TEST_ERROR_REPORT
-
     // Support for continued transactions:
     //   zero indicates valid data was produced.
     //   cr_ErrorCodes_NO_DATA indicates no data was produced.
@@ -542,7 +525,7 @@ void cr_set_comm_link_connected(bool connected)
        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
        pvtCr_num_continued_objects = 0; 
        pvtCr_num_remaining_objects = 0;
-       pvtCrParam_clear_notifications();
+       cr_clear_param_notifications();
        crcb_invalidate_challenge_key();
    }
    sCr_comm_link_is_connected = connected;

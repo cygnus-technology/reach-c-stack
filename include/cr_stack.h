@@ -223,6 +223,19 @@ bool cr_get_comm_link_connected(void);
 
 
 /**
+* @brief   cr_clear_param_notifications
+* @details Disable all parameter notifications.
+*/
+void cr_clear_param_notifications(void);
+
+/**
+* @brief   cr_init_param_notifications
+* @details Enable all parameter notifications specified through 
+*          crcb_parameter_notification_discover_reset().
+*/
+void  cr_init_param_notifications(void);
+
+/**
 * @brief   cr_get_current_ticks
 * @details The tick count is passed in to cr_process(). This function gives 
 *          other Reach functions access to that value. 

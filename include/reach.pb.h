@@ -29,7 +29,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 3 /* Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 4 /* Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -42,9 +42,9 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_DISCOVER_PARAM_EX = 6,
     cr_ReachMessageTypes_READ_PARAMETERS = 7,
     cr_ReachMessageTypes_WRITE_PARAMETERS = 8,
-    cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY = 9,
-    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10,
-    cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11,
+    cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY = 9, /* setup parameter notification */
+    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10, /* A parameter has changed */
+    cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11, /* find out how notifications are setup */
     /* File Transfers */
     cr_ReachMessageTypes_DISCOVER_FILES = 12,
     cr_ReachMessageTypes_TRANSFER_INIT = 13, /* Begins a Transfer */
@@ -375,6 +375,9 @@ typedef struct _cr_ParameterNotifyConfigResponse {
     char result_message[194]; /* Error String */
 } cr_ParameterNotifyConfigResponse;
 
+/* ------------------------------------------------------
+ The client can discover how notifications are setup.
+ ------------------------------------------------------ */
 typedef struct _cr_ParameterNotifySetupRequest {
     pb_size_t parameter_ids_count;
     uint32_t parameter_ids[32]; /* i: ID -  Leave Empty to Retrieve All */

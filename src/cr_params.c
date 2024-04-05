@@ -623,16 +623,17 @@
 
     ///  Private helper function to initialize parameter notificaitons.
     ///  Calls crcb_parameter_notification_init()
-    void  pvtCrParam_init_notifications(void)
+    void  cr_init_param_notifications(void)
     {
       #if NUM_SUPPORTED_PARAM_NOTIFY == 0
-        return;
+        cr_clear_param_notifications();
       #else
         int rval;
         cr_ParameterNotifyConfig *pNoteArray;
         size_t num;
         crcb_parameter_notification_init(&pNoteArray, &num);
 
+        I3_LOG(LOG_MASK_ALWAYS, "Notifications Enabled");
         if (num > NUM_SUPPORTED_PARAM_NOTIFY)
         {
             cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Not enough notifications slots (%d) for init (%d).\n",
@@ -675,7 +676,7 @@
 /// To be called on connection to client 
 /// Must be available (empty) in all no-param case. 
 /// </summary>
-void pvtCrParam_clear_notifications(void)
+void cr_clear_param_notifications(void)
 {
 #if (defined(INCLUDE_PARAMETER_SERVICE) && (NUM_SUPPORTED_PARAM_NOTIFY != 0) )
     memset(sCr_param_notify_list, 0, sizeof(sCr_param_notify_list));
@@ -691,6 +692,7 @@ void pvtCrParam_clear_notifications(void)
 void pvtCrParam_check_for_notifications()
 {
   #if (defined(INCLUDE_PARAMETER_SERVICE) && (NUM_SUPPORTED_PARAM_NOTIFY != 0) )
+
     for (int idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ )
     {
         if (!sCr_param_notify_list[idx].enabled)
