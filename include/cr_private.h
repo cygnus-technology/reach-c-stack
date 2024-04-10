@@ -121,6 +121,11 @@ extern "C" {
     int pvtCrParam_discover_parameters_ex(const cr_ParameterInfoRequest *,
                                           cr_ParamExInfoResponse *);
 
+    ///  Private helper function to discover current parameter
+    ///  notifications
+    int pvtCrParam_discover_notifications(const cr_ParameterNotifySetupRequest *,
+                                          cr_ParameterNotifySetupResponse *);
+
     ///  Private helper function to read a parameter
     int pvtCrParam_read_param(const cr_ParameterRead *, 
                               cr_ParameterReadResponse *);

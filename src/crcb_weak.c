@@ -450,7 +450,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         return 0;
     }
 
-  #if NUM_SUPPORTED_PARAM_NOTIFY >= 0
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     /**
     * @brief   crcb_notify_param
     * @details parameter notifications are handled by the Reach stack. The stack 
@@ -486,8 +486,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return 0;
     }
-
-
+    
   #endif /// NUM_SUPPORTED_PARAM_NOTIFY >= 0
 #endif /// INCLUDE_PARAMETER_SERVICE
 

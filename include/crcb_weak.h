@@ -348,38 +348,8 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     */
     uint32_t crcb_compute_parameter_hash(void);
 
-    /**
-    * @brief   crcb_parameter_notification_get_count
-    * @return  The number of parameter notifications that are active.
-    */
-    int crcb_parameter_notification_get_count();
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
 
-    /**
-    * @brief   crcb_parameter_notification_discover_reset
-    * @details The overriding implementation must reset a pointer into the parameter
-    *          notification table such that the next call to
-    *          crcb_parameter_notification_discover_next() will return the description
-    *          of this notification.
-    * @param   pid The parameter ID to which the parameter notification table pointer 
-    *              should be reset. Use 0 for the first entry.
-    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
-    */
-    int crcb_parameter_notification_discover_reset(const uint32_t pid);
-
-    /**
-    * @brief   crcb_parameter_notification_discover_next
-    * @details Gets the configuration of the notification for the next parameter.
-    *          The overriding implementation must post-increment its pointer into 
-    *          the parameter notification table.
-    * @param   pDesc Pointer to stack provided memory into which the notification 
-    *          config is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last parameter extension has already been returned.
-    */
-    int crcb_parameter_notification_discover_next(cr_ParameterNotifyConfig *pConfig);
-
-  #if NUM_SUPPORTED_PARAM_NOTIFY >= 0
     /**
     * @brief   crcb_notify_param
     * @details parameter notifications are handled by the Reach stack. The stack 

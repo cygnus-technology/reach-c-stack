@@ -230,8 +230,8 @@ void cr_clear_param_notifications(void);
 
 /**
 * @brief   cr_init_param_notifications
-* @details Enable all parameter notifications specified through 
-*          crcb_parameter_notification_discover_reset().
+* @details Enable all locally specified parameter notifications 
+*          via crcb_parameter_notification_init().
 */
 void  cr_init_param_notifications(void);
 

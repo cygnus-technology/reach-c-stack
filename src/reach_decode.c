@@ -160,6 +160,13 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
           message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
         }
         break;
+    case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
+        status = pb_decode(&is_stream, cr_ParameterNotifySetupRequest_fields, data);
+        if (status) {
+          message_util_log_notify_setup_request((cr_ParameterNotifySetupRequest *)data);
+        }
+        break;
+
 
 #endif  // def INCLUDE_PARAMETER_SERVICE
 
