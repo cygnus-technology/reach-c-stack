@@ -231,6 +231,7 @@ const char *msg_type_string(int32_t message_type) {
 
 void message_util_log_device_info_request(cr_DeviceInfoRequest* data) {
   i3_log(LOG_MASK_REACH, "  Device Info Request:");
+  i3_log(LOG_MASK_REACH, "    client_protocol_version: '%s'", data->client_protocol_version);
   if (data->has_challenge_key)
     i3_log(LOG_MASK_REACH, "    Challenge key '%s'", data->challenge_key);
   else

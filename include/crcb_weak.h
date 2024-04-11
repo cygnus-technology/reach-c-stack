@@ -138,12 +138,20 @@ bool crcb_challenge_key_is_valid(void);
 void crcb_invalidate_challenge_key(void);
 
 /**
-* @brief   crcb_is_remote_cli_allowed
-* @details As the logging utility is technically part of Reach, 
-*          this callback lets the app block the remote CLI.
+* @brief   crcb_access_granted
+* @details A gateway to access control. Called anywhere that 
+*          access might be blocked.  
 * @return  true if access is granted.
 */
-bool crcb_is_remote_cli_allowed(void);
+bool crcb_access_granted(const cr_ServiceIds service, const uint32_t id);
+
+/**
+* @brief   crcb_configure_access_control
+* @details Configure the device info response based on the 
+*          challenge key in the device info request.
+* @return  true if access is granted.
+*/
+void crcb_configure_access_control(const cr_DeviceInfoRequest *request, cr_DeviceInfoResponse *pDi);
 
 ///*************************************************************************
 ///  Link (ping) Service 

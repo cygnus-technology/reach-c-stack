@@ -1196,10 +1196,9 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     memset(sClientProtocolVersion, 0, 3);
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
     crcb_device_get_info(request, response);
-
-  #ifdef INCLUDE_PARAMETER_SERVICE
-    response->parameter_metadata_hash = crcb_compute_parameter_hash();
-  #endif  // def INCLUDE_PARAMETER_SERVICE
+    crcb_configure_access_control(request, response);
+    if (response->services &  cr_ServiceIds_PARAMETER_REPO)
+        response->parameter_metadata_hash = crcb_compute_parameter_hash();
 
     // Store the client's protocol version to be used in compatibility checks.
     int numRead = sscanf(request->client_protocol_version, "%d.%d.%d", &major, &minor, &patch);

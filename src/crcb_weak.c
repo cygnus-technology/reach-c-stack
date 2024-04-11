@@ -185,17 +185,31 @@ void __attribute__((weak)) crcb_invalidate_challenge_key(void)
     I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
 }
 
+
 /**
-* @brief   crcb_is_remote_cli_allowed
-* @details If access control features are implemented this 
-* function can return false based on access permissions.
-* @return  true if access is allowed.
+* @brief   crcb_access_granted
+* @details A gateway to access control. Called anywhere that 
+*          access might be blocked.  
+* @return  true if access is granted.
 */
-bool __attribute__((weak)) crcb_is_remote_cli_allowed(void)
+bool __attribute__((weak)) crcb_access_granted(const cr_ServiceIds service, const uint32_t id)
 {
-    // don't print as this it gets called too often.
-    // I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+    (void)service;
+    (void)id;
     return true;
+}
+
+/**
+* @brief   crcb_configure_access_control
+* @details Configure the device info response based on the 
+*          challenge key in the device info request.
+* @return  true if access is granted.
+*/
+void __attribute__((weak)) crcb_configure_access_control(const cr_DeviceInfoRequest *request, cr_DeviceInfoResponse *pDi)
+{
+    (void)request;
+    (void)pDi;
+    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
 }
 
 
