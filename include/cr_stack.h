@@ -236,6 +236,16 @@ void cr_clear_param_notifications(void);
 void  cr_init_param_notifications(void);
 
 /**
+* @brief   cr_get_notification_statistics
+* @param   numActive is populated with the number of  
+*          notifications currently enabled.a
+* @param   numSent is populated with the number of notifications
+*          sent since last called.
+* @details numSent is zeroed by each call.
+*/
+void cr_get_notification_statistics(uint32_t *numActive, uint32_t *numSent);
+
+/**
 * @brief   cr_get_current_ticks
 * @details The tick count is passed in to cr_process(). This function gives 
 *          other Reach functions access to that value. 

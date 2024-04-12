@@ -85,6 +85,7 @@
     static uint8_t sCr_requested_param_read_count = 0;
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     /// check these params for notification
+    static uint32_t sCr_numNotificationsSent = 0;
     static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
     /// storage of the previous value
     static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
@@ -559,6 +560,26 @@
         return cr_ErrorCodes_INVALID_PARAMETER;
     }
 
+    //
+    void cr_get_notification_statistics(uint32_t *numActive, uint32_t *numSent)
+    {
+      #if NUM_SUPPORTED_PARAM_NOTIFY == 0
+        *numActive = 0; 
+        *numSent   = 0;
+        return;
+      #else
+        uint32_t active = 0;
+        for (int i=0; i<NUM_SUPPORTED_PARAM_NOTIFY; i++)
+        {
+            if (sCr_param_notify_list[i].enabled)
+                active++;
+        }
+        *numActive = active; 
+        *numSent = sCr_numNotificationsSent;
+        sCr_numNotificationsSent = 0;
+      #endif  // NUM_SUPPORTED_PARAM_NOTIFY == 0
+    }
+
     ///  Private helper function to discover current parameter
     ///  notifications
     int pvtCrParam_discover_notifications(const cr_ParameterNotifySetupRequest *request,
@@ -1002,6 +1023,7 @@ void pvtCrParam_check_for_notifications()
 
         if (needToNotify)
         {
+            sCr_numNotificationsSent++;
             crcb_notify_param(&curVal);
 
             // save it for next time
