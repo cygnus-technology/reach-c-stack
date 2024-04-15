@@ -161,9 +161,9 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
         }
         break;
     case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
-        status = pb_decode(&is_stream, cr_ParameterNotifySetupRequest_fields, data);
+        status = pb_decode(&is_stream, cr_DiscoverParameterNotifySetup_fields, data);
         if (status) {
-          message_util_log_notify_setup_request((cr_ParameterNotifySetupRequest *)data);
+          message_util_log_notify_setup_request((cr_DiscoverParameterNotifySetup *)data);
         }
         break;
 

@@ -123,8 +123,8 @@ extern "C" {
 
     ///  Private helper function to discover current parameter
     ///  notifications
-    int pvtCrParam_discover_notifications(const cr_ParameterNotifySetupRequest *,
-                                          cr_ParameterNotifySetupResponse *);
+    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifySetup *,
+                                          cr_DiscoverParameterNotifySetupResponse *);
 
     ///  Private helper function to read a parameter
     int pvtCrParam_read_param(const cr_ParameterRead *, 

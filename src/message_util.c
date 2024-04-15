@@ -508,7 +508,7 @@ void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse
   }
 }
 
-void message_util_log_notify_setup_request(const cr_ParameterNotifySetupRequest *payload)
+void message_util_log_notify_setup_request(const cr_DiscoverParameterNotifySetup *payload)
 {
     uint32_t lm = i3_log_get_mask();
     if (0 ==(LOG_MASK_REACH & lm))
@@ -525,7 +525,7 @@ void message_util_log_notify_setup_request(const cr_ParameterNotifySetupRequest 
     i3_log(LOG_MASK_BARE, "\r\n");
 }
 
-void message_util_log_notify_setup_response(const cr_ParameterNotifySetupResponse *payload)
+void message_util_log_notify_setup_response(const cr_DiscoverParameterNotifySetupResponse *payload)
 {
     i3_log(LOG_MASK_REACH, "  Notify Setup response: %d configs\n", (int)payload->configs_count);
     for (int i=0; i<payload->configs_count; i++)
@@ -742,8 +742,8 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_write_param(const cr_ParameterWrite *){}
         void message_util_log_write_param_response(const cr_ParameterWriteResponse *){}
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *){}
-        void message_util_log_notify_setup_request(const cr_ParameterNotifySetupRequest *payload) {}
-        void message_util_log_notify_setup_response(const cr_ParameterNotifySetupResponse *payload) {}
+        void message_util_log_notify_setup_request(const cr_DiscoverParameterNotifySetup *payload) {}
+        void message_util_log_notify_setup_response(const cr_DiscoverParameterNotifySetupResponse *payload) {}
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE

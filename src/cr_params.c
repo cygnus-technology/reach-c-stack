@@ -582,8 +582,8 @@
 
     ///  Private helper function to discover current parameter
     ///  notifications
-    int pvtCrParam_discover_notifications(const cr_ParameterNotifySetupRequest *request,
-                                          cr_ParameterNotifySetupResponse *response)
+    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifySetup *request,
+                                          cr_DiscoverParameterNotifySetupResponse *response)
     {
         if (!crcb_challenge_key_is_valid()) {
             sCr_requested_notify_count = 0;
@@ -596,7 +596,7 @@
         cr_ParameterInfo paramInfo;
 
         // init them all to 0 meaning invalid.
-        memset(response, 0, sizeof(cr_ParameterNotifySetupResponse));
+        memset(response, 0, sizeof(cr_DiscoverParameterNotifySetupResponse));
 
         if (request != NULL) 
         {
@@ -833,8 +833,8 @@
   #else
     ///  Private helper function to discover current parameter
     ///  notifications
-    int pvtCrParam_discover_notifications(const cr_ParameterNotifySetupRequest *request,
-                                          cr_ParameterNotifySetupResponse *response)
+    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifySetup *request,
+                                          cr_DiscoverParameterNotifySetupResponse *response)
     {
         (void)request;
         sCr_requested_notify_count = 0;
