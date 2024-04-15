@@ -246,7 +246,7 @@
     {
         if (!crcb_challenge_key_is_valid()) {
             sCr_requested_param_info_count = 0;
-            pvtCr_num_continued_objects = response->enums_bits_count = 0;
+            pvtCr_num_continued_objects = response->keys_count = 0;
             return cr_ErrorCodes_NO_DATA;
         }
 
@@ -278,7 +278,7 @@
                 if (pvtCr_num_continued_objects == 0)
                 {   // there is no ex data
                     pvtCr_num_remaining_objects = 0;
-                    response->enums_bits_count = 0;
+                    response->keys_count = 0;
                     I3_LOG(LOG_MASK_PARAMS, "dpx: %d params, no ex.", 
                            request->parameter_ids_count);
                     return 0;

@@ -385,13 +385,13 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
 void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  Parameter Info Ex Response:");
-  i3_log(LOG_MASK_REACH, "    enum_bitfield_id     : %d", response->enum_bitfield_id);
+  i3_log(LOG_MASK_REACH, "    pei_id     : %d", response->pei_id);
   i3_log(LOG_MASK_REACH, "    data_type          : %d", response->data_type);
-  i3_log(LOG_MASK_REACH, "    enums_bits_count : %d", response->enums_bits_count);
-  for (size_t i = 0; i < response->enums_bits_count; i++) 
+  i3_log(LOG_MASK_REACH, "    keys_count : %d", response->keys_count);
+  for (size_t i = 0; i < response->keys_count; i++)
   {
     i3_log(LOG_MASK_REACH, "    [id: %d.  name: %s]", 
-           response->enums_bits[i].id, response->enums_bits[i].name);
+           response->keys[i].id, response->keys[i].name);
   }
 }
 

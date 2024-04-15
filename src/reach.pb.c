@@ -66,7 +66,7 @@ PB_BIND(cr_EnumParameterInfo, cr_EnumParameterInfo, AUTO)
 PB_BIND(cr_BitfieldParameterInfo, cr_BitfieldParameterInfo, AUTO)
 
 
-PB_BIND(cr_BytearrayParameterInfo, cr_BytearrayParameterInfo, AUTO)
+PB_BIND(cr_ByteArrayParameterInfo, cr_ByteArrayParameterInfo, AUTO)
 
 
 PB_BIND(cr_ParameterInfo, cr_ParameterInfo, AUTO)

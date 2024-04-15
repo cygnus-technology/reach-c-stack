@@ -384,16 +384,13 @@ typedef struct _cr_Float64ParameterInfo {
 typedef struct _cr_BoolParameterInfo {
     bool has_default_value;
     bool default_value;
-    bool has_off_text;
-    char off_text[16];
-    bool has_on_text;
-    char on_text[16];
+    bool has_pei_id;
+    uint32_t pei_id;
 } cr_BoolParameterInfo;
 
 typedef struct _cr_StringParameterInfo {
     bool has_default_value;
     char default_value[32];
-    bool has_max_size;
     uint32_t max_size;
 } cr_StringParameterInfo;
 
@@ -404,8 +401,8 @@ typedef struct _cr_EnumParameterInfo {
     uint32_t range_max;
     bool has_default_value;
     uint32_t default_value;
-    bool has_definition_id;
-    uint32_t definition_id;
+    bool has_pei_id;
+    uint32_t pei_id;
     bool has_units;
     char units[16];
 } cr_EnumParameterInfo;
@@ -413,19 +410,17 @@ typedef struct _cr_EnumParameterInfo {
 typedef struct _cr_BitfieldParameterInfo {
     bool has_default_value;
     uint64_t default_value;
-    bool has_bits_available;
     uint32_t bits_available;
-    bool has_definition_id;
-    uint32_t definition_id;
+    bool has_pei_id;
+    uint32_t pei_id;
 } cr_BitfieldParameterInfo;
 
-typedef PB_BYTES_ARRAY_T(32) cr_BytearrayParameterInfo_default_value_t;
-typedef struct _cr_BytearrayParameterInfo {
+typedef PB_BYTES_ARRAY_T(32) cr_ByteArrayParameterInfo_default_value_t;
+typedef struct _cr_ByteArrayParameterInfo {
     bool has_default_value;
-    cr_BytearrayParameterInfo_default_value_t default_value;
-    bool has_max_size;
+    cr_ByteArrayParameterInfo_default_value_t default_value;
     uint32_t max_size;
-} cr_BytearrayParameterInfo;
+} cr_ByteArrayParameterInfo;
 
 typedef struct _cr_ParameterInfo {
     uint32_t id; /* Id */
@@ -446,7 +441,7 @@ typedef struct _cr_ParameterInfo {
         cr_StringParameterInfo string_desc;
         cr_EnumParameterInfo enum_desc;
         cr_BitfieldParameterInfo bitfield_desc;
-        cr_BytearrayParameterInfo bytearray_desc;
+        cr_ByteArrayParameterInfo bytearray_desc;
     } desc;
 } cr_ParameterInfo;
 
@@ -455,18 +450,18 @@ typedef struct _cr_ParameterInfoResponse {
     cr_ParameterInfo parameter_infos[2]; /* Array of Param Infos */
 } cr_ParameterInfoResponse;
 
-/* Give names to enums and bitfields */
+/* Give names to enums, bitfields, and booleans */
 typedef struct _cr_ParamExKey {
     uint32_t id; /* the value of the enum or the bit position of the bitfield */
     char name[16]; /* the name of the enum/bit */
 } cr_ParamExKey;
 
-/* Used for enums and bitfields */
+/* Describes enum, bitfield, and boolean labels */
 typedef struct _cr_ParamExInfoResponse {
-    uint32_t enum_bitfield_id;
+    uint32_t pei_id;
     cr_ParameterDataType data_type;
-    pb_size_t enums_bits_count;
-    cr_ParamExKey enums_bits[8];
+    pb_size_t keys_count;
+    cr_ParamExKey keys[8];
 } cr_ParamExInfoResponse;
 
 /* ------------------------------------------------------
@@ -564,7 +559,9 @@ typedef struct _cr_FileInfo {
     uint32_t file_id; /* ID */
     char file_name[24]; /* Name */
     cr_AccessLevel access; /* Access Level (Read / Write) */
-    int32_t current_size_bytes; /* size in bytes */
+    bool has_max_size_bytes;
+    uint32_t max_size_bytes; /* Maximum file size allowed (for writing) */
+    int32_t current_size_bytes; /* Current size, expected to update if the file changes */
     cr_StorageLocation storage_location;
     bool require_checksum; /* set true to request checksum generation and validation. */
 } cr_FileInfo;
@@ -594,6 +591,7 @@ typedef struct _cr_FileTransferResponse {
     int32_t result; /* 0 if OK */
     uint32_t transfer_id; /* Transfer ID */
     uint32_t ack_rate; /* confirms or overrides request */
+    uint32_t transfer_length; /* If the file is smaller than the requested offset + length, this will reflect how much data can be transferred */
     bool has_result_message;
     char result_message[194];
 } cr_FileTransferResponse;
@@ -1015,11 +1013,11 @@ extern "C" {
 #define cr_Uint64ParameterInfo_init_default      {false, 0, false, 0, false, 0, false, ""}
 #define cr_Int64ParameterInfo_init_default       {false, 0, false, 0, false, 0, false, ""}
 #define cr_Float64ParameterInfo_init_default     {false, 0, false, 0, false, 0, false, 0, false, ""}
-#define cr_BoolParameterInfo_init_default        {false, 0, false, "", false, ""}
-#define cr_StringParameterInfo_init_default      {false, "", false, 0}
+#define cr_BoolParameterInfo_init_default        {false, 0, false, 0}
+#define cr_StringParameterInfo_init_default      {false, "", 0}
 #define cr_EnumParameterInfo_init_default        {false, 0, false, 0, false, 0, false, 0, false, ""}
-#define cr_BitfieldParameterInfo_init_default    {false, 0, false, 0, false, 0}
-#define cr_BytearrayParameterInfo_init_default   {false, {0, {0}}, false, 0}
+#define cr_BitfieldParameterInfo_init_default    {false, 0, 0, false, 0}
+#define cr_ByteArrayParameterInfo_init_default   {false, {0, {0}}, 0}
 #define cr_ParameterInfo_init_default            {0, "", false, "", _cr_AccessLevel_MIN, _cr_StorageLocation_MIN, 0, {cr_Uint32ParameterInfo_init_default}}
 #define cr_ParamExKey_init_default               {0, ""}
 #define cr_ParamExInfoResponse_init_default      {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default}}
@@ -1033,9 +1031,9 @@ extern "C" {
 #define cr_ParameterValue_init_default           {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_default            {0}
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
-#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
+#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, false, 0, 0, _cr_StorageLocation_MIN, 0}
 #define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
-#define cr_FileTransferResponse_init_default     {0, 0, 0, false, ""}
+#define cr_FileTransferResponse_init_default     {0, 0, 0, 0, false, ""}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_default {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_default         {0}
@@ -1079,11 +1077,11 @@ extern "C" {
 #define cr_Uint64ParameterInfo_init_zero         {false, 0, false, 0, false, 0, false, ""}
 #define cr_Int64ParameterInfo_init_zero          {false, 0, false, 0, false, 0, false, ""}
 #define cr_Float64ParameterInfo_init_zero        {false, 0, false, 0, false, 0, false, 0, false, ""}
-#define cr_BoolParameterInfo_init_zero           {false, 0, false, "", false, ""}
-#define cr_StringParameterInfo_init_zero         {false, "", false, 0}
+#define cr_BoolParameterInfo_init_zero           {false, 0, false, 0}
+#define cr_StringParameterInfo_init_zero         {false, "", 0}
 #define cr_EnumParameterInfo_init_zero           {false, 0, false, 0, false, 0, false, 0, false, ""}
-#define cr_BitfieldParameterInfo_init_zero       {false, 0, false, 0, false, 0}
-#define cr_BytearrayParameterInfo_init_zero      {false, {0, {0}}, false, 0}
+#define cr_BitfieldParameterInfo_init_zero       {false, 0, 0, false, 0}
+#define cr_ByteArrayParameterInfo_init_zero      {false, {0, {0}}, 0}
 #define cr_ParameterInfo_init_zero               {0, "", false, "", _cr_AccessLevel_MIN, _cr_StorageLocation_MIN, 0, {cr_Uint32ParameterInfo_init_zero}}
 #define cr_ParamExKey_init_zero                  {0, ""}
 #define cr_ParamExInfoResponse_init_zero         {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero}}
@@ -1097,9 +1095,9 @@ extern "C" {
 #define cr_ParameterValue_init_zero              {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_zero               {0}
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
-#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
+#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, false, 0, 0, _cr_StorageLocation_MIN, 0}
 #define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
-#define cr_FileTransferResponse_init_zero        {0, 0, 0, false, ""}
+#define cr_FileTransferResponse_init_zero        {0, 0, 0, 0, false, ""}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_zero {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_zero            {0}
@@ -1188,20 +1186,19 @@ extern "C" {
 #define cr_Float64ParameterInfo_precision_tag    4
 #define cr_Float64ParameterInfo_units_tag        5
 #define cr_BoolParameterInfo_default_value_tag   1
-#define cr_BoolParameterInfo_off_text_tag        2
-#define cr_BoolParameterInfo_on_text_tag         3
+#define cr_BoolParameterInfo_pei_id_tag          2
 #define cr_StringParameterInfo_default_value_tag 1
 #define cr_StringParameterInfo_max_size_tag      2
 #define cr_EnumParameterInfo_range_min_tag       1
 #define cr_EnumParameterInfo_range_max_tag       2
 #define cr_EnumParameterInfo_default_value_tag   3
-#define cr_EnumParameterInfo_definition_id_tag   4
+#define cr_EnumParameterInfo_pei_id_tag          4
 #define cr_EnumParameterInfo_units_tag           5
 #define cr_BitfieldParameterInfo_default_value_tag 1
 #define cr_BitfieldParameterInfo_bits_available_tag 2
-#define cr_BitfieldParameterInfo_definition_id_tag 3
-#define cr_BytearrayParameterInfo_default_value_tag 1
-#define cr_BytearrayParameterInfo_max_size_tag   2
+#define cr_BitfieldParameterInfo_pei_id_tag      3
+#define cr_ByteArrayParameterInfo_default_value_tag 1
+#define cr_ByteArrayParameterInfo_max_size_tag   2
 #define cr_ParameterInfo_id_tag                  1
 #define cr_ParameterInfo_name_tag                2
 #define cr_ParameterInfo_description_tag         3
@@ -1221,9 +1218,9 @@ extern "C" {
 #define cr_ParameterInfoResponse_parameter_infos_tag 1
 #define cr_ParamExKey_id_tag                     1
 #define cr_ParamExKey_name_tag                   2
-#define cr_ParamExInfoResponse_enum_bitfield_id_tag 1
+#define cr_ParamExInfoResponse_pei_id_tag        1
 #define cr_ParamExInfoResponse_data_type_tag     2
-#define cr_ParamExInfoResponse_enums_bits_tag    3
+#define cr_ParamExInfoResponse_keys_tag          3
 #define cr_ParameterRead_parameter_ids_tag       2
 #define cr_ParameterRead_read_after_timestamp_tag 3
 #define cr_ParameterWriteResponse_result_tag     1
@@ -1255,9 +1252,10 @@ extern "C" {
 #define cr_FileInfo_file_id_tag                  1
 #define cr_FileInfo_file_name_tag                2
 #define cr_FileInfo_access_tag                   3
-#define cr_FileInfo_current_size_bytes_tag       4
-#define cr_FileInfo_storage_location_tag         5
-#define cr_FileInfo_require_checksum_tag         6
+#define cr_FileInfo_max_size_bytes_tag           4
+#define cr_FileInfo_current_size_bytes_tag       5
+#define cr_FileInfo_storage_location_tag         6
+#define cr_FileInfo_require_checksum_tag         7
 #define cr_DiscoverFilesResponse_file_infos_tag  1
 #define cr_FileTransferRequest_file_id_tag       1
 #define cr_FileTransferRequest_read_write_tag    2
@@ -1271,7 +1269,8 @@ extern "C" {
 #define cr_FileTransferResponse_result_tag       1
 #define cr_FileTransferResponse_transfer_id_tag  2
 #define cr_FileTransferResponse_ack_rate_tag     3
-#define cr_FileTransferResponse_result_message_tag 4
+#define cr_FileTransferResponse_transfer_length_tag 4
+#define cr_FileTransferResponse_result_message_tag 5
 #define cr_FileTransferData_result_tag           1
 #define cr_FileTransferData_transfer_id_tag      2
 #define cr_FileTransferData_message_number_tag   3
@@ -1479,14 +1478,13 @@ X(a, STATIC,   OPTIONAL, STRING,   units,             5)
 
 #define cr_BoolParameterInfo_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, BOOL,     default_value,     1) \
-X(a, STATIC,   OPTIONAL, STRING,   off_text,          2) \
-X(a, STATIC,   OPTIONAL, STRING,   on_text,           3)
+X(a, STATIC,   OPTIONAL, UINT32,   pei_id,            2)
 #define cr_BoolParameterInfo_CALLBACK NULL
 #define cr_BoolParameterInfo_DEFAULT NULL
 
 #define cr_StringParameterInfo_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, STRING,   default_value,     1) \
-X(a, STATIC,   OPTIONAL, UINT32,   max_size,          2)
+X(a, STATIC,   SINGULAR, UINT32,   max_size,          2)
 #define cr_StringParameterInfo_CALLBACK NULL
 #define cr_StringParameterInfo_DEFAULT NULL
 
@@ -1494,23 +1492,23 @@ X(a, STATIC,   OPTIONAL, UINT32,   max_size,          2)
 X(a, STATIC,   OPTIONAL, UINT32,   range_min,         1) \
 X(a, STATIC,   OPTIONAL, UINT32,   range_max,         2) \
 X(a, STATIC,   OPTIONAL, UINT32,   default_value,     3) \
-X(a, STATIC,   OPTIONAL, UINT32,   definition_id,     4) \
+X(a, STATIC,   OPTIONAL, UINT32,   pei_id,            4) \
 X(a, STATIC,   OPTIONAL, STRING,   units,             5)
 #define cr_EnumParameterInfo_CALLBACK NULL
 #define cr_EnumParameterInfo_DEFAULT NULL
 
 #define cr_BitfieldParameterInfo_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, UINT64,   default_value,     1) \
-X(a, STATIC,   OPTIONAL, UINT32,   bits_available,    2) \
-X(a, STATIC,   OPTIONAL, UINT32,   definition_id,     3)
+X(a, STATIC,   SINGULAR, UINT32,   bits_available,    2) \
+X(a, STATIC,   OPTIONAL, UINT32,   pei_id,            3)
 #define cr_BitfieldParameterInfo_CALLBACK NULL
 #define cr_BitfieldParameterInfo_DEFAULT NULL
 
-#define cr_BytearrayParameterInfo_FIELDLIST(X, a) \
+#define cr_ByteArrayParameterInfo_FIELDLIST(X, a) \
 X(a, STATIC,   OPTIONAL, BYTES,    default_value,     1) \
-X(a, STATIC,   OPTIONAL, UINT32,   max_size,          2)
-#define cr_BytearrayParameterInfo_CALLBACK NULL
-#define cr_BytearrayParameterInfo_DEFAULT NULL
+X(a, STATIC,   SINGULAR, UINT32,   max_size,          2)
+#define cr_ByteArrayParameterInfo_CALLBACK NULL
+#define cr_ByteArrayParameterInfo_DEFAULT NULL
 
 #define cr_ParameterInfo_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
@@ -1541,7 +1539,7 @@ X(a, STATIC,   ONEOF,    MESSAGE,  (desc,bytearray_desc,desc.bytearray_desc),  1
 #define cr_ParameterInfo_desc_string_desc_MSGTYPE cr_StringParameterInfo
 #define cr_ParameterInfo_desc_enum_desc_MSGTYPE cr_EnumParameterInfo
 #define cr_ParameterInfo_desc_bitfield_desc_MSGTYPE cr_BitfieldParameterInfo
-#define cr_ParameterInfo_desc_bytearray_desc_MSGTYPE cr_BytearrayParameterInfo
+#define cr_ParameterInfo_desc_bytearray_desc_MSGTYPE cr_ByteArrayParameterInfo
 
 #define cr_ParamExKey_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
@@ -1550,12 +1548,12 @@ X(a, STATIC,   SINGULAR, STRING,   name,              2)
 #define cr_ParamExKey_DEFAULT NULL
 
 #define cr_ParamExInfoResponse_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   enum_bitfield_id,   1) \
+X(a, STATIC,   SINGULAR, UINT32,   pei_id,            1) \
 X(a, STATIC,   SINGULAR, UENUM,    data_type,         2) \
-X(a, STATIC,   REPEATED, MESSAGE,  enums_bits,        3)
+X(a, STATIC,   REPEATED, MESSAGE,  keys,              3)
 #define cr_ParamExInfoResponse_CALLBACK NULL
 #define cr_ParamExInfoResponse_DEFAULT NULL
-#define cr_ParamExInfoResponse_enums_bits_MSGTYPE cr_ParamExKey
+#define cr_ParamExInfoResponse_keys_MSGTYPE cr_ParamExKey
 
 #define cr_ParameterRead_FIELDLIST(X, a) \
 X(a, STATIC,   REPEATED, UINT32,   parameter_ids,     2) \
@@ -1635,9 +1633,10 @@ X(a, STATIC,   REPEATED, MESSAGE,  file_infos,        1)
 X(a, STATIC,   SINGULAR, UINT32,   file_id,           1) \
 X(a, STATIC,   SINGULAR, STRING,   file_name,         2) \
 X(a, STATIC,   SINGULAR, UENUM,    access,            3) \
-X(a, STATIC,   SINGULAR, INT32,    current_size_bytes,   4) \
-X(a, STATIC,   SINGULAR, UENUM,    storage_location,   5) \
-X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   6)
+X(a, STATIC,   OPTIONAL, UINT32,   max_size_bytes,    4) \
+X(a, STATIC,   SINGULAR, INT32,    current_size_bytes,   5) \
+X(a, STATIC,   SINGULAR, UENUM,    storage_location,   6) \
+X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   7)
 #define cr_FileInfo_CALLBACK NULL
 #define cr_FileInfo_DEFAULT NULL
 
@@ -1658,7 +1657,8 @@ X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   9)
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       2) \
 X(a, STATIC,   SINGULAR, UINT32,   ack_rate,          3) \
-X(a, STATIC,   OPTIONAL, STRING,   result_message,    4)
+X(a, STATIC,   SINGULAR, UINT32,   transfer_length,   4) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    5)
 #define cr_FileTransferResponse_CALLBACK NULL
 #define cr_FileTransferResponse_DEFAULT NULL
 
@@ -1875,7 +1875,7 @@ extern const pb_msgdesc_t cr_BoolParameterInfo_msg;
 extern const pb_msgdesc_t cr_StringParameterInfo_msg;
 extern const pb_msgdesc_t cr_EnumParameterInfo_msg;
 extern const pb_msgdesc_t cr_BitfieldParameterInfo_msg;
-extern const pb_msgdesc_t cr_BytearrayParameterInfo_msg;
+extern const pb_msgdesc_t cr_ByteArrayParameterInfo_msg;
 extern const pb_msgdesc_t cr_ParameterInfo_msg;
 extern const pb_msgdesc_t cr_ParamExKey_msg;
 extern const pb_msgdesc_t cr_ParamExInfoResponse_msg;
@@ -1941,7 +1941,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_StringParameterInfo_fields &cr_StringParameterInfo_msg
 #define cr_EnumParameterInfo_fields &cr_EnumParameterInfo_msg
 #define cr_BitfieldParameterInfo_fields &cr_BitfieldParameterInfo_msg
-#define cr_BytearrayParameterInfo_fields &cr_BytearrayParameterInfo_msg
+#define cr_ByteArrayParameterInfo_fields &cr_ByteArrayParameterInfo_msg
 #define cr_ParameterInfo_fields &cr_ParameterInfo_msg
 #define cr_ParamExKey_fields &cr_ParamExKey_msg
 #define cr_ParamExInfoResponse_fields &cr_ParamExInfoResponse_msg
@@ -1989,9 +1989,9 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 /* Maximum encoded size of messages (where known) */
 #define cr_AhsokaMessageHeader_size              47
 #define cr_BitfieldParameterInfo_size            23
-#define cr_BoolParameterInfo_size                36
+#define cr_BoolParameterInfo_size                8
 #define cr_BufferSizes_size                      84
-#define cr_BytearrayParameterInfo_size           40
+#define cr_ByteArrayParameterInfo_size           40
 #define cr_CLIData_size                          196
 #define cr_CommandInfo_size                      86
 #define cr_ConnectionDescription_size            48
@@ -1999,7 +1999,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DeviceInfoResponse_size               199
 #define cr_DiscoverCommandsResponse_size         176
 #define cr_DiscoverCommands_size                 0
-#define cr_DiscoverFilesResponse_size            200
+#define cr_DiscoverFilesResponse_size            224
 #define cr_DiscoverFiles_size                    0
 #define cr_DiscoverStreamsResponse_size          204
 #define cr_DiscoverStreams_size                  0
@@ -2009,11 +2009,11 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ErrorReport_size                      207
 #define cr_FileEraseRequest_size                 6
 #define cr_FileEraseResponse_size                213
-#define cr_FileInfo_size                         48
+#define cr_FileInfo_size                         54
 #define cr_FileTransferDataNotification_size     221
 #define cr_FileTransferData_size                 231
 #define cr_FileTransferRequest_size              50
-#define cr_FileTransferResponse_size             219
+#define cr_FileTransferResponse_size             225
 #define cr_Float32ParameterInfo_size             38
 #define cr_Float64ParameterInfo_size             50
 #define cr_Int32ParameterInfo_size               50
