@@ -75,7 +75,6 @@
 #include "cr_private.h"
 #include "i3_log.h"
 
-#include "cJSON.h"
 #include "pb_decode.h"
 #include "pb_encode.h"
 
@@ -261,7 +260,7 @@ static int handle_continued_transactions()
         break;
     case cr_ReachMessageTypes_READ_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
-        rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
+        rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
         break;
     #endif  // def INCLUDE_PARAMETER_SERVICE
 
@@ -634,22 +633,22 @@ bool cr_get_comm_link_connected(void)
         va_list args;
 
         cr_ErrorReport *err = (cr_ErrorReport *)sCr_async_error_buffer;
-        err->result_value = error_code;
+        err->result = error_code;
 
         va_start(args, fmt);
-        int ptr = snprintf(err->result_string,
+        int ptr = snprintf(err->result_message,
                            REACH_BYTES_IN_A_FILE_PACKET,
                            "Error %d: ", error_code);
-        vsnprintf(&err->result_string[ptr],
+        vsnprintf(&err->result_message[ptr],
                   REACH_BYTES_IN_A_FILE_PACKET-ptr, fmt, args);
         // force termination
-        err->result_string[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
+        err->result_message[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
         va_end(args);
         // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
 
         crcb_notify_error(err);
         i3_log(LOG_MASK_WARN, "Logged Error full report:");
-        i3_log(LOG_MASK_ERROR, "%s", err->result_string);
+        i3_log(LOG_MASK_ERROR, "%s", err->result_message);
     }
   #endif  // ERROR_REPORT_FORMAT ==
 #endif // #ifndef ERROR_REPORT_FORMAT
@@ -672,6 +671,46 @@ bool cr_get_comm_link_connected(void)
  * of the header,
 */
 
+static bool sClassic_header_format = true;
+
+/*
+* @brief   handle_coded_classic_prompt
+* @details A static (private) function to decode the wrapper and
+*          dispatch the appropriate message handlers.
+* @return Zero on success or an error code.
+*/
+/// @private
+static int handle_coded_classic_prompt() 
+{
+    // sCr_uncoded_message_structure will hold the decoded message.
+    cr_ReachMessage *msgPtr = &sCr_uncoded_message_structure;
+    memset(msgPtr, 0, sizeof(cr_ReachMessage));
+    if(!decode_reach_message(msgPtr, 
+                             (pb_byte_t *)sCr_encoded_message_buffer, 
+                             sCr_encoded_message_size))
+    {
+        cr_report_error(cr_ErrorCodes_DECODING_FAILED, "%s:Reach header Decode failed", __FUNCTION__);
+        return cr_ErrorCodes_DECODING_FAILED;
+    }
+
+    cr_ReachMessageHeader *hdr = &msgPtr->header;
+    uint8_t *coded_data = (uint8_t *)msgPtr->payload.bytes;
+    sCr_transaction_id = hdr->transaction_id;
+    sCr_endpoint_id    = hdr->endpoint_id;
+    sCr_client_id      = hdr->client_id;
+
+    I3_LOG(LOG_MASK_REACH, "Message type: \t%s", msg_type_string(msgPtr->header.message_type));
+    LOG_DUMP_WIRE("handle_coded_prompt (message): ",
+                       msgPtr->payload.bytes, msgPtr->payload.size);
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint %d.", 
+           msgPtr->payload.size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
+
+    // further decode and process the message
+    // The result will be fully encoded at sCr_encoded_response_buffer[]
+    // in case of a non-zero return there will be an encoded error report.
+    return handle_message(hdr, coded_data, msgPtr->payload.size);
+}
+
 /*
 * @brief   handle_coded_prompt
 * @details A static (private) function to decode the wrapper and
@@ -679,12 +718,22 @@ bool cr_get_comm_link_connected(void)
 * @return Zero on success or an error code.
 */
 /// @private
-static int handle_coded_prompt() 
+static int handle_coded_prompt() // ahsoka version
 {
+    // Is this a classic Reach header or an Ahsoka header?
+    // Classic reach witll start with 0x0A
+    if ((sCr_encoded_message_buffer[0] == 0x0A) && (sCr_encoded_message_buffer[1] != 0x0))
+    {
+        sClassic_header_format = true;
+        return handle_coded_classic_prompt(); 
+    }
+    sClassic_header_format = false;
+    i3_log(LOG_MASK_REACH, TEXT_MAGENTA "Decode Ahsoka header:");
+
     // We will first decode the header, skipping over the two byte 
     // packet size at the front. This can go on the stack as it's not large and 
     // we won't need it after this function.  The key parts are saved to statics.
-    cr_ReachMessageHeader header;
+    cr_AhsokaMessageHeader header;
 
     // Store the size of message is in the first two bytes.
     // endian?
@@ -696,42 +745,47 @@ static int handle_coded_prompt()
                                coded_header_size);
 
     // Decode the header from the incoming buffer.
-    memset(&header, 0, sizeof(cr_ReachMessageHeader));
-    bool status = pb_decode(&is_stream, cr_ReachMessageHeader_fields, (void *)&header);
+    memset(&header, 0, sizeof(cr_AhsokaMessageHeader));
+    bool status = pb_decode(&is_stream, cr_AhsokaMessageHeader_fields, (void *)&header);
     if (!status)
     {
-        LOG_ERROR("Header Decoding failed: %s\n", PB_GET_ERROR(&is_stream));
+        LOG_ERROR("Ahsoka Header Decoding failed: %s\n", PB_GET_ERROR(&is_stream));
         cr_report_error(cr_ErrorCodes_DECODING_FAILED, 
-                        "%s: Reach header Decode failed", __FUNCTION__);
+                        "%s: Ahsoka header Decode failed", __FUNCTION__);
         return cr_ErrorCodes_DECODING_FAILED;
     }
 
     // save the things we need out of the header.
-    sCr_transaction_id = header.transaction_id;
+    sCr_transaction_id = header.client_message_id;
     sCr_endpoint_id    = header.endpoint_id;
-    sCr_client_id      = header.client_id;
-    pvtCr_num_remaining_objects = header.remaining_objects;
+    memcpy(&sCr_client_id, header.client_id.bytes, header.client_id.size);
+    pvtCr_num_remaining_objects = header.message_size;
 
     // The coded data begins after the header
-    uint8_t *coded_data = (uint8_t *)(&sCr_encoded_message_buffer) 
-                                      + 2 + coded_header_size;
+    uint8_t *coded_data = (uint8_t *)((unsigned int)(&sCr_encoded_message_buffer)
+                                      + 2 + coded_header_size);
+    uint16_t message_size = sCr_encoded_message_size - 2 - coded_header_size;
+    uint8_t *coded_payload = (uint8_t *)&sCr_uncoded_message_structure;
+    memcpy(coded_payload, coded_data, message_size);
 
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
-           msg_type_string(header.message_type));
-    LOG_DUMP_WIRE("handle_coded_prompt (message): ",
-                       *coded_data, header.message_size);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint_id %d.", 
-           header.message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
+           msg_type_string(header.transport_id));
+
+    // I don't see how to get the size without decoding.
+    LOG_DUMP_WIRE("handle_coded_prompt ahsoka payload: ",
+                       coded_payload, message_size);
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload: size: %d, Transaction ID %d, client_id %d, endpoint_id %d.", 
+           message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
     // The result will be fully encoded at sCr_encoded_response_buffer[]
     // in case of a non-zero return there will be an encoded error report.
-    return handle_message(&header, 
-                          coded_data, 
-                          header.message_size);
+    cr_ReachMessageHeader rhdr = {0};
+    rhdr.message_type = header.transport_id;
+    return handle_message(&rhdr, coded_payload, message_size);
 }
 
-#else
+#else // classic reach header
 
 /*
 * @brief   handle_coded_prompt
@@ -822,8 +876,8 @@ void cr_test_sizes()
     rval += sCr_checkSize(cr_FileInfo_size, MAX_BLE_SZ, "cr_FileInfo_size");
     rval += sCr_checkSize(cr_FileTransferDataNotification_size, MAX_BLE_SZ, "cr_FileTransferDataNotification_size");
     rval += sCr_checkSize(cr_FileTransferData_size, MAX_BLE_SZ, "cr_FileTransferData_size");
-    rval += sCr_checkSize(cr_FileTransferInitResponse_size, MAX_BLE_SZ, "cr_FileTransferInitResponse_size");
-    rval += sCr_checkSize(cr_FileTransferInit_size, MAX_BLE_SZ, "cr_FileTransferInit_size");
+    rval += sCr_checkSize(cr_FileTransferResponse_size, MAX_BLE_SZ, "cr_FileTransferResponse_size");
+    rval += sCr_checkSize(cr_FileTransferRequest_size, MAX_BLE_SZ, "cr_FileTransferRequest_size");
     rval += sCr_checkSize(cr_ParamExInfoResponse_size, MAX_BLE_SZ, "cr_ParamExInfoResponse_size");
     rval += sCr_checkSize(cr_ParameterInfoRequest_size, MAX_BLE_SZ, "cr_ParameterInfoRequest_size");
     rval += sCr_checkSize(cr_ParameterInfoResponse_size, MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
@@ -831,10 +885,11 @@ void cr_test_sizes()
     rval += sCr_checkSize(cr_ParameterNotification_size, MAX_BLE_SZ, "cr_ParameterNotification_size");
     rval += sCr_checkSize(cr_ParameterNotifyConfigResponse_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResponse_size");
     rval += sCr_checkSize(cr_ParameterNotifyConfig_size, MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
-    rval += sCr_checkSize(cr_ParameterReadResult_size, MAX_BLE_SZ, "cr_ParameterReadResult_size");
+    rval += sCr_checkSize(cr_ParameterReadResponse_size, MAX_BLE_SZ, "cr_ParameterReadResponse_size");
     rval += sCr_checkSize(cr_ParameterRead_size, MAX_BLE_SZ, "cr_ParameterRead_size");
     rval += sCr_checkSize(cr_ParameterValue_size, MAX_BLE_SZ, "cr_ParameterValue_size");
     rval += sCr_checkSize(cr_ParameterWrite_size, MAX_BLE_SZ, "cr_ParameterWrite_size");
+    rval += sCr_checkSize(cr_ParameterWriteResponse_size, MAX_BLE_SZ, "cr_ParameterWriteResponse_size");
     rval += sCr_checkSize(cr_PingRequest_size, MAX_BLE_SZ, "cr_PingRequest_size");
     rval += sCr_checkSize(cr_PingResponse_size, MAX_BLE_SZ, "cr_PingResponse_size");
     rval += sCr_checkSize(cr_ReachMessageHeader_size, MAX_BLE_SZ, "cr_ReachMessageHeader_size");
@@ -850,10 +905,6 @@ void cr_test_sizes()
 
 
 
-
-
-
-
     /// <summary>
     /// MAX_RAW_SZ is used to check the unencoded structure sizes. 
     /// </summary>
@@ -861,7 +912,7 @@ void cr_test_sizes()
 
     rval += sCr_checkSize(sizeof(cr_StreamInfo), MAX_RAW_SZ, "sizeof(cr_StreamInfo)");
     rval += sCr_checkSize(sizeof(cr_ErrorReport), MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
-    rval += sCr_checkSize(sizeof(cr_ParameterReadResult), MAX_RAW_SZ, "sizeof(cr_ParameterReadResult)");
+    rval += sCr_checkSize(sizeof(cr_ParameterReadResponse), MAX_RAW_SZ, "sizeof(cr_ParameterReadResponse)");
     rval += sCr_checkSize(sizeof(cr_ParameterWrite), MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
@@ -921,6 +972,9 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     cr_ReachMessageTypes message_type = (cr_ReachMessageTypes)hdr->message_type;
     cr_ReachMessageTypes encode_message_type = message_type; // default 
 
+    //LOG_REACH("call decode_reach_payload(from 0x%x, to 0x%x, sz %d)", 
+    //          coded_data, sCr_decoded_prompt_buffer, size);
+
     if (!decode_reach_payload(message_type,
                               sCr_decoded_prompt_buffer,
                               coded_data, size))
@@ -958,12 +1012,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 
     case cr_ReachMessageTypes_READ_PARAMETERS:
         rval = pvtCrParam_read_param((cr_ParameterRead *)sCr_decoded_prompt_buffer,
-                          (cr_ParameterReadResult *)sCr_uncoded_response_buffer);
+                          (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_WRITE_PARAMETERS:
         rval = pvtCrParam_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
-                           (cr_ParameterWriteResult *)sCr_uncoded_response_buffer);
+                           (cr_ParameterWriteResponse *)sCr_uncoded_response_buffer);
         break;
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
@@ -981,8 +1035,8 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         break;
 
     case cr_ReachMessageTypes_TRANSFER_INIT:
-        rval = pvtCrFile_transfer_init((cr_FileTransferInit *)sCr_decoded_prompt_buffer,
-                             (cr_FileTransferInitResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCrFile_transfer_init((cr_FileTransferRequest *)sCr_decoded_prompt_buffer,
+                             (cr_FileTransferResponse *)sCr_uncoded_response_buffer);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -1146,35 +1200,51 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
 }
 
-// <summary>
-// In response to a request for device info, get the raw data 
-// from the app via a crcb function, then update the provided 
-// pointer with the latest accurate data. 
-// </summary>
-// <param name="request"> A pointer to the request 
-// which may include a challenge key.</param> 
-// <param name="response">A pointer to memory where the 
-// complete device info response will be composed.</param> 
-// <returns>0 on success.  cr_ErrorCodes_NO_DATA if 
-// the device was built to require a challenge key 
-// and the provided key does not match.</returns> 
+uint8_t sClientProtocolVersion[3];
+/**
+ * @brief   handle_get_device_info 
+ * @details In response to a request for device info, get the 
+ *         raw data from the app via a crcb function, then
+ *         update the provided pointer with the latest accurate
+ *         data.
+ *@param   request : A pointer to the request which may include  
+ *                 a challenge key.
+ *@param   response : A pointer to memory where the complete  
+ *                  device info response will be composed.
+ *@return  0 on success.  cr_ErrorCodes_NO_DATA if the device 
+ *          was built to require a challenge key and the
+ *          provided key does not match.
+*/
 static int 
 handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
                        cr_DeviceInfoResponse     *response)  // out
 {
-    (void)request;
-
+    int major = 0, minor = 0, patch = 0;
+    memset(sClientProtocolVersion, 0, 3);
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
-
     crcb_device_get_info(request, response);
 
-
-
-#ifdef INCLUDE_PARAMETER_SERVICE
+  #ifdef INCLUDE_PARAMETER_SERVICE
     response->parameter_metadata_hash = crcb_compute_parameter_hash();
-#endif  // def INCLUDE_PARAMETER_SERVICE
+  #endif  // def INCLUDE_PARAMETER_SERVICE
+
+    // Store the client's protocol version to be used in compatibility checks.
+    int numRead = sscanf(request->client_protocol_version, "%d.%d.%d", &major, &minor, &patch);
+    if (numRead != 3)
+    {
+        // the client protocol version is added at 0.1.3.
+        I3_LOG(LOG_MASK_WARN, "  Invalid client protocol version (%d), %d.%d.%d replaced with 0.0.21\n",
+               numRead, major, minor, patch);
+        sClientProtocolVersion[0] = 0;
+        sClientProtocolVersion[1] = 0;
+        sClientProtocolVersion[2] = 21;
+    }
+    sClientProtocolVersion[0] = 0xFF & major;
+    sClientProtocolVersion[1] = 0xFF & minor;
+    sClientProtocolVersion[2] = 0xFF & patch;
 
     response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
+    snprintf(response->protocol_version_string, CR_STACK_VERSION_LEN, cr_get_proto_version());
     sCr_populate_device_info_sizes(response);
     return 0;
 }
@@ -1214,9 +1284,41 @@ const char *cr_get_proto_version()
              cr_ReachProto_MINOR_Version_MINOR_VERSION,
              cr_ReachProto_PATCH_Version_PATCH_VERSION);
      return sCr_proto_version;
-
 }
 
+ /**
+ * @brief   pvtCr_compare_proto_version 
+ * @details Used to support backward compatibility.
+ * @return  Returns 0 if the client's protocol version is equal 
+ *          to the specified version.  A positive value means the
+ *          client is greater (newer).  A negative value means
+ *          the client version is older than the specified
+ *          version.
+ */
+int pvtCr_compare_proto_version(uint8_t major, uint8_t minor, uint8_t patch)
+{
+    if ((sClientProtocolVersion[0] == major)
+        && (sClientProtocolVersion[1] == minor) 
+        && (sClientProtocolVersion[2] == patch))
+    {
+        return 0;
+    }
+    if (sClientProtocolVersion[0] > major)
+        return 1;
+    if (sClientProtocolVersion[0] < major)
+        return -1;
+    // major must now be equal.
+    if (sClientProtocolVersion[1] > minor)
+        return 1;
+    if (sClientProtocolVersion[1] < minor)
+        return -1;
+    // minor must now be equal.
+    if (sClientProtocolVersion[2] > patch)
+        return 1;
+    if (sClientProtocolVersion[2] < patch)
+        return -1;
+    return -2;  // cannot get here.
+}
 
 #ifdef INCLUDE_COMMAND_SERVICE
 static int 
@@ -1309,6 +1411,8 @@ static int handle_send_command(const cr_SendCommand *request,
     {
         (void)response;
         i3_log(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
+        if (!i3_log_get_remote_cli_enable()) 
+            i3_log(LOG_MASK_WARN, "  -> Command received, remote CLI response is disabled.");
         crcb_cli_enter(request->message_data);
         return cr_ErrorCodes_NO_RESPONSE;
     }
@@ -1441,6 +1545,8 @@ static int handle_send_command(const cr_SendCommand *request,
  *  Encode Section
  */
 
+static bool sTestHeader = false;
+
 static
 bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
                           const void *data,                     // in:  data to be encoded
@@ -1458,12 +1564,20 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
   {
 
   case cr_ReachMessageTypes_GET_DEVICE_INFO:
+      if (sTestHeader)
+      {
+          // encode GDI, not response.
+          status = pb_encode(&os_stream, cr_DeviceInfoRequest_fields, data);
+          if (status) {
+            *encode_size = os_stream.bytes_written;
+            LOG_REACH("Encoded get device info request: \n%s\n");
+          }
+          break;
+      }
       status = pb_encode(&os_stream, cr_DeviceInfoResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Get device info response: \n%s\n",
-                  message_util_get_device_info_response_json(
-                      (cr_DeviceInfoResponse *)data));
+        message_util_log_device_info_response((cr_DeviceInfoResponse *)data);
       }
       break;
 
@@ -1476,11 +1590,19 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       }
       break;
   case cr_ReachMessageTypes_PING:
+      if (sTestHeader)
+      {
+          status = pb_encode(&os_stream, cr_PingRequest_fields, data);
+          if (status) {
+            *encode_size = os_stream.bytes_written;
+            LOG_REACH("Encoded Ping request\n");
+          }
+          break;
+      }
       status = pb_encode(&os_stream, cr_PingResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Ping response: \n%s\n",
-                  message_util_ping_response_json((cr_PingResponse *)data));
+        message_util_log_ping_response((cr_PingResponse *)data);
       }
       break;
 
@@ -1489,36 +1611,28 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_ParameterInfoResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover parameter response: \n%s\n",
-                  message_util_param_info_response_json(
-                      (cr_ParameterInfoResponse *)data));
+        message_util_log_param_info_response((cr_ParameterInfoResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
       status = pb_encode(&os_stream, cr_ParamExInfoResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover parameter EX response: \n%s\n",
-                  message_util_param_info_ex_response_json(
-                      (cr_ParamExInfoResponse *)data));
+        message_util_log_param_info_ex_response((cr_ParamExInfoResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_READ_PARAMETERS:
-      status = pb_encode(&os_stream, cr_ParameterReadResult_fields, data);
+      status = pb_encode(&os_stream, cr_ParameterReadResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Read parameter response: \n%s\n",
-                  message_util_read_param_response_json(
-                      (cr_ParameterReadResult *)data));
+        message_util_log_read_param_response((cr_ParameterReadResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_WRITE_PARAMETERS:
-      status = pb_encode(&os_stream, cr_ParameterWriteResult_fields, data);
+      status = pb_encode(&os_stream, cr_ParameterWriteResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Write parameter response: \n%s\n",
-                  message_util_write_param_response_json(
-                      (cr_ParameterWriteResult *)data));
+        message_util_log_write_param_response((cr_ParameterWriteResponse *)data);
       }
       else
       {
@@ -1531,9 +1645,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_ParameterNotifyConfigResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("parameter notify config response: \n%s\n",
-                  message_util_config_notify_param_json(
-                      (cr_ParameterNotifyConfigResponse *)data));
+        message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
       }
       break;
   #endif
@@ -1544,19 +1656,15 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_DiscoverFilesResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover files response: \n%s\n",
-                  message_util_discover_files_response_json(
-                      (cr_DiscoverFilesResponse *)data));
+        message_util_log_discover_files_response((cr_DiscoverFilesResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_INIT:
 
-      status = pb_encode(&os_stream, cr_FileTransferInitResponse_fields, data);
+      status = pb_encode(&os_stream, cr_FileTransferResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Transfer init response: \n%s\n",
-                  message_util_transfer_init_response_json(
-                      (cr_FileTransferInitResponse *)data));
+        message_util_log_file_transfer_response((cr_FileTransferResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -1564,7 +1672,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       if (status) {
           *encode_size = os_stream.bytes_written;
           cr_FileTransferData *td = (cr_FileTransferData *)data;
-          LOG_REACH(" Transfer Data encoded: \n%s\n", message_util_transfer_data_json(td));
+          message_util_log_transfer_data(td);
           LOG_DUMP_MASK(LOG_MASK_REACH, "Data Sent", 
                         td->message_data.bytes, td->message_data.size);
       }
@@ -1574,9 +1682,8 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
           pb_encode(&os_stream, cr_FileTransferDataNotification_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Transfer data notification response: \n%s\n",
-                  message_util_transfer_data_notification_json(
-                      (cr_FileTransferDataNotification *)data));
+        message_util_log_transfer_data_notification(false,
+                      (cr_FileTransferDataNotification *)data);
       }
       break;
 #endif // def INCLUDE_FILE_SERVICE
@@ -1589,7 +1696,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
     //     *encode_size = os_stream.bytes_written;
     //     LOG_REACH(
     //         "Discover streams request: \n%s\n",
-    //         message_util_discover_streams_json((cr_StreamsRequest *)data));
+    //         message_util_log_discover_streams((cr_StreamsRequest *)data));
     //   }
     // } else {
     //   status = pb_encode(&os_stream, cr_StreamsResponse_fields, data);
@@ -1608,18 +1715,14 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_DiscoverCommandsResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Discover commands response: \n%s\n",
-                  message_util_discover_commands_response_json(
-                      (cr_DiscoverCommandsResponse *)data));
+        message_util_log_discover_commands_response((cr_DiscoverCommandsResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_SEND_COMMAND:
       status = pb_encode(&os_stream, cr_SendCommandResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Send Command response: \n%s\n",
-                  message_util_send_command_response_json(
-                      (cr_SendCommandResponse *)data));
+        message_util_log_command_response((cr_SendCommandResponse *)data);
       }
       break;
 #endif  // def INCLUDE_COMMAND_SERVICE
@@ -1629,8 +1732,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_CLIData_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("CLI Notification response: \n%s\n",
-                  message_util_cli_notification_json((cr_CLIData *)data));
+        message_util_log_cli_notification(true, (cr_CLIData *)data);
       }
       break;
 #endif  // def INCLUDE_CLI_SERVICE
@@ -1640,18 +1742,14 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       status = pb_encode(&os_stream, cr_TimeSetResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Time set response: \n%s\n",
-                  message_util_time_set_response_json(
-                      (cr_TimeSetResponse *)data));
+        message_util_log_time_set_response((cr_TimeSetResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_GET_TIME:
       status = pb_encode(&os_stream, cr_TimeGetResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        LOG_REACH("Time set response: \n%s\n",
-                  message_util_time_get_response_json(
-                      (cr_TimeGetResponse *)data));
+        message_util_log_time_get_response((cr_TimeGetResponse *)data);
       }
       break;
 #endif  // def INCLUDE_TIME_SERVICE
@@ -1661,15 +1759,13 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
   case cr_ReachMessageTypes_DISCOVER_WIFI:
       status = pb_encode(&os_stream, cr_DiscoverWiFiResponse_fields, data);
       if (status) {
-        LOG_REACH("WiFi Info response: \n%s\n",
-                  message_util_discover_wifi_response_json((cr_DiscoverWiFiResponse *)data));
+        message_util_log_discover_wifi_response((cr_DiscoverWiFiResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_WIFI_CONNECT:
       status = pb_encode(&os_stream, cr_WiFiConnectionResponse_fields, data);
       if (status) {
-        LOG_REACH("WiFi Connect reqsponse: \n%s\n",
-                  message_util_WiFi_connect_request_json((cr_WiFiConnectionRequest *)data));
+        message_util_log_WiFi_connect_request((cr_WiFiConnectionRequest *)data);
       }
       break;
 #endif  // def INCLUDE_WIFI_SERVICE
@@ -1711,22 +1807,71 @@ bool encode_reach_message(const cr_ReachMessage *message,   // in:  message to b
 }
 
 #ifdef AHSOKA_HEADER
+
+
+// encodes message to sCr_encoded_response_buffer.
+// The caller must populate the header
+static int sCr_encode_classic_message(cr_ReachMessageTypes message_type,   // in
+                             const void *payload,                  // in:  to be encoded
+                             cr_ReachMessageHeader *hdr)           // in
+{
+    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
+    //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
+
+    if (!encode_reach_payload(message_type, payload,
+                              sCr_encoded_payload_buffer,
+                              sizeof(sCr_encoded_payload_buffer),
+                              &sCr_encoded_payload_size))
+    {
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
+        return cr_ErrorCodes_ENCODING_FAILED;
+    }
+    i3_log(LOG_MASK_REACH, TEXT_MAGENTA "Encode classic header:");
+
+    // build the message envelope
+    sCr_uncoded_message_structure.header     = *hdr;
+    sCr_uncoded_message_structure.has_header = true;
+    memcpy(sCr_uncoded_message_structure.payload.bytes, 
+           sCr_encoded_payload_buffer, 
+           sCr_encoded_payload_size);
+    sCr_uncoded_message_structure.payload.size = sCr_encoded_payload_size;  
+
+    I3_LOG(LOG_MASK_REACH, "%s(): type %d, remain %d, trans_id %d, client %d, ep %d.", 
+           __FUNCTION__,
+           sCr_uncoded_message_structure.header.message_type, 
+           sCr_uncoded_message_structure.header.remaining_objects, 
+           sCr_uncoded_message_structure.header.transaction_id,
+           sCr_uncoded_message_structure.header.client_id,
+           sCr_uncoded_message_structure.header.endpoint_id);
+
+    // encode the wrapped message
+    if (!encode_reach_message(&sCr_uncoded_message_structure,
+                              sCr_encoded_response_buffer,
+                              sizeof(sCr_encoded_response_buffer),
+                              &sCr_encoded_response_size))
+    {
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode message %d failed.", message_type);
+        return cr_ErrorCodes_ENCODING_FAILED;
+    }
+    return 0;
+}
+
 static
-bool encode_reach_header(const cr_ReachMessageHeader *header,  // in:  message to be encoded
+bool encode_ahsoka_header(const cr_AhsokaMessageHeader *header,  // in:  message to be encoded
                           uint8_t *buffer,                      // out: Buffer to encode into
                           size_t buffer_size,                   // in:  max size of encoded message
                           size_t *encode_size)                  // out: actual size of encoded message.
 {
   pb_ostream_t os_stream = pb_ostream_from_buffer(buffer, buffer_size);
 
-  bool status = pb_encode(&os_stream, cr_ReachMessageHeader_fields, (void *)header);
+  bool status = pb_encode(&os_stream, cr_AhsokaMessageHeader_fields, (void *)header);
   if (status) {
-    *encode_size = os_stream.bytes_written;
+     *encode_size = os_stream.bytes_written;
   } else {
-    LOG_ERROR("Encoding failed: %s\n", PB_GET_ERROR(&os_stream));
+    LOG_ERROR("Encoding ahsoka header failed: %s\n", PB_GET_ERROR(&os_stream));
   }
 
-  LOG_DUMP_WIRE("The encoded message", buffer, *encode_size);
+  LOG_DUMP_WIRE("The encoded ahsoka header", buffer, *encode_size);
 
   return status;
 }
@@ -1736,38 +1881,98 @@ bool encode_reach_header(const cr_ReachMessageHeader *header,  // in:  message t
 static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
                              const void *payload,                  // in:  to be encoded
                              cr_ReachMessageHeader *hdr)           // in
-{
+{   // Ahsoka version
+    if (sClassic_header_format)
+    {
+        return sCr_encode_classic_message(message_type, payload, hdr);
+    }
+
+    LOG_REACH("Encode Ahsoka message:");
+    cr_AhsokaMessageHeader ahdr;
+    ahdr.transport_id          = message_type;
+    ahdr.client_id.size        = sizeof(hdr->client_id);
+    memcpy(ahdr.client_id.bytes, &hdr->client_id, sizeof(hdr->client_id));
+    ahdr.endpoint_id           = hdr->endpoint_id;
+    ahdr.client_message_id     = hdr->transaction_id;
+    ahdr.message_size          = hdr->remaining_objects;
+    ahdr.is_message_compressed = false;
+
     // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
     //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
 
     uint8_t *encBuffer = (uint8_t *)sCr_encoded_response_buffer;
     // encode the header
-    if (!encode_reach_header(hdr,
+    if (!encode_ahsoka_header(&ahdr,
                               &encBuffer[2],
                               sizeof(sCr_encoded_response_buffer) - 2,
                               &sCr_encoded_response_size))
     {
-        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode header %d failed.", message_type);
+        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode ahsoka header %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
     // copy the size to the start of the buffer
     uint16_t header_size = sCr_encoded_response_size;
-    memcpy(encBuffer, &header_size, sizeof(header_size));
+    *(uint16_t *)encBuffer = header_size;
+    // memcpy(encBuffer, &header_size, sizeof(header_size));
+    I3_LOG(LOG_MASK_AHSOKA, "Place header_size %d at head of buffer.", header_size);
+    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka header with size prefix: ",
+                  encBuffer, header_size+2);
 
     // encode the payload
     if (!encode_reach_payload(message_type, payload,
-                              &encBuffer[2 + header_size],
+                              &encBuffer[header_size+2],
                               sizeof(sCr_encoded_response_buffer) - 2 - header_size,
                               &sCr_encoded_payload_size))
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
-    sCr_encoded_payload_size += 2 + header_size;
+    sCr_encoded_response_size = sCr_encoded_payload_size + header_size + 2;
+    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka message complete: ",
+                  encBuffer, sCr_encoded_response_size);
     return 0;
 }
 
+  #ifdef TEST_HEADER
+    void pvtCr_test_ahsoka_header()
+    {
+        // create an ahsoka format GDI, and decode it.
+        sClassic_header_format = false;
+
+        // make up payload of type cr_DeviceInfoRequest
+        cr_PingRequest payload = {0};
+        payload.echo_data.size = sprintf((char*)payload.echo_data.bytes, "aaa bbb ccc");
+        // encodes to sCr_encoded_response_buffer 
+        cr_ReachMessageHeader hdr;
+        hdr.message_type = cr_ReachMessageTypes_PING;
+        hdr.endpoint_id = 1;
+        hdr.client_id = 2;
+        hdr.remaining_objects = 3;
+        hdr.transaction_id = 4;
+        // encodes message to sCr_encoded_response_buffer.
+        sTestHeader = true; // tell encode to use request, not response
+        int rval = sCr_encode_message(cr_ReachMessageTypes_PING, &payload, &hdr);
+        if (rval != 0)
+        {
+            LOG_ERROR("sCr_encode_message (ahsoka) failed with %d", rval);
+            return;
+        }
+        sTestHeader = false;
+
+        LOG_REACH("Copy %d bytes from response to encoded", sCr_encoded_response_size);
+        sCr_encoded_message_size =  sCr_encoded_response_size;
+        memcpy(sCr_encoded_message_buffer, sCr_encoded_response_buffer, sCr_encoded_message_size);
+        LOG_DUMP_WIRE("ahsoka encoded: ",
+                      sCr_encoded_message_buffer, sCr_encoded_message_size);
+
+        LOG_REACH("Decode");
+        handle_coded_prompt();
+        LOG_REACH("done");
+        sClassic_header_format = false;
+    }
+  #endif // TEST_HEADER
 #else
+// Classic version
 // encodes message to sCr_encoded_response_buffer.
 // The caller must populate the header
 static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in

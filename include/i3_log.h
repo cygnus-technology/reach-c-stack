@@ -63,6 +63,7 @@ extern "C"
 #define LOG_MASK_FILES      0x200   ///< show file handling
 #define LOG_MASK_BLE        0x400   ///< show BLE handling
 #define LOG_MASK_DEBUG      0x800   ///< show other reach features
+#define LOG_MASK_AHSOKA     0x1000  ///< show ahsoka coding
 
 /// Logging can be completely excluded from the build by
 /// defining NO_REACH_LOGGING in reach-server.h.

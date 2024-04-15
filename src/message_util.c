@@ -29,22 +29,21 @@
  *   |_|___/ |_| |_| \___/\__,_|\_,_\__|\__| |___/\___|\_/\___|_\___/ .__/_|_|_\___|_||_\__|
  *                                                                  |_|
  *                           -----------------------------------
- *                          Copyright i3 Product Development 2023
- *
- *
- * @author  i3 Product Development
- *          Wei Zhou wei.zhou@i3pd.com
- *
- * @version 0.0.1
- * @date    2023-08-21
+ *                          Copyright i3 Product Development 2023-2024
  *
  ********************************************************************************************/
 
 /**
  * @file      message_util.c
- * @brief     Utility functions to print out Reach messages in a human readable 
- *            format.
- * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
+ * @brief     Provides functions that help you understand and 
+ *            debug Reach message traffic. These utility
+ *            functions print out Reach messages in a human
+ *            readable format. They are not required and can
+ *            be removed by #defining NO_REACH_LOGGING in
+ *            reach-server.h. This message logging code takes
+ *            about 20k in code space on an ARM.
+ * @copyright (c) Copyright 2023-2024 i3 Product Development. 
+ *            All Rights Reserved.
  */
 
 #include <stdio.h>
@@ -52,17 +51,123 @@
 #include "reach-server.h"
 #include "message_util.h"
 #include "i3_log.h"
-#include "cJSON.h"
 
 // None of these message utilities are required without logging.
 #ifndef NO_REACH_LOGGING
 
-// This could be smaller.  It's the WiFi service that requires 
-// it to be this large.  64 is enough for time.  40 for params.
-#define MSG_BUFFER_LEN    256
-static char sMsgUtilBuffer[MSG_BUFFER_LEN];
+static void sLogNumberList(const uint32_t *entries, size_t num)
+{
+  int remaining_entries = num;
+  size_t i=0;
+  while (remaining_entries >= 8)
+  {
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d, %d, %d, %d", i,
+           entries[i+0], entries[i+1], entries[i+2], entries[i+3],
+           entries[i+4], entries[i+5], entries[i+6], entries[i+7]);
+    remaining_entries -= 8;
+    i += 8;
+  }
 
-  // msg_type_string(cr_ReachMessageTypes_GET_DEVICE_INFO)
+  switch (remaining_entries)
+  {
+  case 7:
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d, %d, %d", i,
+           entries[i+0], entries[i+1], entries[i+2], entries[i+3],
+           entries[i+4], entries[i+5], entries[i+6]);
+    break;
+  case 6:
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d, %d", i,
+           entries[i+0], entries[i+1], entries[i+2], entries[i+3],
+           entries[i+4], entries[i+5]);
+    break;
+  case 5:
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d", i,
+           entries[i+0], entries[i+1], entries[i+2], entries[i+3],
+           entries[i+4]);
+    break;
+  case 4:
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d", i,
+           entries[i+0], entries[i+1], entries[i+2], entries[i+3]);
+    break;
+  case 3:
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d", i,
+           entries[i+0], entries[i+1], entries[i+2]);
+    break;
+  case 2:
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d", i,
+           entries[i+0], entries[i+1]);
+    break;
+  case 1:
+    i3_log(LOG_MASK_REACH, "      idx %d:  %d", i,
+           entries[i+0]);
+    break;
+  default:
+    break;
+  }
+}
+
+static void sByte_array_to_hex_string(const uint8_t *array, size_t array_size, char *hex_string) {
+    size_t i;
+    for (i = 0; i < array_size; i++) {
+        sprintf(hex_string + (i * 2), "%02X", array[i]);
+    }
+}
+
+static void sLogParameterValue(const cr_ParameterValue *param)
+{
+  // To match the apps and protobufs, must use _value_tags!
+  // That's why the -3 when logging the type.
+  switch (param->which_value)
+  {
+  case cr_ParameterValue_uint32_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   uint32: %u", param->parameter_id, param->value.uint32_value);
+    break;
+  case cr_ParameterValue_sint32_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   sint32: %d", param->parameter_id, param->value.sint32_value);
+      break;
+  case cr_ParameterValue_float32_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   float32: %.2f", param->parameter_id, param->value.float32_value);
+      break;
+  case cr_ParameterValue_uint64_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   uint64: %llu", param->parameter_id, param->value.uint64_value);
+      break;
+  case cr_ParameterValue_sint64_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   sint64: %lld", param->parameter_id, param->value.sint64_value);
+      break;
+  case cr_ParameterValue_float64_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   float64: %.3llf", param->parameter_id, param->value.float64_value);
+      break;
+  case cr_ParameterValue_bool_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   boolean: %s", param->parameter_id, param->value.bool_value? "true":"false");
+      break;
+  case cr_ParameterValue_string_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   string: %s", param->parameter_id, param->value.string_value);
+      break;
+  case cr_ParameterValue_enum_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   enum: %d", param->parameter_id, param->value.enum_value);
+      break;
+  case cr_ParameterValue_bitfield_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   bitfield: 0x%x", param->parameter_id, param->value.bitfield_value);
+      break;
+  case cr_ParameterValue_bytes_value_tag:
+    {
+      char hexStr[65];  // 32 entries plus null
+      sByte_array_to_hex_string(param->value.bytes_value.bytes,
+                                param->value.bytes_value.size,
+                                hexStr);
+      i3_log(LOG_MASK_REACH, "    id : %d.   bytes: %s", param->parameter_id, hexStr);
+      break;
+    }
+  default:
+      break;
+  }
+}
+
+//-------------------------------------------------------------------------------
+// Public API
+//-------------------------------------------------------------------------------
+
+// msg_type_string(cr_ReachMessageTypes_GET_DEVICE_INFO)
 const char *msg_type_string(int32_t message_type) {
 
   switch (message_type) {
@@ -122,726 +227,519 @@ const char *msg_type_string(int32_t message_type) {
   return "Unknown";
 }
 
-
-char *message_util_get_null_value_json(const char *key) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON_AddNullToObject(json, key);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *message_util_get_device_info_json(cr_DeviceInfoRequest* data) {
+void message_util_log_device_info_request(cr_DeviceInfoRequest* data) {
+  i3_log(LOG_MASK_REACH, "  Device Info Request:");
   if (data->has_challenge_key)
-    sprintf(sMsgUtilBuffer, "    Challenge key '%s'", data->challenge_key);
+    i3_log(LOG_MASK_REACH, "    Challenge key '%s'", data->challenge_key);
   else
-    sprintf(sMsgUtilBuffer, "    No challenge key");
-  
-  return sMsgUtilBuffer;
+    i3_log(LOG_MASK_REACH, "    No challenge key");
 }
 
-char *message_util_get_device_info_response_json(
-    const cr_DeviceInfoResponse *response) {
 
-    cJSON *json = cJSON_CreateObject();
-    cJSON *json1 = cJSON_CreateObject();
-    cJSON_AddNumberToObject(json1, "protocol version", response->protocol_version);
-    cJSON_AddStringToObject(json1, "name", response->device_name);
-    cJSON_AddStringToObject(json1, "firmware version", response->firmware_version);
-    cJSON_AddStringToObject(json1, "manufacturer", response->manufacturer);
-    cJSON_AddStringToObject(json1, "device description", response->device_description);
-    cJSON_AddNumberToObject(json1, "services", response->services);
-    cJSON_AddNumberToObject(json1, "hash", response->parameter_metadata_hash);
-    // not yet: application_identifier
-    cJSON_AddNumberToObject(json1, "endpoints", response->endpoints);
-    cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_GET_DEVICE_INFO), json1);
 
-    // convert the cJSON object to a JSON string
-    char *json_str = cJSON_Print(json);
-
-    // free the JSON string and cJSON object
-    cJSON_Delete(json);
-
-    return json_str;
+void message_util_log_device_info_response(const cr_DeviceInfoResponse *response) 
+{
+    i3_log(LOG_MASK_REACH, "  Device Info Response:");
+    i3_log(LOG_MASK_REACH, "    name                  : %s", response->device_name);
+    i3_log(LOG_MASK_REACH, "    protocol version      : %s", response->protocol_version_string);
+    i3_log(LOG_MASK_REACH, "    firmware version      : %s", response->firmware_version);
+    i3_log(LOG_MASK_REACH, "    manufacturer          : %s", response->manufacturer);
+    i3_log(LOG_MASK_REACH, "    device description    : %s", response->device_description);
+    i3_log(LOG_MASK_REACH, "    services              : 0x%x", response->services);
+    i3_log(LOG_MASK_REACH, "    metadata hash         : 0x%x", response->parameter_metadata_hash);
+    i3_log(LOG_MASK_REACH, "    endpoints             : 0x%x", response->endpoints);
+    if (response->has_application_identifier)
+    {
+        char hex_string[48];
+        // Convert byte array to hex string
+        sByte_array_to_hex_string(response->application_identifier.bytes,
+                                 response->application_identifier.size,
+                                 hex_string);
+        i3_log(LOG_MASK_REACH, "    application_identifier    : %s", hex_string);
+    }
+    i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-char *message_util_discover_files_json() {
-  return message_util_get_null_value_json(msg_type_string(cr_ReachMessageTypes_DISCOVER_FILES));
+void message_util_log_discover_files() 
+{
+  i3_log(LOG_MASK_REACH, "  Discover Files Request\r\n");
 }
 
-char *message_util_discover_files_response_json(
-    const cr_DiscoverFilesResponse *response) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *jsonArray = cJSON_CreateArray();
-
+void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *response)
+{
+  i3_log(LOG_MASK_REACH, "  Discover Files Response:");
   for (int i=0; i < response->file_infos_count; i++)
   {
-    cJSON *json1 = cJSON_CreateObject();
-    cJSON_AddNumberToObject(json1, "id", response->file_infos[i].file_id);
-    cJSON_AddStringToObject(json1, "name", response->file_infos[i].file_name);
-    cJSON_AddNumberToObject(json1, "access", response->file_infos[i].access);
-    cJSON_AddNumberToObject(json1, "current byte length", response->file_infos[i].current_size_bytes);
-    cJSON_AddItemToArray(jsonArray, json1);
+    i3_log(LOG_MASK_REACH, "    [id                  : %d", response->file_infos[i].file_id);
+    i3_log(LOG_MASK_REACH, "     name                : %s", response->file_infos[i].file_name);
+    i3_log(LOG_MASK_REACH, "     access              : 0x%x", response->file_infos[i].access);
+    i3_log(LOG_MASK_REACH, "     current byte length : %d", response->file_infos[i].current_size_bytes);
+    i3_log(LOG_MASK_REACH, "    ]");
   }
-
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_DISCOVER_FILES), jsonArray);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+  i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-char *message_util_transfer_init_json(const cr_FileTransferInit *request) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json1 = cJSON_CreateObject();
-  cJSON_AddNumberToObject(json1, "id", request->file_id);
-  cJSON_AddNumberToObject(json1, "read_write", request->read_write);
-  cJSON_AddNumberToObject(json1, "request offset", request->request_offset);
-  cJSON_AddNumberToObject(json1, "transfer length", request->transfer_length);
-  cJSON_AddNumberToObject(json1, "transfer id", request->transfer_id);
-  cJSON_AddNumberToObject(json1, "messages per ack", request->messages_per_ack);
-  cJSON_AddNumberToObject(json1, "timeout", request->timeout_in_ms);
-
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_TRANSFER_INIT), json1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+void message_util_log_file_transfer_request(const cr_FileTransferRequest *request)
+{
+  i3_log(LOG_MASK_REACH, "  File Transfer Init Request:");
+  i3_log(LOG_MASK_REACH, "    id                 : %d", request->file_id);
+  i3_log(LOG_MASK_REACH, "    read_write         : %d", request->read_write);
+  i3_log(LOG_MASK_REACH, "    request offset     : %d", request->request_offset);
+  i3_log(LOG_MASK_REACH, "    transfer length    : %d", request->transfer_length);
+  i3_log(LOG_MASK_REACH, "    transfer id        : %d", request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    requested_ack_rate : %d", request->requested_ack_rate);
+  i3_log(LOG_MASK_REACH, "    timeout            : %d\r\n", request->timeout_in_ms);
 }
 
-char *message_util_transfer_init_response_json(
-    const cr_FileTransferInitResponse *response) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json1 = cJSON_CreateObject();
-  cJSON_AddNumberToObject(json1, "result", response->result);
-  cJSON_AddNumberToObject(json1, "transfer_id", response->transfer_id);
-  cJSON_AddNumberToObject(json1, "preferred_ack_rate", response->preferred_ack_rate);
-  if (response->result != 0)
-    cJSON_AddStringToObject(json1, "error_message", response->error_message);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_TRANSFER_INIT), json1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+void message_util_log_file_transfer_response(const cr_FileTransferResponse *response)
+{
+  i3_log(LOG_MASK_REACH, "  File Transfer Init Response:");
+  i3_log(LOG_MASK_REACH, "    result            :", response->result);
+  i3_log(LOG_MASK_REACH, "    transfer_id       :", response->transfer_id);
+  i3_log(LOG_MASK_REACH, "    ack_rate          :", response->ack_rate);
+  if (response->has_result_message) {            
+    i3_log(LOG_MASK_REACH, "    result_message  :", response->result_message);
+  }
+  i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-char *message_util_transfer_data_json(const cr_FileTransferData *request) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json1 = cJSON_CreateObject();
-  cJSON_AddNumberToObject(json1, "transfer id", request->transfer_id);
-  cJSON_AddNumberToObject(json1, "message number",  request->message_number);
-  cJSON_AddNumberToObject(json1, "messsage size", request->message_data.size);
-  // cJSON_AddRawToObject(json1, "messsage data", (char *)request->message_data.bytes);
-  cJSON_AddNumberToObject(json1, "crc32", request->crc32);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_TRANSFER_DATA), json1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *
-message_util_transfer_data_response_json(const cr_FileTransferData *request) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json1 = cJSON_CreateObject();
-  cJSON_AddNumberToObject(json1, "id", request->transfer_id);
-  cJSON_AddNumberToObject(json1, "message number", request->message_number);
-  // cJSON_AddRawToObject(json1, "messsage data", (char *)request->message_data.bytes);
-  cJSON_AddNumberToObject(json1, "crc32", request->crc32);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_TRANSFER_DATA), json1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *message_util_transfer_data_notification_json(
-    const cr_FileTransferDataNotification *request) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json1 = cJSON_CreateObject();
-  cJSON_AddNumberToObject(json1, "result", request->result);
-  cJSON_AddBoolToObject(json1, "is_complete", request->is_complete);
-  cJSON_AddNumberToObject(json1, "transfer_id", request->transfer_id);
-  if (request->result != 0)
+void message_util_log_transfer_data(const cr_FileTransferData *request)
+{
+  i3_log(LOG_MASK_REACH, "  File Transfer Data Request:");
+  i3_log(LOG_MASK_REACH, "    transfer id    : %d", request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    message number : %d", request->message_number);
+  i3_log(LOG_MASK_REACH, "    messsage size  : %d", request->message_data.size);
+  // don't print the data here.
+  if (request->has_checksum)
   {
-    cJSON_AddNumberToObject(json1, "retry_offset", request->retry_offset);
-    cJSON_AddStringToObject(json1, "error_message", request->error_message);
+    i3_log(LOG_MASK_REACH, "    checksum       : 0x%x\r\n", request->checksum);
   }
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION), json1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+  i3_log(LOG_MASK_REACH, "    No CRC\r\n");
 }
 
-char *message_util_param_info_json(const cr_ParameterInfoRequest *request) {
-
-  // I3_LOG(LOG_MASK_REACH, "message_util_param_info_json\n");
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *jsonArray = cJSON_CreateArray();
-  if (request->parameter_ids_count > 0) {
-
-    for (size_t i = 0; i < request->parameter_ids_count; i++) {
-      cJSON_AddItemToArray(jsonArray,
-                           cJSON_CreateNumber(request->parameter_ids[i]));
-    }
-  }
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_DISCOVER_PARAMETERS), jsonArray);
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *message_util_param_info_response_json(
-    const cr_ParameterInfoResponse *response) {
-
-  cJSON *json = cJSON_CreateObject();
-  if (response->parameter_infos_count > 0) {
-    cJSON *jsonArray = cJSON_CreateArray();
-    for (size_t i = 0; i < response->parameter_infos_count; i++) {
-      cJSON *json_1 = cJSON_CreateObject();
-
-      cJSON_AddNumberToObject(json_1, "id", response->parameter_infos[i].id);
-      cJSON_AddNumberToObject(json_1, "data type", response->parameter_infos[i].which_desc);
-      // NOTE: Skipping the type-specific data descriptions for now, this would require a large switch statement
-      cJSON_AddStringToObject(json_1, "name", response->parameter_infos[i].name);
-      cJSON_AddNumberToObject(json_1, "access", response->parameter_infos[i].access);
-      if (response->parameter_infos[i].has_description)
-          cJSON_AddStringToObject(json_1, "description", response->parameter_infos[i].description);
-      cJSON_AddNumberToObject(json_1, "storage location", response->parameter_infos[i].storage_location);
-
-      cJSON_AddItemToArray(jsonArray, json_1);
-    }
-    cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_DISCOVER_PARAMETERS), jsonArray);
-  }
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *message_util_param_info_ex_response_json(
-    const cr_ParamExInfoResponse *response) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *jsonArray = cJSON_CreateArray();
-
-  cJSON_AddNumberToObject(json, "enum_bitfield_id", response->enum_bitfield_id);
-  cJSON_AddNumberToObject(json, "data_type", response->data_type);
-  cJSON_AddNumberToObject(json, "enums_bits_count", response->enums_bits_count);
-  if (response->enums_bits_count > 0) 
+/*
+void
+message_util_log_transfer_data_response(const cr_FileTransferData *request)
+{
+  i3_log(LOG_MASK_REACH, "  File Transfer Data Response:");
+  i3_log(LOG_MASK_REACH, "    transfer id    : %d", request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    message number : %d", request->message_number);
+  i3_log(LOG_MASK_REACH, "    messsage size  : %d", request->message_data.size);
+  // don't print the data here.
+  if (request->has_checksum)
   {
-    cJSON *jsonArray2 = cJSON_CreateArray();
-    for (size_t i = 0; i < response->enums_bits_count; i++) 
-    {
-      cJSON *json1 = cJSON_CreateObject();
-      cJSON_AddNumberToObject(json1, "id", response->enums_bits[i].id);
-      cJSON_AddStringToObject(json1, "name", response->enums_bits[i].name);
-      cJSON_AddItemToArray(jsonArray2, json1);
-    }
-    cJSON_AddItemToObject(json, "enumerations", jsonArray2);
+    i3_log(LOG_MASK_REACH, "    checksum       : 0x%x\r\n", request->checksum);
   }
+  i3_log(LOG_MASK_REACH, "    No CRC\r\n");
+} 
+*/ 
 
-  // To Do:  The title comes at t the end, but it should be at the beginning.
-
-  cJSON_AddItemToObject(json, "Parameter Info EX Response", jsonArray);
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+void message_util_log_transfer_data_notification(bool is_request,
+    const cr_FileTransferDataNotification *request)
+{
+  if (is_request)
+    i3_log(LOG_MASK_REACH, "  Transfer Data Notification Request:");
+  else
+    i3_log(LOG_MASK_REACH, "  Transfer Data Notification Response:");
+  i3_log(LOG_MASK_REACH, "    result       : %d", request->result);
+  i3_log(LOG_MASK_REACH, "    transfer_id  : %d", request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    retry_offset : %d", request->retry_offset);
+  if (request->has_result_message)
+    i3_log(LOG_MASK_REACH, "    result_message: %s", request->result_message);
+  if (request->is_complete)
+    i3_log(LOG_MASK_REACH, "    Transfer Complete.\r\n");
+  i3_log(LOG_MASK_REACH, "    Transfer NOT Complete.\r\n");
 }
 
-char *message_util_discover_streams_json() {
-  return message_util_get_null_value_json(msg_type_string(cr_ReachMessageTypes_DISCOVER_STREAMS));
+void message_util_log_param_info_request(const cr_ParameterInfoRequest *request)
+{
+  i3_log(LOG_MASK_REACH, "  Parameter Info Request:");
+  if (request->parameter_ids_count == 0)
+  {
+    i3_log(LOG_MASK_REACH, "    Count zero means request all.\r\n");
+    return;
+  }
+  i3_log(LOG_MASK_REACH, "    %d parameters requested:");
+  sLogNumberList(request->parameter_ids, request->parameter_ids_count);
+  i3_log(LOG_MASK_REACH, "\r\n");
+}
+
+void message_util_log_param_info_response(const cr_ParameterInfoResponse *response)
+{
+  i3_log(LOG_MASK_REACH, "  Parameter Info Response:");
+  if (response->parameter_infos_count == 0) {
+    i3_log(LOG_MASK_REACH, "    No Parameters\r\n");
+    return;
+  } 
+  for (size_t i = 0; i < response->parameter_infos_count; i++) {
+    i3_log(LOG_MASK_REACH, "    [id            : %d", response->parameter_infos[i].id);
+    i3_log(LOG_MASK_REACH, "     data type     : %d", response->parameter_infos[i].which_desc - cr_ParameterInfo_uint32_desc_tag);
+    i3_log(LOG_MASK_REACH, "     name          : %s", response->parameter_infos[i].name);
+    i3_log(LOG_MASK_REACH, "     access        : 0x%x", response->parameter_infos[i].access);
+    i3_log(LOG_MASK_REACH, "     storage location: %d", response->parameter_infos[i].storage_location);
+    i3_log(LOG_MASK_REACH, "    ]");
+  }
+  i3_log(LOG_MASK_REACH, "\r\n");
+}
+
+void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *response)
+{
+  i3_log(LOG_MASK_REACH, "  Parameter Info Ex Response:");
+  i3_log(LOG_MASK_REACH, "    enum_bitfield_id     : %d", response->enum_bitfield_id);
+  i3_log(LOG_MASK_REACH, "    data_type          : %d", response->data_type);
+  i3_log(LOG_MASK_REACH, "    enums_bits_count : %d", response->enums_bits_count);
+  for (size_t i = 0; i < response->enums_bits_count; i++) 
+  {
+    i3_log(LOG_MASK_REACH, "    [id: %d.  name: %s]", 
+           response->enums_bits[i].id, response->enums_bits[i].name);
+  }
+}
+
+void message_util_log_discover_streams()
+{
+  i3_log(LOG_MASK_REACH, "  Discover Streams:");
 }
 
 /** Commands */
-char *message_util_discover_commands_json() {
-  return message_util_get_null_value_json(msg_type_string(cr_ReachMessageTypes_DISCOVER_COMMANDS));
+void message_util_log_discover_commands() {
+
+  i3_log(LOG_MASK_REACH, "  Discover Commands:");
 }
 
-char *message_util_discover_commands_response_json(
-    const cr_DiscoverCommandsResponse *payload) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *jsonArray = cJSON_CreateArray();
-  if (payload->available_commands_count > 0) {
-    for (size_t i = 0; i < payload->available_commands_count; i++) {
-      cJSON *json_1 = cJSON_CreateObject();
-      cJSON_AddNumberToObject(json_1, "id", payload->available_commands[i].id);
-      cJSON_AddStringToObject(json_1, "name", payload->available_commands[i].name);
-      if ( payload->available_commands[i].has_description ) {
-        cJSON_AddStringToObject(json_1, "desc", payload->available_commands[i].description);
-      }
-      if ( payload->available_commands[i].has_timeout ) {
-        cJSON_AddNumberToObject(json_1, "timeout", payload->available_commands[i].timeout);
-      }
-      cJSON_AddItemToArray(jsonArray, json_1);
-    }
+void message_util_log_discover_commands_response(
+    const cr_DiscoverCommandsResponse *payload)
+{
+  i3_log(LOG_MASK_REACH, "  Discover Commands Response:");
+  for (size_t i = 0; i < payload->available_commands_count; i++) {
+    i3_log(LOG_MASK_REACH, "    [id         : %d", payload->available_commands[i].id);
+    i3_log(LOG_MASK_REACH, "     name       : %s", payload->available_commands[i].name);
+    if ( payload->available_commands[i].has_description ) 
+      i3_log(LOG_MASK_REACH, "     description : %s", payload->available_commands[i].description);
+    if ( payload->available_commands[i].has_timeout ) 
+      i3_log(LOG_MASK_REACH, "     timeout     : %d", payload->available_commands[i].timeout);
+    i3_log(LOG_MASK_REACH, "    ]");
   }
-
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_DISCOVER_COMMANDS), jsonArray);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
 }
 
-char *message_util_send_command_json(const cr_SendCommand *payload) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json_1 = cJSON_CreateObject();
-  cJSON_AddNumberToObject(json_1, "command", payload->command_id);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_SEND_COMMAND), json_1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+void message_util_log_send_command(const cr_SendCommand *payload)
+{
+  i3_log(LOG_MASK_REACH, "  Send Command %d\r\n", payload->command_id);
 }
 
-char *
-message_util_send_command_response_json(const cr_SendCommandResponse *payload) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json_1 = cJSON_CreateObject();
-  cJSON_AddNumberToObject(json_1, "result", payload->result);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_SEND_COMMAND), json_1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+void message_util_log_command_response(const cr_SendCommandResponse *payload)
+{
+  i3_log(LOG_MASK_REACH, "  Send Command Response:");
+  i3_log(LOG_MASK_REACH, "    result  : %d", payload->result);
+  if (payload->has_result_message)
+    i3_log(LOG_MASK_REACH, "    message : %s", payload->result_message);
+  i3_log(LOG_MASK_REACH, "\n");
 }
 
 /** CLI */
-char * message_util_cli_notification_json(const cr_CLIData *payload) {
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json_1 = cJSON_CreateObject();
-
-  cJSON_AddStringToObject(json_1, "message data", payload->message_data);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_CLI_NOTIFICATION), json_1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+void message_util_log_cli_notification(bool send, const cr_CLIData *payload)
+{
+  if (send)
+    i3_log(LOG_MASK_REACH, "  Send CLI Notification:");
+  else
+    i3_log(LOG_MASK_REACH, "  Receive CLI Notification:");
+  i3_log(LOG_MASK_REACH, "    %s\r\n", payload->message_data);
 }
 
 #ifdef INCLUDE_PARAMETER_SERVICE
 /** Params */
-char *message_util_read_param_json(const cr_ParameterRead *request) {
-
-  // // I3_LOG(LOG_MASK_REACH, "message_util_read_param_json\n");
-
-  cJSON *json = cJSON_CreateObject();
-  cJSON *jsonArray = cJSON_CreateArray();
-  if (request->parameter_ids_count > 0) {
-    for (size_t i = 0; i < request->parameter_ids_count; i++) {
-      cJSON_AddItemToArray(jsonArray, cJSON_CreateNumber(request->parameter_ids[i]));
-    }
-  }
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_READ_PARAMETERS), jsonArray);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *
-message_util_read_param_response_json(const cr_ParameterReadResult *response) {
-
-  // // I3_LOG(LOG_MASK_REACH,
-  // "message_util_read_param_response_json\n");
-
-  cJSON *json = cJSON_CreateObject();
-  if (response->values_count > 0) {
-    cJSON *jsonArray = cJSON_CreateArray();
-    for (size_t i = 0; i < response->values_count; i++) {
-      cJSON *json_1 = cJSON_CreateObject();
-      cJSON_AddNumberToObject(json_1, "id",
-                              response->values[i].parameter_id);
-
-      char typeStr[16];
-      // To match the apps and protobufs, must use _value_tags!
-      // That's why the -3 here.
-      sprintf(typeStr, "value (%d)", response->values[i].which_value-3);
-
-      switch (response->values[i].which_value)
-      {
-      case cr_ParameterValue_uint32_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.uint32_value);
-          break;
-      case cr_ParameterValue_sint32_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.sint32_value);
-          break;
-      case cr_ParameterValue_float32_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.float32_value);
-          break;
-      case cr_ParameterValue_uint64_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.uint64_value);
-          break;
-      case cr_ParameterValue_sint64_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.sint64_value);
-          break;
-      case cr_ParameterValue_float64_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.float64_value);
-          break;
-      case cr_ParameterValue_bool_value_tag:
-          cJSON_AddBoolToObject(json_1, typeStr,
-                                response->values[i].value.bool_value);
-          break;
-      case cr_ParameterValue_string_value_tag:
-          cJSON_AddStringToObject(json_1, typeStr,
-                                  response->values[i].value.string_value);
-          break;
-      case cr_ParameterValue_enum_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.enum_value);
-          break;
-      case cr_ParameterValue_bitfield_value_tag:
-          cJSON_AddNumberToObject(json_1, typeStr,
-                                  response->values[i].value.bitfield_value);
-          break;
-      case cr_ParameterValue_bytes_value_tag:
-          {
-              int numBytes = response->values[i].value.bytes_value.size < 32 ?
-                  response->values[i].value.bytes_value.size : 32;
-              cJSON_AddNumberToObject(json_1, typeStr,
-                                      response->values[i].value.bytes_value.size);
-              I3_LOG(LOG_MASK_REACH, "JSON shows number of bytes as %d.", response->values[i].value.bytes_value.size);
-              LOG_DUMP_MASK(LOG_MASK_REACH, "bytes", response->values[i].value.bytes_value.bytes, numBytes);
-          }
-          break;
-      default:
-          break;
-      }
-      // }
-
-      cJSON_AddItemToArray(jsonArray, json_1);
-    }
-    cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_READ_PARAMETERS), jsonArray);
-  }
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *message_util_write_param_json(const cr_ParameterWrite *payload) {
-
-  // I3_LOG(LOG_MASK_REACH, "message_util_write_param_json\n");
-
-  cJSON *json = cJSON_CreateObject();
-  if (payload->values_count > 0) {
-    cJSON *jsonArray = cJSON_CreateArray();
-    for (size_t i = 0; i < payload->values_count; i++) {
-      cJSON *json_1 = cJSON_CreateObject();
-      cJSON_AddNumberToObject(json_1, "id",
-                              payload->values[i].parameter_id);
-      switch (payload->values[i].which_value)
-      {
-      case cr_ParameterValue_uint32_value_tag:
-          cJSON_AddNumberToObject(json_1, "value",
-                                  payload->values[i].value.uint32_value);
-          break;
-      case cr_ParameterValue_sint32_value_tag:
-          cJSON_AddNumberToObject(json_1, "value",
-                                  payload->values[i].value.sint32_value);
-          break;
-      case cr_ParameterValue_float32_value_tag:
-          cJSON_AddNumberToObject(json_1, "value",
-                                  payload->values[i].value.float32_value);
-          break;
-      case cr_ParameterValue_uint64_value_tag:
-          cJSON_AddNumberToObject(json_1, "value",
-                                  payload->values[i].value.uint64_value);
-          break;
-      case cr_ParameterValue_sint64_value_tag:
-          cJSON_AddNumberToObject(json_1, "value",
-                                  payload->values[i].value.sint64_value);
-          break;
-      case cr_ParameterValue_float64_value_tag:
-          cJSON_AddNumberToObject(json_1, "value",
-                                  payload->values[i].value.float64_value);
-          break;
-      case cr_ParameterValue_bool_value_tag:
-          cJSON_AddBoolToObject(json_1, "value",
-                                payload->values[i].value.bool_value);
-          break;
-      case cr_ParameterValue_string_value_tag:
-          cJSON_AddStringToObject(json_1, "value",
-                                  payload->values[i].value.string_value);
-          break;
-      default:
-          break;
-      }
-
-      cJSON_AddItemToArray(jsonArray, json_1);
-    }
-    cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_WRITE_PARAMETERS), jsonArray);
-  }
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
-}
-
-char *
-message_util_write_param_response_json(
-    const cr_ParameterWriteResult *payload)
+void message_util_log_read_param(const cr_ParameterRead *request)
 {
-  sprintf(sMsgUtilBuffer, "  write param response: %d", (int)payload->result);
-  return sMsgUtilBuffer;
+  i3_log(LOG_MASK_REACH, "  Read Parameter Request:");
+  if (request->parameter_ids_count == 0)
+  {
+    i3_log(LOG_MASK_REACH, "  A count of zero means read all.\r\n");
+    return;
+  }
+  sLogNumberList(request->parameter_ids, request->parameter_ids_count);
+  i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-char *message_util_config_notify_param_json(
-    const cr_ParameterNotifyConfigResponse *payload)
+
+void message_util_log_read_param_response(const cr_ParameterReadResponse *response)
 {
-  sprintf(sMsgUtilBuffer, "  write param response: %d", (int)payload->result);
-  return sMsgUtilBuffer;
+    i3_log(LOG_MASK_REACH, "  Read Parameter Response:");
+    for (size_t i = 0; i < response->values_count; i++) 
+    {
+      // This doesn't print the timestamp.
+      sLogParameterValue(&response->values[i]);
+    }
+}
+
+void message_util_log_write_param(const cr_ParameterWrite *payload)
+{
+  i3_log(LOG_MASK_REACH, "  Write Parameter Request:");
+  for (size_t i = 0; i < payload->values_count; i++) 
+  {
+    sLogParameterValue(&payload->values[i]);
+  }
+}
+
+void message_util_log_write_param_response(const cr_ParameterWriteResponse *payload)
+{
+  i3_log(LOG_MASK_REACH, "  write param response: %d\n", (int)payload->result);
+  if (payload->has_result_message)
+      i3_log(LOG_MASK_REACH, "    result message: %s", payload->result_message);
+}
+
+void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *payload)
+{
+  i3_log(LOG_MASK_REACH, "  write param response: %d\n", (int)payload->result);
+  if (payload->has_result_message)
+  {
+      i3_log(LOG_MASK_REACH, "    result message: %s", payload->result_message);
+  }
 }
 #endif  // def INCLUDE_PARAMETER_SERVICE
 
 
 
-char *message_util_ping_json(const cr_PingRequest *payload) {
+void message_util_log_ping_request(const cr_PingRequest *payload)
+{
 
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json_1 = cJSON_CreateObject();
-  cJSON_AddRawToObject(json_1, "echo data", (char *)payload->echo_data.bytes);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_PING), json_1);
+  i3_log(LOG_MASK_REACH, "  Ping Request:");
+  if (payload->echo_data.size == 0)
+  {
+    i3_log(LOG_MASK_REACH, "    No payload\r\n");
+    return;
+  }
+  char hex_string[49];  // 2*24+1
+  if (payload->echo_data.size > 24)
+  {
+    sByte_array_to_hex_string(payload->echo_data.bytes, 24, hex_string);
+    i3_log(LOG_MASK_REACH, "    First 24 of %d payload bytes:", payload->echo_data.size);
+    i3_log(LOG_MASK_REACH, "      %s\r\n", hex_string);
+    return;
+  }
 
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+  sByte_array_to_hex_string(payload->echo_data.bytes, payload->echo_data.size, hex_string);
+  i3_log(LOG_MASK_REACH, "    %d payload bytes:", payload->echo_data.size);
+  i3_log(LOG_MASK_REACH, "      %s\r\n", hex_string);
+  return;
+  i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-char *message_util_ping_response_json(const cr_PingResponse *payload) {
+void message_util_log_ping_response(const cr_PingResponse *payload)
+{
+  i3_log(LOG_MASK_REACH, "  Ping Response:");
+  i3_log(LOG_MASK_REACH, "    signal strength : %d", payload->signal_strength);
+  if (payload->echo_data.size == 0)
+  {
+    i3_log(LOG_MASK_REACH, "    No payload");
+    return;
+  }
+  char hex_string[49];  // 2*24+1
 
-  cJSON *json = cJSON_CreateObject();
-  cJSON *json_1 = cJSON_CreateObject();
-  cJSON_AddRawToObject(json_1, "echo data", (char *)payload->echo_data.bytes);
-  cJSON_AddNumberToObject(json_1, "signal strength", payload->signal_strength);
-  cJSON_AddItemToObject(json, msg_type_string(cr_ReachMessageTypes_PING), json_1);
-
-  // convert the cJSON object to a JSON string
-  char *json_str = cJSON_Print(json);
-
-  // free the JSON string and cJSON object
-  cJSON_Delete(json);
-
-  return json_str;
+  if (payload->echo_data.size > 24)
+  {
+    sByte_array_to_hex_string(payload->echo_data.bytes, 24, hex_string);
+    i3_log(LOG_MASK_REACH, "    First 24 of %d payload bytes:", payload->echo_data.size);
+    i3_log(LOG_MASK_REACH, "      %s\r\n", hex_string);
+    return;
+  }
+  sByte_array_to_hex_string(payload->echo_data.bytes, payload->echo_data.size, hex_string);
+  i3_log(LOG_MASK_REACH, "    %d payload bytes:", payload->echo_data.size);
+  i3_log(LOG_MASK_REACH, "      %s\r\n", hex_string);
 }
 
 #ifdef INCLUDE_TIME_SERVICE
-    char *message_util_time_set_response_json(const cr_TimeSetResponse *payload) 
+    void message_util_log_time_set_response(const cr_TimeSetResponse *payload) 
     {
-        sprintf(sMsgUtilBuffer, "  Time set response result: %d", (int)payload->result);
-        return sMsgUtilBuffer;
+        i3_log(LOG_MASK_REACH, "  Time set response result: %d", (int)payload->result);
+        if (payload->has_result_message)
+          i3_log(LOG_MASK_REACH, "    %s", payload->result_message);
+        i3_log(LOG_MASK_REACH, "\r\n");
     }
 
-    char *message_util_time_get_response_json(const cr_TimeGetResponse *payload) 
+    void message_util_log_time_get_response(const cr_TimeGetResponse *payload) 
     {
-        int ptr = 0;
-        ptr += sprintf(&sMsgUtilBuffer[ptr], "  Time get response result: %d\r\n", (int)payload->result);
-        ptr += sprintf(&sMsgUtilBuffer[ptr], "  Time get response seconds: %lu\r\n", (long unsigned int)payload->seconds_utc);
-        return sMsgUtilBuffer;
+      i3_log(LOG_MASK_REACH, "  Time get response result: %d", (int)payload->result);
+      i3_log(LOG_MASK_REACH, "    seconds_utc: %lld", payload->seconds_utc);
+      if (payload->has_timezone)
+        i3_log(LOG_MASK_REACH, "    timezone: %lld", payload->timezone);
+      else
+        i3_log(LOG_MASK_REACH, "    no timezone");
+      if (payload->has_result_message)
+        i3_log(LOG_MASK_REACH, "    %s", payload->result_message);
+      i3_log(LOG_MASK_REACH, "\r\n");
     }
 
-    char *message_util_time_set_request_json(const cr_TimeSetRequest *payload) 
+    void message_util_log_time_set_request(const cr_TimeSetRequest *payload) 
     {
-        sprintf(sMsgUtilBuffer, "  Time get request seconds: %lu\r\n", (long unsigned int)payload->seconds_utc);
-        return sMsgUtilBuffer;
+      i3_log(LOG_MASK_REACH, "  Time set request:");
+      i3_log(LOG_MASK_REACH, "    seconds_utc: %lld", payload->seconds_utc);
+      if (payload->has_timezone)
+        i3_log(LOG_MASK_REACH, "    timezone: %lld", payload->timezone);
+      else
+        i3_log(LOG_MASK_REACH, "    no timezone");
     }
 
-    char *message_util_time_get_request_json(const cr_TimeGetRequest *payload) 
+    void message_util_log_time_get_request(const cr_TimeGetRequest *payload) 
     {
       (void)payload;
-        int ptr = 0;
-        ptr += sprintf(&sMsgUtilBuffer[ptr], "  Time get request\r\n");
-        return sMsgUtilBuffer;
+      i3_log(LOG_MASK_REACH, "  Time get request:\r\n");
     }
 #endif  // def INCLUDE_TIME_SERVICE
 
 #ifdef INCLUDE_WIFI_SERVICE
-    char *message_util_discover_wifi_request_json(const cr_DiscoverWiFiRequest *payload)
+    void message_util_log_discover_wifi_request(const cr_DiscoverWiFiRequest *payload)
     {
         if (payload->state == cr_WiFiState_CONNECTED)
-            sprintf(&sMsgUtilBuffer[0], "  WiFi Info request for connected link\r\n");
+            i3_log(LOG_MASK_REACH, "  WiFi Info request for connected link\r\n");
         else
-            sprintf(&sMsgUtilBuffer[0], "  WiFi Info request for unconnected link(s)\r\n");
-        return sMsgUtilBuffer;
+            i3_log(LOG_MASK_REACH, "  WiFi Info request for unconnected link(s)\r\n");
     }
 
-    char *message_util_WiFi_connect_request_json(const cr_WiFiConnectionRequest *payload)
+    void message_util_log_WiFi_connect_request(const cr_WiFiConnectionRequest *payload)
     {
-        int ptr = 0;
-        // longest text is 234 bytes
         if (payload->action == cr_WiFiState_CONNECTED)
         {
             if (!payload->has_cd)
             {
-                sprintf(&sMsgUtilBuffer[ptr], "  WiFi connection request without description.\r\n");
+                i3_log(LOG_MASK_REACH, "  WiFi connection request without description.\r\n");
                 LOG_ERROR("WiFi connection request without description.\r\n");
-                return sMsgUtilBuffer;
+                return;
             }
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  WiFi connect request for connection to:\r\n");
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "    SSID : '%s'\r\n", payload->cd.ssid);
+            i3_log(LOG_MASK_REACH, "  WiFi connect request for connection to:");
+            i3_log(LOG_MASK_REACH, "    SSID : '%s'", payload->cd.ssid);
             if (payload->cd.has_signal_strength)
-                ptr += sprintf(&sMsgUtilBuffer[ptr], "    Signal Strength : %d\r\n", payload->cd.signal_strength);
+                i3_log(LOG_MASK_REACH, "    Signal Strength : %d", payload->cd.signal_strength);
             if (payload->cd.has_sec)
             {
                 switch (payload->cd.sec)
                 {
                 case cr_WiFiSecurity_OPEN:
-                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    Open connection\r\n");
+                    i3_log(LOG_MASK_REACH, "    Open connection\r\n");
                     break;
                 case cr_WiFiSecurity_WEP:
-                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WEP security\r\n");
+                    i3_log(LOG_MASK_REACH, "    WEP security\r\n");
                     break;
                 case cr_WiFiSecurity_WPA:
-                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WPA security\r\n");
+                    i3_log(LOG_MASK_REACH, "    WPA security\r\n");
                     break;
                 case cr_WiFiSecurity_WPA2:
-                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WPA2 security\r\n");
+                    i3_log(LOG_MASK_REACH, "    WPA2 security\r\n");
                     break;
                 case cr_WiFiSecurity_WPA3:
-                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    WPA3 security\r\n");
+                    i3_log(LOG_MASK_REACH, "    WPA3 security\r\n");
                     break;
                 default:
-                    ptr += sprintf(&sMsgUtilBuffer[ptr], "    Unknown security %d\r\n", payload->cd.sec);
+                    i3_log(LOG_MASK_REACH, "    Unknown security %d", payload->cd.sec);
                     break;
                 }
             }
             else
-                ptr += sprintf(&sMsgUtilBuffer[ptr], "    No security specified\r\n");
+                i3_log(LOG_MASK_REACH, "    No security specified");
             if (payload->cd.has_band)
-                ptr += sprintf(&sMsgUtilBuffer[ptr], "    Radio band %d\r\n", payload->cd.band);
+                i3_log(LOG_MASK_REACH, "    Radio band %d", payload->cd.band);
             if (payload->has_autoconnect && payload->autoconnect)
-                ptr += sprintf(&sMsgUtilBuffer[ptr], "    Autoconnect requested\r\n");
+                i3_log(LOG_MASK_REACH, "    Autoconnect requested");
+            i3_log(LOG_MASK_REACH, "\r\n");
         }
         else
         {
-            sprintf(&sMsgUtilBuffer[ptr], "  WiFi connect request for disconnect.\r\n");
+            i3_log(LOG_MASK_REACH, "  WiFi connect request for disconnect.\r\n");
         }
-        return sMsgUtilBuffer;
     }
 
-    char *message_util_discover_wifi_response_json(cr_DiscoverWiFiResponse *payload)
+    void message_util_log_discover_wifi_response(cr_DiscoverWiFiResponse *payload)
     {
-        int ptr = 0;
+        i3_log(LOG_MASK_REACH, "  Discover WiFi Response:");
         if (payload->state == cr_WiFiState_CONNECTED)
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Connected.\r\n");
+            i3_log(LOG_MASK_REACH, "    Connected.\r\n");
         else 
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Not Connected, connection ID %d.\r\n", payload->connectionId);
+            i3_log(LOG_MASK_REACH, "    Not Connected, connection ID %d.\r\n", payload->connectionId);
         if (payload->has_cd) 
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  SSID : '%s'.\r\n", payload->cd.ssid);
+            i3_log(LOG_MASK_REACH, "    SSID : '%s'.\r\n", payload->cd.ssid);
         if (payload->cd.has_signal_strength)
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Signal strength %d\r\n", payload->cd.signal_strength);
+            i3_log(LOG_MASK_REACH, "    Signal strength %d\r\n", payload->cd.signal_strength);
         if (payload->cd.has_signal_strength)
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Signal strength %d\r\n", payload->cd.signal_strength);
+            i3_log(LOG_MASK_REACH, "    Signal strength %d\r\n", payload->cd.signal_strength);
         if (payload->cd.has_band)
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "    Radio band %d\r\n", payload->cd.band);
-
-        return sMsgUtilBuffer;
+            i3_log(LOG_MASK_REACH, "    Radio band %d\r\n", payload->cd.band);
+        i3_log(LOG_MASK_REACH, "\r\n");
     }
 
-    char *message_util_WiFi_connect_response_json(cr_WiFiConnectionResponse *payload)
+    void message_util_log_WiFi_connect_response(cr_WiFiConnectionResponse *payload)
     {
-        int ptr = 0;
-        ptr += sprintf(&sMsgUtilBuffer[ptr], "    Connection Result %d\r\n", payload->result);
+        i3_log(LOG_MASK_REACH, "  WiFi Connect Response:");
+        i3_log(LOG_MASK_REACH, "    Connection Result %d\r\n", payload->result);
         if (payload->has_signal_strength)
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Signal strength %d\r\n", payload->signal_strength);
+            i3_log(LOG_MASK_REACH, "    Signal strength %d\r\n", payload->signal_strength);
         if (payload->has_error_message)
-            ptr += sprintf(&sMsgUtilBuffer[ptr], "  Message: '%s'\r\n", payload->error_message);
-        return sMsgUtilBuffer;
+            i3_log(LOG_MASK_REACH, "    Message: '%s'\r\n", payload->error_message);
     }
   #endif  // def INCLUDE_WIFI_SERVICE
 
 
+#else
+    // When NO_REACH_LOGGING is defined we need empty implementations of these.
+    // Defining NO_REACH_LOGGING saves about 19k of code space.
+    const char *msg_type_string(int32_t) {return NULL;}
+    void message_util_log_device_info_request(){}
+    void message_util_log_device_info_response(const cr_DeviceInfoResponse *){}
+
+    void message_util_log_ping_request(const cr_PingRequest *){}
+    void message_util_log_ping_response(const cr_PingResponse *){}
+
+    #ifdef INCLUDE_PARAMETER_SERVICE
+        void message_util_log_param_info_request(const cr_ParameterInfoRequest *){}
+        void message_util_log_param_info_response(const cr_ParameterInfoResponse *){}
+        void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *){}
+        void message_util_log_read_param(const cr_ParameterRead *){}
+        void message_util_log_read_param_response(const cr_ParameterReadResponse *){}
+        void message_util_log_write_param(const cr_ParameterWrite *){}
+        void message_util_log_write_param_response(const cr_ParameterWriteResponse *){}
+        void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *){}
+    #endif  // INCLUDE_PARAMETER_SERVICE
+
+    #ifdef INCLUDE_FILE_SERVICE
+        void message_util_log_discover_files(){}
+        void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *){}
+        void message_util_log_file_transfer_request(const cr_FileTransferRequest *){}
+        void message_util_log_file_transfer_response(const cr_FileTransferResponse *){}
+        void message_util_log_transfer_data(const cr_FileTransferData *){}
+        void message_util_log_transfer_data_response(const cr_FileTransferData *){}
+        void message_util_log_transfer_data_notification(bool is_request,
+                const cr_FileTransferDataNotification *){}
+    #endif // def INCLUDE_FILE_SERVICE
+
+    #ifdef INCLUDE_STREAM_SERVICE
+        // Streams
+        void message_util_log_discover_streams(){}
+    #endif // def INCLUDE_STREAM_SERVICE
+
+
+    #ifdef INCLUDE_COMMAND_SERVICE
+        // Commands
+        void message_util_log_discover_commands(){}
+        void message_util_log_discover_commands_response(const cr_DiscoverCommandsResponse *){}
+        void message_util_log_send_command(const cr_SendCommand *){}
+        void message_util_log_command_response(const cr_SendCommandResponse *){}
+    #endif // def INCLUDE_COMMAND_SERVICE
+
+    #ifdef INCLUDE_CLI_SERVICE
+        // CLI
+        void message_util_log_cli_notification(bool send, const cr_CLIData *){}
+    #endif // def INCLUDE_CLI_SERVICE
+
+    #ifdef INCLUDE_TIME_SERVICE
+        // Time
+        void message_util_log_time_set_response(const cr_TimeSetResponse *payload){}
+        void message_util_log_time_get_response(const cr_TimeGetResponse *payload){}
+        void message_util_log_time_set_request(const cr_TimeSetRequest *payload){}
+        void message_util_log_time_get_request(const cr_TimeGetRequest *payload){} 
+    #endif // def INCLUDE_TIME_SERVICE
+
+    #ifdef INCLUDE_WIFI_SERVICE
+        void message_util_log_discover_wifi_request(const cr_DiscoverWiFiRequest *payload){}
+        void message_util_log_WiFi_connect_request(const cr_WiFiConnectionRequest *payload){}
+        void message_util_log_discover_wifi_response(cr_DiscoverWiFiResponse *payload){}
+        void message_util_log_WiFi_connect_response(cr_WiFiConnectionResponse *payload);
+    #endif  // def INCLUDE_WIFI_SERVICE
 
 #endif  // ndef NO_REACH_LOGGING

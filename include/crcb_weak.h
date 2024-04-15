@@ -461,11 +461,13 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @details If the device has a preferred acknowledge rate it can implement this 
     *          function to advise the file transfer code of the rate.
     *          Higher ack rates mean less acknowlegements and faster file trasnfer.
+    * @param   fid : File ID, in case this affects the decision 
+    * @param   requested_rate: might factor into the decison. 
     * @param   is_write true if enquiring about write.
     * @return  A return value of zero means that there is no preferred rate and the 
     *          client can specify it.
     */
-    int crcb_file_get_preferred_ack_rate(bool is_write);
+    int crcb_file_get_preferred_ack_rate(uint32_t fid, uint32_t requested_rate, bool is_write);
 
     /**
     * @brief   crcb_read_file

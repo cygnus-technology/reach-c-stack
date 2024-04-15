@@ -12,6 +12,9 @@ PB_BIND(cr_ReachMessageHeader, cr_ReachMessageHeader, AUTO)
 PB_BIND(cr_ReachMessage, cr_ReachMessage, AUTO)
 
 
+PB_BIND(cr_AhsokaMessageHeader, cr_AhsokaMessageHeader, AUTO)
+
+
 PB_BIND(cr_ErrorReport, cr_ErrorReport, AUTO)
 
 
@@ -78,13 +81,13 @@ PB_BIND(cr_ParamExInfoResponse, cr_ParamExInfoResponse, AUTO)
 PB_BIND(cr_ParameterRead, cr_ParameterRead, AUTO)
 
 
-PB_BIND(cr_ParameterReadResult, cr_ParameterReadResult, AUTO)
+PB_BIND(cr_ParameterReadResponse, cr_ParameterReadResponse, AUTO)
 
 
 PB_BIND(cr_ParameterWrite, cr_ParameterWrite, AUTO)
 
 
-PB_BIND(cr_ParameterWriteResult, cr_ParameterWriteResult, AUTO)
+PB_BIND(cr_ParameterWriteResponse, cr_ParameterWriteResponse, AUTO)
 
 
 PB_BIND(cr_ParameterNotifyConfig, cr_ParameterNotifyConfig, AUTO)
@@ -108,10 +111,10 @@ PB_BIND(cr_DiscoverFilesResponse, cr_DiscoverFilesResponse, AUTO)
 PB_BIND(cr_FileInfo, cr_FileInfo, AUTO)
 
 
-PB_BIND(cr_FileTransferInit, cr_FileTransferInit, AUTO)
+PB_BIND(cr_FileTransferRequest, cr_FileTransferRequest, AUTO)
 
 
-PB_BIND(cr_FileTransferInitResponse, cr_FileTransferInitResponse, AUTO)
+PB_BIND(cr_FileTransferResponse, cr_FileTransferResponse, AUTO)
 
 
 PB_BIND(cr_FileTransferData, cr_FileTransferData, AUTO)

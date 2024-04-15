@@ -186,9 +186,11 @@ The “reach-silabs” project uses this top level directory structure.
 
 ### src and include folders
 
-The src and include folders at the top level of the project implement the callbacks that are required for the Reach stack to operate.  This includes application specific source files such as src/params.c which implements the callbacks required for cr_params.c.
+The src and include folders at the top level of the project implement the callbacks that are required for the Reach stack to operate.  This includes application specific source files such as src/params.c which implements the callbacks required for cr_params.c.  There is generally a pair of files for each Reach "service," one in the "app" and one in the stack.
 
-The two silabs specific files are also present here.
+The two silabs specific files (reach-silabs.c and silabs_cli.c) are also present here.
+
+The include folder provides reach-server.h.  This is the compile time configuration file.  It #defines macros that enable or disable features of the system.
 
 ### reach-c-stack
 
@@ -349,11 +351,11 @@ A separate pair of “ping pong” buffers are used to encode notifications.
 
 # Services
 
-Reach devices advertise that they support a set of “services” such as “parameters”, “files” and “commands”.  Reach devices can implement as many or as few services as are appropriate.  Support for each service is segregated into separate files in the apps directory. 
+Reach devices advertise that they support a set of “services” such as “parameters”, “files” and “commands”.  Reach devices can implement as many or as few services as are appropriate.  Support for each service is segregated into separate files. 
 
 ## Configuration
 
-The file includes/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  reach-server.h also demonstrates #defines to configure the security of the Reach system.
+The file include/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  reach-server.h also demonstrates #defines to configure the security of the Reach system.
 
 ## Device Information Service
 
@@ -412,13 +414,13 @@ The time service is designed to support setting and checking the time on devices
 
 The WiFi service is designed to let devices that include WiFi use an existing UI to connect to an access point.  The WiFi service is not yet fully supported.
 
-## Files, Parameters, and Commands
+# Files, Parameters, and Commands
 
 Parameters are supported using a simple key-value pair structure.  The decision to avoid dynamic memory allocation causes the parameter storage structure to have a fixed and limited size.  The limit is set to 32 bytes for a string.  Data that is too large for this is easily handled using the “file” construct.  Reach provides no formal file system.  Files can instead be thought of as a key-value pair in which the value size is not limited.  While the parameter structure is optimized to fetch several parameters together, the file structure is optimized to transfer a larger block of data as quickly as possible.  “Files” can be mapped to a file system if that is appropriate for the application.  They can also simply be larger blocks of data maintained by the app.
 
 Commands provide a simple means to remotely trigger a function with fixed parameters.  Commands could always be implemented in other ways.  An example is the command to enable the remote CLI.  This can also be engaged using the command line, but providing a command makes it easier to get started with these features.
 
-# Multi-Message (Continuing) Transactions
+## Multi-Message (Continuing) Transactions
 
 The response to DISCOVER_PARAMETERS, and in fact to any “discover” command could extend over multiple “messages”.  To define terms:
 
@@ -491,11 +493,33 @@ Repeat:
 
 ![alt_text](_images/file_write_sequence.png "image_tooltip")
 
+## File Acknowledgement Rate (ack_rate)
+
+An "ack_rate" is specified for each file transfer.  This specifies the number of messages transmitted before an acknowledge is required.  A high ack_rate enables the highest possible data transfer rates over BLE. A low ack rate allows the system to efficiently respond to transmission errors.  In a BLE system, the BLE layer is already correcting errors, so high ack rates are appropriate. 
+
+The server finally decides the ack rate.  The client can request a different ack rate using the optional requested_ack_rate in the FileTransferRequest (formerly FileTransferInit) message. 
+
+- The requested_ack_rate is optionally sent by the client when requesting a file transfer.  
+
+- The responding "ack_rate" is always present.
+- If the requested_ack_rate is provided, then the server should use it.
+  - The weak callback crcb_file_get_preferred_ack_rate() allows the application designer to choose this rate.
+
+  - The server may confirm the requested ack_rate in its response.
+
+  - The server may override the requested ack rate with its own preference if there is a good reason.  Ideally this reason would be communicated in the result_message field.
+
+- If no requested_ack_rate is provided, the server will provide the ack_rate via the crcb_file_get_preferred_ack_rate() callback.
+
 # Security
 
-The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.  Reach-server.h contains #defines that configure the BLE interface.  The GATT database must also be configured appropriately.  "Level 2" protection can be achieved with devices that have no display.  Some sort of display or keypad is necssary to achieve "level 4" protection.
+The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.  Reach-server.h contains #defines that configure the BLE interface.  The GATT database must also be configured appropriately.  "Level 2" protection can be achieved with devices that have no display.  Some sort of display or keypad is necessary to achieve "level 4" protection.
 
-Reach supports access control in the the form of a "challenge key" which is presented when the client requests device info.  If the device is configured to require a challenge key and none is presented then no services will be visible to the client.  The device can be coded to support multiple challenge keys, each with its own level of access.  The demonstration shows "basic" and "full" access based on two keys.
+Reach supports access control in the the form of a "challenge key" which is presented when the client requests device info.  If the device is configured to require a challenge key and none is presented then a limited set of services will be visible to the client.  The device can be coded to support multiple challenge keys, each with its own level of access.  
+
+Basic access control is demonstrated with code in device.c and params.c.  Defining the macro DEMO_ACCESS_CONTROL sets up the "get device info" handler to require a challenge key.  Based on this challenge key matching expectation, the device presents more or less services.  The file params.c defines ACCESS_LEVEL_FULL as a bit that is or'ed into the access member of the parameter info structure to indicate that this parameter is only accessible at the "full" access level.  
+
+All of this code to handle access control is in the app and not in the reach stack.  You are quite welcome use these tools or invent your own to meet your needs.
 
 # Error Handling
 

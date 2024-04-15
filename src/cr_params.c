@@ -70,7 +70,6 @@
     #include "cr_private.h"
     #include "i3_log.h"
 
-    #include "cJSON.h"
     #include "pb_decode.h"
     #include "pb_encode.h"
 
@@ -369,12 +368,12 @@
     // or it can be called on a continuing basis to complete the 
     // read transaction.  
     int pvtCrParam_read_param(const cr_ParameterRead *request,
-                              cr_ParameterReadResult *response) 
+                              cr_ParameterReadResponse *response) 
     {
         if (!crcb_challenge_key_is_valid()) {
             pvtCr_num_continued_objects = 
                     pvtCr_num_remaining_objects = 0;
-            memset(response, 0, sizeof(cr_ParameterReadResult));
+            memset(response, 0, sizeof(cr_ParameterReadResponse));
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
@@ -511,12 +510,12 @@
     }
 
     int pvtCrParam_write_param(const cr_ParameterWrite *request,
-                               cr_ParameterWriteResult *response) 
+                               cr_ParameterWriteResponse *response) 
     {
         if (!crcb_challenge_key_is_valid()) {
             pvtCr_num_continued_objects = 
                     pvtCr_num_remaining_objects = 0;
-            memset(response, 0, sizeof(cr_ParameterWriteResult));
+            memset(response, 0, sizeof(cr_ParameterWriteResponse));
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }

@@ -120,54 +120,44 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
     case cr_ReachMessageTypes_GET_DEVICE_INFO:
         status = pb_decode(&is_stream, cr_DeviceInfoRequest_fields, data);
         if (status) {
-          LOG_REACH(
-              "Get device info request: \n%s\n",
-              message_util_get_device_info_json((cr_DeviceInfoRequest*)data));
+            message_util_log_device_info_request((cr_DeviceInfoRequest*)data);
         }
         break;
   case cr_ReachMessageTypes_PING:
       status = pb_decode(&is_stream, cr_PingRequest_fields, data);
       if (status) {
-          LOG_REACH("Ping request: \n%s\n",
-                    message_util_ping_json((cr_PingRequest *)data));
+          message_util_log_ping_request((cr_PingRequest *)data);
       } 
       break;
 #ifdef INCLUDE_PARAMETER_SERVICE
   case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
       status = pb_decode(&is_stream, cr_ParameterInfoRequest_fields, data);
       if (status) {
-        LOG_REACH(
-            "Parameter info request: \n%s\n",
-            message_util_param_info_json((cr_ParameterInfoRequest *)data));
+        message_util_log_param_info_request((cr_ParameterInfoRequest *)data);
       }
       break;
   case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
       status = pb_decode(&is_stream, cr_ParameterInfoRequest_fields, data);
       if (status) {
-        LOG_REACH(
-            "Parameter EX info request: \n%s\n",
-            message_util_param_info_json((cr_ParameterInfoRequest *)data));
+        message_util_log_param_info_request((cr_ParameterInfoRequest *)data);
       }
       break;
   case cr_ReachMessageTypes_READ_PARAMETERS:
       status = pb_decode(&is_stream, cr_ParameterRead_fields, data);
       if (status) {
-        LOG_REACH("Parameter read request: \n%s\n",
-                  message_util_read_param_json((cr_ParameterRead *)data));
+        message_util_log_read_param((cr_ParameterRead *)data);
       }
       break;
   case cr_ReachMessageTypes_WRITE_PARAMETERS:
       status = pb_decode(&is_stream, cr_ParameterWrite_fields, data);
       if (status) {
-        LOG_REACH("Parameter write request: \n%s\n",
-                  message_util_write_param_json((cr_ParameterWrite *)data));
+        message_util_log_write_param((cr_ParameterWrite *)data);
       }
       break;
     case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
         status = pb_decode(&is_stream, cr_ParameterNotifyConfig_fields, data);
         if (status) {
-          LOG_REACH("Parameter notify config: \n%s\n",
-                    message_util_config_notify_param_json((cr_ParameterNotifyConfigResponse *)data));
+          message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
         }
         break;
 
@@ -177,15 +167,13 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
   case cr_ReachMessageTypes_DISCOVER_FILES:
       status = pb_decode(&is_stream, cr_DiscoverFiles_fields, data);
       if (status) {
-        LOG_REACH("Discover files request: \n%s\n",
-                  message_util_discover_files_json());
+        message_util_log_discover_files();
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_INIT:
-      status = pb_decode(&is_stream, cr_FileTransferInit_fields, data);
+      status = pb_decode(&is_stream, cr_FileTransferRequest_fields, data);
       if (status) {
-        LOG_REACH("Transfer init request: \n%s\n",
-                  message_util_transfer_init_json((cr_FileTransferInit *)data));
+        message_util_log_file_transfer_request((cr_FileTransferRequest *)data);
       }
       break;
   case cr_ReachMessageTypes_TRANSFER_DATA:
@@ -193,8 +181,7 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
       if (status) 
       {
           // cr_FileTransferData *ftd = (cr_FileTransferData*)data;
-          LOG_REACH("Transfer data received: \n%s\n",
-                    message_util_transfer_data_json((cr_FileTransferData *)data));
+          message_util_log_transfer_data((cr_FileTransferData *)data);
           // LOG_DUMP_MASK(LOG_MASK_REACH, "Data Decoded", 
           //                    ftd->message_data.bytes, ftd->message_data.size);
       }
@@ -203,9 +190,8 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
       status =
           pb_decode(&is_stream, cr_FileTransferDataNotification_fields, data);
       if (status) {
-        LOG_REACH("Transfer data notification request: \n%s\n",
-                  message_util_transfer_data_notification_json(
-                      (cr_FileTransferDataNotification *)data));
+          message_util_log_transfer_data_notification(true,
+                      (cr_FileTransferDataNotification *)data);
       }
       break;
 #endif // def INCLUDE_FILE_SERVICE
@@ -214,9 +200,7 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
   case cr_ReachMessageTypes_DISCOVER_STREAMS:
     //   status = pb_decode(&is_stream, cr_StreamsRequest_fields, data);
     //   if (status) {
-    //     LOG_REACH(
-    //         "Discover streams request: \n%s\n",
-    //         message_util_discover_streams_json((cr_StreamsRequest *)data));
+    //     message_util_log_discover_streams((cr_StreamsRequest *)data);
     //   }
     break;
 #endif  // def INCLUDE_STREAM_SERVICE
@@ -225,16 +209,13 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
   case cr_ReachMessageTypes_DISCOVER_COMMANDS:
       status = pb_decode(&is_stream, cr_DiscoverCommands_fields, data);
       if (status) {
-        LOG_REACH(
-            "Manage stream request: \n%s\n",
-            message_util_discover_commands_json());
+        message_util_log_discover_commands();
       }
       break;
   case cr_ReachMessageTypes_SEND_COMMAND:
       status = pb_decode(&is_stream, cr_SendCommand_fields, data);
       if (status) {
-        LOG_REACH("Send command request: \n%s\n",
-                  message_util_send_command_json((cr_SendCommand *)data));
+        message_util_log_send_command((cr_SendCommand *)data);
       }
       break;
 #endif  // def INCLUDE_COMMAND_SERVICE
@@ -243,8 +224,7 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
   case cr_ReachMessageTypes_CLI_NOTIFICATION:
       status = pb_decode(&is_stream, cr_CLIData_fields, data);
       if (status) {
-        LOG_REACH("CLI Notification request: \n%s\n",
-                  message_util_cli_notification_json((cr_CLIData *)data));
+        message_util_log_cli_notification(false, (cr_CLIData *)data);
       }
       break;
 #endif  // def INCLUDE_CLI_SERVICE
@@ -253,15 +233,13 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
   case cr_ReachMessageTypes_GET_TIME:
       status = pb_decode(&is_stream, cr_TimeGetRequest_fields, data);
       if (status) {
-        LOG_REACH("Get Time request: \n%s\n",
-                  message_util_time_get_request_json((cr_TimeGetRequest *)data));
+        message_util_log_time_get_request((cr_TimeGetRequest *)data);
       }
       break;
   case cr_ReachMessageTypes_SET_TIME:
       status = pb_decode(&is_stream, cr_TimeSetRequest_fields, data);
       if (status) {
-        LOG_REACH("Set Time request: \n%s\n",
-                  message_util_time_set_request_json((cr_TimeSetRequest *)data));
+          message_util_log_time_set_request((cr_TimeSetRequest *)data);
       }
       break;
 #endif  // def INCLUDE_TIME_SERVICE
@@ -271,15 +249,13 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
   case cr_ReachMessageTypes_DISCOVER_WIFI:
       status = pb_decode(&is_stream, cr_DiscoverWiFiRequest_fields, data);
       if (status) {
-        LOG_REACH("WiFi Info request: \n%s\n",
-                  message_util_discover_wifi_request_json((cr_DiscoverWiFiRequest *)data));
+        message_util_log_discover_wifi_request((cr_DiscoverWiFiRequest *)data);
       }
       break;
   case cr_ReachMessageTypes_WIFI_CONNECT:
       status = pb_decode(&is_stream, cr_WiFiConnectionRequest_fields, data);
       if (status) {
-        LOG_REACH("WiFi Connect request: \n%s\n",
-                  message_util_WiFi_connect_request_json((cr_WiFiConnectionRequest *)data));
+        message_util_log_WiFi_connect_request((cr_WiFiConnectionRequest *)data);
       }
       break;
 #endif  // def INCLUDE_WIFI_SERVICE
