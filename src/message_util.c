@@ -508,13 +508,13 @@ void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse
   }
 }
 
-void message_util_log_notify_setup_request(const cr_DiscoverParameterNotifySetup *payload)
+void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload)
 {
     uint32_t lm = i3_log_get_mask();
     if (0 ==(LOG_MASK_REACH & lm))
         return;
 
-    i3_log(LOG_MASK_REACH, "  Notify Setup request: %d IDs\n", (int)payload->parameter_ids_count);
+    i3_log(LOG_MASK_REACH, "  Discover Notifications: %d IDs\n", (int)payload->parameter_ids_count);
     i3_log(LOG_MASK_BARE, "    ");
     for (int i=0; i<payload->parameter_ids_count; i++)
     {
@@ -525,9 +525,9 @@ void message_util_log_notify_setup_request(const cr_DiscoverParameterNotifySetup
     i3_log(LOG_MASK_BARE, "\r\n");
 }
 
-void message_util_log_notify_setup_response(const cr_DiscoverParameterNotifySetupResponse *payload)
+void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *payload)
 {
-    i3_log(LOG_MASK_REACH, "  Notify Setup response: %d configs\n", (int)payload->configs_count);
+    i3_log(LOG_MASK_REACH, "  Discover Notifications response: %d configs\n", (int)payload->configs_count);
     for (int i=0; i<payload->configs_count; i++)
     {
         if (!payload->configs[i].enabled)
@@ -535,9 +535,11 @@ void message_util_log_notify_setup_response(const cr_DiscoverParameterNotifySetu
             i3_log(LOG_MASK_REACH, "    ID %d, not enabled", payload->configs[i].parameter_id);
             continue;
         }
-        i3_log(LOG_MASK_REACH, "    ID %d, enabled, %.1f, %.1f, delta %.1f", 
-               payload->configs[i].parameter_id, payload->configs[i].minimum_notification_period,
-               payload->configs[i].maximum_notification_period, payload->configs[i].minimum_delta);
+        i3_log(LOG_MASK_REACH, "    ID %d, enabled, period min %u, max %u, delta %.1f",
+               payload->configs[i].parameter_id, 
+               payload->configs[i].minimum_notification_period,
+               payload->configs[i].maximum_notification_period, 
+               payload->configs[i].minimum_delta);
     }
 }
 
@@ -742,8 +744,8 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_write_param(const cr_ParameterWrite *){}
         void message_util_log_write_param_response(const cr_ParameterWriteResponse *){}
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *){}
-        void message_util_log_notify_setup_request(const cr_DiscoverParameterNotifySetup *payload) {}
-        void message_util_log_notify_setup_response(const cr_DiscoverParameterNotifySetupResponse *payload) {}
+        void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload) {}
+        void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *payload) {}
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE

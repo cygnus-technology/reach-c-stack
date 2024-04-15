@@ -262,7 +262,7 @@ static int handle_continued_transactions()
         rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
-        rval = pvtCrParam_discover_notifications(NULL, (cr_DiscoverParameterNotifySetupResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCrParam_discover_notifications(NULL, (cr_DiscoverParameterNotificationsResponse *)sCr_uncoded_response_buffer);
         break;
     #endif  // def INCLUDE_PARAMETER_SERVICE
 
@@ -989,8 +989,8 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                            (cr_ParameterWriteResponse *)sCr_uncoded_response_buffer);
         break;
     case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
-        rval = pvtCrParam_discover_notifications((cr_DiscoverParameterNotifySetup *)sCr_decoded_prompt_buffer,
-                           (cr_DiscoverParameterNotifySetupResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCrParam_discover_notifications((cr_DiscoverParameterNotifications *)sCr_decoded_prompt_buffer,
+                           (cr_DiscoverParameterNotificationsResponse *)sCr_uncoded_response_buffer);
         break;
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
@@ -1613,10 +1613,10 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       }
       break;
   case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
-      status = pb_encode(&os_stream, cr_DiscoverParameterNotifySetupResponse_fields, data);
+      status = pb_encode(&os_stream, cr_DiscoverParameterNotificationsResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
-        message_util_log_notify_setup_response((cr_DiscoverParameterNotifySetupResponse *)data);
+        message_util_log_discover_notifications_response((cr_DiscoverParameterNotificationsResponse *)data);
       }
       break;
   #endif

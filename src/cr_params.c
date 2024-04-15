@@ -582,8 +582,8 @@
 
     ///  Private helper function to discover current parameter
     ///  notifications
-    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifySetup *request,
-                                          cr_DiscoverParameterNotifySetupResponse *response)
+    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifications *request,
+                                          cr_DiscoverParameterNotificationsResponse *response)
     {
         if (!crcb_challenge_key_is_valid()) {
             sCr_requested_notify_count = 0;
@@ -592,11 +592,20 @@
         }
 
         int rval;
+        static bool checkAll;
         cr_ParameterNotifyConfig *pConfig;
         cr_ParameterInfo paramInfo;
+        size_t numActive = cr_get_active_notify_count();
 
         // init them all to 0 meaning invalid.
-        memset(response, 0, sizeof(cr_DiscoverParameterNotifySetupResponse));
+        memset(response, 0, sizeof(cr_DiscoverParameterNotificationsResponse));
+        if (numActive == 0)
+        {   // return early
+            pvtCr_num_remaining_objects = 0;
+            pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+            I3_LOG(LOG_MASK_PARAMS, "%s: No active notifications.");
+            return 0;
+        }
 
         if (request != NULL) 
         {
@@ -608,124 +617,42 @@
             if (request->parameter_ids_count != 0) 
             {
                 // some specific numbers are requested.  Remember them.
+                checkAll = false;
                 affirm(request->parameter_ids_count<= REACH_COUNT_PARAM_IDS);
+                sCr_requested_notify_count = 0;
                 for (int i=0; i<request->parameter_ids_count; i++)
+                {
                     sCr_requested_param_array[i] = request->parameter_ids[i];
-                sCr_requested_notify_count = request->parameter_ids_count;
+                    sParameter_notification_get_by_pid(sCr_requested_param_array[i], &pConfig);
+                    if (pConfig && pConfig->enabled)
+                        sCr_requested_notify_count++;
+                }
                 sCr_requested_notify_index = 0;
                 I3_LOG(LOG_MASK_PARAMS, "%s, partial notification count %d.", 
                        __FUNCTION__, sCr_requested_notify_count);
-
-                // copy the requested numbers
-                for (int i=0; i < REACH_PARAM_NOTE_SETUP_COUNT; i++) {
-                    if (sCr_requested_notify_index >= sCr_requested_notify_count)
-                        break;
-                    sParameter_notification_get_by_pid(
-                        sCr_requested_param_array[sCr_requested_notify_index],
-                        &pConfig);
-                    if (pConfig)
-                    {
-                        memcpy(&response->configs[sCr_requested_notify_index],
-                               pConfig, sizeof(cr_ParameterNotifyConfig));
-                        I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", __FUNCTION__, 
-                                        sCr_requested_param_array[sCr_requested_notify_index]);
-                    }
-                    else 
-                    {
-                        response->configs[sCr_requested_notify_index].parameter_id = 
-                            sCr_requested_param_array[sCr_requested_notify_index];
-                        I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d not notifying.", __FUNCTION__, 
-                                        sCr_requested_param_array[sCr_requested_notify_index]);
-                    }
-                    sCr_requested_notify_index++;
-                }
-                I3_LOG(LOG_MASK_PARAMS, "Filled first %d of %d requested notifications.", 
-                       sCr_requested_notify_index, sCr_requested_notify_count);
-                pvtCr_num_remaining_objects = sCr_requested_notify_count - sCr_requested_notify_index;
-
             }
             else
             {
                 // count is zero, so setup for all
-                sCr_requested_notify_count = NUM_PARAMS;
+                checkAll = true;
+                sCr_requested_notify_count = numActive;
                 sCr_requested_notify_index = 0;
                 I3_LOG(LOG_MASK_PARAMS, "%s, full notification count %d.", 
                        __FUNCTION__, sCr_requested_notify_count);
-
                 crcb_parameter_discover_reset(-1);
-
-                // copy the requested numbers
-                for (int i=0; i < REACH_PARAM_NOTE_SETUP_COUNT; i++) {
-                    rval = crcb_parameter_discover_next(&paramInfo);
-                    if (rval != 0)
-                    {
-                        // Normal end of the parameter list.
-                        break;
-                    }
-                    sParameter_notification_get_by_pid(paramInfo.id, &pConfig);
-                    if (pConfig)
-                    {
-                        memcpy(&response->configs[sCr_requested_notify_index],
-                               pConfig, sizeof(cr_ParameterNotifyConfig));
-                        I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", __FUNCTION__, paramInfo.id);
-
-                    }
-                    else 
-                    {
-                        response->configs[sCr_requested_notify_index].parameter_id = paramInfo.id;
-                        I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d not notifying.", __FUNCTION__, paramInfo.id);
-                    }
-                    sCr_requested_notify_index++;
-                }
-                I3_LOG(LOG_MASK_PARAMS, "Filled first %d of %d all notifications.", 
-                       sCr_requested_notify_index, sCr_requested_notify_count);
-                pvtCr_num_remaining_objects = sCr_requested_notify_count - sCr_requested_notify_index;
-
             }
-            if (pvtCr_num_remaining_objects == 0)
-            {
-                pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-                return 0;
-            }
-            pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS;
-            return 0;
+            pvtCr_num_remaining_objects = sCr_requested_notify_count;
         }
 
-        // here this is a continued response.
-        if (sCr_requested_notify_count != NUM_PARAMS)
+        int numChecked = 0;
+        int numFound = 0;
+        if (checkAll)
         {
-            // copy the requested numbers
-            for (int i=0; i < REACH_PARAM_NOTE_SETUP_COUNT; i++) {
-                if (sCr_requested_notify_index >= sCr_requested_notify_count)
-                    break;
-
-                sParameter_notification_get_by_pid(
-                    sCr_requested_param_array[sCr_requested_notify_index],
-                    &pConfig);
-                if (pConfig)
-                {
-                    memcpy(&response->configs[sCr_requested_notify_index],
-                           pConfig, sizeof(cr_ParameterNotifyConfig));
-                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", __FUNCTION__, 
-                                    sCr_requested_param_array[sCr_requested_notify_index]);
-                }
-                else 
-                {
-                    response->configs[sCr_requested_notify_index].parameter_id = 
-                        sCr_requested_param_array[sCr_requested_notify_index];
-                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d not notifying.", __FUNCTION__, 
-                                    sCr_requested_param_array[sCr_requested_notify_index]);
-                }
-                sCr_requested_notify_index++;
-            }
-            I3_LOG(LOG_MASK_PARAMS, "Filled next %d of %d requested notifications.", 
-                   sCr_requested_notify_index, sCr_requested_notify_count);
-            pvtCr_num_remaining_objects = sCr_requested_notify_count - sCr_requested_notify_index;
-
-        }
-        else {
-            // Get the PID of the next param
-            for (int i=0; i < REACH_PARAM_NOTE_SETUP_COUNT; i++) {
+            // checking all params.
+            while ((numFound < REACH_PARAM_NOTE_SETUP_COUNT) &&
+                   (sCr_requested_notify_index < sCr_requested_notify_count) )
+            {
+                // Get the PID of the next param
                 rval = crcb_parameter_discover_next(&paramInfo);
                 if (rval != 0)
                 {
@@ -733,35 +660,55 @@
                     break;
                 }
                 sParameter_notification_get_by_pid(paramInfo.id, &pConfig);
-                if (pConfig)
+                if (pConfig && pConfig->enabled)
                 {
-                    memcpy(&response->configs[sCr_requested_notify_index],
-                           pConfig, sizeof(cr_ParameterNotifyConfig));
-                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", __FUNCTION__, paramInfo.id);
-
+                    memcpy(&response->configs[numFound], pConfig, sizeof(cr_ParameterNotifyConfig));
+                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", 
+                           __FUNCTION__, pConfig->parameter_id);
+                    numFound++;
+                    sCr_requested_notify_index++;
+                    response->configs_count++;
                 }
-                else 
-                {
-                    response->configs[sCr_requested_notify_index].parameter_id = paramInfo.id;
-                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d not notifying.", __FUNCTION__, paramInfo.id);
-                }
-                sCr_requested_notify_index++;
+                numChecked++;
             }
-            I3_LOG(LOG_MASK_PARAMS, "Filled next %d of %d all notifications.", 
-                   sCr_requested_notify_index, sCr_requested_notify_count);
-            pvtCr_num_remaining_objects = sCr_requested_notify_count - sCr_requested_notify_index;
+            
+            I3_LOG(LOG_MASK_PARAMS, "Checked %d, Filled %d to %d of %d all notifications.", 
+                   numChecked, numFound, sCr_requested_notify_index, sCr_requested_notify_count);
         }
-
+        else 
+        {
+            // checking the requested numbers
+            while ((numFound < REACH_PARAM_NOTE_SETUP_COUNT) &&
+                   (sCr_requested_notify_index < sCr_requested_notify_count) )
+            {
+                sParameter_notification_get_by_pid(
+                    sCr_requested_param_array[sCr_requested_notify_index],
+                    &pConfig);
+                if (pConfig && pConfig->enabled)
+                {
+                    memcpy(&response->configs[numFound], pConfig, sizeof(cr_ParameterNotifyConfig));
+                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", 
+                           __FUNCTION__, pConfig->parameter_id);
+                    numFound++;
+                    sCr_requested_notify_index++;
+                    response->configs_count++;
+                }
+                numChecked++;
+            }
+            I3_LOG(LOG_MASK_PARAMS, "Checked %d, Filled %d to %d of %d requested notifications.", 
+                   numChecked, numFound, sCr_requested_notify_index, sCr_requested_notify_count);
+        }
         if (pvtCr_num_remaining_objects == 0)
         {
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+            I3_LOG(LOG_MASK_PARAMS, "pvtCr_num_remaining_objects: %d", pvtCr_num_remaining_objects);
             return cr_ErrorCodes_NO_DATA;
         }
+        pvtCr_num_remaining_objects = sCr_requested_notify_count - sCr_requested_notify_index;
         pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS;
+        I3_LOG(LOG_MASK_PARAMS, "pvtCr_num_remaining_objects: %d", pvtCr_num_remaining_objects);
         return 0;
     }
-
-    static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
 
     int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *pnc,
                                        cr_ParameterNotifyConfigResponse *pncr)
@@ -833,8 +780,8 @@
   #else
     ///  Private helper function to discover current parameter
     ///  notifications
-    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifySetup *request,
-                                          cr_DiscoverParameterNotifySetupResponse *response)
+    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifications *request,
+                                          cr_DiscoverParameterNotificationsResponse *response)
     {
         (void)request;
         sCr_requested_notify_count = 0;
@@ -888,6 +835,17 @@
         }
         return;
       #endif
+    }
+
+    size_t cr_get_active_notify_count(void)
+    {
+        size_t numNotifying = 0;
+        for (int i=0; i<NUM_SUPPORTED_PARAM_NOTIFY; i++)
+        {
+            if (sCr_param_notify_list[i].enabled)
+                numNotifying++;
+        }
+        return numNotifying;
     }
 #endif // def INCLUDE_PARAMETER_SERVICE
 
