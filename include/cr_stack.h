@@ -290,9 +290,9 @@ typedef struct {
     uint8_t   medium_string_len;
     /// The number of bytes in short strings like the units label.
     uint8_t   short_string_len;
-    /// The max number of enumeration descriptions that a server 
-    /// will provide in a parameter extended description. 
-    uint8_t   param_info_enum_count;
+    /// The max number of parameter notification configurations 
+    /// that a client can provide in a message. 
+    uint8_t   param_notify_config_count;
     /// number of descriptors (stream, file) that fit in one message. 
     uint8_t   num_descriptors_in_response;
     /// Number of parameter notifications supported

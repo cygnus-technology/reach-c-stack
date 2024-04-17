@@ -1164,7 +1164,7 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     sizes_struct.param_info_description_len   = REACH_PARAM_INFO_DESCRIPTION_LEN;
     sizes_struct.medium_string_len            = REACH_MEDIUM_STRING_LEN;
     sizes_struct.short_string_len             = REACH_SHORT_STRING_LEN;
-    sizes_struct.param_info_enum_count        = REACH_PARAM_INFO_ENUM_COUNT;
+    sizes_struct.param_notify_config_count    = REACH_PARAM_NOTE_SETUP_COUNT;
     sizes_struct.num_descriptors_in_response  = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
     sizes_struct.num_param_notifications      = NUM_SUPPORTED_PARAM_NOTIFY;
     sizes_struct.num_commands_in_response     = REACH_NUM_COMMANDS_IN_RESPONSE;

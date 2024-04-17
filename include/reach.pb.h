@@ -185,7 +185,7 @@ typedef enum _cr_SizesOffsets {
     cr_SizesOffsets_PARAM_INFO_DESCRIPTION_LEN_OFFSET = 8, /* uint8_t */
     cr_SizesOffsets_MEDIUM_STRING_LEN_OFFSET = 9, /* uint8_t */
     cr_SizesOffsets_SHORT_STRING_LEN_OFFSET = 10, /* uint8_t */
-    cr_SizesOffsets_PARAM_INFO_ENUM_COUNT_OFFSET = 11, /* uint8_t */
+    cr_SizesOffsets_PARAM_NOTIFY_CONFIG_COUNT_OFFSET = 11, /* uint8_t */
     cr_SizesOffsets_NUM_DESCRIPTORS_IN_RESPONSE_OFFSET = 12, /* uint8_t */
     cr_SizesOffsets_NUM_PARAM_NOTIFICATIONS_OFFSET = 13, /* uint8_t */
     cr_SizesOffsets_NUM_COMMANDS_IN_RESPONSE_OFFSET = 14, /* uint8_t */
@@ -724,10 +724,9 @@ typedef struct _cr_BufferSizes {
     uint32_t num_commands_in_response;
     /* number of param descriptions that can be in one info packet. (8 bits) */
     uint32_t count_param_desc_in_response;
-    /* number of enums that fit in a parameter EX response
- Since the server composes this response, it's not so critical that 
- the client knows the max. */
-    uint32_t param_info_enum_count;
+    /* The max number of parameter notification configurations 
+ that a client will provide. */
+    uint32_t param_notify_config_count;
 } cr_BufferSizes;
 
 
@@ -1167,7 +1166,7 @@ extern "C" {
 #define cr_BufferSizes_num_param_notifications_tag 11
 #define cr_BufferSizes_num_commands_in_response_tag 13
 #define cr_BufferSizes_count_param_desc_in_response_tag 14
-#define cr_BufferSizes_param_info_enum_count_tag 15
+#define cr_BufferSizes_param_notify_config_count_tag 15
 
 /* Struct field encoding specification for nanopb */
 #define cr_ReachMessageHeader_FIELDLIST(X, a) \
@@ -1586,7 +1585,7 @@ X(a, STATIC,   SINGULAR, UINT32,   param_info_description_len,  10) \
 X(a, STATIC,   SINGULAR, UINT32,   num_param_notifications,  11) \
 X(a, STATIC,   SINGULAR, UINT32,   num_commands_in_response,  13) \
 X(a, STATIC,   SINGULAR, UINT32,   count_param_desc_in_response,  14) \
-X(a, STATIC,   SINGULAR, UINT32,   param_info_enum_count,  15)
+X(a, STATIC,   SINGULAR, UINT32,   param_notify_config_count,  15)
 #define cr_BufferSizes_CALLBACK NULL
 #define cr_BufferSizes_DEFAULT NULL
 

@@ -32,7 +32,6 @@
 #define REACH_MEDIUM_STRING_LEN                24 
 #define REACH_SHORT_STRING_LEN                 16
 #define REACH_PARAM_INFO_ENUM_COUNT            12
-#define REACH_SERVICES_COUNT                    8
 #define REACH_NUM_COMMANDS_IN_RESPONSE          2
 #define REACH_NUM_SMALL_STRUCTS_IN_MESSAGE      8
 #define REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE     4

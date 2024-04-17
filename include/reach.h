@@ -34,13 +34,13 @@ typedef enum _cr_ReachProto_MAJOR_Version {
 } cr_ReachProto_MAJOR_Version;
 
 typedef enum _cr_ReachProto_MINOR_Version {
-    cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /* Must have a zero */
-    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /* Update at a release */
+    cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /** Must have a zero */
+    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /** Update at a release or a big change */
 } cr_ReachProto_MINOR_Version;
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 4 /* Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 4 /** Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 /// These values identify the type of the Reach message.
@@ -251,14 +251,14 @@ typedef struct _cr_ErrorReport {
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
 /** Request Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingRequest {
-    cr_PingRequest_echo_data_t echo_data; /** d : Data */
+    cr_PingRequest_echo_data_t echo_data; /** Data which should be echoed in the response */
 } cr_PingRequest;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingResponse_echo_data_t;
 /** Response Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingResponse {
-    cr_PingResponse_echo_data_t echo_data; /** d : Data */
-    int32_t signal_strength; /** rssi : Rssi express in strength so clients don't have to interpret */
+    cr_PingResponse_echo_data_t echo_data; /** The same data sent in the request */
+    int32_t signal_strength; /* rssi : Rssi express in strength so clients don't have to interpret */
 } cr_PingResponse;
 
 
@@ -352,8 +352,12 @@ typedef struct _cr_ParamExInfoResponse {
     cr_ParameterDataType data_type;
     pb_size_t enumerations_count;
     cr_ParamExKey enumerations[8];
+    uint32_t pei_id;
 } cr_ParamExInfoResponse;
 
+/** ------------------------------------------------------
+ Parameter Reads
+ ------------------------------------------------------ */
 typedef struct _cr_ParameterRead {
     pb_size_t parameter_ids_count;
     uint32_t parameter_ids[32]; /** i: ID -  Leave Empty to Retrieve All */
@@ -376,6 +380,11 @@ typedef struct _cr_ParameterNotifyConfig {
     float minimum_delta; /** notify only if change by this much */
 } cr_ParameterNotifyConfig;
 
+typedef struct _cr_ParameterConfigureNotifications {
+    pb_size_t configs_count;
+    cr_ParameterNotifyConfig configs[8];
+} cr_ParameterConfigureNotifications;
+
 typedef struct _cr_ParameterNotifyConfigResponse {
     int32_t result; /** zero if all OK */
     bool has_result_message;
@@ -385,15 +394,15 @@ typedef struct _cr_ParameterNotifyConfigResponse {
 /** ------------------------------------------------------
  The client can discover how notifications are setup.
  ------------------------------------------------------ */
-typedef struct _cr_ParameterNotifySetupRequest {
+typedef struct _cr_DiscoverParameterNotifications {
     pb_size_t parameter_ids_count;
     uint32_t parameter_ids[32]; /** i: ID -  Leave Empty to Retrieve All */
-} cr_ParameterNotifySetupRequest;
+} cr_DiscoverParameterNotifications;
 
-typedef struct _cr_ParameterNotifySetupResponse {
+typedef struct _cr_DiscoverParameterNotificationsResponse {
     pb_size_t configs_count;
     cr_ParameterNotifyConfig configs[8];
-} cr_ParameterNotifySetupResponse;
+} cr_DiscoverParameterNotificationsResponse;
 
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
 /** Message for Sending / Receiving a Single Parameter Value
