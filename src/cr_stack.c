@@ -1304,12 +1304,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     int rval;
     int num_commands;
 
-    if (!crcb_challenge_key_is_valid()) {
-        pvtCr_num_remaining_objects = 0;
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-
     if (request != NULL) 
     {
         // request will be null on repeated calls.
@@ -1362,13 +1356,12 @@ handle_discover_commands(const cr_DiscoverCommands *request,
 }
 
 static int handle_send_command(const cr_SendCommand *request,
-                                   cr_SendCommandResponse *response) 
+                               cr_SendCommandResponse *response) 
 {
-    if (!crcb_challenge_key_is_valid()) {
-        response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-        return 0;
+    if (!crcb_access_granted(cr_ServiceIds_COMMANDS, request->command_id)) {
+        response->result = cr_ErrorCodes_NO_DATA;
+        return cr_ErrorCodes_NO_DATA;
     }
-
     response->result = crcb_command_execute(request->command_id);
     return 0;
 }
@@ -1395,9 +1388,10 @@ static int handle_send_command(const cr_SendCommand *request,
     static int handle_time_set(const cr_TimeSetRequest *request, 
                                cr_TimeSetResponse *response)
     {
-        if (!crcb_challenge_key_is_valid()) {
-            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-            return 0;
+        if (!crcb_access_granted(cr_ServiceIds_TIME, 1)) {
+            // 1 for set
+            response->result = cr_ErrorCodes_NO_DATA;
+            return cr_ErrorCodes_NO_DATA;
         }
 
         response->result = crcb_time_set(request);
@@ -1410,9 +1404,10 @@ static int handle_send_command(const cr_SendCommand *request,
                                cr_TimeGetResponse *response)
     {
         (void)request;
-        if (!crcb_challenge_key_is_valid()) {
-            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-            return 0;
+        if (!crcb_access_granted(cr_ServiceIds_TIME, 0)) {
+            // 0 for get
+            response->result = cr_ErrorCodes_NO_DATA;
+            return cr_ErrorCodes_NO_DATA;
         }
         response->result = crcb_time_get(response);
         return 0;
@@ -1428,12 +1423,11 @@ static int handle_send_command(const cr_SendCommand *request,
         int rval;
         int num_ap;
 
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_WIFI, 0)) {
             pvtCr_num_remaining_objects = 0;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
-
         if (request != NULL) 
         {
             // request will be null on repeated calls.
@@ -1483,10 +1477,11 @@ static int handle_send_command(const cr_SendCommand *request,
                                       cr_WiFiConnectionResponse *response)
     {
         (void)request;
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_WIFI, 0)) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
         }
+
         crcb_wifi_connection(request, response);
         return 0;
     }

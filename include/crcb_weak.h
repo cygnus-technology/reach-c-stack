@@ -140,10 +140,12 @@ void crcb_invalidate_challenge_key(void);
 /**
 * @brief   crcb_access_granted
 * @details A gateway to access control. Called anywhere that 
-*          access might be blocked.  
+*          access might be blocked.
+* @param  service : Which service to check. 
+* @param  id : Which ID to check.  Negative to check any. 
 * @return  true if access is granted.
 */
-bool crcb_access_granted(const cr_ServiceIds service, const uint32_t id);
+bool crcb_access_granted(const cr_ServiceIds service, const int32_t id);
 
 /**
 * @brief   crcb_configure_access_control

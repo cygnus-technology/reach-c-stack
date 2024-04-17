@@ -110,7 +110,7 @@
     {
         int rval;
 
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, -1)) {
             sCr_requested_param_info_count = 0;
             response->parameter_infos_count = 0;
             return cr_ErrorCodes_NO_DATA;
@@ -242,7 +242,7 @@
     pvtCrParam_discover_parameters_ex(const cr_ParameterInfoRequest *request,
                                       cr_ParamExInfoResponse *response) 
     {
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, -1)) {
             sCr_requested_param_info_count = 0;
             pvtCr_num_remaining_objects = response->enumerations_count = 0;
             return cr_ErrorCodes_NO_DATA;
@@ -367,7 +367,7 @@
     int pvtCrParam_read_param(const cr_ParameterRead *request,
                               cr_ParameterReadResponse *response) 
     {
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, -1)) {
             pvtCr_num_remaining_objects = 0;
             memset(response, 0, sizeof(cr_ParameterReadResponse));
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -505,7 +505,7 @@
     int pvtCrParam_write_param(const cr_ParameterWrite *request,
                                cr_ParameterWriteResponse *response) 
     {
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, -1)) {
             pvtCr_num_remaining_objects = 0;
             memset(response, 0, sizeof(cr_ParameterWriteResponse));
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -562,7 +562,7 @@
         return cr_ErrorCodes_INVALID_PARAMETER;
     }
 
-    static bool sParamNotifyEnabled(cr_ParameterNotifyConfig *pCfg)
+    static bool sParamNotifyEnabled(const cr_ParameterNotifyConfig *pCfg)
     {
         // all zero is disabled.
         return !((pCfg->parameter_id == 0) &&
@@ -595,7 +595,7 @@
     int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifications *request,
                                           cr_DiscoverParameterNotificationsResponse *response)
     {
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, -1)) {
             sCr_requested_notify_count = 0;
             pvtCr_num_remaining_objects = response->configs_count = 0;
             return cr_ErrorCodes_NO_DATA;

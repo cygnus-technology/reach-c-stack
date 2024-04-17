@@ -279,6 +279,7 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
     i3_log(LOG_MASK_REACH, "     name                : %s", response->file_infos[i].file_name);
     i3_log(LOG_MASK_REACH, "     access              : 0x%x", response->file_infos[i].access);
     i3_log(LOG_MASK_REACH, "     current byte length : %d", response->file_infos[i].current_size_bytes);
+    i3_log(LOG_MASK_REACH, "     maximum byte length : %d", response->file_infos[i].maximum_size_bytes);
     i3_log(LOG_MASK_REACH, "    ]");
   }
   i3_log(LOG_MASK_REACH, "\r\n");
