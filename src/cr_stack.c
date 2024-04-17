@@ -994,8 +994,12 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         break;
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-        rval = pvtCrParam_config_param_notify((cr_ParameterConfigureNotifications *)sCr_decoded_prompt_buffer,
+    case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
+        rval = pvtCrParam_param_enable_notify((cr_ParameterEnableNotifications *)sCr_decoded_prompt_buffer,
+                           (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
+        break;
+    case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
+        rval = pvtCrParam_param_disable_notify((cr_ParameterDisableNotifications *)sCr_decoded_prompt_buffer,
                            (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
         break;
     #endif
@@ -1605,7 +1609,8 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       break;
 
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-  case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
+  case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
+  case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
       status = pb_encode(&os_stream, cr_ParameterNotifyConfigResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;

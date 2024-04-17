@@ -187,8 +187,10 @@ const char *msg_type_string(int32_t message_type) {
     return "Read Param";
   case cr_ReachMessageTypes_WRITE_PARAMETERS:
       return "Write Param";
-  case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-      return "Config Param Notifiy";
+  case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
+      return "Param Enable Notifiy";
+  case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
+      return "Param Disable Notifiy";
   case cr_ReachMessageTypes_PARAMETER_NOTIFICATION:
       return "Param Notification";
   case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
@@ -530,16 +532,21 @@ void message_util_log_discover_notifications_response(const cr_DiscoverParameter
     i3_log(LOG_MASK_REACH, "  Discover Notifications response: %d configs\n", (int)payload->configs_count);
     for (int i=0; i<payload->configs_count; i++)
     {
-        if (!payload->configs[i].enabled)
-        {
-            i3_log(LOG_MASK_REACH, "    ID %d, not enabled", payload->configs[i].parameter_id);
-            continue;
+        // all zero is disabled
+        bool enabled = !((payload->configs[i].parameter_id == 0) &&
+                         (payload->configs[i].minimum_notification_period == 0) &&
+                         (payload->configs[i].maximum_notification_period == 0) &&
+                         (payload->configs[i].minimum_delta == 0.0));
+        if (!enabled) {
+            i3_log(LOG_MASK_REACH, "    ID %d, disabled", payload->configs[i].parameter_id);
         }
-        i3_log(LOG_MASK_REACH, "    ID %d, enabled, period min %u, max %u, delta %.1f",
+        else {
+            i3_log(LOG_MASK_REACH, "    ID %d, enabled, period min %u, max %u, delta %.1f",
                payload->configs[i].parameter_id, 
                payload->configs[i].minimum_notification_period,
                payload->configs[i].maximum_notification_period, 
                payload->configs[i].minimum_delta);
+        }
     }
 }
 
@@ -745,7 +752,8 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_write_param_response(const cr_ParameterWriteResponse *){}
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *){}
         void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload) {}
-        void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *payload) {}
+        void message_util_log_discover_notifications_response(const bool,
+                                                              const cr_DiscoverParameterNotificationsResponse *payload) {}
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE

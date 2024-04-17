@@ -29,7 +29,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 6 /* Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 7 /* Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -42,9 +42,10 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_DISCOVER_PARAM_EX = 6,
     cr_ReachMessageTypes_READ_PARAMETERS = 7,
     cr_ReachMessageTypes_WRITE_PARAMETERS = 8,
-    cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY = 9, /* setup parameter notifications */
     cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10, /* A parameter has changed */
     cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11, /* find out how notifications are setup */
+    cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY = 50, /* setup parameter notifications */
+    cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY = 51, /* disable parameter notifications */
     /* File Transfers */
     cr_ReachMessageTypes_DISCOVER_FILES = 12,
     cr_ReachMessageTypes_TRANSFER_INIT = 13, /* Begins a Transfer */
@@ -364,16 +365,21 @@ typedef struct _cr_ParameterWriteResponse {
  ------------------------------------------------------ */
 typedef struct _cr_ParameterNotifyConfig {
     uint32_t parameter_id; /* Which param */
-    bool enabled; /* Enabled or Disabled */
     uint32_t minimum_notification_period; /* min_ms: Minimum Notification Interval (ms) */
     uint32_t maximum_notification_period; /* max_ms: Minimum Notification Interval (ms) */
     float minimum_delta; /* notify only if change by this much */
 } cr_ParameterNotifyConfig;
 
-typedef struct _cr_ParameterConfigureNotifications {
+typedef struct _cr_ParameterEnableNotifications {
     pb_size_t configs_count;
     cr_ParameterNotifyConfig configs[8];
-} cr_ParameterConfigureNotifications;
+    bool disable_all_first;
+} cr_ParameterEnableNotifications;
+
+typedef struct _cr_ParameterDisableNotifications {
+    pb_size_t pids_count;
+    uint32_t pids[32];
+} cr_ParameterDisableNotifications;
 
 typedef struct _cr_ParameterNotifyConfigResponse {
     int32_t result; /* zero if all OK */
@@ -456,6 +462,7 @@ typedef struct _cr_FileInfo {
     int32_t current_size_bytes; /* size in bytes */
     cr_StorageLocation storage_location;
     bool require_checksum; /* set true to request checksum generation and validation. */
+    uint32_t maximum_size_bytes; /* Determined by storage space */
 } cr_FileInfo;
 
 typedef struct _cr_DiscoverFilesResponse {
@@ -752,8 +759,8 @@ extern "C" {
 #define _cr_ReachProto_PATCH_Version_ARRAYSIZE ((cr_ReachProto_PATCH_Version)(cr_ReachProto_PATCH_Version_PATCH_VERSION+1))
 
 #define _cr_ReachMessageTypes_MIN cr_ReachMessageTypes_INVALID
-#define _cr_ReachMessageTypes_MAX cr_ReachMessageTypes_WIFI_CONNECT
-#define _cr_ReachMessageTypes_ARRAYSIZE ((cr_ReachMessageTypes)(cr_ReachMessageTypes_WIFI_CONNECT+1))
+#define _cr_ReachMessageTypes_MAX cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY
+#define _cr_ReachMessageTypes_ARRAYSIZE ((cr_ReachMessageTypes)(cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY+1))
 
 #define _cr_ServiceIds_MIN cr_ServiceIds_NO_SVC_ID
 #define _cr_ServiceIds_MAX cr_ServiceIds_WIFI
@@ -833,6 +840,7 @@ extern "C" {
 
 
 
+
 #define cr_FileInfo_access_ENUMTYPE cr_AccessLevel
 #define cr_FileInfo_storage_location_ENUMTYPE cr_StorageLocation
 
@@ -891,8 +899,9 @@ extern "C" {
 #define cr_ParameterReadResponse_init_default    {0, 0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterWrite_init_default           {0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterWriteResponse_init_default   {0, false, ""}
-#define cr_ParameterNotifyConfig_init_default    {0, 0, 0, 0, 0}
-#define cr_ParameterConfigureNotifications_init_default {0, {cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default}}
+#define cr_ParameterNotifyConfig_init_default    {0, 0, 0, 0}
+#define cr_ParameterEnableNotifications_init_default {0, {cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default}, 0}
+#define cr_ParameterDisableNotifications_init_default {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterNotifyConfigResponse_init_default {0, false, ""}
 #define cr_DiscoverParameterNotifications_init_default {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_DiscoverParameterNotificationsResponse_init_default {0, {cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default}}
@@ -900,7 +909,7 @@ extern "C" {
 #define cr_ParameterValue_init_default           {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_default            {0}
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
-#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
+#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
 #define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
 #define cr_FileTransferResponse_init_default     {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
@@ -947,8 +956,9 @@ extern "C" {
 #define cr_ParameterReadResponse_init_zero       {0, 0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterWrite_init_zero              {0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterWriteResponse_init_zero      {0, false, ""}
-#define cr_ParameterNotifyConfig_init_zero       {0, 0, 0, 0, 0}
-#define cr_ParameterConfigureNotifications_init_zero {0, {cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero}}
+#define cr_ParameterNotifyConfig_init_zero       {0, 0, 0, 0}
+#define cr_ParameterEnableNotifications_init_zero {0, {cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero}, 0}
+#define cr_ParameterDisableNotifications_init_zero {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterNotifyConfigResponse_init_zero {0, false, ""}
 #define cr_DiscoverParameterNotifications_init_zero {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_DiscoverParameterNotificationsResponse_init_zero {0, {cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero}}
@@ -956,7 +966,7 @@ extern "C" {
 #define cr_ParameterValue_init_zero              {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_zero               {0}
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
-#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
+#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
 #define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
 #define cr_FileTransferResponse_init_zero        {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
@@ -1043,11 +1053,12 @@ extern "C" {
 #define cr_ParameterWriteResponse_result_tag     1
 #define cr_ParameterWriteResponse_result_message_tag 2
 #define cr_ParameterNotifyConfig_parameter_id_tag 1
-#define cr_ParameterNotifyConfig_enabled_tag     2
-#define cr_ParameterNotifyConfig_minimum_notification_period_tag 3
-#define cr_ParameterNotifyConfig_maximum_notification_period_tag 4
-#define cr_ParameterNotifyConfig_minimum_delta_tag 5
-#define cr_ParameterConfigureNotifications_configs_tag 1
+#define cr_ParameterNotifyConfig_minimum_notification_period_tag 2
+#define cr_ParameterNotifyConfig_maximum_notification_period_tag 3
+#define cr_ParameterNotifyConfig_minimum_delta_tag 4
+#define cr_ParameterEnableNotifications_configs_tag 1
+#define cr_ParameterEnableNotifications_disable_all_first_tag 2
+#define cr_ParameterDisableNotifications_pids_tag 1
 #define cr_ParameterNotifyConfigResponse_result_tag 1
 #define cr_ParameterNotifyConfigResponse_result_message_tag 2
 #define cr_DiscoverParameterNotifications_parameter_ids_tag 1
@@ -1075,6 +1086,7 @@ extern "C" {
 #define cr_FileInfo_current_size_bytes_tag       4
 #define cr_FileInfo_storage_location_tag         5
 #define cr_FileInfo_require_checksum_tag         6
+#define cr_FileInfo_maximum_size_bytes_tag       7
 #define cr_DiscoverFilesResponse_file_infos_tag  1
 #define cr_FileTransferRequest_file_id_tag       1
 #define cr_FileTransferRequest_read_write_tag    2
@@ -1301,18 +1313,23 @@ X(a, STATIC,   OPTIONAL, STRING,   result_message,    2)
 
 #define cr_ParameterNotifyConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   parameter_id,      1) \
-X(a, STATIC,   SINGULAR, BOOL,     enabled,           2) \
-X(a, STATIC,   SINGULAR, UINT32,   minimum_notification_period,   3) \
-X(a, STATIC,   SINGULAR, UINT32,   maximum_notification_period,   4) \
-X(a, STATIC,   SINGULAR, FLOAT,    minimum_delta,     5)
+X(a, STATIC,   SINGULAR, UINT32,   minimum_notification_period,   2) \
+X(a, STATIC,   SINGULAR, UINT32,   maximum_notification_period,   3) \
+X(a, STATIC,   SINGULAR, FLOAT,    minimum_delta,     4)
 #define cr_ParameterNotifyConfig_CALLBACK NULL
 #define cr_ParameterNotifyConfig_DEFAULT NULL
 
-#define cr_ParameterConfigureNotifications_FIELDLIST(X, a) \
-X(a, STATIC,   REPEATED, MESSAGE,  configs,           1)
-#define cr_ParameterConfigureNotifications_CALLBACK NULL
-#define cr_ParameterConfigureNotifications_DEFAULT NULL
-#define cr_ParameterConfigureNotifications_configs_MSGTYPE cr_ParameterNotifyConfig
+#define cr_ParameterEnableNotifications_FIELDLIST(X, a) \
+X(a, STATIC,   REPEATED, MESSAGE,  configs,           1) \
+X(a, STATIC,   SINGULAR, BOOL,     disable_all_first,   2)
+#define cr_ParameterEnableNotifications_CALLBACK NULL
+#define cr_ParameterEnableNotifications_DEFAULT NULL
+#define cr_ParameterEnableNotifications_configs_MSGTYPE cr_ParameterNotifyConfig
+
+#define cr_ParameterDisableNotifications_FIELDLIST(X, a) \
+X(a, STATIC,   REPEATED, UINT32,   pids,              1)
+#define cr_ParameterDisableNotifications_CALLBACK NULL
+#define cr_ParameterDisableNotifications_DEFAULT NULL
 
 #define cr_ParameterNotifyConfigResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
@@ -1371,7 +1388,8 @@ X(a, STATIC,   SINGULAR, STRING,   file_name,         2) \
 X(a, STATIC,   SINGULAR, UENUM,    access,            3) \
 X(a, STATIC,   SINGULAR, INT32,    current_size_bytes,   4) \
 X(a, STATIC,   SINGULAR, UENUM,    storage_location,   5) \
-X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   6)
+X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   6) \
+X(a, STATIC,   SINGULAR, UINT32,   maximum_size_bytes,   7)
 #define cr_FileInfo_CALLBACK NULL
 #define cr_FileInfo_DEFAULT NULL
 
@@ -1607,7 +1625,8 @@ extern const pb_msgdesc_t cr_ParameterReadResponse_msg;
 extern const pb_msgdesc_t cr_ParameterWrite_msg;
 extern const pb_msgdesc_t cr_ParameterWriteResponse_msg;
 extern const pb_msgdesc_t cr_ParameterNotifyConfig_msg;
-extern const pb_msgdesc_t cr_ParameterConfigureNotifications_msg;
+extern const pb_msgdesc_t cr_ParameterEnableNotifications_msg;
+extern const pb_msgdesc_t cr_ParameterDisableNotifications_msg;
 extern const pb_msgdesc_t cr_ParameterNotifyConfigResponse_msg;
 extern const pb_msgdesc_t cr_DiscoverParameterNotifications_msg;
 extern const pb_msgdesc_t cr_DiscoverParameterNotificationsResponse_msg;
@@ -1665,7 +1684,8 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ParameterWrite_fields &cr_ParameterWrite_msg
 #define cr_ParameterWriteResponse_fields &cr_ParameterWriteResponse_msg
 #define cr_ParameterNotifyConfig_fields &cr_ParameterNotifyConfig_msg
-#define cr_ParameterConfigureNotifications_fields &cr_ParameterConfigureNotifications_msg
+#define cr_ParameterEnableNotifications_fields &cr_ParameterEnableNotifications_msg
+#define cr_ParameterDisableNotifications_fields &cr_ParameterDisableNotifications_msg
 #define cr_ParameterNotifyConfigResponse_fields &cr_ParameterNotifyConfigResponse_msg
 #define cr_DiscoverParameterNotifications_fields &cr_DiscoverParameterNotifications_msg
 #define cr_DiscoverParameterNotificationsResponse_fields &cr_DiscoverParameterNotificationsResponse_msg
@@ -1714,9 +1734,9 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DeviceInfoResponse_size               199
 #define cr_DiscoverCommandsResponse_size         176
 #define cr_DiscoverCommands_size                 0
-#define cr_DiscoverFilesResponse_size            200
+#define cr_DiscoverFilesResponse_size            224
 #define cr_DiscoverFiles_size                    0
-#define cr_DiscoverParameterNotificationsResponse_size 216
+#define cr_DiscoverParameterNotificationsResponse_size 200
 #define cr_DiscoverParameterNotifications_size   192
 #define cr_DiscoverStreamsResponse_size          204
 #define cr_DiscoverStreams_size                  0
@@ -1725,20 +1745,21 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ErrorReport_size                      207
 #define cr_FileEraseRequest_size                 6
 #define cr_FileEraseResponse_size                213
-#define cr_FileInfo_size                         48
+#define cr_FileInfo_size                         54
 #define cr_FileTransferDataNotification_size     221
 #define cr_FileTransferData_size                 231
 #define cr_FileTransferRequest_size              50
 #define cr_FileTransferResponse_size             219
 #define cr_ParamExInfoResponse_size              214
 #define cr_ParamExKey_size                       23
-#define cr_ParameterConfigureNotifications_size  216
+#define cr_ParameterDisableNotifications_size    192
+#define cr_ParameterEnableNotifications_size     202
 #define cr_ParameterInfoRequest_size             192
 #define cr_ParameterInfoResponse_size            244
 #define cr_ParameterInfo_size                    120
 #define cr_ParameterNotification_size            192
 #define cr_ParameterNotifyConfigResponse_size    207
-#define cr_ParameterNotifyConfig_size            25
+#define cr_ParameterNotifyConfig_size            23
 #define cr_ParameterReadResponse_size            198
 #define cr_ParameterRead_size                    198
 #define cr_ParameterValue_size                   46

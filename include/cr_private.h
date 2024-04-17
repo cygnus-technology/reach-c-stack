@@ -138,12 +138,16 @@ extern "C" {
     ///  Private helper function to write a parameter
     int pvtCrParam_write_param(const cr_ParameterWrite *, 
                                cr_ParameterWriteResponse *);
+
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    ///  Private helper function to configure parameter
+    ///  Private helper functions to configure parameter
     ///  notifications
-    int pvtCrParam_config_param_notify(const cr_ParameterConfigureNotifications *,
+    int pvtCrParam_param_enable_notify(const cr_ParameterEnableNotifications *,
+                                       cr_ParameterNotifyConfigResponse *);
+    int pvtCrParam_param_disable_notify(const cr_ParameterDisableNotifications *,
                                        cr_ParameterNotifyConfigResponse *);
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
+
     ///  Private helper function to check for parameter
     ///  notifications
     void pvtCrParam_check_for_notifications(void);

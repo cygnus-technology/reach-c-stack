@@ -154,12 +154,18 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
         message_util_log_write_param((cr_ParameterWrite *)data);
       }
       break;
-    case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-        status = pb_decode(&is_stream, cr_ParameterNotifyConfig_fields, data);
-        if (status) {
-          message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
-        }
-        break;
+   case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
+      status = pb_decode(&is_stream, cr_ParameterEnableNotifications_fields, data);
+      if (status) {
+        message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
+      }
+      break;
+   case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
+      status = pb_decode(&is_stream, cr_ParameterDisableNotifications_fields, data);
+      if (status) {
+        message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
+      }
+      break;
     case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
         status = pb_decode(&is_stream, cr_DiscoverParameterNotifications_fields, data);
         if (status) {
