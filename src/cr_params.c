@@ -726,13 +726,13 @@
     {
         int notify_idx, disable_idx;
 
-        for (disable_idx=0; disable_idx<pnd->pids_count; disable_idx++)
+        for (disable_idx=0; disable_idx<pnd->parameter_ids_count; disable_idx++)
         {
             for (notify_idx=0; notify_idx<NUM_SUPPORTED_PARAM_NOTIFY; notify_idx++ ) {
-                if (sCr_param_notify_list[notify_idx].parameter_id == pnd->pids[disable_idx])
+                if (sCr_param_notify_list[notify_idx].parameter_id == pnd->parameter_ids[disable_idx])
                 {
                     memset(&sCr_param_notify_list[notify_idx], 0, sizeof(cr_ParameterNotifyConfig));
-                    i3_log(LOG_MASK_PARAMS, "%s: Disabled notification on pid %u.", __FUNCTION__, pnd->pids[disable_idx]);
+                    i3_log(LOG_MASK_PARAMS, "%s: Disabled notification on pid %u.", __FUNCTION__, pnd->parameter_ids[disable_idx]);
                     break;
                 }
             }
@@ -770,6 +770,10 @@
                 rval =  cr_ErrorCodes_INVALID_PARAMETER;
                 continue;
             }
+            // reject enable if config is all zeros
+            if (!sParamNotifyEnabled(&pnc->configs[i]))
+                break;
+
 
             canContinue = false;
             // see if an active notification already exists
@@ -808,7 +812,8 @@
             }
             sCr_param_notify_list[idx] = pnc->configs[i];
             // store the index of the param with this PID.
-            i3_log(LOG_MASK_PARAMS, "Enabled notification %d on PID %d", idx, pnc->configs[i].parameter_id);
+            i3_log(LOG_MASK_PARAMS, "Enabled notification %d on PID %d",
+                   idx, pnc->configs[i].parameter_id);
         }
         pncr->result = rval;
         return cr_ErrorCodes_NO_ERROR;

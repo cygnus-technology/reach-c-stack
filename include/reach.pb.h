@@ -377,8 +377,8 @@ typedef struct _cr_ParameterEnableNotifications {
 } cr_ParameterEnableNotifications;
 
 typedef struct _cr_ParameterDisableNotifications {
-    pb_size_t pids_count;
-    uint32_t pids[32];
+    pb_size_t parameter_ids_count;
+    uint32_t parameter_ids[32];
 } cr_ParameterDisableNotifications;
 
 typedef struct _cr_ParameterNotifyConfigResponse {
@@ -1058,7 +1058,7 @@ extern "C" {
 #define cr_ParameterNotifyConfig_minimum_delta_tag 4
 #define cr_ParameterEnableNotifications_configs_tag 1
 #define cr_ParameterEnableNotifications_disable_all_first_tag 2
-#define cr_ParameterDisableNotifications_pids_tag 1
+#define cr_ParameterDisableNotifications_parameter_ids_tag 1
 #define cr_ParameterNotifyConfigResponse_result_tag 1
 #define cr_ParameterNotifyConfigResponse_result_message_tag 2
 #define cr_DiscoverParameterNotifications_parameter_ids_tag 1
@@ -1327,7 +1327,7 @@ X(a, STATIC,   SINGULAR, BOOL,     disable_all_first,   2)
 #define cr_ParameterEnableNotifications_configs_MSGTYPE cr_ParameterNotifyConfig
 
 #define cr_ParameterDisableNotifications_FIELDLIST(X, a) \
-X(a, STATIC,   REPEATED, UINT32,   pids,              1)
+X(a, STATIC,   REPEATED, UINT32,   parameter_ids,     1)
 #define cr_ParameterDisableNotifications_CALLBACK NULL
 #define cr_ParameterDisableNotifications_DEFAULT NULL
 

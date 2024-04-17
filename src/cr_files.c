@@ -112,13 +112,6 @@ uint16_t sCalculate_checksum(const uint8_t *data, size_t length) {
 int pvtCrFile_discover(const cr_DiscoverFiles *request,
                                 cr_DiscoverFilesResponse *response)
 {
-    if (!crcb_challenge_key_is_valid()) {
-        pvtCr_num_remaining_objects = 0;
-        memset(response, 0, sizeof(cr_DiscoverFilesResponse));
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-
     int rval;
     if (request != NULL) {
         // request will be null on repeated calls.
@@ -175,9 +168,9 @@ typedef struct _cr_FileTransferStateMachine {
 cr_FileTransferStateMachine sCr_file_xfer_state;
 
 int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
-                               cr_FileTransferResponse *response)
+                            cr_FileTransferResponse *response)
 {
-    if (!crcb_challenge_key_is_valid()) {
+    if (!crcb_access_granted(cr_ServiceIds_FILES, request->file_id)) {
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
         response->result = cr_ErrorCodes_CHALLENGE_FAILED;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -331,12 +324,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
 int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                          cr_FileTransferDataNotification *response)
 {
-    if (!crcb_challenge_key_is_valid()) {
-        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
-        response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
+    // no access check here as it was done at init.
 
     // we receive this on write.
     memset(response, 0, sizeof(cr_FileTransferDataNotification));
@@ -529,11 +517,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
 int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *request,
                                          cr_FileTransferData *dataTransfer)
 {
-    if (!crcb_challenge_key_is_valid()) {
-        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
+    // No access check as it was done at init
 
     // We receive this in the case of read file.
     // And it can generate repeated responses.
