@@ -4,9 +4,9 @@
 
 I3 Product Design
 
-Version     3.1
+Version     3.2
 
-Date        March 20, 2024
+Date        April 17, 2024
 
 # Executive Summary
 
@@ -77,15 +77,17 @@ A proper Cygnus Reach system design includes much input from customer support en
 
 ## Bluetooth Low Energy (BLE)
 
-When presented on a BLE interface, the following interface must be implemented. This standard allows for immediate recognition by and compatibility with a Cygnus capable app.
+The Reach protocol assumes that there exists a reliable underlying transport layer.  The protocol is initially deployed using the Bluetooth Low Energy transport protocol.  The implementation of the Reach stack is easily customized to fit the constraints of the available transport layer.
+
+Reach is most commonly deployed over BLE.  Reach messages are configured to fit efficiently into the 244 byte limit on BLE packets.  Reach over BLE requires a single characteristic. When presented on a BLE interface, the following interface must be implemented. This standard allows for immediate recognition by and compatibility with a Cygnus capable app.
 
 **REACH BLE Service:**
 
 UUID: edd59269-79b3-4ec2-a6a2-89bfb640f930
 
-**Characteristics:**
+**Characteristic:**
 
-The REACH API characteristic is all that is needed to enable access to the protocol. Client messages sent as individual characteristic writes and server responses are sent asynchronously as notifications.
+The single REACH API characteristic is all that is needed to enable access to the protocol. Client messages sent as individual characteristic writes and server responses are sent asynchronously as notifications.
 
 <table>
   <tr>
@@ -132,21 +134,23 @@ The BLE device must advertise this UUID so that mobile apps can identify it as a
 
 ![alt_text](_images/SiLabsBLE.png "image_tooltip")
 
+### Other Transport Protocols
+
+Reach can be implemented on other protocols.  MQTT and CAN are often discussed.  The CAN ecosystem includes a transport layer which is well suited to deliver Reach.  Reach over CAN would be appropriate to connect multiple Reach "endpoints" in a device.
+
 ## Protobufs
 
 The Reach communication protocol is implemented using Google's open source "protobuf" tool.  The big advantage of this tool is how easily it is used on the client side where Reach devices are addressed using multiple high level languages like Kotlin, Swift, and C#.  All of these languages rely on garbage collection to support memory allocation.  Since C does not support garbage collection, we elect to use static buffers to implement the protobuf structures.
 
-The reach.proto file is available on the cygnus-technology github site in the reach-protobuf repository.  As the .proto file defines the communication standard we don't expect users to modify it.  
+The reach.proto file is available on the cygnus-technology github site in the reach-protobuf repository.  The authors don't expect users to modify the .proto file as it defines the communication standard.  
 
-We use nanopb to convert the .proto file into C structures. Following nanopb guidelines, we use a .options file to avoid the use of malloc(). All arrays are converted to fixed sizes which are set in the .options file. The .options file is generated using a python script, reach_proto\proto\preprocess_options.py. This reads in reach-c-stack/reach_ble_proto_sizes.h and a prototype of the options file and outputs an options file that reflects the sizes set by the device. The sizes here are optimized for efficient BLE transfer. A system that does not use BLE could adjust these sizes. The UI applications are designed to respect these size constraints that are advertised in the device info structure.
-
-If you find you are interested in rebuilding the C code from the protobuf source, feel free to contact Cygnus support or open an issue on github.
+We use nanopb to convert the .proto file into C structures. Following nanopb guidelines, we use a .options file to avoid the use of malloc(). All arrays are converted to fixed sizes which are set in the .options file. The .options file is generated using a python script, reach_proto\proto\preprocess_options.py. This reads in reach-c-stack/includes/reach_ble_proto_sizes.h and a prototype of the options file. It outputs an options file that reflects the sizes set by the device. The sizes here are optimized for efficient BLE transfer. A system that does not use BLE could adjust these sizes. The UI applications are designed to respect these size constraints that are advertised in the device info structure.
 
 ## System Structure
 
 The Thunderboard demo has two parts, namely a “server” written in C and a “client” written in Kotlin or Swift or typescript.  The demo server we describe here runs on a Silicon Labs (SiLabs) Thunderboard.  It advertises itself as a Reach device on BLE.  Android and iOS mobile apps are available as the demo client.  These are available in the corresponding play/app store.  Cygnus also supports a web client.
 
-All of the Reach code, including the SiLabs demo is available on the Cygnus Technology github site: 
+All of the Reach code, including demo applications for Silicon Labs and Nordic hardware platforms are available on the Cygnus Technology github site: 
 
     ([https://github.com/cygnus-technology](https://github.com/cygnus-technology))
 
@@ -158,7 +162,7 @@ How to build and run the demo is described elsewhere in the “Getting Started�
 
 We encourage you to run the reach-silabs demo as is on the Thunderboard as it gives you a concrete reference.  This section outlines the process of porting the code to another system.  Here I assume it is a C project.  
 
-The demo uses no RTOS.  Everything goes through an event loop which is part of the SiLabs BLE architecture.  Reach could easily be broken off into a separate RTOS task, but this is not demonstrated.
+The SiLabs demo uses no RTOS.  Everything goes through an event loop which is part of the SiLabs BLE architecture.  The Nordic demo uses the Zephyr RTOS.
 
 The recommendation in general is to bring up your application so that it behaves just like the Reach demo, and then go on to customize it for your own usage.  The rest of this document attempts to give some background to better understand the application.
 
@@ -502,11 +506,13 @@ The server finally decides the ack rate.  The client can request a different ack
 - The requested_ack_rate is optionally sent by the client when requesting a file transfer.  
 
 - The responding "ack_rate" is always present.
+
 - If the requested_ack_rate is provided, then the server should use it.
+  
   - The weak callback crcb_file_get_preferred_ack_rate() allows the application designer to choose this rate.
-
+  
   - The server may confirm the requested ack_rate in its response.
-
+  
   - The server may override the requested ack rate with its own preference if there is a good reason.  Ideally this reason would be communicated in the result_message field.
 
 - If no requested_ack_rate is provided, the server will provide the ack_rate via the crcb_file_get_preferred_ack_rate() callback.
