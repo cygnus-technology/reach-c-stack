@@ -995,7 +995,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-        rval = pvtCrParam_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
+        rval = pvtCrParam_config_param_notify((cr_ParameterConfigureNotifications *)sCr_decoded_prompt_buffer,
                            (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
         break;
     #endif

@@ -141,7 +141,7 @@ extern "C" {
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     ///  Private helper function to configure parameter
     ///  notifications
-    int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *,
+    int pvtCrParam_config_param_notify(const cr_ParameterConfigureNotifications *,
                                        cr_ParameterNotifyConfigResponse *);
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
     ///  Private helper function to check for parameter

@@ -257,7 +257,8 @@
             sCr_requested_param_index = 0;
             sCr_requested_param_info_count = request->parameter_ids_count;
             sCr_num_ex_this_pid = 0;
-            I3_LOG(LOG_MASK_PARAMS, "discover params ex, param count %d.", sCr_requested_param_info_count);
+            I3_LOG(LOG_MASK_PARAMS, "discover params ex, param count %d.",
+                   sCr_requested_param_info_count);
 
             if (request->parameter_ids_count != 0) 
             {
@@ -297,7 +298,8 @@
                 }
             }
             // one object in each response.
-            I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.", pvtCr_num_remaining_objects);
+            I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.",
+                   pvtCr_num_remaining_objects);
 
             // here we've found at least one so use it.
             rval = crcb_parameter_ex_discover_next(response);
@@ -710,73 +712,95 @@
         return 0;
     }
 
-    int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *pnc,
+    int pvtCrParam_config_param_notify(const cr_ParameterConfigureNotifications *pnc,
                                        cr_ParameterNotifyConfigResponse *pncr)
     {
         int idx;
+        bool canContinue = false;
+        int rval = cr_ErrorCodes_NO_ERROR;
 
-        if (!pnc->enabled) 
+        for (int i=0; i<pnc->configs_count; i++ )
         {
-            bool disabledOne = false;
-            // try to disable.
+            if (!pnc->configs[i].enabled)
+            {
+                bool disabledOne = false;
+                // try to disable.
+                for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
+                    if (pnc->configs[i].parameter_id == sCr_param_notify_list[idx].parameter_id)
+                    {
+                        sCr_param_notify_list[idx].enabled = false;
+                        i3_log(LOG_MASK_PARAMS, "Disabled notification %d on PID %d",
+                               idx, pnc->configs[i].parameter_id);
+                        disabledOne = true;
+                        // Don't return, check for others
+                    }
+                }
+                if (!disabledOne) {
+                    // No enabled match found
+                    i3_log(LOG_MASK_WARN, "Requested disable of notify on %d, but not enabled.", 
+                           pnc->configs[i].parameter_id);
+                }
+                continue;
+            }
+
+            // reject enable on non-existing PID's.
+            int rval = crcb_parameter_discover_reset(pnc->configs[i].parameter_id);
+            if (rval != cr_ErrorCodes_NO_ERROR) {
+                cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Notificaiton: PID %d not found.", 
+                                pnc->configs[i].parameter_id);
+                pncr->has_result_message = true;
+                sprintf(pncr->result_message, "Notificaiton: PID %d not found.",
+                        (int)pnc->configs[i].parameter_id);
+                rval =  cr_ErrorCodes_INVALID_PARAMETER;
+                continue;
+            }
+
+            canContinue = false;
+            // see if an active notification already exists
             for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
-                if (pnc->parameter_id == sCr_param_notify_list[idx].parameter_id)
-                {
-                    sCr_param_notify_list[idx].enabled = false;
-                    i3_log(LOG_MASK_PARAMS, "Disabled notification %d on PID %d", idx, pnc->parameter_id);
+                if (!sCr_param_notify_list[idx].enabled)
+                    continue;
+                if (pnc->configs[i].parameter_id == sCr_param_notify_list[idx].parameter_id) {
+                    sCr_param_notify_list[idx] = pnc->configs[i];
+                    // store the index of the param with this PID.
+                    i3_log(LOG_MASK_PARAMS, "Updated notification %d on PID %d",
+                           idx, pnc->configs[i].parameter_id);
                     pncr->result = cr_ErrorCodes_NO_ERROR;
-                    disabledOne = true;
-                    // Don't return, check for others
+                    canContinue = true;
+                    break;
                 }
             }
-            if (!disabledOne) {
-                // No enabled match found
-                pncr->result = cr_ErrorCodes_NO_ERROR;
-                i3_log(LOG_MASK_WARN, "Requested disable of notify on %d, but not enabled.", 
-                       pnc->parameter_id);
-            }
-            return cr_ErrorCodes_NO_ERROR;
-        }
-
-        // reject enable on non-existing PID's.
-        int rval = crcb_parameter_discover_reset(pnc->parameter_id);
-        if (rval != cr_ErrorCodes_NO_ERROR) {
-            cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, "Notificaiton: PID %d not found.", 
-                            pnc->parameter_id);
-            pncr->result = cr_ErrorCodes_INVALID_PARAMETER;
-            return cr_ErrorCodes_INVALID_PARAMETER;
-        }
-
-        // see if an active notification already exists
-        for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
-            if (!sCr_param_notify_list[idx].enabled)
+            if (canContinue)
                 continue;
-            if (pnc->parameter_id == sCr_param_notify_list[idx].parameter_id) {
-                sCr_param_notify_list[idx] = *pnc;
-                // store the index of the param with this PID.
-                i3_log(LOG_MASK_PARAMS, "Updated notification %d on PID %d", idx, pnc->parameter_id);
-                pncr->result = cr_ErrorCodes_NO_ERROR;
-                return cr_ErrorCodes_NO_ERROR;
-            }
-        }
 
-        // Find an open entry
-        for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
-            if (!sCr_param_notify_list[idx].enabled)
-                break;
+            // Find an open entry
+            for (idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ ) {
+                if (!sCr_param_notify_list[idx].enabled)
+                    break;
+            }
+            if (idx >= NUM_SUPPORTED_PARAM_NOTIFY) {
+                // All notifications are in use.  
+                pncr->result = cr_ErrorCodes_NO_RESOURCE;
+                cr_report_error(cr_ErrorCodes_NO_RESOURCE,
+                                "No notificaiton slot available for PID %d.",
+                                pnc->configs[i].parameter_id);
+                rval = cr_ErrorCodes_NO_RESOURCE;
+                pncr->has_result_message = true;
+                sprintf(pncr->result_message, "No notificaiton slot available for PID %d.",
+                        (int)pnc->configs[i].parameter_id);
+                continue;
+            }
+            sCr_param_notify_list[idx] = pnc->configs[i];
+            // store the index of the param with this PID.
+            i3_log(LOG_MASK_PARAMS, "Enabled notification %d on PID %d", idx, pnc->configs[i].parameter_id);
         }
-        if (idx >= NUM_SUPPORTED_PARAM_NOTIFY) {
-            // All notifications are in use.  
-            pncr->result = cr_ErrorCodes_NO_RESOURCE;
-            cr_report_error(cr_ErrorCodes_NO_RESOURCE, "No notificaiton slot available for PID %d.", pnc->parameter_id);
-            return cr_ErrorCodes_NO_RESOURCE;
-        }
-        sCr_param_notify_list[idx] = *pnc;
-        // store the index of the param with this PID.
-        i3_log(LOG_MASK_PARAMS, "Enabled notification %d on PID %d", idx, pnc->parameter_id);
-        pncr->result = cr_ErrorCodes_NO_ERROR;
+        pncr->result = rval;
         return cr_ErrorCodes_NO_ERROR;
     }
+
+
+
+
   #else
     ///  Private helper function to discover current parameter
     ///  notifications
