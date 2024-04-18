@@ -60,7 +60,19 @@ PB_BIND(cr_ParameterWriteResponse, cr_ParameterWriteResponse, AUTO)
 PB_BIND(cr_ParameterNotifyConfig, cr_ParameterNotifyConfig, AUTO)
 
 
+PB_BIND(cr_ParameterEnableNotifications, cr_ParameterEnableNotifications, AUTO)
+
+
+PB_BIND(cr_ParameterDisableNotifications, cr_ParameterDisableNotifications, AUTO)
+
+
 PB_BIND(cr_ParameterNotifyConfigResponse, cr_ParameterNotifyConfigResponse, AUTO)
+
+
+PB_BIND(cr_DiscoverParameterNotifications, cr_DiscoverParameterNotifications, AUTO)
+
+
+PB_BIND(cr_DiscoverParameterNotificationsResponse, cr_DiscoverParameterNotificationsResponse, AUTO)
 
 
 PB_BIND(cr_ParameterNotification, cr_ParameterNotification, AUTO)

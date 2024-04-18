@@ -112,19 +112,12 @@ uint16_t sCalculate_checksum(const uint8_t *data, size_t length) {
 int pvtCrFile_discover(const cr_DiscoverFiles *request,
                                 cr_DiscoverFilesResponse *response)
 {
-    if (!crcb_challenge_key_is_valid()) {
-        pvtCr_num_continued_objects = pvtCr_num_remaining_objects = 0;
-        memset(response, 0, sizeof(cr_DiscoverFilesResponse));
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-
     int rval;
     if (request != NULL) {
         // request will be null on repeated calls.
         // Here implies we are responding to the initial request.
         crcb_file_discover_reset(0);
-        pvtCr_num_continued_objects = pvtCr_num_remaining_objects = crcb_file_get_file_count();
+        pvtCr_num_remaining_objects = crcb_file_get_file_count();
         if (pvtCr_num_remaining_objects > REACH_COUNT_PARAM_READ_VALUES)
         {
             pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_FILES;
@@ -175,9 +168,9 @@ typedef struct _cr_FileTransferStateMachine {
 cr_FileTransferStateMachine sCr_file_xfer_state;
 
 int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
-                               cr_FileTransferResponse *response)
+                            cr_FileTransferResponse *response)
 {
-    if (!crcb_challenge_key_is_valid()) {
+    if (!crcb_access_granted(cr_ServiceIds_FILES, request->file_id)) {
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
         response->result = cr_ErrorCodes_CHALLENGE_FAILED;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -234,18 +227,38 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         break;
     }
 
-    // If server prefers a rate we use it.
-    // If server says zero, then use request.
-    // If both are zero, default to 10.
+    /*
+     The ack rate today is specified in the FileTransferRequest (renamed) message
+     and answered in the FileTransferResponse (renamed).  Let's write down the rules.
+        The requested_ack_rate is optional.
+            Optional uint32 requested_ack_rate;
+        The responding ack_rate is not optional.
+     
+        If the requested_ack_rate is provided, then the server should try to use it.
+            The server may confirm the requested ack_rate in its response.
+            The server may override the requested ack rate with its own preference if
+                there is a good reason.  Ideally this reason would be communicated in
+                the result_message field.
+        If no requested_ack_rate is provided, the server must provide the ack_rate
+        which can be one or a higher number.
+     */
     int requested_ack_rate = 0; // default
-    if (pvtCr_compare_proto_version(0,1,3) < 0)  //     if (request->messages_per_ack != 0)
+    /* 
+    int compare = pvtCr_compare_proto_version(0,1,3);
+    i3_log(LOG_MASK_FILES, "pvtCr_compare_proto_version() returned %d", compare);
+    if (compare < 0)
     {   // optional has_requested_ack_rate deployed at 0.1.3
         // messages_per_ack is now obsolete.
+        I3_LOG(LOG_MASK_FILES, "Old version use messages_per_ack %d.",
+               request->messages_per_ack);
         requested_ack_rate = request->messages_per_ack;
     }
-    else if (request->has_requested_ack_rate)
+    else */
+    if (request->has_requested_ack_rate)
     {
         requested_ack_rate = request->requested_ack_rate;
+        I3_LOG(LOG_MASK_FILES, "Has requested_ack_rate %d.",
+               request->requested_ack_rate);
     }
     int preferred_ack_rate =
         crcb_file_get_preferred_ack_rate(request->file_id,
@@ -331,12 +344,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
 int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                          cr_FileTransferDataNotification *response)
 {
-    if (!crcb_challenge_key_is_valid()) {
-        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
-        response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
+    // no access check here as it was done at init.
 
     // we receive this on write.
     memset(response, 0, sizeof(cr_FileTransferDataNotification));
@@ -529,11 +537,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
 int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *request,
                                          cr_FileTransferData *dataTransfer)
 {
-    if (!crcb_challenge_key_is_valid()) {
-        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
+    // No access check as it was done at init
 
     // We receive this in the case of read file.
     // And it can generate repeated responses.
@@ -564,7 +568,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
                 sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
                 pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                 pvtCr_num_remaining_objects = 0;
-                pvtCr_num_continued_objects = 0;
                 I3_LOG(LOG_MASK_FILES, "Completing the file read.");
                 pvtCr_watchdog_end_timeout();
                 return 0;
@@ -597,7 +600,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             dataTransfer->result = 0;
             pvtCr_watchdog_end_timeout();
             return 0;
@@ -605,7 +607,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
 
         pvtCr_continued_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         pvtCr_num_remaining_objects = sCr_file_xfer_state.messages_until_ack;
-        pvtCr_num_continued_objects = sCr_file_xfer_state.messages_per_ack;
         sCr_file_xfer_state.messages_until_ack = sCr_file_xfer_state.messages_per_ack;
         sCr_file_xfer_state.message_number = 0;
     }
@@ -640,7 +641,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
                         __FUNCTION__, bytes_requested, sCr_file_xfer_state.file_id, rval);
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         pvtCr_num_remaining_objects = 0;
-        pvtCr_num_continued_objects = 0;
         pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_READ_FAILED;
     }
@@ -670,7 +670,6 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     }
     
     pvtCr_num_remaining_objects = sCr_file_xfer_state.messages_until_ack;
-    pvtCr_num_continued_objects = sCr_file_xfer_state.messages_per_ack;
     pvtCr_continued_message_type = pvtCr_num_remaining_objects == 0  ? 
             cr_ReachMessageTypes_INVALID : cr_ReachMessageTypes_TRANSFER_DATA;
 

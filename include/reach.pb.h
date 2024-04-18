@@ -24,12 +24,12 @@ typedef enum _cr_ReachProto_MAJOR_Version {
 
 typedef enum _cr_ReachProto_MINOR_Version {
     cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /* Must have a zero */
-    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /* Update at a release */
+    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /* Update at a release or a big change */
 } cr_ReachProto_MINOR_Version;
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 3 /* Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 8 /* Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -42,8 +42,10 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_DISCOVER_PARAM_EX = 6,
     cr_ReachMessageTypes_READ_PARAMETERS = 7,
     cr_ReachMessageTypes_WRITE_PARAMETERS = 8,
-    cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY = 9,
-    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10,
+    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10, /* A parameter has changed */
+    cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11, /* find out how notifications are setup */
+    cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY = 50, /* setup parameter notifications */
+    cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY = 51, /* disable parameter notifications */
     /* File Transfers */
     cr_ReachMessageTypes_DISCOVER_FILES = 12,
     cr_ReachMessageTypes_TRANSFER_INIT = 13, /* Begins a Transfer */
@@ -184,7 +186,7 @@ typedef enum _cr_SizesOffsets {
     cr_SizesOffsets_PARAM_INFO_DESCRIPTION_LEN_OFFSET = 8, /* uint8_t */
     cr_SizesOffsets_MEDIUM_STRING_LEN_OFFSET = 9, /* uint8_t */
     cr_SizesOffsets_SHORT_STRING_LEN_OFFSET = 10, /* uint8_t */
-    cr_SizesOffsets_PARAM_INFO_ENUM_COUNT_OFFSET = 11, /* uint8_t */
+    cr_SizesOffsets_PARAM_NOTIFY_CONFIG_COUNT_OFFSET = 11, /* uint8_t */
     cr_SizesOffsets_NUM_DESCRIPTORS_IN_RESPONSE_OFFSET = 12, /* uint8_t */
     cr_SizesOffsets_NUM_PARAM_NOTIFICATIONS_OFFSET = 13, /* uint8_t */
     cr_SizesOffsets_NUM_COMMANDS_IN_RESPONSE_OFFSET = 14, /* uint8_t */
@@ -248,21 +250,22 @@ typedef struct _cr_ErrorReport {
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
 /* Request Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingRequest {
-    cr_PingRequest_echo_data_t echo_data; /* d : Data */
+    cr_PingRequest_echo_data_t echo_data; /* Data which should be echoed in the response */
 } cr_PingRequest;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingResponse_echo_data_t;
 /* Response Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingResponse {
-    cr_PingResponse_echo_data_t echo_data; /* d : Data */
+    cr_PingResponse_echo_data_t echo_data; /* The same data sent in the request */
     int32_t signal_strength; /* rssi : Rssi express in strength so clients don't have to interpret */
 } cr_PingResponse;
 
-/* ------------------------------------------------------ */
+/* ------------------------------------------------------
+ Required Device Information Service
+ Reach sessions are opened with the device info request and response.  
+ ------------------------------------------------------ */
 typedef struct _cr_DeviceInfoRequest {
-    /* * A device can be configured to require a challenge_key before
-  access is granted to the various services.  How the
-  challenge key is handled is up the designer of the device. */
+    /* The request can include a challenge key to grant or deny access to parts of the system. */
     bool has_challenge_key;
     char challenge_key[32];
     /* The client shares its version to enable backward compatibility. */
@@ -292,9 +295,11 @@ typedef struct _cr_DeviceInfoResponse {
 } cr_DeviceInfoResponse;
 
 /* ------------------------------------------------------
- Discover ParameterInfo
- DISCOVER_PARAMETERS
- dp / dp~
+ Parameter Service
+ Parameters provide a simple key:value database. The key is an ID number.  
+ The value can be of various common types up to (typically) 32 bytes.  
+ Parameterssupport a robust description which can be const, stored in flash.  
+ Parameters can be configured to support notifying the client.
  ------------------------------------------------------ */
 typedef struct _cr_ParameterInfoRequest {
     pb_size_t parameter_ids_count;
@@ -336,11 +341,11 @@ typedef struct _cr_ParamExInfoResponse {
     cr_ParameterDataType data_type;
     pb_size_t enumerations_count;
     cr_ParamExKey enumerations[8];
+    uint32_t pei_id;
 } cr_ParamExInfoResponse;
 
 /* ------------------------------------------------------
  Parameter Reads
- // rp : rp~
  ------------------------------------------------------ */
 typedef struct _cr_ParameterRead {
     pb_size_t parameter_ids_count;
@@ -360,17 +365,40 @@ typedef struct _cr_ParameterWriteResponse {
  ------------------------------------------------------ */
 typedef struct _cr_ParameterNotifyConfig {
     uint32_t parameter_id; /* Which param */
-    bool enabled; /* Enabled or Disabled */
     uint32_t minimum_notification_period; /* min_ms: Minimum Notification Interval (ms) */
     uint32_t maximum_notification_period; /* max_ms: Minimum Notification Interval (ms) */
     float minimum_delta; /* notify only if change by this much */
 } cr_ParameterNotifyConfig;
+
+typedef struct _cr_ParameterEnableNotifications {
+    pb_size_t configs_count;
+    cr_ParameterNotifyConfig configs[8];
+    bool disable_all_first;
+} cr_ParameterEnableNotifications;
+
+typedef struct _cr_ParameterDisableNotifications {
+    pb_size_t parameter_ids_count;
+    uint32_t parameter_ids[32];
+} cr_ParameterDisableNotifications;
 
 typedef struct _cr_ParameterNotifyConfigResponse {
     int32_t result; /* zero if all OK */
     bool has_result_message;
     char result_message[194]; /* Error String */
 } cr_ParameterNotifyConfigResponse;
+
+/* ------------------------------------------------------
+ The client can discover how notifications are setup.
+ ------------------------------------------------------ */
+typedef struct _cr_DiscoverParameterNotifications {
+    pb_size_t parameter_ids_count;
+    uint32_t parameter_ids[32]; /* i: ID -  Leave Empty to Retrieve All */
+} cr_DiscoverParameterNotifications;
+
+typedef struct _cr_DiscoverParameterNotificationsResponse {
+    pb_size_t configs_count;
+    cr_ParameterNotifyConfig configs[8];
+} cr_DiscoverParameterNotificationsResponse;
 
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
 /* --------------------------------------------------------
@@ -407,7 +435,6 @@ typedef struct _cr_ParameterReadResponse {
 
 /* ------------------------------------------------------
  Parameter Writes
- // wp : wp~
  ------------------------------------------------------ */
 typedef struct _cr_ParameterWrite {
     pb_size_t values_count;
@@ -421,9 +448,8 @@ typedef struct _cr_ParameterNotification {
 } cr_ParameterNotification;
 
 /* ------------------------------------------------------
- Discover Files
- DISCOVER_FILES
- gfd : gfd~
+ (optional) File Service
+ The file service provides a method of efficiently transfering large blocks of data over BLE.
  ------------------------------------------------------ */
 typedef struct _cr_DiscoverFiles {
     char dummy_field;
@@ -436,6 +462,7 @@ typedef struct _cr_FileInfo {
     int32_t current_size_bytes; /* size in bytes */
     cr_StorageLocation storage_location;
     bool require_checksum; /* set true to request checksum generation and validation. */
+    uint32_t maximum_size_bytes; /* Determined by storage space */
 } cr_FileInfo;
 
 typedef struct _cr_DiscoverFilesResponse {
@@ -452,7 +479,7 @@ typedef struct _cr_FileTransferRequest {
     uint32_t request_offset; /* where to access in the file */
     uint32_t transfer_length; /* bytes to read or write */
     uint32_t transfer_id; /* In case of multiple transfers */
-    uint32_t messages_per_ack; /* obsolete.  Use requested_ack_rate. */
+    /* uint32 messages_per_ack             = 6;  // obsolete.  Use requested_ack_rate. */
     uint32_t timeout_in_ms; /* ms before abandonment */
     bool has_requested_ack_rate;
     uint32_t requested_ack_rate; /* number of messages before ACK. */
@@ -500,8 +527,6 @@ typedef struct _cr_FileEraseResponse {
 
 /* ------------------------------------------------------
  Discover Streams
- DISCOVER_STREAMS
- gsd / gsd~
  ------------------------------------------------------ */
 typedef struct _cr_DiscoverStreams {
     char dummy_field;
@@ -536,8 +561,7 @@ typedef struct _cr_StreamClose {
 } cr_StreamClose;
 
 typedef PB_BYTES_ARRAY_T(194) cr_StreamData_message_data_t;
-/* Bi-Directional Message
- STREAM_DATA_NOTIFICATION */
+/* Bi-Directional STREAM_DATA_NOTIFICATION Message */
 typedef struct _cr_StreamData {
     int32_t stream_id; /* Stream ID */
     uint32_t roll_count; /* Message Number (Roll Count) */
@@ -546,9 +570,8 @@ typedef struct _cr_StreamData {
 } cr_StreamData;
 
 /* ------------------------------------------------------
- Discover Commands
- DISCOVER_COMMANDS
- gcd : gcd~
+ (optional) Command Service
+ Allows actions to be triggered from the Reach UI.
  ------------------------------------------------------ */
 typedef struct _cr_DiscoverCommands {
     char dummy_field;
@@ -570,7 +593,6 @@ typedef struct _cr_DiscoverCommandsResponse {
 
 /* ------------------------------------------------------
  Send Command
- // sc : sc~
  ------------------------------------------------------ */
 typedef struct _cr_SendCommand {
     uint32_t command_id;
@@ -582,18 +604,17 @@ typedef struct _cr_SendCommandResponse {
     char result_message[194];
 } cr_SendCommandResponse;
 
-/* Bi-Directional Message
- CLI_DATA */
+/* Bi-Directional CLI_DATA Message */
 typedef struct _cr_CLIData {
     char message_data[194]; /* Data */
 } cr_CLIData;
 
 /* ------------------------------------------------------
- Time Service
+ Optional Time Service
  The time service is designed to allow the client to 
  set and adjust the real time clock in a server device.
  The time is best specified as UTC plus timezone offset.
- Althouogh the timezone is optional, it's best to use it.
+ Although the timezone is optional, it's best to use it.
  ------------------------------------------------------ */
 typedef struct _cr_TimeSetRequest {
     int64_t seconds_utc; /* linux epoch */
@@ -624,7 +645,7 @@ typedef struct _cr_TimeGetResponse {
  WiFi Service
  The WiFi service is intended to simplify the 
  repetitive task of communicating WiFi credentials 
- to the deviced.
+ to the device.
  ------------------------------------------------------ */
 typedef struct _cr_ConnectionDescription {
     char ssid[32];
@@ -710,10 +731,9 @@ typedef struct _cr_BufferSizes {
     uint32_t num_commands_in_response;
     /* number of param descriptions that can be in one info packet. (8 bits) */
     uint32_t count_param_desc_in_response;
-    /* number of enums that fit in a parameter EX response
- Since the server composes this response, it's not so critical that 
- the client knows the max. */
-    uint32_t param_info_enum_count;
+    /* The max number of parameter notification configurations 
+ that a client will provide. */
+    uint32_t param_notify_config_count;
 } cr_BufferSizes;
 
 
@@ -739,8 +759,8 @@ extern "C" {
 #define _cr_ReachProto_PATCH_Version_ARRAYSIZE ((cr_ReachProto_PATCH_Version)(cr_ReachProto_PATCH_Version_PATCH_VERSION+1))
 
 #define _cr_ReachMessageTypes_MIN cr_ReachMessageTypes_INVALID
-#define _cr_ReachMessageTypes_MAX cr_ReachMessageTypes_WIFI_CONNECT
-#define _cr_ReachMessageTypes_ARRAYSIZE ((cr_ReachMessageTypes)(cr_ReachMessageTypes_WIFI_CONNECT+1))
+#define _cr_ReachMessageTypes_MAX cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY
+#define _cr_ReachMessageTypes_ARRAYSIZE ((cr_ReachMessageTypes)(cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY+1))
 
 #define _cr_ServiceIds_MIN cr_ServiceIds_NO_SVC_ID
 #define _cr_ServiceIds_MAX cr_ServiceIds_WIFI
@@ -817,6 +837,10 @@ extern "C" {
 
 
 
+
+
+
+
 #define cr_FileInfo_access_ENUMTYPE cr_AccessLevel
 #define cr_FileInfo_storage_location_ENUMTYPE cr_StorageLocation
 
@@ -870,19 +894,23 @@ extern "C" {
 #define cr_ParameterInfoResponse_init_default    {0, {cr_ParameterInfo_init_default, cr_ParameterInfo_init_default}}
 #define cr_ParameterInfo_init_default            {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
 #define cr_ParamExKey_init_default               {0, ""}
-#define cr_ParamExInfoResponse_init_default      {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default}}
+#define cr_ParamExInfoResponse_init_default      {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default}, 0}
 #define cr_ParameterRead_init_default            {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
 #define cr_ParameterReadResponse_init_default    {0, 0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterWrite_init_default           {0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterWriteResponse_init_default   {0, false, ""}
-#define cr_ParameterNotifyConfig_init_default    {0, 0, 0, 0, 0}
+#define cr_ParameterNotifyConfig_init_default    {0, 0, 0, 0}
+#define cr_ParameterEnableNotifications_init_default {0, {cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default}, 0}
+#define cr_ParameterDisableNotifications_init_default {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterNotifyConfigResponse_init_default {0, false, ""}
+#define cr_DiscoverParameterNotifications_init_default {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define cr_DiscoverParameterNotificationsResponse_init_default {0, {cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default, cr_ParameterNotifyConfig_init_default}}
 #define cr_ParameterNotification_init_default    {0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterValue_init_default           {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_default            {0}
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
-#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
-#define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
+#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
+#define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, false, 0, 0}
 #define cr_FileTransferResponse_init_default     {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_default {0, false, "", 0, 0, 0}
@@ -923,19 +951,23 @@ extern "C" {
 #define cr_ParameterInfoResponse_init_zero       {0, {cr_ParameterInfo_init_zero, cr_ParameterInfo_init_zero}}
 #define cr_ParameterInfo_init_zero               {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
 #define cr_ParamExKey_init_zero                  {0, ""}
-#define cr_ParamExInfoResponse_init_zero         {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero}}
+#define cr_ParamExInfoResponse_init_zero         {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero}, 0}
 #define cr_ParameterRead_init_zero               {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
 #define cr_ParameterReadResponse_init_zero       {0, 0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterWrite_init_zero              {0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterWriteResponse_init_zero      {0, false, ""}
-#define cr_ParameterNotifyConfig_init_zero       {0, 0, 0, 0, 0}
+#define cr_ParameterNotifyConfig_init_zero       {0, 0, 0, 0}
+#define cr_ParameterEnableNotifications_init_zero {0, {cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero}, 0}
+#define cr_ParameterDisableNotifications_init_zero {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterNotifyConfigResponse_init_zero {0, false, ""}
+#define cr_DiscoverParameterNotifications_init_zero {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
+#define cr_DiscoverParameterNotificationsResponse_init_zero {0, {cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero, cr_ParameterNotifyConfig_init_zero}}
 #define cr_ParameterNotification_init_zero       {0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterValue_init_zero              {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_zero               {0}
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
-#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0}
-#define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
+#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
+#define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, false, 0, 0}
 #define cr_FileTransferResponse_init_zero        {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_zero {0, false, "", 0, 0, 0}
@@ -1015,17 +1047,22 @@ extern "C" {
 #define cr_ParamExInfoResponse_associated_pid_tag 1
 #define cr_ParamExInfoResponse_data_type_tag     2
 #define cr_ParamExInfoResponse_enumerations_tag  3
+#define cr_ParamExInfoResponse_pei_id_tag        4
 #define cr_ParameterRead_parameter_ids_tag       2
 #define cr_ParameterRead_read_after_timestamp_tag 3
 #define cr_ParameterWriteResponse_result_tag     1
 #define cr_ParameterWriteResponse_result_message_tag 2
 #define cr_ParameterNotifyConfig_parameter_id_tag 1
-#define cr_ParameterNotifyConfig_enabled_tag     2
-#define cr_ParameterNotifyConfig_minimum_notification_period_tag 3
-#define cr_ParameterNotifyConfig_maximum_notification_period_tag 4
-#define cr_ParameterNotifyConfig_minimum_delta_tag 5
+#define cr_ParameterNotifyConfig_minimum_notification_period_tag 2
+#define cr_ParameterNotifyConfig_maximum_notification_period_tag 3
+#define cr_ParameterNotifyConfig_minimum_delta_tag 4
+#define cr_ParameterEnableNotifications_configs_tag 1
+#define cr_ParameterEnableNotifications_disable_all_first_tag 2
+#define cr_ParameterDisableNotifications_parameter_ids_tag 1
 #define cr_ParameterNotifyConfigResponse_result_tag 1
 #define cr_ParameterNotifyConfigResponse_result_message_tag 2
+#define cr_DiscoverParameterNotifications_parameter_ids_tag 1
+#define cr_DiscoverParameterNotificationsResponse_configs_tag 1
 #define cr_ParameterValue_parameter_id_tag       1
 #define cr_ParameterValue_timestamp_tag          2
 #define cr_ParameterValue_uint32_value_tag       3
@@ -1049,13 +1086,13 @@ extern "C" {
 #define cr_FileInfo_current_size_bytes_tag       4
 #define cr_FileInfo_storage_location_tag         5
 #define cr_FileInfo_require_checksum_tag         6
+#define cr_FileInfo_maximum_size_bytes_tag       7
 #define cr_DiscoverFilesResponse_file_infos_tag  1
 #define cr_FileTransferRequest_file_id_tag       1
 #define cr_FileTransferRequest_read_write_tag    2
 #define cr_FileTransferRequest_request_offset_tag 3
 #define cr_FileTransferRequest_transfer_length_tag 4
 #define cr_FileTransferRequest_transfer_id_tag   5
-#define cr_FileTransferRequest_messages_per_ack_tag 6
 #define cr_FileTransferRequest_timeout_in_ms_tag 7
 #define cr_FileTransferRequest_requested_ack_rate_tag 8
 #define cr_FileTransferRequest_require_checksum_tag 9
@@ -1140,7 +1177,7 @@ extern "C" {
 #define cr_BufferSizes_num_param_notifications_tag 11
 #define cr_BufferSizes_num_commands_in_response_tag 13
 #define cr_BufferSizes_count_param_desc_in_response_tag 14
-#define cr_BufferSizes_param_info_enum_count_tag 15
+#define cr_BufferSizes_param_notify_config_count_tag 15
 
 /* Struct field encoding specification for nanopb */
 #define cr_ReachMessageHeader_FIELDLIST(X, a) \
@@ -1242,7 +1279,8 @@ X(a, STATIC,   SINGULAR, STRING,   name,              2)
 #define cr_ParamExInfoResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   associated_pid,    1) \
 X(a, STATIC,   SINGULAR, UENUM,    data_type,         2) \
-X(a, STATIC,   REPEATED, MESSAGE,  enumerations,      3)
+X(a, STATIC,   REPEATED, MESSAGE,  enumerations,      3) \
+X(a, STATIC,   SINGULAR, UINT32,   pei_id,            4)
 #define cr_ParamExInfoResponse_CALLBACK NULL
 #define cr_ParamExInfoResponse_DEFAULT NULL
 #define cr_ParamExInfoResponse_enumerations_MSGTYPE cr_ParamExKey
@@ -1274,18 +1312,40 @@ X(a, STATIC,   OPTIONAL, STRING,   result_message,    2)
 
 #define cr_ParameterNotifyConfig_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   parameter_id,      1) \
-X(a, STATIC,   SINGULAR, BOOL,     enabled,           2) \
-X(a, STATIC,   SINGULAR, UINT32,   minimum_notification_period,   3) \
-X(a, STATIC,   SINGULAR, UINT32,   maximum_notification_period,   4) \
-X(a, STATIC,   SINGULAR, FLOAT,    minimum_delta,     5)
+X(a, STATIC,   SINGULAR, UINT32,   minimum_notification_period,   2) \
+X(a, STATIC,   SINGULAR, UINT32,   maximum_notification_period,   3) \
+X(a, STATIC,   SINGULAR, FLOAT,    minimum_delta,     4)
 #define cr_ParameterNotifyConfig_CALLBACK NULL
 #define cr_ParameterNotifyConfig_DEFAULT NULL
+
+#define cr_ParameterEnableNotifications_FIELDLIST(X, a) \
+X(a, STATIC,   REPEATED, MESSAGE,  configs,           1) \
+X(a, STATIC,   SINGULAR, BOOL,     disable_all_first,   2)
+#define cr_ParameterEnableNotifications_CALLBACK NULL
+#define cr_ParameterEnableNotifications_DEFAULT NULL
+#define cr_ParameterEnableNotifications_configs_MSGTYPE cr_ParameterNotifyConfig
+
+#define cr_ParameterDisableNotifications_FIELDLIST(X, a) \
+X(a, STATIC,   REPEATED, UINT32,   parameter_ids,     1)
+#define cr_ParameterDisableNotifications_CALLBACK NULL
+#define cr_ParameterDisableNotifications_DEFAULT NULL
 
 #define cr_ParameterNotifyConfigResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   OPTIONAL, STRING,   result_message,    2)
 #define cr_ParameterNotifyConfigResponse_CALLBACK NULL
 #define cr_ParameterNotifyConfigResponse_DEFAULT NULL
+
+#define cr_DiscoverParameterNotifications_FIELDLIST(X, a) \
+X(a, STATIC,   REPEATED, UINT32,   parameter_ids,     1)
+#define cr_DiscoverParameterNotifications_CALLBACK NULL
+#define cr_DiscoverParameterNotifications_DEFAULT NULL
+
+#define cr_DiscoverParameterNotificationsResponse_FIELDLIST(X, a) \
+X(a, STATIC,   REPEATED, MESSAGE,  configs,           1)
+#define cr_DiscoverParameterNotificationsResponse_CALLBACK NULL
+#define cr_DiscoverParameterNotificationsResponse_DEFAULT NULL
+#define cr_DiscoverParameterNotificationsResponse_configs_MSGTYPE cr_ParameterNotifyConfig
 
 #define cr_ParameterNotification_FIELDLIST(X, a) \
 X(a, STATIC,   REPEATED, MESSAGE,  values,            2)
@@ -1327,7 +1387,8 @@ X(a, STATIC,   SINGULAR, STRING,   file_name,         2) \
 X(a, STATIC,   SINGULAR, UENUM,    access,            3) \
 X(a, STATIC,   SINGULAR, INT32,    current_size_bytes,   4) \
 X(a, STATIC,   SINGULAR, UENUM,    storage_location,   5) \
-X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   6)
+X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   6) \
+X(a, STATIC,   SINGULAR, UINT32,   maximum_size_bytes,   7)
 #define cr_FileInfo_CALLBACK NULL
 #define cr_FileInfo_DEFAULT NULL
 
@@ -1337,7 +1398,6 @@ X(a, STATIC,   SINGULAR, UINT32,   read_write,        2) \
 X(a, STATIC,   SINGULAR, UINT32,   request_offset,    3) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_length,   4) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       5) \
-X(a, STATIC,   SINGULAR, UINT32,   messages_per_ack,   6) \
 X(a, STATIC,   SINGULAR, UINT32,   timeout_in_ms,     7) \
 X(a, STATIC,   OPTIONAL, UINT32,   requested_ack_rate,   8) \
 X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   9)
@@ -1541,7 +1601,7 @@ X(a, STATIC,   SINGULAR, UINT32,   param_info_description_len,  10) \
 X(a, STATIC,   SINGULAR, UINT32,   num_param_notifications,  11) \
 X(a, STATIC,   SINGULAR, UINT32,   num_commands_in_response,  13) \
 X(a, STATIC,   SINGULAR, UINT32,   count_param_desc_in_response,  14) \
-X(a, STATIC,   SINGULAR, UINT32,   param_info_enum_count,  15)
+X(a, STATIC,   SINGULAR, UINT32,   param_notify_config_count,  15)
 #define cr_BufferSizes_CALLBACK NULL
 #define cr_BufferSizes_DEFAULT NULL
 
@@ -1563,7 +1623,11 @@ extern const pb_msgdesc_t cr_ParameterReadResponse_msg;
 extern const pb_msgdesc_t cr_ParameterWrite_msg;
 extern const pb_msgdesc_t cr_ParameterWriteResponse_msg;
 extern const pb_msgdesc_t cr_ParameterNotifyConfig_msg;
+extern const pb_msgdesc_t cr_ParameterEnableNotifications_msg;
+extern const pb_msgdesc_t cr_ParameterDisableNotifications_msg;
 extern const pb_msgdesc_t cr_ParameterNotifyConfigResponse_msg;
+extern const pb_msgdesc_t cr_DiscoverParameterNotifications_msg;
+extern const pb_msgdesc_t cr_DiscoverParameterNotificationsResponse_msg;
 extern const pb_msgdesc_t cr_ParameterNotification_msg;
 extern const pb_msgdesc_t cr_ParameterValue_msg;
 extern const pb_msgdesc_t cr_DiscoverFiles_msg;
@@ -1618,7 +1682,11 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ParameterWrite_fields &cr_ParameterWrite_msg
 #define cr_ParameterWriteResponse_fields &cr_ParameterWriteResponse_msg
 #define cr_ParameterNotifyConfig_fields &cr_ParameterNotifyConfig_msg
+#define cr_ParameterEnableNotifications_fields &cr_ParameterEnableNotifications_msg
+#define cr_ParameterDisableNotifications_fields &cr_ParameterDisableNotifications_msg
 #define cr_ParameterNotifyConfigResponse_fields &cr_ParameterNotifyConfigResponse_msg
+#define cr_DiscoverParameterNotifications_fields &cr_DiscoverParameterNotifications_msg
+#define cr_DiscoverParameterNotificationsResponse_fields &cr_DiscoverParameterNotificationsResponse_msg
 #define cr_ParameterNotification_fields &cr_ParameterNotification_msg
 #define cr_ParameterValue_fields &cr_ParameterValue_msg
 #define cr_DiscoverFiles_fields &cr_DiscoverFiles_msg
@@ -1664,8 +1732,10 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DeviceInfoResponse_size               199
 #define cr_DiscoverCommandsResponse_size         176
 #define cr_DiscoverCommands_size                 0
-#define cr_DiscoverFilesResponse_size            200
+#define cr_DiscoverFilesResponse_size            224
 #define cr_DiscoverFiles_size                    0
+#define cr_DiscoverParameterNotificationsResponse_size 200
+#define cr_DiscoverParameterNotifications_size   192
 #define cr_DiscoverStreamsResponse_size          204
 #define cr_DiscoverStreams_size                  0
 #define cr_DiscoverWiFiRequest_size              2
@@ -1673,19 +1743,21 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ErrorReport_size                      207
 #define cr_FileEraseRequest_size                 6
 #define cr_FileEraseResponse_size                213
-#define cr_FileInfo_size                         48
+#define cr_FileInfo_size                         54
 #define cr_FileTransferDataNotification_size     221
 #define cr_FileTransferData_size                 231
-#define cr_FileTransferRequest_size              50
+#define cr_FileTransferRequest_size              44
 #define cr_FileTransferResponse_size             219
-#define cr_ParamExInfoResponse_size              208
+#define cr_ParamExInfoResponse_size              214
 #define cr_ParamExKey_size                       23
+#define cr_ParameterDisableNotifications_size    192
+#define cr_ParameterEnableNotifications_size     202
 #define cr_ParameterInfoRequest_size             192
 #define cr_ParameterInfoResponse_size            244
 #define cr_ParameterInfo_size                    120
 #define cr_ParameterNotification_size            192
 #define cr_ParameterNotifyConfigResponse_size    207
-#define cr_ParameterNotifyConfig_size            25
+#define cr_ParameterNotifyConfig_size            23
 #define cr_ParameterReadResponse_size            198
 #define cr_ParameterRead_size                    198
 #define cr_ParameterValue_size                   46

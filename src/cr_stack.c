@@ -130,7 +130,6 @@ static size_t  sCr_encoded_response_size = 0;
 /// private but global variables shared with the Reach stack
 ///----------------------------------------------------------------------------
 cr_ReachMessageTypes pvtCr_continued_message_type;
-uint32_t pvtCr_num_continued_objects = 0;
 uint32_t pvtCr_num_remaining_objects = 0;
 
 ///----------------------------------------------------------------------------
@@ -262,6 +261,9 @@ static int handle_continued_transactions()
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
         rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
         break;
+    case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
+        rval = pvtCrParam_discover_notifications(NULL, (cr_DiscoverParameterNotificationsResponse *)sCr_uncoded_response_buffer);
+        break;
     #endif  // def INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_COMMAND_SERVICE
@@ -323,20 +325,6 @@ static int handle_continued_transactions()
 */
 int cr_init() 
 {
-  // #define TEST_NOTIFICATION
-  #ifdef TEST_NOTIFICATION
-    // Test notification
-    sCr_param_notify_list[0].parameter_id = 69;  // [11]
-    sCr_param_notify_list[0].enabled = true;
-    sCr_param_notify_list[0].minimum_notification_period = SYS_TICK_RATE;
-    sCr_param_notify_list[0].maximum_notification_period = 100*SYS_TICK_RATE;
-    sCr_param_notify_list[0].minimum_delta = 15.0;
-    sCr_last_param_values[0].parameter_id = 69;
-    sCr_last_param_values[0].timestamp = 0;
-    sCr_last_param_values[0].which_value = cr_ParameterDataType_INT32;
-    sCr_last_param_values[0].value.sint32_value = 1;
-  #endif  // def TEST_NOTIFICATION
-
     return cr_ErrorCodes_NO_ERROR;
 }
 
@@ -465,23 +453,6 @@ int cr_process(uint32_t ticks)
     memset(sCr_encoded_payload_buffer,      0, sizeof(sCr_encoded_payload_buffer));
     // memset(sCr_encoded_response_buffer,     0, sizeof(sCr_encoded_response_buffer));
 
-  // #define TEST_ERROR_REPORT
-  #ifdef TEST_ERROR_REPORT
-    if (sCr_CallCount == 500)
-    {
-        i3_log(LOG_MASK_ALWAYS, "On tick 500, test the error report using Future Legend:");
-        // Tick 2 error test: Send 190 characters to test too long string.
-        cr_report_error(0, "And in the death, as the last few corpses "
-                        "lay rotting on the slimy thoroughfare, "
-                        "Fleas the size of rats sucked on rats the size of cats "
-                        "and ten thousand peoploids split into small tribes...\n");
-        // Credit to David Bowie for the text...
-        crcb_send_coded_response(sCr_encoded_response_buffer, sCr_encoded_response_size);
-        return 0;
-    }
-    if (sCr_CallCount > 5000) sCr_CallCount = 5000;
-  #endif  // def TEST_ERROR_REPORT
-
     // Support for continued transactions:
     //   zero indicates valid data was produced.
     //   cr_ErrorCodes_NO_DATA indicates no data was produced.
@@ -554,9 +525,8 @@ void cr_set_comm_link_connected(bool connected)
    {
        // we are newly connected, so clear any stale data.
        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-       pvtCr_num_continued_objects = 0; 
        pvtCr_num_remaining_objects = 0;
-       pvtCrParam_clear_notifications();
+       cr_clear_param_notifications();
        crcb_invalidate_challenge_key();
    }
    sCr_comm_link_is_connected = connected;
@@ -984,7 +954,6 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         return cr_ErrorCodes_DECODING_FAILED;
     }
 
-    pvtCr_num_continued_objects = 0;  // default
     pvtCr_num_remaining_objects = 0;  // default
 
     int rval = 0;
@@ -1019,10 +988,18 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
         rval = pvtCrParam_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
                            (cr_ParameterWriteResponse *)sCr_uncoded_response_buffer);
         break;
+    case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
+        rval = pvtCrParam_discover_notifications((cr_DiscoverParameterNotifications *)sCr_decoded_prompt_buffer,
+                           (cr_DiscoverParameterNotificationsResponse *)sCr_uncoded_response_buffer);
+        break;
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-        rval = pvtCrParam_config_param_notify((cr_ParameterNotifyConfig *)sCr_decoded_prompt_buffer,
+    case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
+        rval = pvtCrParam_param_enable_notify((cr_ParameterEnableNotifications *)sCr_decoded_prompt_buffer,
+                           (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
+        break;
+    case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
+        rval = pvtCrParam_param_disable_notify((cr_ParameterDisableNotifications *)sCr_decoded_prompt_buffer,
                            (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
         break;
     #endif
@@ -1191,7 +1168,7 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     sizes_struct.param_info_description_len   = REACH_PARAM_INFO_DESCRIPTION_LEN;
     sizes_struct.medium_string_len            = REACH_MEDIUM_STRING_LEN;
     sizes_struct.short_string_len             = REACH_SHORT_STRING_LEN;
-    sizes_struct.param_info_enum_count        = REACH_PARAM_INFO_ENUM_COUNT;
+    sizes_struct.param_notify_config_count    = REACH_PARAM_NOTE_SETUP_COUNT;
     sizes_struct.num_descriptors_in_response  = REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE;
     sizes_struct.num_param_notifications      = NUM_SUPPORTED_PARAM_NOTIFY;
     sizes_struct.num_commands_in_response     = REACH_NUM_COMMANDS_IN_RESPONSE;
@@ -1223,10 +1200,9 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     memset(sClientProtocolVersion, 0, 3);
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
     crcb_device_get_info(request, response);
-
-  #ifdef INCLUDE_PARAMETER_SERVICE
-    response->parameter_metadata_hash = crcb_compute_parameter_hash();
-  #endif  // def INCLUDE_PARAMETER_SERVICE
+    crcb_configure_access_control(request, response);
+    if (response->services &  cr_ServiceIds_PARAMETER_REPO)
+        response->parameter_metadata_hash = crcb_compute_parameter_hash();
 
     // Store the client's protocol version to be used in compatibility checks.
     int numRead = sscanf(request->client_protocol_version, "%d.%d.%d", &major, &minor, &patch);
@@ -1328,13 +1304,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     int rval;
     int num_commands;
 
-    if (!crcb_challenge_key_is_valid()) {
-        pvtCr_num_remaining_objects = 0;
-        pvtCr_num_continued_objects = 0;
-        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
-    }
-
     if (request != NULL) 
     {
         // request will be null on repeated calls.
@@ -1362,7 +1331,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
             {
                 LOG_ERROR("Discover commands found nothing.");
                 pvtCr_num_remaining_objects = 0;
-                pvtCr_num_continued_objects = 0;
                 return 0;
             }
             break;
@@ -1375,7 +1343,6 @@ handle_discover_commands(const cr_DiscoverCommands *request,
         response->available_commands_count = num_commands;
         // they all fit in one response.
         pvtCr_num_remaining_objects = 0;
-        pvtCr_num_continued_objects = 0;
         I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_commands);
         return 0;
         // and we're done.
@@ -1384,19 +1351,17 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     response->available_commands_count = REACH_NUM_COMMANDS_IN_RESPONSE;
     pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_COMMANDS;
     pvtCr_num_remaining_objects = num_commands - REACH_NUM_COMMANDS_IN_RESPONSE;
-    pvtCr_num_continued_objects = pvtCr_num_remaining_objects;
     I3_LOG(LOG_MASK_DEBUG, "%s: Setup continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
     return 0;
 }
 
 static int handle_send_command(const cr_SendCommand *request,
-                                   cr_SendCommandResponse *response) 
+                               cr_SendCommandResponse *response) 
 {
-    if (!crcb_challenge_key_is_valid()) {
-        response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-        return 0;
+    if (!crcb_access_granted(cr_ServiceIds_COMMANDS, request->command_id)) {
+        response->result = cr_ErrorCodes_NO_DATA;
+        return cr_ErrorCodes_NO_DATA;
     }
-
     response->result = crcb_command_execute(request->command_id);
     return 0;
 }
@@ -1423,9 +1388,10 @@ static int handle_send_command(const cr_SendCommand *request,
     static int handle_time_set(const cr_TimeSetRequest *request, 
                                cr_TimeSetResponse *response)
     {
-        if (!crcb_challenge_key_is_valid()) {
-            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-            return 0;
+        if (!crcb_access_granted(cr_ServiceIds_TIME, 1)) {
+            // 1 for set
+            response->result = cr_ErrorCodes_NO_DATA;
+            return cr_ErrorCodes_NO_DATA;
         }
 
         response->result = crcb_time_set(request);
@@ -1438,9 +1404,10 @@ static int handle_send_command(const cr_SendCommand *request,
                                cr_TimeGetResponse *response)
     {
         (void)request;
-        if (!crcb_challenge_key_is_valid()) {
-            response->result = cr_ErrorCodes_CHALLENGE_FAILED;
-            return 0;
+        if (!crcb_access_granted(cr_ServiceIds_TIME, 0)) {
+            // 0 for get
+            response->result = cr_ErrorCodes_NO_DATA;
+            return cr_ErrorCodes_NO_DATA;
         }
         response->result = crcb_time_get(response);
         return 0;
@@ -1456,13 +1423,11 @@ static int handle_send_command(const cr_SendCommand *request,
         int rval;
         int num_ap;
 
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_WIFI, 0)) {
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
             return cr_ErrorCodes_NO_DATA; 
         }
-
         if (request != NULL) 
         {
             // request will be null on repeated calls.
@@ -1490,7 +1455,6 @@ static int handle_send_command(const cr_SendCommand *request,
                 response->result = cr_ErrorCodes_NO_SERVICE;
             }
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             return 0;
         }
         if (num_ap == 1)
@@ -1498,7 +1462,6 @@ static int handle_send_command(const cr_SendCommand *request,
             response->result = 0;
             // One and done
             pvtCr_num_remaining_objects = 0;
-            pvtCr_num_continued_objects = 0;
             I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_ap);
             return 0;
             // and we're done.
@@ -1506,7 +1469,6 @@ static int handle_send_command(const cr_SendCommand *request,
         // otherwise there are more so set up for continued commands
         pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_WIFI;
         pvtCr_num_remaining_objects = num_ap - 1;
-        pvtCr_num_continued_objects = pvtCr_num_remaining_objects;
         I3_LOG(LOG_MASK_DEBUG, "%s: continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
         return 0;
     }
@@ -1515,10 +1477,11 @@ static int handle_send_command(const cr_SendCommand *request,
                                       cr_WiFiConnectionResponse *response)
     {
         (void)request;
-        if (!crcb_challenge_key_is_valid()) {
+        if (!crcb_access_granted(cr_ServiceIds_WIFI, 0)) {
             response->result = cr_ErrorCodes_CHALLENGE_FAILED;
             return 0;
         }
+
         crcb_wifi_connection(request, response);
         return 0;
     }
@@ -1641,11 +1604,19 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       break;
 
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-  case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
+  case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
+  case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
       status = pb_encode(&os_stream, cr_ParameterNotifyConfigResponse_fields, data);
       if (status) {
         *encode_size = os_stream.bytes_written;
         message_util_log_config_notify_param((cr_ParameterNotifyConfigResponse *)data);
+      }
+      break;
+  case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
+      status = pb_encode(&os_stream, cr_DiscoverParameterNotificationsResponse_fields, data);
+      if (status) {
+        *encode_size = os_stream.bytes_written;
+        message_util_log_discover_notifications_response((cr_DiscoverParameterNotificationsResponse *)data);
       }
       break;
   #endif

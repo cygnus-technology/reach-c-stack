@@ -187,10 +187,14 @@ const char *msg_type_string(int32_t message_type) {
     return "Read Param";
   case cr_ReachMessageTypes_WRITE_PARAMETERS:
       return "Write Param";
-  case cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY:
-      return "Config Param Notifiy";
+  case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
+      return "Param Enable Notifiy";
+  case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
+      return "Param Disable Notifiy";
   case cr_ReachMessageTypes_PARAMETER_NOTIFICATION:
       return "Param Notification";
+  case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
+      return "Discover Notifications";
   case cr_ReachMessageTypes_DISCOVER_FILES:
     return "Discover Files";
   case cr_ReachMessageTypes_TRANSFER_INIT:
@@ -229,6 +233,7 @@ const char *msg_type_string(int32_t message_type) {
 
 void message_util_log_device_info_request(cr_DeviceInfoRequest* data) {
   i3_log(LOG_MASK_REACH, "  Device Info Request:");
+  i3_log(LOG_MASK_REACH, "    client_protocol_version: '%s'", data->client_protocol_version);
   if (data->has_challenge_key)
     i3_log(LOG_MASK_REACH, "    Challenge key '%s'", data->challenge_key);
   else
@@ -274,6 +279,7 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
     i3_log(LOG_MASK_REACH, "     name                : %s", response->file_infos[i].file_name);
     i3_log(LOG_MASK_REACH, "     access              : 0x%x", response->file_infos[i].access);
     i3_log(LOG_MASK_REACH, "     current byte length : %d", response->file_infos[i].current_size_bytes);
+    i3_log(LOG_MASK_REACH, "     maximum byte length : %d", response->file_infos[i].maximum_size_bytes);
     i3_log(LOG_MASK_REACH, "    ]");
   }
   i3_log(LOG_MASK_REACH, "\r\n");
@@ -287,18 +293,23 @@ void message_util_log_file_transfer_request(const cr_FileTransferRequest *reques
   i3_log(LOG_MASK_REACH, "    request offset     : %d", request->request_offset);
   i3_log(LOG_MASK_REACH, "    transfer length    : %d", request->transfer_length);
   i3_log(LOG_MASK_REACH, "    transfer id        : %d", request->transfer_id);
-  i3_log(LOG_MASK_REACH, "    requested_ack_rate : %d", request->requested_ack_rate);
-  i3_log(LOG_MASK_REACH, "    timeout            : %d\r\n", request->timeout_in_ms);
+  // i3_log(LOG_MASK_REACH, "    messages_per_ack   : %d (obsolete)", request->messages_per_ack);
+  i3_log(LOG_MASK_REACH, "    timeout            : %d", request->timeout_in_ms);
+  if (request->has_requested_ack_rate)
+    i3_log(LOG_MASK_REACH, "    has requested_ack_rate: %d", request->requested_ack_rate);
+  else
+    i3_log(LOG_MASK_REACH, "    No requested_ack_rate (%d)", request->requested_ack_rate);
+  i3_log(LOG_MASK_REACH, "    require_checksum : %d\r\n", request->require_checksum);
 }
 
 void message_util_log_file_transfer_response(const cr_FileTransferResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Response:");
-  i3_log(LOG_MASK_REACH, "    result            :", response->result);
-  i3_log(LOG_MASK_REACH, "    transfer_id       :", response->transfer_id);
-  i3_log(LOG_MASK_REACH, "    ack_rate          :", response->ack_rate);
+  i3_log(LOG_MASK_REACH, "    result            : %d", response->result);
+  i3_log(LOG_MASK_REACH, "    transfer_id       : %d", response->transfer_id);
+  i3_log(LOG_MASK_REACH, "    ack_rate          : %d", response->ack_rate);
   if (response->has_result_message) {            
-    i3_log(LOG_MASK_REACH, "    result_message  :", response->result_message);
+    i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
   }
   i3_log(LOG_MASK_REACH, "\r\n");
 }
@@ -504,6 +515,47 @@ void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse
       i3_log(LOG_MASK_REACH, "    result message: %s", payload->result_message);
   }
 }
+
+void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload)
+{
+    uint32_t lm = i3_log_get_mask();
+    if (0 ==(LOG_MASK_REACH & lm))
+        return;
+
+    i3_log(LOG_MASK_REACH, "  Discover Notifications: %d IDs\n", (int)payload->parameter_ids_count);
+    i3_log(LOG_MASK_BARE, "    ");
+    for (int i=0; i<payload->parameter_ids_count; i++)
+    {
+        i3_log(LOG_MASK_BARE, "%d ", payload->parameter_ids[i]);
+        if (i== 16)
+            i3_log(LOG_MASK_BARE, "\r\n    ");
+    }
+    i3_log(LOG_MASK_BARE, "\r\n");
+}
+
+void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *payload)
+{
+    i3_log(LOG_MASK_REACH, "  Discover Notifications response: %d configs\n", (int)payload->configs_count);
+    for (int i=0; i<payload->configs_count; i++)
+    {
+        // all zero is disabled
+        bool enabled = !((payload->configs[i].parameter_id == 0) &&
+                         (payload->configs[i].minimum_notification_period == 0) &&
+                         (payload->configs[i].maximum_notification_period == 0) &&
+                         (payload->configs[i].minimum_delta == 0.0));
+        if (!enabled) {
+            i3_log(LOG_MASK_REACH, "    ID %d, disabled", payload->configs[i].parameter_id);
+        }
+        else {
+            i3_log(LOG_MASK_REACH, "    ID %d, enabled, period min %u, max %u, delta %.1f",
+               payload->configs[i].parameter_id, 
+               payload->configs[i].minimum_notification_period,
+               payload->configs[i].maximum_notification_period, 
+               payload->configs[i].minimum_delta);
+        }
+    }
+}
+
 #endif  // def INCLUDE_PARAMETER_SERVICE
 
 
@@ -705,6 +757,9 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_write_param(const cr_ParameterWrite *){}
         void message_util_log_write_param_response(const cr_ParameterWriteResponse *){}
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *){}
+        void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload) {}
+        void message_util_log_discover_notifications_response(const bool,
+                                                              const cr_DiscoverParameterNotificationsResponse *payload) {}
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE

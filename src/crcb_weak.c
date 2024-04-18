@@ -185,16 +185,33 @@ void __attribute__((weak)) crcb_invalidate_challenge_key(void)
     I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
 }
 
+
 /**
-* @brief   crcb_enable_remote_cli
-* @details As the logging utility is technically part of Reach, 
-*          this callback lets the app block the remote CLI.
+* @brief   crcb_access_granted
+* @details A gateway to access control. Called anywhere that 
+*          access might be blocked.
+* @param  service : Which service to check. 
+* @param  id : Which ID to check.  Negative to check any. 
 * @return  true if access is granted.
 */
-bool __attribute__((weak)) crcb_enable_remote_cli(void)
+bool __attribute__((weak)) crcb_access_granted(const cr_ServiceIds service, const int32_t id)
 {
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+    (void)service;
+    (void)id;
     return true;
+}
+
+/**
+* @brief   crcb_configure_access_control
+* @details Configure the device info response based on the 
+*          challenge key in the device info request.
+* @return  true if access is granted.
+*/
+void __attribute__((weak)) crcb_configure_access_control(const cr_DeviceInfoRequest *request, cr_DeviceInfoResponse *pDi)
+{
+    (void)request;
+    (void)pDi;
+    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
 }
 
 
@@ -449,7 +466,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         return 0;
     }
 
-  #if NUM_SUPPORTED_PARAM_NOTIFY >= 0
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     /**
     * @brief   crcb_notify_param
     * @details parameter notifications are handled by the Reach stack. The stack 
@@ -467,6 +484,25 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return 0;
     }
+
+    /**
+    * @brief   crcb_parameter_notification_init
+    * @details Called in cr_init() to enable any notifications that the device 
+    *          wishes to be active.
+    * @param   pNoteArray pointer to an array of cr_ParameterNotifyConfig structures
+    *          describing the desired notifications.
+    * @param   pNum How many are in the array.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray, size_t *pNum)
+    {
+        *pNoteArray = NULL;
+        *pNum = 0;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
+    
   #endif /// NUM_SUPPORTED_PARAM_NOTIFY >= 0
 #endif /// INCLUDE_PARAMETER_SERVICE
 

@@ -138,12 +138,22 @@ bool crcb_challenge_key_is_valid(void);
 void crcb_invalidate_challenge_key(void);
 
 /**
-* @brief   crcb_enable_remote_cli
-* @details As the logging utility is technically part of Reach, 
-*          this callback lets the app block the remote CLI.
+* @brief   crcb_access_granted
+* @details A gateway to access control. Called anywhere that 
+*          access might be blocked.
+* @param  service : Which service to check. 
+* @param  id : Which ID to check.  Negative to check any. 
 * @return  true if access is granted.
 */
-bool crcb_enable_remote_cli(void);
+bool crcb_access_granted(const cr_ServiceIds service, const int32_t id);
+
+/**
+* @brief   crcb_configure_access_control
+* @details Configure the device info response based on the 
+*          challenge key in the device info request.
+* @return  true if access is granted.
+*/
+void crcb_configure_access_control(const cr_DeviceInfoRequest *request, cr_DeviceInfoResponse *pDi);
 
 ///*************************************************************************
 ///  Link (ping) Service 
@@ -348,7 +358,8 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     */
     uint32_t crcb_compute_parameter_hash(void);
 
-  #if NUM_SUPPORTED_PARAM_NOTIFY >= 0
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
+
     /**
     * @brief   crcb_notify_param
     * @details parameter notifications are handled by the Reach stack. The stack 
@@ -362,6 +373,18 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     */
     int crcb_notify_param(cr_ParameterValue *param);
 
+    /**
+    * @brief   crcb_parameter_notification_init
+    * @details Called in cr_init() to enable any notifications that the device 
+    *          wishes to be active.
+    * @param   pNoteArray pointer to an array of cr_ParameterNotifyConfig structures
+    *          describing the desired notifications.
+    * @param   pNum How many are in the array.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray, size_t *pNum);
+ 
   #endif /// NUM_SUPPORTED_PARAM_NOTIFY >= 0
 
 #endif /// INCLUDE_PARAMETER_SERVICE

@@ -223,6 +223,29 @@ bool cr_get_comm_link_connected(void);
 
 
 /**
+* @brief   cr_clear_param_notifications
+* @details Disable all parameter notifications.
+*/
+void cr_clear_param_notifications(void);
+
+/**
+* @brief   cr_init_param_notifications
+* @details Enable all locally specified parameter notifications 
+*          via crcb_parameter_notification_init().
+*/
+void  cr_init_param_notifications(void);
+
+/**
+* @brief   cr_get_notification_statistics
+* @param   numActive is populated with the number of  
+*          notifications currently enabled.a
+* @param   numSent is populated with the number of notifications
+*          sent since last called.
+* @details numSent is zeroed by each call.
+*/
+void cr_get_notification_statistics(uint32_t *numActive, uint32_t *numSent);
+
+/**
 * @brief   cr_get_current_ticks
 * @details The tick count is passed in to cr_process(). This function gives 
 *          other Reach functions access to that value. 
@@ -267,9 +290,9 @@ typedef struct {
     uint8_t   medium_string_len;
     /// The number of bytes in short strings like the units label.
     uint8_t   short_string_len;
-    /// The max number of enumeration descriptions that a server 
-    /// will provide in a parameter extended description. 
-    uint8_t   param_info_enum_count;
+    /// The max number of parameter notification configurations 
+    /// that a client can provide in a message. 
+    uint8_t   param_notify_config_count;
     /// number of descriptors (stream, file) that fit in one message. 
     uint8_t   num_descriptors_in_response;
     /// Number of parameter notifications supported

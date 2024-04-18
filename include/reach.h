@@ -34,13 +34,13 @@ typedef enum _cr_ReachProto_MAJOR_Version {
 } cr_ReachProto_MAJOR_Version;
 
 typedef enum _cr_ReachProto_MINOR_Version {
-    cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /* Must have a zero */
-    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /* Update at a release */
+    cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /** Must have a zero */
+    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /** Update at a release or a big change */
 } cr_ReachProto_MINOR_Version;
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 2 /* To be updated by relase script */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 4 /** Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 /// These values identify the type of the Reach message.
@@ -54,9 +54,10 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_DISCOVER_PARAM_EX = 6,
     cr_ReachMessageTypes_READ_PARAMETERS = 7,
     cr_ReachMessageTypes_WRITE_PARAMETERS = 8,
-    cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY = 9,
-    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10,
-    /** File Transfers */
+    cr_ReachMessageTypes_CONFIG_PARAM_NOTIFY = 9, /** setup parameter notification */
+    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10, /** A parameter has changed */
+    cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11, /** find out how notifications are setup */
+    /* File Transfers */
     cr_ReachMessageTypes_DISCOVER_FILES = 12,
     cr_ReachMessageTypes_TRANSFER_INIT = 13, /** Begins a Transfer */
     cr_ReachMessageTypes_TRANSFER_DATA = 14, /** Sends Data */
@@ -227,17 +228,17 @@ typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
 typedef struct _cr_AhsokaMessageHeader {
     /** This ID defines the Type of Message being carried in the Envelope / Header */
     int32_t transport_id;
-    /* This ID defines a unique Message / Response used when out of order messages are needed */
+    /** This ID defines a unique Message / Response used when out of order messages are needed */
     int32_t client_message_id;
-    /* Unique ID for a Client used in Services that support Multiple Clients 
+    /** Unique ID for a Client used in Services that support Multiple Clients 
        OpenPV would use a GUID but Reach uses a 4 byte integer */
     cr_AhsokaMessageHeader_client_id_t client_id;
-    /* The size of the message payload (in packets) that follows this header */
+    /** The size of the message payload (in packets) that follows this header */
     int32_t message_size;
-    /* Routing for Non-Endpoint Style Transports. 
+    /** Routing for Non-Endpoint Style Transports. 
        Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports */
     uint32_t endpoint_id;
-    /* Not supported) Indicates that the message has used deflate compression in addition to pbuff encoding */
+    /** Not supported) Indicates that the message has used deflate compression in addition to pbuff encoding */
     bool is_message_compressed;
 } cr_AhsokaMessageHeader;
 
@@ -250,14 +251,14 @@ typedef struct _cr_ErrorReport {
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
 /** Request Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingRequest {
-    cr_PingRequest_echo_data_t echo_data; /** d : Data */
+    cr_PingRequest_echo_data_t echo_data; /** Data which should be echoed in the response */
 } cr_PingRequest;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingResponse_echo_data_t;
 /** Response Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingResponse {
-    cr_PingResponse_echo_data_t echo_data; /** d : Data */
-    int32_t signal_strength; /** rssi : Rssi express in strength so clients don't have to interpret */
+    cr_PingResponse_echo_data_t echo_data; /** The same data sent in the request */
+    int32_t signal_strength; /* rssi : Rssi express in strength so clients don't have to interpret */
 } cr_PingResponse;
 
 
@@ -274,8 +275,9 @@ typedef struct _cr_DeviceInfoRequest {
      *  challenge key is handled is up the designer of the device.
      */
     bool has_challenge_key;
-    /* The client shares its version to enable backward compatibility. */
     char challenge_key[32];
+    /** The client shares its version to enable backward compatibility. */
+    char client_protocol_version[16];
 } cr_DeviceInfoRequest;
 
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;
@@ -350,8 +352,12 @@ typedef struct _cr_ParamExInfoResponse {
     cr_ParameterDataType data_type;
     pb_size_t enumerations_count;
     cr_ParamExKey enumerations[8];
+    uint32_t pei_id;
 } cr_ParamExInfoResponse;
 
+/** ------------------------------------------------------
+ Parameter Reads
+ ------------------------------------------------------ */
 typedef struct _cr_ParameterRead {
     pb_size_t parameter_ids_count;
     uint32_t parameter_ids[32]; /** i: ID -  Leave Empty to Retrieve All */
@@ -374,11 +380,29 @@ typedef struct _cr_ParameterNotifyConfig {
     float minimum_delta; /** notify only if change by this much */
 } cr_ParameterNotifyConfig;
 
+typedef struct _cr_ParameterConfigureNotifications {
+    pb_size_t configs_count;
+    cr_ParameterNotifyConfig configs[8];
+} cr_ParameterConfigureNotifications;
+
 typedef struct _cr_ParameterNotifyConfigResponse {
     int32_t result; /** zero if all OK */
     bool has_result_message;
     char result_message[194]; /** Error String */
 } cr_ParameterNotifyConfigResponse;
+
+/** ------------------------------------------------------
+ The client can discover how notifications are setup.
+ ------------------------------------------------------ */
+typedef struct _cr_DiscoverParameterNotifications {
+    pb_size_t parameter_ids_count;
+    uint32_t parameter_ids[32]; /** i: ID -  Leave Empty to Retrieve All */
+} cr_DiscoverParameterNotifications;
+
+typedef struct _cr_DiscoverParameterNotificationsResponse {
+    pb_size_t configs_count;
+    cr_ParameterNotifyConfig configs[8];
+} cr_DiscoverParameterNotificationsResponse;
 
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
 /** Message for Sending / Receiving a Single Parameter Value
@@ -453,7 +477,6 @@ typedef struct _cr_FileTransferRequest {
     uint32_t request_offset; /** where to access in the file */
     uint32_t transfer_length; /** bytes to read or write */
     uint32_t transfer_id; /** In case of multiple transfers */
-    uint32_t messages_per_ack; /** obsolete.  Use requested_ack_rate. */
     uint32_t timeout_in_ms; /** ms before abandonment */
     bool has_requested_ack_rate;
     uint32_t requested_ack_rate; /** number of messages before ACK. */
@@ -463,7 +486,7 @@ typedef struct _cr_FileTransferRequest {
 typedef struct _cr_FileTransferResponse {
     int32_t result; /** 0 if OK */
     uint32_t transfer_id; /** Transfer ID */
-    uint32_t preferred_ack_rate; /** confirms or overrides request */
+    uint32_t ack_rate; /** confirms or overrides request */
     bool has_result_message;
     char result_message[194];
 } cr_FileTransferResponse;
@@ -476,7 +499,7 @@ typedef struct _cr_FileTransferData {
     uint32_t message_number; /** counts up */
     cr_FileTransferData_message_data_t message_data; /** Data */
     bool has_checksum;
-    int32_t checksum; /** Optional checksum for integrity checking */
+    int32_t checksum; /** Optional RFC 1071 checksum for integrity checking */
 } cr_FileTransferData;
 
 typedef struct _cr_FileTransferDataNotification {
@@ -528,6 +551,7 @@ typedef struct _cr_SendCommand {
 
 typedef struct _cr_SendCommandResponse {
     int32_t result; /** Carries Success / Result */
+    bool has_result_message;
     char result_message[194];
 } cr_SendCommandResponse;
 

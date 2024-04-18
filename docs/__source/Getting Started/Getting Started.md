@@ -4,11 +4,11 @@
 
 I3 Product Design
 
-Version 3.02
+Version 4.00
 
-Date        March 20, 2024
+Date        April 15, 2024
 
-***The project structure has changed between v2 and v3 of this document.***
+***See release note to know what has changed..***
 
 # Executive Summary
 
@@ -33,26 +33,30 @@ The Cygnus Reach Evaluation Kit for the Silicon Labs Thunderboard assumes that t
 
 2.01:  February 9, 2024.  Adds features such as parameter notifications.  Provided with a separate release note.
 
-3,01: March 12, 2024.  The project structure has changed allowing for complete import.
+3.01: March 12, 2024.  The project structure has changed allowing for complete import.
+
+4.00: April 12, 2004.  The SiLabs project accesses Thunderboard sensors.
 
 # Running the Demo
 
-The demo requires a Reach enabled IoT device.  The Thunderboard fills this role conveniently.  The Nordic nRCP is also an option, but this document describes the Silicon Labs demo.
+The demo requires a Reach enabled IoT device.  The Silicon Labs Thunderboard fills this role conveniently.  The Nordic nRCP is also an option, but this document describes the Silicon Labs demo more completely.  The readme.md in the each project gives more details.
 
 ## Preparation
 
-* Obtain the Cygnus Reach firmware package from this site on github:
+* Obtain the appropriate Cygnus Reach firmware package from one of these sites on github:
   
-  * [https://github.com/cygnus-technology/reach-firmware](https://github.com/cygnus-technology/reach-firmware)
+  * https://github.com/cygnus-technology/reach-silabs
+  * https://github.com/cygnus-technology/reach-nrfc
 
-* Procure a Silicon Labs Thunderboard (SLTB010A).  A quick google finds these common at Digikey and Mouser.  The cost is around $42.
+* Procure a Silicon Labs Thunderboard (SLTB010A).  A quick google finds these common at Digikey and Mouser.  The cost is around $42.  The situation is similar for a Nordic nRF52840 Dongle.
 
 * If you are going to rebuild the Thunderboard program, install Simplicity Studio from Silicon Labs.
   
-        [https://www.silabs.com/developers/simplicity-studio](https://www.silabs.com/developers/simplicity-studio)
-  
-  * The code is updated to match version 5.8 with Gecko 4.4.0.
-  * For any Linux users, be aware that the default installation can go a lot faster if you set the make to use multiple threads.
+  * https://www.silabs.com/developers/simplicity-studio
+
+* The Silicon Labs code is updated to match version 5.8.1 with Gecko 4.4.2.
+
+* For any Linux users, be aware that the default installation can go a lot faster if you set the make to use multiple threads.
 
 * If you are only going to flash the prebuilt binary, you can more quickly install only the Simplicity Commander tool.  Google “[download Simplicity Commande](https://community.silabs.com/s/article/simplicity-commander?language=en_US)r” and choose the version you like.  They offer Windows, Mac and Linux.
 
@@ -83,37 +87,41 @@ The demo requires a Reach enabled IoT device.  The Thunderboard fills this role 
 * You should start to see a console like shown here.
   ![alt_text](_images/ver_command.png "image_tooltip")
   
-  ## 
-  
-    Connecting with the Cygnus App
+  ##Connecting with the Cygnus App
 
 * Open the Cygnus app on your phone and select this device.  You can see that it has the Cygnus logo.  The app can also view the characteristics on other BLE devices.
+  
     ![alt_text](_images/connect.png "image_tooltip")
 
 * Connecting, you see a pane for each "service" that the device supports.  You can pull down the name tab to see the complete device info.
+  
     ![alt_text](_images/connected.png "image_tooltip")
 
 * Poke the Device Parameters button.  This will bring up the basic parameter inspection frame.  
   
-  * You can edit parameters here.  
+  * You can edit parameters here, like the device name.  
   
-  * Note the different types of supported parameters.
+  * You can see the values of the built in sensors on the Thunderboard.
   
-  * Parameter ID 13 turns the yellow LED on and off.
+  * You can use a command on the following screen to make these readings update when they change.
     
-    * The blue LED monitors USB activity.
+    ![Phone Parameters](_images/phone_params.png "Phone Parameters")
+
+* The "command" service provide a simple way to execute a function on the device.  The command tab has several useful functions.
   
-  * Parameter ID 69 is always increasing.  Refresh to see that.  Using the web page you can also enable notifications to update without refreshing.
-    ![alt_text](_images/phone_params.png "image_tooltip")
+  * "No Logging" and "Much logging" are equivalent to using the lm (log mask) command at the command line to control how much data is dumped to the serial port.  "Much logging" includes printing the bytes that are communicated over the air.
+  
+  * The "notifications on" button begins checking the sensors in a loop and sends the result to the remote when they change.
+  
+  * The "remote CLI on" command allows the command line to echo to the remote device.  Doing this with "much logging" is a heavy load, so set "no logging" first.
+  
+  * And don't dismiss the"Wisdom" of this device. 
+  
+  ![Phone Commands](_images/phone_commands.png "Phone Commands")
 
 * Reach provides for a remote command line interface (CLI).  The Thunderboard provides a CLI on the USB based serial port.  Reach also supports a remote CLI using the app.  This can be very helpful in development and troubleshooting.
-
-* You can enable and disable the remote command line interface.
-
-* Commands provide a simple way to execute a function on the device.  The command tab has several useful functions.
-    ![alt_text](_images/phone_commands.png "image_tooltip")
-
-* You can adjust the amount of serial port logging using the "lm" command for "log mask".
+  
+  * You can enable and disable the remote command line interface.
 
 * Reach supports high speed data transfer as “files”.  
 
@@ -124,28 +132,38 @@ The Programmers Introduction document provides more background on each of these 
 The Reach apps include a "debug" interface.  This gives you a way to exercise features with more fine grained control.  The web app has more features than the mobile apps.
 
 The file access features of Cygnus support the efficient transfer of larger blocks of data.  The “simple” interface interacts with files on your phone and gives you the option of emailing received files.  The debug interface gives you more control.  Access the debug interface from the three dots in the upper right corner.
-    ![alt_text](_images/diagnostics1.png "image_tooltip")
+
+  ![alt_text](_images/diagnostics1.png "image_tooltip")
+
 Here a button represents each of the basic message commands in the Reach protocol.  The phone issues the request and the resulting action is printed on the screen.  The response is shown in hex.  The message is decoded into a JSON like format.  The hex bytes that were sent are not displayed here.  They are visible on the serial console of the device.
-![alt_text](_images/diagnostics_file.png "image_tooltip")
-You can exercise finer control over the file operations on the debug screen.  First minimize logging using command 3.  Then select a fairly large size to read.  These tests send synthetic data, just increasing numbers to exercise the transfer rate.  You can experiment with the Acknowledgement rate and easily achieve transfer rates over 200kbps.
+
+  ![alt_text](_images/diagnostics_file.png "image_tooltip")
+
+You can exercise finer control over the file operations on the debug screen.  First minimize logging using the "no logging" command.  Then select a fairly large size to read.  These tests send synthetic data, just increasing numbers to exercise the transfer rate. You can experiment with the file transfers.  When all logging is disabled (command “lm 0” on the device console) and the “ack rate” is set relatively high (say 100), a file read transfer rate over 300kbps is easily achieved.  Write transfer rates are over 100kbps.
+
+  ![File dev_null](_images/file_dev_null.png "Phone File dev_null")
+
+Note that the "io.txt" and "cygnus-logo.png" files are of fixed size.  They are real files in the flash memory of the device.  The "dev_null" file is of unlimited size and random data.  It exists to demonstrate the speed of transfer that can be achieved on a larger file with a high ack rate.
 
 ## The Serial Console
 
 By default you see messages on the serial console as illustrated below.
 
 * A banner is printed at startup.
+
 * The yellow text about the PHY indicates we are connected to the phone.
+
 * The magenta text indicates we have received a new prompt from the phone.  The hex bytes are printed.  This is the “wire” log.
+
 * The cyan text prints what is decoded or to be encoded.  This is the “reach” log.  In this illustration the request for device info is answered.
+
 * Finally, the command “lm ?” shows you the bit field values of the log mask.  You can enable or disable various bits of logging.
-  ![alt_text](_images/serial_cli.png "image_tooltip")
-  The command pane allows you to enable the remote CLI.
 
-The remote command line interface (CLI) is disabled by default.  When enabled, the command line of the device is accessible on the phone.
+  ![Serial Command Line](_images/serial_cli.png "Serial Command Line")
 
-Rather verbose logging is enabled on the device by default.  Commands are provided to minimize and maximize the logging.   More finely grained control of the logging is provided through the CLI.
+### The Remote Command Line
 
-You can experiment with the file transfers.  When all logging is disabled (command “lm 0” on the device console) and the “ack rate” is set relatively high (say 100), a file read transfer rate over 300kbps is easily achieved.  Write transfer rates are over 100kbps.
+The command line can be accessed from the remote client via the CLI pane.  When verbose logging of Reach traffic is enabled, the echo to the  remote command line interface (CLI) generates a lot of logging.  To avoid this, the echo of the CLI to the remote is disabled by default.  When enabled, the command line of the device is accessible on the phone or web interface.  There is a command to enable the remote command line echo.  Even with the echo disabled, commands can still be sent via the remote command line.
 
 ## The Web Interface
 
@@ -206,22 +224,27 @@ You might also note that the first time you run the program it will print red as
 The reach-silabs demo depends on a few components on the Thunderboard.  You may need to bring these in to your SiLabs project:
 
 - Iostream_retarget_stdio
+  
   - Depends on iostream_usart_core
 
 - CLI Instance
+  
   - Create an instance “inst”
 
 - Iostream_usart
+  
   - Create an instance named “vcom”
   - Disable flow control.
   - Convert \n to \r\n
 
 - Iostream_stdlib_config
-- Tiny Printf
-- Simple LED (LED on the Thunderboard)
-  - With instance led0 connected GPIO B0
 
+- Tiny Printf
+
+- Simple LED (LED on the Thunderboard)
+  
+  - With instance led0 connected GPIO B0
 
 ## Beyond the Demo
 
-The source package includes a “Programmers Intro” document.  It contains a lot more background about the Reach package which should be helpful as you customize it for your own purposes.
+The two demo projects include readme.md files that give more background. The github site documentation page (which probably served this document) includes a “Programmers Intro” document.  It contains a lot more background about the Reach package which should be helpful as you customize it for your own purposes.  And there is an API reference.

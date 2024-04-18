@@ -46,6 +46,8 @@
         void message_util_log_write_param(const cr_ParameterWrite *);
         void message_util_log_write_param_response(const cr_ParameterWriteResponse *);
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *);
+        void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *);
+        void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *);
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE

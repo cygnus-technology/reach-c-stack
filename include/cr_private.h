@@ -67,9 +67,6 @@ extern "C" {
     /// The type of the current continued message
     extern cr_ReachMessageTypes pvtCr_continued_message_type;
 
-    /// The number of continued objects (total)
-    extern uint32_t             pvtCr_num_continued_objects;
-
     /// The number of continued objects (remaining)
     extern uint32_t             pvtCr_num_remaining_objects;
 
@@ -116,9 +113,6 @@ extern "C" {
     /// service. 
     ///  
 
-    ///  Private helper function to clear parameter notificaitons
-    void pvtCrParam_clear_notifications(void);
-
     ///  Private helper function to discover parameters
     int pvtCrParam_discover_parameters(const cr_ParameterInfoRequest *,
                                        cr_ParameterInfoResponse *);
@@ -127,18 +121,33 @@ extern "C" {
     int pvtCrParam_discover_parameters_ex(const cr_ParameterInfoRequest *,
                                           cr_ParamExInfoResponse *);
 
+    ///  Private helper function to discover current parameter
+    ///  notifications
+    int pvtCrParam_discover_notifications(const cr_DiscoverParameterNotifications *,
+                                          cr_DiscoverParameterNotificationsResponse *);
+
+    /**
+    * @brief   cr_get_active_notify_count
+    * @return  How many parameter notifications are active
+    */
+    size_t cr_get_active_notify_count(void);
+
     ///  Private helper function to read a parameter
     int pvtCrParam_read_param(const cr_ParameterRead *, 
                               cr_ParameterReadResponse *);
     ///  Private helper function to write a parameter
     int pvtCrParam_write_param(const cr_ParameterWrite *, 
                                cr_ParameterWriteResponse *);
+
   #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    ///  Private helper function to configure parameter
+    ///  Private helper functions to configure parameter
     ///  notifications
-    int pvtCrParam_config_param_notify(const cr_ParameterNotifyConfig *,
+    int pvtCrParam_param_enable_notify(const cr_ParameterEnableNotifications *,
+                                       cr_ParameterNotifyConfigResponse *);
+    int pvtCrParam_param_disable_notify(const cr_ParameterDisableNotifications *,
                                        cr_ParameterNotifyConfigResponse *);
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
+
     ///  Private helper function to check for parameter
     ///  notifications
     void pvtCrParam_check_for_notifications(void);
