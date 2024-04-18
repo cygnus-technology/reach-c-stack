@@ -477,7 +477,6 @@ typedef struct _cr_FileTransferRequest {
     uint32_t request_offset; /** where to access in the file */
     uint32_t transfer_length; /** bytes to read or write */
     uint32_t transfer_id; /** In case of multiple transfers */
-    uint32_t messages_per_ack; /** obsolete.  Use requested_ack_rate. */
     uint32_t timeout_in_ms; /** ms before abandonment */
     bool has_requested_ack_rate;
     uint32_t requested_ack_rate; /** number of messages before ACK. */
