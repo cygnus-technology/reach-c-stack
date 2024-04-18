@@ -36,6 +36,39 @@ PB_BIND(cr_ParameterInfoRequest, cr_ParameterInfoRequest, AUTO)
 PB_BIND(cr_ParameterInfoResponse, cr_ParameterInfoResponse, 2)
 
 
+PB_BIND(cr_Uint32ParameterInfo, cr_Uint32ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Int32ParameterInfo, cr_Int32ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Float32ParameterInfo, cr_Float32ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Uint64ParameterInfo, cr_Uint64ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Int64ParameterInfo, cr_Int64ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Float64ParameterInfo, cr_Float64ParameterInfo, AUTO)
+
+
+PB_BIND(cr_BoolParameterInfo, cr_BoolParameterInfo, AUTO)
+
+
+PB_BIND(cr_StringParameterInfo, cr_StringParameterInfo, AUTO)
+
+
+PB_BIND(cr_EnumParameterInfo, cr_EnumParameterInfo, AUTO)
+
+
+PB_BIND(cr_BitfieldParameterInfo, cr_BitfieldParameterInfo, AUTO)
+
+
+PB_BIND(cr_ByteArrayParameterInfo, cr_ByteArrayParameterInfo, AUTO)
+
+
 PB_BIND(cr_ParameterInfo, cr_ParameterInfo, AUTO)
 
 

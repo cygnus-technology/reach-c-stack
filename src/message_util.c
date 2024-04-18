@@ -384,19 +384,9 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
   } 
   for (size_t i = 0; i < response->parameter_infos_count; i++) {
     i3_log(LOG_MASK_REACH, "    [id            : %d", response->parameter_infos[i].id);
-    i3_log(LOG_MASK_REACH, "     data type     : %d", response->parameter_infos[i].data_type);
-    i3_log(LOG_MASK_REACH, "     sz in bytes   : %d", response->parameter_infos[i].size_in_bytes);
+    i3_log(LOG_MASK_REACH, "     data type     : %d", response->parameter_infos[i].which_desc - cr_ParameterInfo_uint32_desc_tag);
     i3_log(LOG_MASK_REACH, "     name          : %s", response->parameter_infos[i].name);
     i3_log(LOG_MASK_REACH, "     access        : 0x%x", response->parameter_infos[i].access);
-    if (response->parameter_infos[i].has_description)
-        i3_log(LOG_MASK_REACH, "     description   : %s", response->parameter_infos[i].description);
-    i3_log(LOG_MASK_REACH, "     units         : %s", response->parameter_infos[i].units);
-    if (response->parameter_infos[i].has_range_min)
-        i3_log(LOG_MASK_REACH, "     min           : %.1f", response->parameter_infos[i].range_min);
-    if (response->parameter_infos[i].has_range_max)
-        i3_log(LOG_MASK_REACH, "     max           : %.1f", response->parameter_infos[i].range_max);
-    if (response->parameter_infos[i].has_default_value)
-        i3_log(LOG_MASK_REACH, "     default       : %.1f", response->parameter_infos[i].default_value);
     i3_log(LOG_MASK_REACH, "     storage location: %d", response->parameter_infos[i].storage_location);
     i3_log(LOG_MASK_REACH, "    ]");
   }
@@ -406,13 +396,13 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
 void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  Parameter Info Ex Response:");
-  i3_log(LOG_MASK_REACH, "    associated_pid     : %d", response->associated_pid);
+  i3_log(LOG_MASK_REACH, "    pei_id     : %d", response->pei_id);
   i3_log(LOG_MASK_REACH, "    data_type          : %d", response->data_type);
-  i3_log(LOG_MASK_REACH, "    enumerations_count : %d", response->enumerations_count);
-  for (size_t i = 0; i < response->enumerations_count; i++) 
+  i3_log(LOG_MASK_REACH, "    keys_count : %d", response->keys_count);
+  for (size_t i = 0; i < response->keys_count; i++)
   {
     i3_log(LOG_MASK_REACH, "    [id: %d.  name: %s]", 
-           response->enumerations[i].id, response->enumerations[i].name);
+           response->keys[i].id, response->keys[i].name);
   }
 }
 

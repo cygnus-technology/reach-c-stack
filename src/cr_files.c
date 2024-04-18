@@ -242,18 +242,16 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         If no requested_ack_rate is provided, the server must provide the ack_rate
         which can be one or a higher number.
      */
-    int requested_ack_rate = 0; // default
-    /* 
     int compare = pvtCr_compare_proto_version(0,1,3);
-    i3_log(LOG_MASK_FILES, "pvtCr_compare_proto_version() returned %d", compare);
+    // i3_log(LOG_MASK_FILES, "pvtCr_compare_proto_version() returned %d", compare);
     if (compare < 0)
     {   // optional has_requested_ack_rate deployed at 0.1.3
         // messages_per_ack is now obsolete.
-        I3_LOG(LOG_MASK_FILES, "Old version use messages_per_ack %d.",
-               request->messages_per_ack);
-        requested_ack_rate = request->messages_per_ack;
+        I3_LOG(LOG_MASK_ERROR, "Your older client version is very inefficient transferring files.");
     }
-    else */
+
+
+    int requested_ack_rate = 0; // default
     if (request->has_requested_ack_rate)
     {
         requested_ack_rate = request->requested_ack_rate;

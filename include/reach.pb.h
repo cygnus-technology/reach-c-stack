@@ -24,12 +24,12 @@ typedef enum _cr_ReachProto_MAJOR_Version {
 
 typedef enum _cr_ReachProto_MINOR_Version {
     cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /* Must have a zero */
-    cr_ReachProto_MINOR_Version_MINOR_VERSION = 1 /* Update at a release or a big change */
+    cr_ReachProto_MINOR_Version_MINOR_VERSION = 2 /* Update at a release or a big change */
 } cr_ReachProto_MINOR_Version;
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 8 /* Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 1 /* Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -306,22 +306,138 @@ typedef struct _cr_ParameterInfoRequest {
     uint32_t parameter_ids[32]; /* ID's to Fetch (Empty to Get All) */
 } cr_ParameterInfoRequest;
 
+typedef struct _cr_Uint32ParameterInfo {
+    bool has_range_min;
+    uint32_t range_min;
+    bool has_range_max;
+    uint32_t range_max;
+    bool has_default_value;
+    uint32_t default_value;
+    bool has_units;
+    char units[16];
+} cr_Uint32ParameterInfo;
+
+typedef struct _cr_Int32ParameterInfo {
+    bool has_range_min;
+    int32_t range_min;
+    bool has_range_max;
+    int32_t range_max;
+    bool has_default_value;
+    int32_t default_value;
+    bool has_units;
+    char units[16];
+} cr_Int32ParameterInfo;
+
+typedef struct _cr_Float32ParameterInfo {
+    bool has_range_min;
+    float range_min;
+    bool has_range_max;
+    float range_max;
+    bool has_default_value;
+    float default_value;
+    bool has_precision;
+    uint32_t precision;
+    bool has_units;
+    char units[16];
+} cr_Float32ParameterInfo;
+
+typedef struct _cr_Uint64ParameterInfo {
+    bool has_range_min;
+    uint64_t range_min;
+    bool has_range_max;
+    uint64_t range_max;
+    bool has_default_value;
+    uint64_t default_value;
+    bool has_units;
+    char units[16];
+} cr_Uint64ParameterInfo;
+
+typedef struct _cr_Int64ParameterInfo {
+    bool has_range_min;
+    int64_t range_min;
+    bool has_range_max;
+    int64_t range_max;
+    bool has_default_value;
+    int64_t default_value;
+    bool has_units;
+    char units[16];
+} cr_Int64ParameterInfo;
+
+typedef struct _cr_Float64ParameterInfo {
+    bool has_range_min;
+    double range_min;
+    bool has_range_max;
+    double range_max;
+    bool has_default_value;
+    double default_value;
+    bool has_precision;
+    uint32_t precision;
+    bool has_units;
+    char units[16];
+} cr_Float64ParameterInfo;
+
+typedef struct _cr_BoolParameterInfo {
+    bool has_default_value;
+    bool default_value;
+    bool has_pei_id;
+    uint32_t pei_id;
+} cr_BoolParameterInfo;
+
+typedef struct _cr_StringParameterInfo {
+    bool has_default_value;
+    char default_value[32];
+    uint32_t max_size;
+} cr_StringParameterInfo;
+
+typedef struct _cr_EnumParameterInfo {
+    bool has_range_min;
+    uint32_t range_min;
+    bool has_range_max;
+    uint32_t range_max;
+    bool has_default_value;
+    uint32_t default_value;
+    bool has_pei_id;
+    uint32_t pei_id;
+    bool has_units;
+    char units[16];
+} cr_EnumParameterInfo;
+
+typedef struct _cr_BitfieldParameterInfo {
+    bool has_default_value;
+    uint64_t default_value;
+    uint32_t bits_available;
+    bool has_pei_id;
+    uint32_t pei_id;
+} cr_BitfieldParameterInfo;
+
+typedef PB_BYTES_ARRAY_T(32) cr_ByteArrayParameterInfo_default_value_t;
+typedef struct _cr_ByteArrayParameterInfo {
+    bool has_default_value;
+    cr_ByteArrayParameterInfo_default_value_t default_value;
+    uint32_t max_size;
+} cr_ByteArrayParameterInfo;
+
 typedef struct _cr_ParameterInfo {
     uint32_t id; /* Id */
-    cr_ParameterDataType data_type; /* DataType */
-    uint32_t size_in_bytes; /* used by some devices */
     char name[24]; /* Name */
-    cr_AccessLevel access; /* Access */
     bool has_description;
     char description[32]; /* Description */
-    char units[16]; /* Units */
-    bool has_range_min;
-    double range_min; /* Range Max */
-    bool has_range_max;
-    double range_max; /* Range Max */
-    bool has_default_value;
-    double default_value; /* Show instead of value if no value. */
+    cr_AccessLevel access; /* Access */
     cr_StorageLocation storage_location; /* RAM or NVM or ? */
+    pb_size_t which_desc;
+    union {
+        cr_Uint32ParameterInfo uint32_desc;
+        cr_Int32ParameterInfo int32_desc;
+        cr_Float32ParameterInfo float32_desc;
+        cr_Uint64ParameterInfo uint64_desc;
+        cr_Int64ParameterInfo int64_desc;
+        cr_Float64ParameterInfo float64_desc;
+        cr_BoolParameterInfo bool_desc;
+        cr_StringParameterInfo string_desc;
+        cr_EnumParameterInfo enum_desc;
+        cr_BitfieldParameterInfo bitfield_desc;
+        cr_ByteArrayParameterInfo bytearray_desc;
+    } desc;
 } cr_ParameterInfo;
 
 typedef struct _cr_ParameterInfoResponse {
@@ -329,18 +445,18 @@ typedef struct _cr_ParameterInfoResponse {
     cr_ParameterInfo parameter_infos[2]; /* Array of Param Infos */
 } cr_ParameterInfoResponse;
 
-/* Give names to enums and bitfields */
+/* Give names to enums, bitfields, and booleans */
 typedef struct _cr_ParamExKey {
-    uint32_t id; /* the valud of the enum */
-    char name[16]; /* the name of the enum */
+    uint32_t id; /* the value of the enum or the bit position of the bitfield */
+    char name[16]; /* the name of the enum/bit */
 } cr_ParamExKey;
 
-/* also used for bitfields */
+/* Describes enum, bitfield, and boolean labels */
 typedef struct _cr_ParamExInfoResponse {
-    uint32_t associated_pid;
+    /* uint32              associated_pid = 1;  // deprecated */
     cr_ParameterDataType data_type;
-    pb_size_t enumerations_count;
-    cr_ParamExKey enumerations[8];
+    pb_size_t keys_count;
+    cr_ParamExKey keys[8];
     uint32_t pei_id;
 } cr_ParamExInfoResponse;
 
@@ -418,8 +534,8 @@ typedef struct _cr_ParameterValue {
         double float64_value; /* double */
         bool bool_value; /* Bool */
         char string_value[32]; /* String values (UTF8) */
-        uint32_t enum_value;
-        uint32_t bitfield_value;
+        uint32_t enum_value; /* Enumeration value */
+        uint64_t bitfield_value; /* Bitfield value */
         cr_ParameterValue_bytes_value_t bytes_value; /* byte array values */
     } value;
 } cr_ParameterValue;
@@ -462,6 +578,7 @@ typedef struct _cr_FileInfo {
     int32_t current_size_bytes; /* size in bytes */
     cr_StorageLocation storage_location;
     bool require_checksum; /* set true to request checksum generation and validation. */
+    bool has_maximum_size_bytes;
     uint32_t maximum_size_bytes; /* Determined by storage space */
 } cr_FileInfo;
 
@@ -490,6 +607,7 @@ typedef struct _cr_FileTransferResponse {
     int32_t result; /* 0 if OK */
     uint32_t transfer_id; /* Transfer ID */
     uint32_t ack_rate; /* confirms or overrides request */
+    uint32_t transfer_length; /* If the file is smaller than the requested offset + length, this will reflect how much data can be transferred */
     bool has_result_message;
     char result_message[194];
 } cr_FileTransferResponse;
@@ -820,7 +938,17 @@ extern "C" {
 
 
 
-#define cr_ParameterInfo_data_type_ENUMTYPE cr_ParameterDataType
+
+
+
+
+
+
+
+
+
+
+
 #define cr_ParameterInfo_access_ENUMTYPE cr_AccessLevel
 #define cr_ParameterInfo_storage_location_ENUMTYPE cr_StorageLocation
 
@@ -892,9 +1020,20 @@ extern "C" {
 #define cr_DeviceInfoResponse_init_default       {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_default     {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_default    {0, {cr_ParameterInfo_init_default, cr_ParameterInfo_init_default}}
-#define cr_ParameterInfo_init_default            {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
+#define cr_Uint32ParameterInfo_init_default      {false, 0, false, 0, false, 0, false, ""}
+#define cr_Int32ParameterInfo_init_default       {false, 0, false, 0, false, 0, false, ""}
+#define cr_Float32ParameterInfo_init_default     {false, 0, false, 0, false, 0, false, 0, false, ""}
+#define cr_Uint64ParameterInfo_init_default      {false, 0, false, 0, false, 0, false, ""}
+#define cr_Int64ParameterInfo_init_default       {false, 0, false, 0, false, 0, false, ""}
+#define cr_Float64ParameterInfo_init_default     {false, 0, false, 0, false, 0, false, 0, false, ""}
+#define cr_BoolParameterInfo_init_default        {false, 0, false, 0}
+#define cr_StringParameterInfo_init_default      {false, "", 0}
+#define cr_EnumParameterInfo_init_default        {false, 0, false, 0, false, 0, false, 0, false, ""}
+#define cr_BitfieldParameterInfo_init_default    {false, 0, 0, false, 0}
+#define cr_ByteArrayParameterInfo_init_default   {false, {0, {0}}, 0}
+#define cr_ParameterInfo_init_default            {0, "", false, "", _cr_AccessLevel_MIN, _cr_StorageLocation_MIN, 0, {cr_Uint32ParameterInfo_init_default}}
 #define cr_ParamExKey_init_default               {0, ""}
-#define cr_ParamExInfoResponse_init_default      {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default}, 0}
+#define cr_ParamExInfoResponse_init_default      {_cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default, cr_ParamExKey_init_default}, 0}
 #define cr_ParameterRead_init_default            {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
 #define cr_ParameterReadResponse_init_default    {0, 0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
 #define cr_ParameterWrite_init_default           {0, {cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default, cr_ParameterValue_init_default}}
@@ -909,9 +1048,9 @@ extern "C" {
 #define cr_ParameterValue_init_default           {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_default            {0}
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
-#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
+#define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, false, 0}
 #define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, false, 0, 0}
-#define cr_FileTransferResponse_init_default     {0, 0, 0, false, ""}
+#define cr_FileTransferResponse_init_default     {0, 0, 0, 0, false, ""}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_default {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_default         {0}
@@ -949,9 +1088,20 @@ extern "C" {
 #define cr_DeviceInfoResponse_init_zero          {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_zero        {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_zero       {0, {cr_ParameterInfo_init_zero, cr_ParameterInfo_init_zero}}
-#define cr_ParameterInfo_init_zero               {0, _cr_ParameterDataType_MIN, 0, "", _cr_AccessLevel_MIN, false, "", "", false, 0, false, 0, false, 0, _cr_StorageLocation_MIN}
+#define cr_Uint32ParameterInfo_init_zero         {false, 0, false, 0, false, 0, false, ""}
+#define cr_Int32ParameterInfo_init_zero          {false, 0, false, 0, false, 0, false, ""}
+#define cr_Float32ParameterInfo_init_zero        {false, 0, false, 0, false, 0, false, 0, false, ""}
+#define cr_Uint64ParameterInfo_init_zero         {false, 0, false, 0, false, 0, false, ""}
+#define cr_Int64ParameterInfo_init_zero          {false, 0, false, 0, false, 0, false, ""}
+#define cr_Float64ParameterInfo_init_zero        {false, 0, false, 0, false, 0, false, 0, false, ""}
+#define cr_BoolParameterInfo_init_zero           {false, 0, false, 0}
+#define cr_StringParameterInfo_init_zero         {false, "", 0}
+#define cr_EnumParameterInfo_init_zero           {false, 0, false, 0, false, 0, false, 0, false, ""}
+#define cr_BitfieldParameterInfo_init_zero       {false, 0, 0, false, 0}
+#define cr_ByteArrayParameterInfo_init_zero      {false, {0, {0}}, 0}
+#define cr_ParameterInfo_init_zero               {0, "", false, "", _cr_AccessLevel_MIN, _cr_StorageLocation_MIN, 0, {cr_Uint32ParameterInfo_init_zero}}
 #define cr_ParamExKey_init_zero                  {0, ""}
-#define cr_ParamExInfoResponse_init_zero         {0, _cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero}, 0}
+#define cr_ParamExInfoResponse_init_zero         {_cr_ParameterDataType_MIN, 0, {cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero, cr_ParamExKey_init_zero}, 0}
 #define cr_ParameterRead_init_zero               {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0}
 #define cr_ParameterReadResponse_init_zero       {0, 0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
 #define cr_ParameterWrite_init_zero              {0, {cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero, cr_ParameterValue_init_zero}}
@@ -966,9 +1116,9 @@ extern "C" {
 #define cr_ParameterValue_init_zero              {0, 0, 0, {0}}
 #define cr_DiscoverFiles_init_zero               {0}
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
-#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
+#define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, false, 0}
 #define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, false, 0, 0}
-#define cr_FileTransferResponse_init_zero        {0, 0, 0, false, ""}
+#define cr_FileTransferResponse_init_zero        {0, 0, 0, 0, false, ""}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_zero {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_zero            {0}
@@ -1030,23 +1180,67 @@ extern "C" {
 #define cr_DeviceInfoResponse_endpoints_tag      11
 #define cr_DeviceInfoResponse_sizes_struct_tag   20
 #define cr_ParameterInfoRequest_parameter_ids_tag 2
+#define cr_Uint32ParameterInfo_range_min_tag     1
+#define cr_Uint32ParameterInfo_range_max_tag     2
+#define cr_Uint32ParameterInfo_default_value_tag 3
+#define cr_Uint32ParameterInfo_units_tag         4
+#define cr_Int32ParameterInfo_range_min_tag      1
+#define cr_Int32ParameterInfo_range_max_tag      2
+#define cr_Int32ParameterInfo_default_value_tag  3
+#define cr_Int32ParameterInfo_units_tag          4
+#define cr_Float32ParameterInfo_range_min_tag    1
+#define cr_Float32ParameterInfo_range_max_tag    2
+#define cr_Float32ParameterInfo_default_value_tag 3
+#define cr_Float32ParameterInfo_precision_tag    4
+#define cr_Float32ParameterInfo_units_tag        5
+#define cr_Uint64ParameterInfo_range_min_tag     1
+#define cr_Uint64ParameterInfo_range_max_tag     2
+#define cr_Uint64ParameterInfo_default_value_tag 3
+#define cr_Uint64ParameterInfo_units_tag         4
+#define cr_Int64ParameterInfo_range_min_tag      1
+#define cr_Int64ParameterInfo_range_max_tag      2
+#define cr_Int64ParameterInfo_default_value_tag  3
+#define cr_Int64ParameterInfo_units_tag          4
+#define cr_Float64ParameterInfo_range_min_tag    1
+#define cr_Float64ParameterInfo_range_max_tag    2
+#define cr_Float64ParameterInfo_default_value_tag 3
+#define cr_Float64ParameterInfo_precision_tag    4
+#define cr_Float64ParameterInfo_units_tag        5
+#define cr_BoolParameterInfo_default_value_tag   1
+#define cr_BoolParameterInfo_pei_id_tag          2
+#define cr_StringParameterInfo_default_value_tag 1
+#define cr_StringParameterInfo_max_size_tag      2
+#define cr_EnumParameterInfo_range_min_tag       1
+#define cr_EnumParameterInfo_range_max_tag       2
+#define cr_EnumParameterInfo_default_value_tag   3
+#define cr_EnumParameterInfo_pei_id_tag          4
+#define cr_EnumParameterInfo_units_tag           5
+#define cr_BitfieldParameterInfo_default_value_tag 1
+#define cr_BitfieldParameterInfo_bits_available_tag 2
+#define cr_BitfieldParameterInfo_pei_id_tag      3
+#define cr_ByteArrayParameterInfo_default_value_tag 1
+#define cr_ByteArrayParameterInfo_max_size_tag   2
 #define cr_ParameterInfo_id_tag                  1
-#define cr_ParameterInfo_data_type_tag           2
-#define cr_ParameterInfo_size_in_bytes_tag       3
-#define cr_ParameterInfo_name_tag                4
-#define cr_ParameterInfo_access_tag              5
-#define cr_ParameterInfo_description_tag         6
-#define cr_ParameterInfo_units_tag               7
-#define cr_ParameterInfo_range_min_tag           8
-#define cr_ParameterInfo_range_max_tag           9
-#define cr_ParameterInfo_default_value_tag       10
-#define cr_ParameterInfo_storage_location_tag    11
+#define cr_ParameterInfo_name_tag                2
+#define cr_ParameterInfo_description_tag         3
+#define cr_ParameterInfo_access_tag              4
+#define cr_ParameterInfo_storage_location_tag    5
+#define cr_ParameterInfo_uint32_desc_tag         6
+#define cr_ParameterInfo_int32_desc_tag          7
+#define cr_ParameterInfo_float32_desc_tag        8
+#define cr_ParameterInfo_uint64_desc_tag         9
+#define cr_ParameterInfo_int64_desc_tag          10
+#define cr_ParameterInfo_float64_desc_tag        11
+#define cr_ParameterInfo_bool_desc_tag           12
+#define cr_ParameterInfo_string_desc_tag         13
+#define cr_ParameterInfo_enum_desc_tag           14
+#define cr_ParameterInfo_bitfield_desc_tag       15
+#define cr_ParameterInfo_bytearray_desc_tag      16
 #define cr_ParameterInfoResponse_parameter_infos_tag 1
 #define cr_ParamExKey_id_tag                     1
 #define cr_ParamExKey_name_tag                   2
-#define cr_ParamExInfoResponse_associated_pid_tag 1
 #define cr_ParamExInfoResponse_data_type_tag     2
-#define cr_ParamExInfoResponse_enumerations_tag  3
+#define cr_ParamExInfoResponse_keys_tag          3
 #define cr_ParamExInfoResponse_pei_id_tag        4
 #define cr_ParameterRead_parameter_ids_tag       2
 #define cr_ParameterRead_read_after_timestamp_tag 3
@@ -1099,7 +1293,8 @@ extern "C" {
 #define cr_FileTransferResponse_result_tag       1
 #define cr_FileTransferResponse_transfer_id_tag  2
 #define cr_FileTransferResponse_ack_rate_tag     3
-#define cr_FileTransferResponse_result_message_tag 4
+#define cr_FileTransferResponse_transfer_length_tag 4
+#define cr_FileTransferResponse_result_message_tag 5
 #define cr_FileTransferData_result_tag           1
 #define cr_FileTransferData_transfer_id_tag      2
 #define cr_FileTransferData_message_number_tag   3
@@ -1255,20 +1450,120 @@ X(a, STATIC,   REPEATED, MESSAGE,  parameter_infos,   1)
 #define cr_ParameterInfoResponse_DEFAULT NULL
 #define cr_ParameterInfoResponse_parameter_infos_MSGTYPE cr_ParameterInfo
 
+#define cr_Uint32ParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, UINT32,   range_min,         1) \
+X(a, STATIC,   OPTIONAL, UINT32,   range_max,         2) \
+X(a, STATIC,   OPTIONAL, UINT32,   default_value,     3) \
+X(a, STATIC,   OPTIONAL, STRING,   units,             4)
+#define cr_Uint32ParameterInfo_CALLBACK NULL
+#define cr_Uint32ParameterInfo_DEFAULT NULL
+
+#define cr_Int32ParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, INT32,    range_min,         1) \
+X(a, STATIC,   OPTIONAL, INT32,    range_max,         2) \
+X(a, STATIC,   OPTIONAL, INT32,    default_value,     3) \
+X(a, STATIC,   OPTIONAL, STRING,   units,             4)
+#define cr_Int32ParameterInfo_CALLBACK NULL
+#define cr_Int32ParameterInfo_DEFAULT NULL
+
+#define cr_Float32ParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, FLOAT,    range_min,         1) \
+X(a, STATIC,   OPTIONAL, FLOAT,    range_max,         2) \
+X(a, STATIC,   OPTIONAL, FLOAT,    default_value,     3) \
+X(a, STATIC,   OPTIONAL, UINT32,   precision,         4) \
+X(a, STATIC,   OPTIONAL, STRING,   units,             5)
+#define cr_Float32ParameterInfo_CALLBACK NULL
+#define cr_Float32ParameterInfo_DEFAULT NULL
+
+#define cr_Uint64ParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, UINT64,   range_min,         1) \
+X(a, STATIC,   OPTIONAL, UINT64,   range_max,         2) \
+X(a, STATIC,   OPTIONAL, UINT64,   default_value,     3) \
+X(a, STATIC,   OPTIONAL, STRING,   units,             4)
+#define cr_Uint64ParameterInfo_CALLBACK NULL
+#define cr_Uint64ParameterInfo_DEFAULT NULL
+
+#define cr_Int64ParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, INT64,    range_min,         1) \
+X(a, STATIC,   OPTIONAL, INT64,    range_max,         2) \
+X(a, STATIC,   OPTIONAL, INT64,    default_value,     3) \
+X(a, STATIC,   OPTIONAL, STRING,   units,             4)
+#define cr_Int64ParameterInfo_CALLBACK NULL
+#define cr_Int64ParameterInfo_DEFAULT NULL
+
+#define cr_Float64ParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, DOUBLE,   range_min,         1) \
+X(a, STATIC,   OPTIONAL, DOUBLE,   range_max,         2) \
+X(a, STATIC,   OPTIONAL, DOUBLE,   default_value,     3) \
+X(a, STATIC,   OPTIONAL, UINT32,   precision,         4) \
+X(a, STATIC,   OPTIONAL, STRING,   units,             5)
+#define cr_Float64ParameterInfo_CALLBACK NULL
+#define cr_Float64ParameterInfo_DEFAULT NULL
+
+#define cr_BoolParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, BOOL,     default_value,     1) \
+X(a, STATIC,   OPTIONAL, UINT32,   pei_id,            2)
+#define cr_BoolParameterInfo_CALLBACK NULL
+#define cr_BoolParameterInfo_DEFAULT NULL
+
+#define cr_StringParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, STRING,   default_value,     1) \
+X(a, STATIC,   SINGULAR, UINT32,   max_size,          2)
+#define cr_StringParameterInfo_CALLBACK NULL
+#define cr_StringParameterInfo_DEFAULT NULL
+
+#define cr_EnumParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, UINT32,   range_min,         1) \
+X(a, STATIC,   OPTIONAL, UINT32,   range_max,         2) \
+X(a, STATIC,   OPTIONAL, UINT32,   default_value,     3) \
+X(a, STATIC,   OPTIONAL, UINT32,   pei_id,            4) \
+X(a, STATIC,   OPTIONAL, STRING,   units,             5)
+#define cr_EnumParameterInfo_CALLBACK NULL
+#define cr_EnumParameterInfo_DEFAULT NULL
+
+#define cr_BitfieldParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, UINT64,   default_value,     1) \
+X(a, STATIC,   SINGULAR, UINT32,   bits_available,    2) \
+X(a, STATIC,   OPTIONAL, UINT32,   pei_id,            3)
+#define cr_BitfieldParameterInfo_CALLBACK NULL
+#define cr_BitfieldParameterInfo_DEFAULT NULL
+
+#define cr_ByteArrayParameterInfo_FIELDLIST(X, a) \
+X(a, STATIC,   OPTIONAL, BYTES,    default_value,     1) \
+X(a, STATIC,   SINGULAR, UINT32,   max_size,          2)
+#define cr_ByteArrayParameterInfo_CALLBACK NULL
+#define cr_ByteArrayParameterInfo_DEFAULT NULL
+
 #define cr_ParameterInfo_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
-X(a, STATIC,   SINGULAR, UENUM,    data_type,         2) \
-X(a, STATIC,   SINGULAR, UINT32,   size_in_bytes,     3) \
-X(a, STATIC,   SINGULAR, STRING,   name,              4) \
-X(a, STATIC,   SINGULAR, UENUM,    access,            5) \
-X(a, STATIC,   OPTIONAL, STRING,   description,       6) \
-X(a, STATIC,   SINGULAR, STRING,   units,             7) \
-X(a, STATIC,   OPTIONAL, DOUBLE,   range_min,         8) \
-X(a, STATIC,   OPTIONAL, DOUBLE,   range_max,         9) \
-X(a, STATIC,   OPTIONAL, DOUBLE,   default_value,    10) \
-X(a, STATIC,   SINGULAR, UENUM,    storage_location,  11)
+X(a, STATIC,   SINGULAR, STRING,   name,              2) \
+X(a, STATIC,   OPTIONAL, STRING,   description,       3) \
+X(a, STATIC,   SINGULAR, UENUM,    access,            4) \
+X(a, STATIC,   SINGULAR, UENUM,    storage_location,   5) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,uint32_desc,desc.uint32_desc),   6) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,int32_desc,desc.int32_desc),   7) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,float32_desc,desc.float32_desc),   8) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,uint64_desc,desc.uint64_desc),   9) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,int64_desc,desc.int64_desc),  10) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,float64_desc,desc.float64_desc),  11) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,bool_desc,desc.bool_desc),  12) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,string_desc,desc.string_desc),  13) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,enum_desc,desc.enum_desc),  14) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,bitfield_desc,desc.bitfield_desc),  15) \
+X(a, STATIC,   ONEOF,    MESSAGE,  (desc,bytearray_desc,desc.bytearray_desc),  16)
 #define cr_ParameterInfo_CALLBACK NULL
 #define cr_ParameterInfo_DEFAULT NULL
+#define cr_ParameterInfo_desc_uint32_desc_MSGTYPE cr_Uint32ParameterInfo
+#define cr_ParameterInfo_desc_int32_desc_MSGTYPE cr_Int32ParameterInfo
+#define cr_ParameterInfo_desc_float32_desc_MSGTYPE cr_Float32ParameterInfo
+#define cr_ParameterInfo_desc_uint64_desc_MSGTYPE cr_Uint64ParameterInfo
+#define cr_ParameterInfo_desc_int64_desc_MSGTYPE cr_Int64ParameterInfo
+#define cr_ParameterInfo_desc_float64_desc_MSGTYPE cr_Float64ParameterInfo
+#define cr_ParameterInfo_desc_bool_desc_MSGTYPE cr_BoolParameterInfo
+#define cr_ParameterInfo_desc_string_desc_MSGTYPE cr_StringParameterInfo
+#define cr_ParameterInfo_desc_enum_desc_MSGTYPE cr_EnumParameterInfo
+#define cr_ParameterInfo_desc_bitfield_desc_MSGTYPE cr_BitfieldParameterInfo
+#define cr_ParameterInfo_desc_bytearray_desc_MSGTYPE cr_ByteArrayParameterInfo
 
 #define cr_ParamExKey_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UINT32,   id,                1) \
@@ -1277,13 +1572,12 @@ X(a, STATIC,   SINGULAR, STRING,   name,              2)
 #define cr_ParamExKey_DEFAULT NULL
 
 #define cr_ParamExInfoResponse_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, UINT32,   associated_pid,    1) \
 X(a, STATIC,   SINGULAR, UENUM,    data_type,         2) \
-X(a, STATIC,   REPEATED, MESSAGE,  enumerations,      3) \
+X(a, STATIC,   REPEATED, MESSAGE,  keys,              3) \
 X(a, STATIC,   SINGULAR, UINT32,   pei_id,            4)
 #define cr_ParamExInfoResponse_CALLBACK NULL
 #define cr_ParamExInfoResponse_DEFAULT NULL
-#define cr_ParamExInfoResponse_enumerations_MSGTYPE cr_ParamExKey
+#define cr_ParamExInfoResponse_keys_MSGTYPE cr_ParamExKey
 
 #define cr_ParameterRead_FIELDLIST(X, a) \
 X(a, STATIC,   REPEATED, UINT32,   parameter_ids,     2) \
@@ -1365,7 +1659,7 @@ X(a, STATIC,   ONEOF,    DOUBLE,   (value,float64_value,value.float64_value),   
 X(a, STATIC,   ONEOF,    BOOL,     (value,bool_value,value.bool_value),   9) \
 X(a, STATIC,   ONEOF,    STRING,   (value,string_value,value.string_value),  10) \
 X(a, STATIC,   ONEOF,    UINT32,   (value,enum_value,value.enum_value),  11) \
-X(a, STATIC,   ONEOF,    UINT32,   (value,bitfield_value,value.bitfield_value),  12) \
+X(a, STATIC,   ONEOF,    UINT64,   (value,bitfield_value,value.bitfield_value),  12) \
 X(a, STATIC,   ONEOF,    BYTES,    (value,bytes_value,value.bytes_value),  13)
 #define cr_ParameterValue_CALLBACK NULL
 #define cr_ParameterValue_DEFAULT NULL
@@ -1388,7 +1682,7 @@ X(a, STATIC,   SINGULAR, UENUM,    access,            3) \
 X(a, STATIC,   SINGULAR, INT32,    current_size_bytes,   4) \
 X(a, STATIC,   SINGULAR, UENUM,    storage_location,   5) \
 X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   6) \
-X(a, STATIC,   SINGULAR, UINT32,   maximum_size_bytes,   7)
+X(a, STATIC,   OPTIONAL, UINT32,   maximum_size_bytes,   7)
 #define cr_FileInfo_CALLBACK NULL
 #define cr_FileInfo_DEFAULT NULL
 
@@ -1408,7 +1702,8 @@ X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   9)
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       2) \
 X(a, STATIC,   SINGULAR, UINT32,   ack_rate,          3) \
-X(a, STATIC,   OPTIONAL, STRING,   result_message,    4)
+X(a, STATIC,   SINGULAR, UINT32,   transfer_length,   4) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    5)
 #define cr_FileTransferResponse_CALLBACK NULL
 #define cr_FileTransferResponse_DEFAULT NULL
 
@@ -1615,6 +1910,17 @@ extern const pb_msgdesc_t cr_DeviceInfoRequest_msg;
 extern const pb_msgdesc_t cr_DeviceInfoResponse_msg;
 extern const pb_msgdesc_t cr_ParameterInfoRequest_msg;
 extern const pb_msgdesc_t cr_ParameterInfoResponse_msg;
+extern const pb_msgdesc_t cr_Uint32ParameterInfo_msg;
+extern const pb_msgdesc_t cr_Int32ParameterInfo_msg;
+extern const pb_msgdesc_t cr_Float32ParameterInfo_msg;
+extern const pb_msgdesc_t cr_Uint64ParameterInfo_msg;
+extern const pb_msgdesc_t cr_Int64ParameterInfo_msg;
+extern const pb_msgdesc_t cr_Float64ParameterInfo_msg;
+extern const pb_msgdesc_t cr_BoolParameterInfo_msg;
+extern const pb_msgdesc_t cr_StringParameterInfo_msg;
+extern const pb_msgdesc_t cr_EnumParameterInfo_msg;
+extern const pb_msgdesc_t cr_BitfieldParameterInfo_msg;
+extern const pb_msgdesc_t cr_ByteArrayParameterInfo_msg;
 extern const pb_msgdesc_t cr_ParameterInfo_msg;
 extern const pb_msgdesc_t cr_ParamExKey_msg;
 extern const pb_msgdesc_t cr_ParamExInfoResponse_msg;
@@ -1674,6 +1980,17 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DeviceInfoResponse_fields &cr_DeviceInfoResponse_msg
 #define cr_ParameterInfoRequest_fields &cr_ParameterInfoRequest_msg
 #define cr_ParameterInfoResponse_fields &cr_ParameterInfoResponse_msg
+#define cr_Uint32ParameterInfo_fields &cr_Uint32ParameterInfo_msg
+#define cr_Int32ParameterInfo_fields &cr_Int32ParameterInfo_msg
+#define cr_Float32ParameterInfo_fields &cr_Float32ParameterInfo_msg
+#define cr_Uint64ParameterInfo_fields &cr_Uint64ParameterInfo_msg
+#define cr_Int64ParameterInfo_fields &cr_Int64ParameterInfo_msg
+#define cr_Float64ParameterInfo_fields &cr_Float64ParameterInfo_msg
+#define cr_BoolParameterInfo_fields &cr_BoolParameterInfo_msg
+#define cr_StringParameterInfo_fields &cr_StringParameterInfo_msg
+#define cr_EnumParameterInfo_fields &cr_EnumParameterInfo_msg
+#define cr_BitfieldParameterInfo_fields &cr_BitfieldParameterInfo_msg
+#define cr_ByteArrayParameterInfo_fields &cr_ByteArrayParameterInfo_msg
 #define cr_ParameterInfo_fields &cr_ParameterInfo_msg
 #define cr_ParamExKey_fields &cr_ParamExKey_msg
 #define cr_ParamExInfoResponse_fields &cr_ParamExInfoResponse_msg
@@ -1724,7 +2041,10 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 
 /* Maximum encoded size of messages (where known) */
 #define cr_AhsokaMessageHeader_size              47
+#define cr_BitfieldParameterInfo_size            23
+#define cr_BoolParameterInfo_size                8
 #define cr_BufferSizes_size                      84
+#define cr_ByteArrayParameterInfo_size           40
 #define cr_CLIData_size                          196
 #define cr_CommandInfo_size                      86
 #define cr_ConnectionDescription_size            48
@@ -1740,6 +2060,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DiscoverStreams_size                  0
 #define cr_DiscoverWiFiRequest_size              2
 #define cr_DiscoverWiFiResponse_size             129
+#define cr_EnumParameterInfo_size                41
 #define cr_ErrorReport_size                      207
 #define cr_FileEraseRequest_size                 6
 #define cr_FileEraseResponse_size                213
@@ -1747,8 +2068,12 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_FileTransferDataNotification_size     221
 #define cr_FileTransferData_size                 231
 #define cr_FileTransferRequest_size              44
-#define cr_FileTransferResponse_size             219
-#define cr_ParamExInfoResponse_size              214
+#define cr_FileTransferResponse_size             225
+#define cr_Float32ParameterInfo_size             38
+#define cr_Float64ParameterInfo_size             50
+#define cr_Int32ParameterInfo_size               50
+#define cr_Int64ParameterInfo_size               50
+#define cr_ParamExInfoResponse_size              208
 #define cr_ParamExKey_size                       23
 #define cr_ParameterDisableNotifications_size    192
 #define cr_ParameterEnableNotifications_size     202
@@ -1774,10 +2099,13 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_StreamInfo_size                       49
 #define cr_StreamOpenResponse_size               218
 #define cr_StreamOpen_size                       13
+#define cr_StringParameterInfo_size              39
 #define cr_TimeGetRequest_size                   0
 #define cr_TimeGetResponse_size                  229
 #define cr_TimeSetRequest_size                   22
 #define cr_TimeSetResponse_size                  207
+#define cr_Uint32ParameterInfo_size              35
+#define cr_Uint64ParameterInfo_size              50
 #define cr_WiFiConnectionRequest_size            87
 #define cr_WiFiConnectionResponse_size           218
 
