@@ -227,18 +227,38 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         break;
     }
 
-    // If server prefers a rate we use it.
-    // If server says zero, then use request.
-    // If both are zero, default to 10.
+    /*
+     The ack rate today is specified in the FileTransferRequest (renamed) message
+     and answered in the FileTransferResponse (renamed).  Let's write down the rules.
+        The requested_ack_rate is optional.
+            Optional uint32 requested_ack_rate;
+        The responding ack_rate is not optional.
+     
+        If the requested_ack_rate is provided, then the server should try to use it.
+            The server may confirm the requested ack_rate in its response.
+            The server may override the requested ack rate with its own preference if
+                there is a good reason.  Ideally this reason would be communicated in
+                the result_message field.
+        If no requested_ack_rate is provided, the server must provide the ack_rate
+        which can be one or a higher number.
+     */
     int requested_ack_rate = 0; // default
-    if (pvtCr_compare_proto_version(0,1,3) < 0)  //     if (request->messages_per_ack != 0)
+    /* 
+    int compare = pvtCr_compare_proto_version(0,1,3);
+    i3_log(LOG_MASK_FILES, "pvtCr_compare_proto_version() returned %d", compare);
+    if (compare < 0)
     {   // optional has_requested_ack_rate deployed at 0.1.3
         // messages_per_ack is now obsolete.
+        I3_LOG(LOG_MASK_FILES, "Old version use messages_per_ack %d.",
+               request->messages_per_ack);
         requested_ack_rate = request->messages_per_ack;
     }
-    else if (request->has_requested_ack_rate)
+    else */
+    if (request->has_requested_ack_rate)
     {
         requested_ack_rate = request->requested_ack_rate;
+        I3_LOG(LOG_MASK_FILES, "Has requested_ack_rate %d.",
+               request->requested_ack_rate);
     }
     int preferred_ack_rate =
         crcb_file_get_preferred_ack_rate(request->file_id,

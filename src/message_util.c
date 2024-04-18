@@ -293,18 +293,23 @@ void message_util_log_file_transfer_request(const cr_FileTransferRequest *reques
   i3_log(LOG_MASK_REACH, "    request offset     : %d", request->request_offset);
   i3_log(LOG_MASK_REACH, "    transfer length    : %d", request->transfer_length);
   i3_log(LOG_MASK_REACH, "    transfer id        : %d", request->transfer_id);
-  i3_log(LOG_MASK_REACH, "    requested_ack_rate : %d", request->requested_ack_rate);
-  i3_log(LOG_MASK_REACH, "    timeout            : %d\r\n", request->timeout_in_ms);
+  // i3_log(LOG_MASK_REACH, "    messages_per_ack   : %d (obsolete)", request->messages_per_ack);
+  i3_log(LOG_MASK_REACH, "    timeout            : %d", request->timeout_in_ms);
+  if (request->has_requested_ack_rate)
+    i3_log(LOG_MASK_REACH, "    has requested_ack_rate: %d", request->requested_ack_rate);
+  else
+    i3_log(LOG_MASK_REACH, "    No requested_ack_rate (%d)", request->requested_ack_rate);
+  i3_log(LOG_MASK_REACH, "    require_checksum : %d\r\n", request->require_checksum);
 }
 
 void message_util_log_file_transfer_response(const cr_FileTransferResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Response:");
-  i3_log(LOG_MASK_REACH, "    result            :", response->result);
-  i3_log(LOG_MASK_REACH, "    transfer_id       :", response->transfer_id);
-  i3_log(LOG_MASK_REACH, "    ack_rate          :", response->ack_rate);
+  i3_log(LOG_MASK_REACH, "    result            : %d", response->result);
+  i3_log(LOG_MASK_REACH, "    transfer_id       : %d", response->transfer_id);
+  i3_log(LOG_MASK_REACH, "    ack_rate          : %d", response->ack_rate);
   if (response->has_result_message) {            
-    i3_log(LOG_MASK_REACH, "    result_message  :", response->result_message);
+    i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
   }
   i3_log(LOG_MASK_REACH, "\r\n");
 }

@@ -29,7 +29,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 7 /* Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 8 /* Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
@@ -479,7 +479,7 @@ typedef struct _cr_FileTransferRequest {
     uint32_t request_offset; /* where to access in the file */
     uint32_t transfer_length; /* bytes to read or write */
     uint32_t transfer_id; /* In case of multiple transfers */
-    uint32_t messages_per_ack; /* obsolete.  Use requested_ack_rate. */
+    /* uint32 messages_per_ack             = 6;  // obsolete.  Use requested_ack_rate. */
     uint32_t timeout_in_ms; /* ms before abandonment */
     bool has_requested_ack_rate;
     uint32_t requested_ack_rate; /* number of messages before ACK. */
@@ -910,7 +910,7 @@ extern "C" {
 #define cr_DiscoverFiles_init_default            {0}
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
 #define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
-#define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
+#define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, false, 0, 0}
 #define cr_FileTransferResponse_init_default     {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_default {0, false, "", 0, 0, 0}
@@ -967,7 +967,7 @@ extern "C" {
 #define cr_DiscoverFiles_init_zero               {0}
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
 #define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, 0}
-#define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, 0, false, 0, 0}
+#define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, false, 0, 0}
 #define cr_FileTransferResponse_init_zero        {0, 0, 0, false, ""}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_zero {0, false, "", 0, 0, 0}
@@ -1093,7 +1093,6 @@ extern "C" {
 #define cr_FileTransferRequest_request_offset_tag 3
 #define cr_FileTransferRequest_transfer_length_tag 4
 #define cr_FileTransferRequest_transfer_id_tag   5
-#define cr_FileTransferRequest_messages_per_ack_tag 6
 #define cr_FileTransferRequest_timeout_in_ms_tag 7
 #define cr_FileTransferRequest_requested_ack_rate_tag 8
 #define cr_FileTransferRequest_require_checksum_tag 9
@@ -1399,7 +1398,6 @@ X(a, STATIC,   SINGULAR, UINT32,   read_write,        2) \
 X(a, STATIC,   SINGULAR, UINT32,   request_offset,    3) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_length,   4) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       5) \
-X(a, STATIC,   SINGULAR, UINT32,   messages_per_ack,   6) \
 X(a, STATIC,   SINGULAR, UINT32,   timeout_in_ms,     7) \
 X(a, STATIC,   OPTIONAL, UINT32,   requested_ack_rate,   8) \
 X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   9)
@@ -1748,7 +1746,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_FileInfo_size                         54
 #define cr_FileTransferDataNotification_size     221
 #define cr_FileTransferData_size                 231
-#define cr_FileTransferRequest_size              50
+#define cr_FileTransferRequest_size              44
 #define cr_FileTransferResponse_size             219
 #define cr_ParamExInfoResponse_size              214
 #define cr_ParamExKey_size                       23
