@@ -37,7 +37,7 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_ERROR_REPORT = 1, /* /> Inform client of an error condition */
     cr_ReachMessageTypes_PING = 2, /* /> Test the link to the server */
     cr_ReachMessageTypes_GET_DEVICE_INFO = 3, /* /> Open the communication with a server */
-    /* Parameters */
+    /* / Parameters */
     cr_ReachMessageTypes_DISCOVER_PARAMETERS = 5, /* /> Get a list of all of the parameters in the repository */
     cr_ReachMessageTypes_DISCOVER_PARAM_EX = 6, /* /> An extension to discover used by verbose parameters */
     cr_ReachMessageTypes_READ_PARAMETERS = 7, /* /> Get the values of a set of parameters */
@@ -46,12 +46,13 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11, /* /> Find out how notifications are setup */
     cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY = 50, /* /> setup parameter notifications */
     cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY = 51, /* /> disable parameter notifications */
-    /* File Transfers */
+    /* / File Transfers */
     cr_ReachMessageTypes_DISCOVER_FILES = 12, /* /> Get a list of supported files */
     cr_ReachMessageTypes_TRANSFER_INIT = 13, /* /> Begin a file transfer */
     cr_ReachMessageTypes_TRANSFER_DATA = 14, /* /> (bi-directional) sends the requested data */
     cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION = 15, /* /> (bi-directional) Clears Sender to Send More Data */
-    cr_ReachMessageTypes_DELETE_FILE = 16, /* /> Delete a file */
+    cr_ReachMessageTypes_ERASE_FILE = 16, /* /> Set file size to zero. */
+    /* / Commands */
     cr_ReachMessageTypes_DISCOVER_COMMANDS = 17, /* /> Get a list of supported commands */
     cr_ReachMessageTypes_SEND_COMMAND = 18, /* /> Reqeuest excecution of a command */
     /* Command Line Interface */
@@ -69,25 +70,25 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_WIFI_CONNECT = 41 /* /> Connect or disconnect to an access point */
 } cr_ReachMessageTypes;
 
-/* binary bit masks or'ed together into the DeviceInfoResponse.services */
+/* / binary bit masks or'ed together into the DeviceInfoResponse.services */
 typedef enum _cr_ServiceIds {
-    cr_ServiceIds_NO_SVC_ID = 0,
-    cr_ServiceIds_PARAMETER_REPO = 1,
-    cr_ServiceIds_FILES = 2,
-    cr_ServiceIds_STREAMS = 4,
-    cr_ServiceIds_COMMANDS = 8,
-    cr_ServiceIds_CLI = 16,
-    cr_ServiceIds_TIME = 32,
-    cr_ServiceIds_WIFI = 64
+    cr_ServiceIds_NO_SVC_ID = 0, /* /< No services.  Device info service is required. */
+    cr_ServiceIds_PARAMETER_REPO = 1, /* /< Set this bit when the device supports the parameter service */
+    cr_ServiceIds_FILES = 2, /* /< Set this bit when the device supports the file service */
+    cr_ServiceIds_STREAMS = 4, /* /< Set this bit when the device supports the stream service */
+    cr_ServiceIds_COMMANDS = 8, /* /< Set this bit when the device supports the command service */
+    cr_ServiceIds_CLI = 16, /* /< Set this bit when the device supports the command line interface */
+    cr_ServiceIds_TIME = 32, /* /< Set this bit when the device supports the time service */
+    cr_ServiceIds_WIFI = 64 /* /< Set this bit when the device supports the WiFi service */
 } cr_ServiceIds;
 
-/* binary bit masks or'ed together into the DeviceInfoResponse.endpoints */
+/* / binary bit masks or'ed together into the DeviceInfoResponse.endpoints */
 typedef enum _cr_EndpointIds {
-    cr_EndpointIds_NO_ENDPOINTS = 0,
-    cr_EndpointIds_ONE = 1,
-    cr_EndpointIds_TWO = 2,
-    cr_EndpointIds_THREE = 4,
-    cr_EndpointIds_FOUR = 8
+    cr_EndpointIds_NO_ENDPOINTS = 0, /* /< No other endpoints */
+    cr_EndpointIds_ONE = 1, /* /< This is the first of multiple endpoints. */
+    cr_EndpointIds_TWO = 2, /* /< This is the second of multiple endpoints. */
+    cr_EndpointIds_THREE = 4, /* /< This is the third of multiple endpoints. */
+    cr_EndpointIds_FOUR = 8 /* /< This is the fourth of multiple endpoints. */
 } cr_EndpointIds;
 
 typedef enum _cr_ParameterDataType {
@@ -252,23 +253,23 @@ typedef struct _cr_AhsokaMessageHeader {
     bool is_message_compressed;
 } cr_AhsokaMessageHeader;
 
-/* ERROR_REPORT: Could be sent asynchronously to indicate an error. */
+/* / ERROR_REPORT: Could be sent asynchronously to indicate an error. */
 typedef struct _cr_ErrorReport {
-    int32_t result; /* Error Result */
-    char result_message[194]; /* Error String */
+    int32_t result; /* /< The integer error code being reported, preferrably from the ErrorCodes enum. */
+    char result_message[194]; /* /< A human readable string describing the error. */
 } cr_ErrorReport;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
 /* Request Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingRequest {
-    cr_PingRequest_echo_data_t echo_data; /* Data which should be echoed in the response */
+    cr_PingRequest_echo_data_t echo_data; /* /< Data which should be echoed in the response */
 } cr_PingRequest;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingResponse_echo_data_t;
 /* Response Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingResponse {
-    cr_PingResponse_echo_data_t echo_data; /* The same data sent in the request */
-    int32_t signal_strength; /* rssi : Rssi express in strength so clients don't have to interpret */
+    cr_PingResponse_echo_data_t echo_data; /* /< The same data sent in the request */
+    int32_t signal_strength; /* /< rssi : The server's received signal strength expressed in dB. */
 } cr_PingResponse;
 
 /* ------------------------------------------------------
@@ -276,45 +277,39 @@ typedef struct _cr_PingResponse {
  Reach sessions are opened with the device info request and response.  
  ------------------------------------------------------ */
 typedef struct _cr_DeviceInfoRequest {
-    /* The request can include a challenge key to grant or deny access to parts of the system. */
     bool has_challenge_key;
-    char challenge_key[32];
-    /* The client shares its version to enable backward compatibility. */
-    char client_protocol_version[16];
+    char challenge_key[32]; /* /< The request can include a challenge key to grant or deny access to parts of the system. */
+    char client_protocol_version[16]; /* /< The client shares its version to enable backward compatibility. */
 } cr_DeviceInfoRequest;
 
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_sizes_struct_t;
 typedef struct _cr_DeviceInfoResponse {
-    int32_t protocol_version; /* Supported Protocol Version (deprecated) */
-    char device_name[24]; /* Name, Typically Model Name */
-    char manufacturer[24];
-    char device_description[48]; /* Description */
-    /* Each endpoint advertises a "main" FW version.
- If there are other FW versions, put them in the parameter repo. */
+    char device_name[24]; /* /< Human readable name of the device */
+    char manufacturer[24]; /* /< Human readable name of the manufacturer */
+    char device_description[48]; /* /< A longer human readable description. */
+    /* / Each endpoint advertises a "main" FW version.
+/ If there are other FW versions, put them in the parameter repo. */
     char firmware_version[16];
-    /* protocol version as a string */
-    char protocol_version_string[16];
-    /* A bit mask, allowing support for up to 32 services */
-    uint32_t services;
-    /* Used to avoid reloading the parameter descriptions */
-    uint32_t parameter_metadata_hash;
+    char protocol_version_string[16]; /* < The protocol version as a string against which this device is built. */
+    uint32_t services; /* /< A bit mask, allowing support for up to 32 services */
+    uint32_t parameter_metadata_hash; /* /< Used to avoid reloading the parameter descriptions */
     bool has_application_identifier;
-    cr_DeviceInfoResponse_application_identifier_t application_identifier; /* A UUID to find a Custom firmware_version */
-    uint32_t endpoints; /* bit mask, non-zero if other endpoints. */
-    cr_DeviceInfoResponse_sizes_struct_t sizes_struct; /* packed. See SizesOffsets */
+    cr_DeviceInfoResponse_application_identifier_t application_identifier; /* /< A UUID to find a custom user interface */
+    uint32_t endpoints; /* /< A bit mask, non-zero if the device supports more than one endpoint. */
+    cr_DeviceInfoResponse_sizes_struct_t sizes_struct; /* /< A packed structure informing the client of the size limitations of the server. See SizesOffsets for descriptions. */
 } cr_DeviceInfoResponse;
 
-/* ------------------------------------------------------
- Parameter Service
- Parameters provide a simple key:value database. The key is an ID number.  
- The value can be of various common types up to (typically) 32 bytes.  
- Parameterssupport a robust description which can be const, stored in flash.  
- Parameters can be configured to support notifying the client.
- ------------------------------------------------------ */
+/* / ------------------------------------------------------
+/ Parameter Service
+/ Parameters provide a simple key:value database. The key is an ID number.  
+/ The value can be of various common types up to (typically) 32 bytes.  
+/ Parameterssupport a robust description which can be const, stored in flash.  
+/ Parameters can be configured to support notifying the client.
+/ ------------------------------------------------------ */
 typedef struct _cr_ParameterInfoRequest {
     pb_size_t parameter_ids_count;
-    uint32_t parameter_ids[32]; /* ID's to Fetch (Empty to Get All) */
+    uint32_t parameter_ids[32]; /* /< ID's to Fetch (Empty to Get All) */
 } cr_ParameterInfoRequest;
 
 typedef struct _cr_Uint32ParameterInfo {
@@ -453,7 +448,7 @@ typedef struct _cr_ParameterInfo {
 
 typedef struct _cr_ParameterInfoResponse {
     pb_size_t parameter_infos_count;
-    cr_ParameterInfo parameter_infos[2]; /* Array of Param Infos */
+    cr_ParameterInfo parameter_infos[2]; /* /< An array of Param Info structures */
 } cr_ParameterInfoResponse;
 
 /* Give names to enums, bitfields, and booleans */
@@ -583,14 +578,14 @@ typedef struct _cr_DiscoverFiles {
 } cr_DiscoverFiles;
 
 typedef struct _cr_FileInfo {
-    uint32_t file_id; /* ID */
-    char file_name[24]; /* Name */
-    cr_AccessLevel access; /* Access Level (Read / Write) */
-    int32_t current_size_bytes; /* size in bytes */
-    cr_StorageLocation storage_location;
-    bool require_checksum; /* set true to request checksum generation and validation. */
+    uint32_t file_id; /* /< ID by which this file is referenced */
+    char file_name[24]; /* /< Human readable file name */
+    cr_AccessLevel access; /* /< Access Level (Read / Write) */
+    int32_t current_size_bytes; /* /< size in bytes */
+    cr_StorageLocation storage_location; /* /< NVM or RAM */
+    bool require_checksum; /* /< set true to request checksum generation and validation. */
     bool has_maximum_size_bytes;
-    uint32_t maximum_size_bytes; /* Determined by storage space */
+    uint32_t maximum_size_bytes; /* /< Determined by storage space */
 } cr_FileInfo;
 
 typedef struct _cr_DiscoverFilesResponse {
@@ -602,56 +597,55 @@ typedef struct _cr_DiscoverFilesResponse {
  Begins a File Transfer (Upload / Download)
  ------------------------------------------------------ */
 typedef struct _cr_FileTransferRequest {
-    uint32_t file_id; /* File ID */
-    uint32_t read_write; /* 0 for read, 1 for write. */
-    uint32_t request_offset; /* where to access in the file */
-    uint32_t transfer_length; /* bytes to read or write */
-    uint32_t transfer_id; /* In case of multiple transfers */
-    /* uint32 messages_per_ack             = 6;  // obsolete.  Use requested_ack_rate. */
-    uint32_t timeout_in_ms; /* ms before abandonment */
+    uint32_t file_id; /* /< ID by which this file is referenced */
+    uint32_t read_write; /* /< 0 for read, 1 for write. */
+    uint32_t request_offset; /* /< where to access in the file, in bytes */
+    uint32_t transfer_length; /* /< number of bytes to read or write */
+    uint32_t transfer_id; /* /< Copied from the header, the same for the continuued transfer. */
+    uint32_t timeout_in_ms; /* /< ms before abandonment */
     bool has_requested_ack_rate;
-    uint32_t requested_ack_rate; /* number of messages before ACK. */
-    bool require_checksum; /* set true to enable checksum generation and validation. */
+    uint32_t requested_ack_rate; /* /< number of messages before ACK. */
+    bool require_checksum; /* /< set true to enable checksum generation and validation. */
 } cr_FileTransferRequest;
 
 typedef struct _cr_FileTransferResponse {
-    int32_t result; /* 0 if OK */
-    uint32_t transfer_id; /* Transfer ID */
-    uint32_t ack_rate; /* confirms or overrides request */
-    uint32_t transfer_length; /* If the file is smaller than the requested offset + length, this will reflect how much data can be transferred */
+    int32_t result; /* /< 0 if OK */
+    uint32_t transfer_id; /* /< Echos the request. */
+    uint32_t ack_rate; /* /< confirms or overrides request */
     bool has_result_message;
-    char result_message[194];
+    char result_message[194]; /* /< In case of error, a human readable explanation. */
+    uint32_t transfer_length; /* /< If the file is smaller than the requested offset + length, this will reflect how much data can be transferred */
 } cr_FileTransferResponse;
 
 typedef PB_BYTES_ARRAY_T(194) cr_FileTransferData_message_data_t;
 /* Bi-Directional Message */
 typedef struct _cr_FileTransferData {
-    int32_t result; /* non-zero for error */
-    uint32_t transfer_id; /* Transfer ID */
-    uint32_t message_number; /* counts up */
-    cr_FileTransferData_message_data_t message_data; /* Data */
+    int32_t result; /* /< non-zero for error */
+    uint32_t transfer_id; /* /< Unchanged during the continuued transfer. */
+    uint32_t message_number; /* /< counts up from 1 in the first transfer */
+    cr_FileTransferData_message_data_t message_data; /* /< Data */
     bool has_checksum;
-    int32_t checksum; /* Optional RFC 1071 checksum for integrity checking */
+    int32_t checksum; /* /< Optional RFC 1071 checksum for integrity checking */
 } cr_FileTransferData;
 
 typedef struct _cr_FileTransferDataNotification {
-    int32_t result; /* 0 for success */
+    int32_t result; /* /< 0 for success */
     bool has_result_message;
-    char result_message[194];
-    bool is_complete;
-    uint32_t transfer_id; /* Transfer ID */
-    uint32_t retry_offset; /* file offset where error occurred */
+    char result_message[194]; /* /< Provides more information if an error occurs. */
+    bool is_complete; /* /< Set to true when all data has been trasnferred. */
+    uint32_t transfer_id; /* /< Unchanged during the continuued transfer. */
+    uint32_t retry_offset; /* /< If there is an error, this gives the offset at which a new transfer should start with good data. */
 } cr_FileTransferDataNotification;
 
 typedef struct _cr_FileEraseRequest {
-    uint32_t file_id; /* File ID */
+    uint32_t file_id; /* /< File ID to be erased */
 } cr_FileEraseRequest;
 
 typedef struct _cr_FileEraseResponse {
-    uint32_t file_id; /* File ID */
-    int32_t result; /* err~ */
+    uint32_t file_id; /* /< File ID that has been erased */
+    int32_t result; /* /< 0 on success */
     bool has_result_message;
-    char result_message[194];
+    char result_message[194]; /* /< Provides more information if an error occurs. */
 } cr_FileEraseResponse;
 
 /* ------------------------------------------------------
@@ -1028,7 +1022,7 @@ extern "C" {
 #define cr_PingRequest_init_default              {{0, {0}}}
 #define cr_PingResponse_init_default             {{0, {0}}, 0}
 #define cr_DeviceInfoRequest_init_default        {false, "", ""}
-#define cr_DeviceInfoResponse_init_default       {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
+#define cr_DeviceInfoResponse_init_default       {"", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_default     {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_default    {0, {cr_ParameterInfo_init_default, cr_ParameterInfo_init_default}}
 #define cr_Uint32ParameterInfo_init_default      {false, 0, false, 0, false, 0, false, ""}
@@ -1061,7 +1055,7 @@ extern "C" {
 #define cr_DiscoverFilesResponse_init_default    {0, {cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default, cr_FileInfo_init_default}}
 #define cr_FileInfo_init_default                 {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, false, 0}
 #define cr_FileTransferRequest_init_default      {0, 0, 0, 0, 0, 0, false, 0, 0}
-#define cr_FileTransferResponse_init_default     {0, 0, 0, 0, false, ""}
+#define cr_FileTransferResponse_init_default     {0, 0, 0, false, "", 0}
 #define cr_FileTransferData_init_default         {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_default {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_default         {0}
@@ -1096,7 +1090,7 @@ extern "C" {
 #define cr_PingRequest_init_zero                 {{0, {0}}}
 #define cr_PingResponse_init_zero                {{0, {0}}, 0}
 #define cr_DeviceInfoRequest_init_zero           {false, "", ""}
-#define cr_DeviceInfoResponse_init_zero          {0, "", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
+#define cr_DeviceInfoResponse_init_zero          {"", "", "", "", "", 0, 0, false, {0, {0}}, 0, {0, {0}}}
 #define cr_ParameterInfoRequest_init_zero        {0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 #define cr_ParameterInfoResponse_init_zero       {0, {cr_ParameterInfo_init_zero, cr_ParameterInfo_init_zero}}
 #define cr_Uint32ParameterInfo_init_zero         {false, 0, false, 0, false, 0, false, ""}
@@ -1129,7 +1123,7 @@ extern "C" {
 #define cr_DiscoverFilesResponse_init_zero       {0, {cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero, cr_FileInfo_init_zero}}
 #define cr_FileInfo_init_zero                    {0, "", _cr_AccessLevel_MIN, 0, _cr_StorageLocation_MIN, 0, false, 0}
 #define cr_FileTransferRequest_init_zero         {0, 0, 0, 0, 0, 0, false, 0, 0}
-#define cr_FileTransferResponse_init_zero        {0, 0, 0, 0, false, ""}
+#define cr_FileTransferResponse_init_zero        {0, 0, 0, false, "", 0}
 #define cr_FileTransferData_init_zero            {0, 0, 0, {0, {0}}, false, 0}
 #define cr_FileTransferDataNotification_init_zero {0, false, "", 0, 0, 0}
 #define cr_FileEraseRequest_init_zero            {0}
@@ -1179,7 +1173,6 @@ extern "C" {
 #define cr_PingResponse_signal_strength_tag      2
 #define cr_DeviceInfoRequest_challenge_key_tag   1
 #define cr_DeviceInfoRequest_client_protocol_version_tag 2
-#define cr_DeviceInfoResponse_protocol_version_tag 1
 #define cr_DeviceInfoResponse_device_name_tag    2
 #define cr_DeviceInfoResponse_manufacturer_tag   3
 #define cr_DeviceInfoResponse_device_description_tag 4
@@ -1304,8 +1297,8 @@ extern "C" {
 #define cr_FileTransferResponse_result_tag       1
 #define cr_FileTransferResponse_transfer_id_tag  2
 #define cr_FileTransferResponse_ack_rate_tag     3
-#define cr_FileTransferResponse_transfer_length_tag 4
-#define cr_FileTransferResponse_result_message_tag 5
+#define cr_FileTransferResponse_result_message_tag 4
+#define cr_FileTransferResponse_transfer_length_tag 5
 #define cr_FileTransferData_result_tag           1
 #define cr_FileTransferData_transfer_id_tag      2
 #define cr_FileTransferData_message_number_tag   3
@@ -1436,7 +1429,6 @@ X(a, STATIC,   SINGULAR, STRING,   client_protocol_version,   2)
 #define cr_DeviceInfoRequest_DEFAULT NULL
 
 #define cr_DeviceInfoResponse_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    protocol_version,   1) \
 X(a, STATIC,   SINGULAR, STRING,   device_name,       2) \
 X(a, STATIC,   SINGULAR, STRING,   manufacturer,      3) \
 X(a, STATIC,   SINGULAR, STRING,   device_description,   4) \
@@ -1713,8 +1705,8 @@ X(a, STATIC,   SINGULAR, BOOL,     require_checksum,   9)
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   SINGULAR, UINT32,   transfer_id,       2) \
 X(a, STATIC,   SINGULAR, UINT32,   ack_rate,          3) \
-X(a, STATIC,   SINGULAR, UINT32,   transfer_length,   4) \
-X(a, STATIC,   OPTIONAL, STRING,   result_message,    5)
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    4) \
+X(a, STATIC,   SINGULAR, UINT32,   transfer_length,   5)
 #define cr_FileTransferResponse_CALLBACK NULL
 #define cr_FileTransferResponse_DEFAULT NULL
 
@@ -2060,7 +2052,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_CommandInfo_size                      86
 #define cr_ConnectionDescription_size            48
 #define cr_DeviceInfoRequest_size                50
-#define cr_DeviceInfoResponse_size               199
+#define cr_DeviceInfoResponse_size               188
 #define cr_DiscoverCommandsResponse_size         176
 #define cr_DiscoverCommands_size                 0
 #define cr_DiscoverFilesResponse_size            224

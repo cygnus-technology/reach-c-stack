@@ -59,6 +59,8 @@
         void message_util_log_transfer_data_response(const cr_FileTransferData *);
         void message_util_log_transfer_data_notification(bool is_request,
                 const cr_FileTransferDataNotification *);
+        void message_util_log_file_erase_response(cr_FileEraseResponse *data);
+        void message_util_log_file_erase_request(cr_FileEraseRequest *data);
     #endif // def INCLUDE_FILE_SERVICE
 
     #ifdef INCLUDE_STREAM_SERVICE

@@ -207,6 +207,13 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
                       (cr_FileTransferDataNotification *)data);
       }
       break;
+    case cr_ReachMessageTypes_ERASE_FILE:
+        status =
+            pb_decode(&is_stream, cr_FileEraseRequest_fields, data);
+        if (status) {
+            message_util_log_file_erase_request((cr_FileEraseRequest *)data);
+        }
+        break;
 #endif // def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_STREAM_SERVICE

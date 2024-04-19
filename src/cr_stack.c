@@ -1037,6 +1037,14 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
             encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
     }
+    case cr_ReachMessageTypes_ERASE_FILE:
+        I3_LOG(LOG_MASK_REACH, "%s(): Delete file.", __FUNCTION__);
+        rval = pvtCrFile_erase_file((cr_FileEraseRequest *)sCr_decoded_prompt_buffer,
+                                (cr_FileEraseResponse *)sCr_uncoded_response_buffer);
+        if (rval == cr_ErrorCodes_NO_ERROR)
+            encode_message_type = cr_ReachMessageTypes_ERASE_FILE;
+        break;
+
   #endif // def INCLUDE_FILE_SERVICE
 
   #ifdef INCLUDE_STREAM_SERVICE
@@ -1219,7 +1227,7 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     sClientProtocolVersion[1] = 0xFF & minor;
     sClientProtocolVersion[2] = 0xFF & patch;
 
-    response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
+    // response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
     snprintf(response->protocol_version_string, CR_STACK_VERSION_LEN, cr_get_proto_version());
     sCr_populate_device_info_sizes(response);
     return 0;
@@ -1655,6 +1663,14 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
         *encode_size = os_stream.bytes_written;
         message_util_log_transfer_data_notification(false,
                       (cr_FileTransferDataNotification *)data);
+      }
+      break;
+  case cr_ReachMessageTypes_ERASE_FILE:
+      status =
+          pb_encode(&os_stream, cr_FileEraseResponse_fields, data);
+      if (status) {
+        *encode_size = os_stream.bytes_written;
+        message_util_log_file_erase_response((cr_FileEraseResponse *)data);
       }
       break;
 #endif // def INCLUDE_FILE_SERVICE

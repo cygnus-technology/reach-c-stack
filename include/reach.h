@@ -227,14 +227,14 @@ typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
 ---------------------------- */
 typedef struct _cr_AhsokaMessageHeader {
     /** This ID defines the Type of Message being carried in the Envelope / Header */
-    int32_t transport_id;
+    int32_t message_type;
     /** This ID defines a unique Message / Response used when out of order messages are needed */
-    int32_t client_message_id;
+    int32_t transaction_id;
     /** Unique ID for a Client used in Services that support Multiple Clients 
        OpenPV would use a GUID but Reach uses a 4 byte integer */
     cr_AhsokaMessageHeader_client_id_t client_id;
     /** The size of the message payload (in packets) that follows this header */
-    int32_t message_size;
+    int32_t remaining_objects;
     /** Routing for Non-Endpoint Style Transports. 
        Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports */
     uint32_t endpoint_id;

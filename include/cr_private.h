@@ -91,6 +91,9 @@ extern "C" {
     /// Private function for file transfer data notification
     int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *request,
                                              cr_FileTransferData *dataTransfer);
+    /// Private function for file erase
+    int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
+                             cr_FileEraseResponse *response);
 
     /// <summary>
     /// The file service includes a timeout Watchdog. 

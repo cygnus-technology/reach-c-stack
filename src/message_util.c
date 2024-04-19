@@ -203,6 +203,8 @@ const char *msg_type_string(int32_t message_type) {
     return "Transfer Data";
   case cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION:
     return "Transfer Data Notification";
+  case cr_ReachMessageTypes_ERASE_FILE:
+    return "Erase File";
   case cr_ReachMessageTypes_DISCOVER_COMMANDS:
     return "Discover Commands";
   case cr_ReachMessageTypes_SEND_COMMAND:
@@ -275,7 +277,7 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
   i3_log(LOG_MASK_REACH, "  Discover Files Response:");
   for (int i=0; i < response->file_infos_count; i++)
   {
-    i3_log(LOG_MASK_REACH, "    [id                  : %d", response->file_infos[i].file_id);
+    i3_log(LOG_MASK_REACH, "    [file_id             : %d", response->file_infos[i].file_id);
     i3_log(LOG_MASK_REACH, "     name                : %s", response->file_infos[i].file_name);
     i3_log(LOG_MASK_REACH, "     access              : 0x%x", response->file_infos[i].access);
     i3_log(LOG_MASK_REACH, "     current byte length : %d", response->file_infos[i].current_size_bytes);
@@ -288,7 +290,7 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
 void message_util_log_file_transfer_request(const cr_FileTransferRequest *request)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Request:");
-  i3_log(LOG_MASK_REACH, "    id                 : %d", request->file_id);
+  i3_log(LOG_MASK_REACH, "    file_id            : %d", request->file_id);
   i3_log(LOG_MASK_REACH, "    read_write         : %d", request->read_write);
   i3_log(LOG_MASK_REACH, "    request offset     : %d", request->request_offset);
   i3_log(LOG_MASK_REACH, "    transfer length    : %d", request->transfer_length);
@@ -344,6 +346,24 @@ message_util_log_transfer_data_response(const cr_FileTransferData *request)
   i3_log(LOG_MASK_REACH, "    No CRC\r\n");
 } 
 */ 
+
+void message_util_log_file_erase_request(cr_FileEraseRequest *request)
+{
+  i3_log(LOG_MASK_REACH, "  File Erase Request:");
+  i3_log(LOG_MASK_REACH, "    file_id           : %d\r\n", request->file_id);
+}
+
+void message_util_log_file_erase_response(cr_FileEraseResponse *response)
+{
+  i3_log(LOG_MASK_REACH, "  File Erase Response:");
+  i3_log(LOG_MASK_REACH, "    file_id           : %d", response->file_id);
+  i3_log(LOG_MASK_REACH, "    result            : %d", response->result);
+  if (response->has_result_message) {            
+    i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
+  }
+  i3_log(LOG_MASK_REACH, "\r\n");
+}
+
 
 void message_util_log_transfer_data_notification(bool is_request,
     const cr_FileTransferDataNotification *request)
@@ -761,6 +781,9 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_transfer_data_response(const cr_FileTransferData *){}
         void message_util_log_transfer_data_notification(bool is_request,
                 const cr_FileTransferDataNotification *){}
+        void message_util_log_file_erase_response(cr_FileEraseResponse *data){};
+        void message_util_log_file_erase_request(cr_FileEraseRequest *data){};
+
     #endif // def INCLUDE_FILE_SERVICE
 
     #ifdef INCLUDE_STREAM_SERVICE

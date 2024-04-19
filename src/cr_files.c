@@ -689,6 +689,18 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     return 0;
 }
 
+int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
+                            cr_FileEraseResponse *response)
+{
+    I3_LOG(LOG_MASK_ALWAYS, "Erase file %d.", request->file_id);
+    response->file_id = request->file_id;
+    response->result  = crcb_erase_file(request->file_id);
+    response->has_result_message = false;
+    response->result_message[0] = 0;
+    return 0;
+}
+
+
 // 
 // Timeout Watchdog interface
 // This is used in the file write sequences.
