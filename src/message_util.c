@@ -122,8 +122,8 @@ static void sLogParameterValue(const cr_ParameterValue *param)
   case cr_ParameterValue_uint32_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   uint32: %u", param->parameter_id, param->value.uint32_value);
     break;
-  case cr_ParameterValue_sint32_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   sint32: %d", param->parameter_id, param->value.sint32_value);
+  case cr_ParameterValue_int32_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   sint32: %d", param->parameter_id, param->value.int32_value);
       break;
   case cr_ParameterValue_float32_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   float32: %.2f", param->parameter_id, param->value.float32_value);
@@ -131,8 +131,8 @@ static void sLogParameterValue(const cr_ParameterValue *param)
   case cr_ParameterValue_uint64_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   uint64: %llu", param->parameter_id, param->value.uint64_value);
       break;
-  case cr_ParameterValue_sint64_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   sint64: %lld", param->parameter_id, param->value.sint64_value);
+  case cr_ParameterValue_int64_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   sint64: %lld", param->parameter_id, param->value.int64_value);
       break;
   case cr_ParameterValue_float64_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   float64: %.3llf", param->parameter_id, param->value.float64_value);

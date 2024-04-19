@@ -11,16 +11,19 @@
 #endif
 
 /* Enum definitions */
+/* / The major version generally changes to signal a break in compatibility */
 typedef enum _cr_ReachProto_MAJOR_Version {
     /* MAJOR_V0       = 0;   // Must have a zero */
     cr_ReachProto_MAJOR_Version_MAJOR_VERSION = 0
 } cr_ReachProto_MAJOR_Version;
 
+/* / The minor version changes at a release which is not completely compatible */
 typedef enum _cr_ReachProto_MINOR_Version {
     cr_ReachProto_MINOR_Version_MINOR_V0 = 0, /* /< Must have a zero */
     cr_ReachProto_MINOR_Version_MINOR_VERSION = 2 /* /< Update at a release or a big change */
 } cr_ReachProto_MINOR_Version;
 
+/* / The patch version changes every time a hex file goes out the door. */
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /* /< Must have a zero */
     cr_ReachProto_PATCH_Version_PATCH_VERSION = 2 /* /< Update when something changes */
@@ -86,7 +89,8 @@ typedef enum _cr_EndpointIds {
     cr_EndpointIds_FOUR = 8 /* /< This is the fourth of multiple endpoints. */
 } cr_EndpointIds;
 
-typedef enum _cr_ParameterDataType { /* /< These are the types of data that can be stored as parameters. */
+/* / These are the types of data that can be stored as parameters. */
+typedef enum _cr_ParameterDataType {
     cr_ParameterDataType_UINT32 = 0, /* /< Unsigned 32 bit integer. */
     cr_ParameterDataType_INT32 = 1, /* /< Signed 32 bit integer. */
     cr_ParameterDataType_FLOAT32 = 2, /* /< 32 bit floating point. */
@@ -100,14 +104,16 @@ typedef enum _cr_ParameterDataType { /* /< These are the types of data that can 
     cr_ParameterDataType_BYTE_ARRAY = 10 /* /< An array of bytes. */
 } cr_ParameterDataType;
 
-typedef enum _cr_AccessLevel { /* /< permission. */
+/* / permissions */
+typedef enum _cr_AccessLevel {
     cr_AccessLevel_NO_ACCESS = 0, /* /< No permission */
     cr_AccessLevel_READ = 1, /* /< Read permission */
     cr_AccessLevel_WRITE = 2, /* /< Write permission */
     cr_AccessLevel_READ_WRITE = 3 /* /< Read and write permission */
 } cr_AccessLevel;
 
-typedef enum _cr_StorageLocation { /* /< The types of memory in which parameters are stored.  RAM and NVM (Non Volatile Memory) are most common. */
+/* / The types of memory in which parameters are stored.  RAM and NVM (Non Volatile Memory) are most common. */
+typedef enum _cr_StorageLocation {
     cr_StorageLocation_STORAGE_LOCATION_INVALID = 0, /* /< unknown, not used */
     cr_StorageLocation_RAM = 1, /* /< RAM, volatile, not saved on reboot. */
     cr_StorageLocation_NONVOLATILE = 2, /* /< Flash or some other method saved over reboot */
@@ -115,7 +121,8 @@ typedef enum _cr_StorageLocation { /* /< The types of memory in which parameters
     cr_StorageLocation_NONVOLATILE_EXTENDED = 4 /* /< In case a device has two non volatile locations */
 } cr_StorageLocation;
 
-typedef enum _cr_WiFiSecurity { /* < WiFi security type */
+/* / WiFi security type */
+typedef enum _cr_WiFiSecurity {
     cr_WiFiSecurity_OPEN = 0, /* /< No security */
     cr_WiFiSecurity_WEP = 1, /* /< WEP */
     cr_WiFiSecurity_WPA = 2, /* /< WPA */
@@ -123,13 +130,15 @@ typedef enum _cr_WiFiSecurity { /* < WiFi security type */
     cr_WiFiSecurity_WPA3 = 4 /* /< WPA3 */
 } cr_WiFiSecurity;
 
-typedef enum _cr_WiFiBand { /* /< WiFi Band */
+/* / WiFi Band */
+typedef enum _cr_WiFiBand {
     cr_WiFiBand_NO_BAND = 0, /* /< Not specified */
     cr_WiFiBand_BAND_2 = 2, /* /< 2.4GHz */
     cr_WiFiBand_BAND_5 = 5 /* /< 5GHz */
 } cr_WiFiBand;
 
-typedef enum _cr_ErrorCodes { /* /< Reach uses these error codes. */
+/* / Reach uses these error codes. */
+typedef enum _cr_ErrorCodes {
     cr_ErrorCodes_NO_ERROR = 0, /* /< Normal conclusion, no problem. */
     cr_ErrorCodes_NO_DATA = 1, /* /< No data was produced */
     cr_ErrorCodes_READ_FAILED = 2, /* /< The read failed. */
@@ -154,7 +163,8 @@ typedef enum _cr_ErrorCodes { /* /< Reach uses these error codes. */
     cr_ErrorCodes_ABORT = 1000 /* /< Operation cancellation */
 } cr_ErrorCodes;
 
-typedef enum _cr_FileTransferState { /* /< Describes file transfer state machine */
+/* / Describes file transfer state machine */
+typedef enum _cr_FileTransferState {
     cr_FileTransferState_FILE_TRANSFER_INVALID = 0, /* /< FILE_TRANSFER_INVALID */
     cr_FileTransferState_IDLE = 1, /* /< IDLE */
     cr_FileTransferState_INIT = 2, /* /< INIT */
@@ -162,6 +172,7 @@ typedef enum _cr_FileTransferState { /* /< Describes file transfer state machine
     cr_FileTransferState_COMPLETE = 4 /* /< COMPLETE */
 } cr_FileTransferState;
 
+/* / This describes the offset of each member of the BufferSizes message when packed for transmission */
 typedef enum _cr_SizesOffsets {
     cr_SizesOffsets_MAX_MESSAGE_SIZE_OFFSET = 0, /* /< uint16_t, little endian */
     cr_SizesOffsets_BIG_DATA_BUFFER_SIZE_OFFSET = 2, /* /< uint16_t, little endian */
@@ -192,7 +203,8 @@ typedef struct _cr_ReachMessageHeader {
 } cr_ReachMessageHeader;
 
 typedef PB_BYTES_ARRAY_T(208) cr_ReachMessage_payload_t;
-typedef struct _cr_ReachMessage { /* /< A reach packet includes a header and a payload. */
+/* / A reach packet includes a header and a payload. */
+typedef struct _cr_ReachMessage {
     bool has_header;
     cr_ReachMessageHeader header; /* /< A routing header */
     cr_ReachMessage_payload_t payload; /* /< The encoded payload */
@@ -224,8 +236,8 @@ typedef struct _cr_AhsokaMessageHeader {
     /* Routing for Non-Endpoint Style Transports. 
  Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports */
     uint32_t endpoint_id;
-    /* Not used or supported in Reach.  
- In OpenPV, indicates that the message has used deflate compression in addition to pbuff encoding */
+    /* / Not used or supported in Reach.  
+/ In OpenPV, indicates that the message has used deflate compression in addition to pbuff encoding */
     bool is_message_compressed;
 } cr_AhsokaMessageHeader;
 
@@ -236,20 +248,20 @@ typedef struct _cr_ErrorReport {
 } cr_ErrorReport;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
-/* Request Object used to Echo Data for testing the Device Communication */
+/* / Request Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingRequest {
     cr_PingRequest_echo_data_t echo_data; /* /< Data which should be echoed in the response */
 } cr_PingRequest;
 
 typedef PB_BYTES_ARRAY_T(194) cr_PingResponse_echo_data_t;
-/* Response Object used to Echo Data for testing the Device Communication */
+/* / Response Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingResponse {
     cr_PingResponse_echo_data_t echo_data; /* /< The same data sent in the request */
     int32_t signal_strength; /* /< rssi : The server's received signal strength expressed in dB. */
 } cr_PingResponse;
 
-/* Required Device Information Service
- Reach sessions are opened with the device info request and response. */
+/* / Required Device Information Service
+/ Reach sessions are opened with the device info request and response. */
 typedef struct _cr_DeviceInfoRequest {
     bool has_challenge_key;
     char challenge_key[32]; /* /< The request can include a challenge key to grant or deny access to parts of the system. */
@@ -258,6 +270,7 @@ typedef struct _cr_DeviceInfoRequest {
 
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_sizes_struct_t;
+/* / This message is returned in answer to the first "who are you" query from the client. */
 typedef struct _cr_DeviceInfoResponse {
     char device_name[24]; /* /< Human readable name of the device */
     char manufacturer[24]; /* /< Human readable name of the manufacturer */
@@ -265,7 +278,7 @@ typedef struct _cr_DeviceInfoResponse {
     /* / Each endpoint advertises a "main" FW version.
 / If there are other FW versions, put them in the parameter repo. */
     char firmware_version[16];
-    char protocol_version_string[16]; /* < The protocol version as a string against which this device is built. */
+    char protocol_version_string[16]; /* /< The protocol version as a string against which this device is built. */
     uint32_t services; /* /< A bit mask, allowing support for up to 32 services */
     uint32_t parameter_metadata_hash; /* /< Used to avoid reloading the parameter descriptions */
     bool has_application_identifier;
@@ -449,7 +462,7 @@ typedef struct _cr_ParamExKey {
     char name[16]; /* /< the name of the enum/bit/state */
 } cr_ParamExKey;
 
-/* Describes enum, bitfield, and boolean labels */
+/* / Describes enum, bitfield, and boolean labels */
 typedef struct _cr_ParamExInfoResponse {
     cr_ParameterDataType data_type; /* /< The type of data being described. */
     pb_size_t keys_count;
@@ -457,14 +470,13 @@ typedef struct _cr_ParamExInfoResponse {
     uint32_t pei_id; /* /< An ID by which this Parameter Extended Information is retrieved. */
 } cr_ParamExInfoResponse;
 
-/* / 
-/ Parameter Reads
-/ */
-typedef struct _cr_ParameterRead { /* /< A structure used to read one or more parameters */
+/* / A structure used to read one or more parameters */
+typedef struct _cr_ParameterRead {
     pb_size_t parameter_ids_count;
     uint32_t parameter_ids[32]; /* /< An array of parameters to be read, or empty to Retrieve All */
 } cr_ParameterRead;
 
+/* / The response to a parameter write */
 typedef struct _cr_ParameterWriteResponse {
     int32_t result; /* /< A result of zero indicates OK */
     bool has_result_message;
@@ -474,50 +486,56 @@ typedef struct _cr_ParameterWriteResponse {
 /* / Parameter Notification configuration
 / Notification can be enabled with conditions for each parameter. */
 typedef struct _cr_ParameterNotifyConfig {
-    uint32_t parameter_id; /* /> Which param to configure */
-    uint32_t minimum_notification_period; /* /> min_ms: Minimum Notification Interval (ms) */
-    uint32_t maximum_notification_period; /* /> max_ms: Minimum Notification Interval (ms) */
-    float minimum_delta; /* /> notify only if change by this much */
+    uint32_t parameter_id; /* /< Which param to configure */
+    uint32_t minimum_notification_period; /* /< min_ms: Minimum Notification Interval (ms) */
+    uint32_t maximum_notification_period; /* /< max_ms: Minimum Notification Interval (ms) */
+    float minimum_delta; /* /< notify only if change by this much */
 } cr_ParameterNotifyConfig;
 
-typedef struct _cr_ParameterEnableNotifications { /* /< A message used to enable notifications */
+/* / A message used to enable notifications */
+typedef struct _cr_ParameterEnableNotifications {
     pb_size_t configs_count;
     cr_ParameterNotifyConfig configs[8]; /* /< An array of descriptions of notifications */
     bool disable_all_first; /* /< If true, all notifications are disabled before applying the new request. */
 } cr_ParameterEnableNotifications;
 
-typedef struct _cr_ParameterDisableNotifications { /* /< A message used to disable notifications */
+/* / A message used to disable notifications */
+typedef struct _cr_ParameterDisableNotifications {
     pb_size_t parameter_ids_count;
     uint32_t parameter_ids[32]; /* /< An array of parameter ID's to be disabled. */
 } cr_ParameterDisableNotifications;
 
+/* / The response to enable and disable notifications */
 typedef struct _cr_ParameterNotifyConfigResponse {
     int32_t result; /* /< A result of zero indicates OK */
     bool has_result_message;
     char result_message[194]; /* /< Allows to provide a human readable explanation in case of an error. */
 } cr_ParameterNotifyConfigResponse;
 
-typedef struct _cr_DiscoverParameterNotifications { /* /< The client can discover how notifications are setup. */
+/* / The client can discover how notifications are setup. */
+typedef struct _cr_DiscoverParameterNotifications {
     pb_size_t parameter_ids_count;
     uint32_t parameter_ids[32]; /* /< An array of parameter ID's to be queried for notification.  Leave Empty to Retrieve All */
 } cr_DiscoverParameterNotifications;
 
-typedef struct _cr_DiscoverParameterNotificationsResponse { /* /< Reports which notifications are enabled. */
+/* / Reports which notifications are enabled. */
+typedef struct _cr_DiscoverParameterNotificationsResponse {
     pb_size_t configs_count;
     cr_ParameterNotifyConfig configs[8]; /* /< An array of parameter notification configurations containing information only on parameters that have notifications enabled. */
 } cr_DiscoverParameterNotificationsResponse;
 
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
-typedef struct _cr_ParameterValue { /* /> A message used to send or receive a single parameter value. */
+/* / A message used to send or receive a single parameter value. */
+typedef struct _cr_ParameterValue {
     uint32_t parameter_id; /* /< The integer ID of this parameter. */
     uint32_t timestamp; /* /< The time at which this was last read or written.  Used for notifications. */
     pb_size_t which_value;
     union {
         uint32_t uint32_value; /* /< Unsigned 32 bit integer. */
-        int32_t sint32_value; /* /< Signed 32 bit integer. */
+        int32_t int32_value; /* /< Signed 32 bit integer. */
         float float32_value; /* /< 32 bit floating point. */
         uint64_t uint64_value; /* /< Unsigned 64 bit integer. */
-        int64_t sint64_value; /* /< Signed 64 bit integer. */
+        int64_t int64_value; /* /< Signed 64 bit integer. */
         double float64_value; /* /< 64 bit floating point. */
         bool bool_value; /* /< boolean (0 or 1) */
         char string_value[32]; /* /< ASCII or UTF-8. Null Terminated. */
@@ -527,26 +545,30 @@ typedef struct _cr_ParameterValue { /* /> A message used to send or receive a si
     } value;
 } cr_ParameterValue;
 
-typedef struct _cr_ParameterReadResponse { /* /< A structure used to return the values read from one or more parameters */
+/* / A structure used to return the values read from one or more parameters */
+typedef struct _cr_ParameterReadResponse {
     pb_size_t values_count;
     cr_ParameterValue values[4]; /* /< An array of Result Values */
 } cr_ParameterReadResponse;
 
-/* Parameter Writes */
+/* / A structure used to write one or more Parameters */
 typedef struct _cr_ParameterWrite {
     pb_size_t values_count;
     cr_ParameterValue values[4]; /* /< An array of Write Values */
 } cr_ParameterWrite;
 
-typedef struct _cr_ParameterNotification { /* /< A message of this type is sent by the server when parameters change. */
+/* / A message of this type is sent by the server when parameters change. */
+typedef struct _cr_ParameterNotification {
     pb_size_t values_count;
     cr_ParameterValue values[4]; /* /< An array of parameter values containing those that changed. */
 } cr_ParameterNotification;
 
+/* / The optional file service provides a method of efficiently transfering large blocks of data. */
 typedef struct _cr_DiscoverFiles {
     char dummy_field;
 } cr_DiscoverFiles;
 
+/* / A structure describing a file */
 typedef struct _cr_FileInfo {
     uint32_t file_id; /* /< ID by which this file is referenced */
     char file_name[24]; /* /< Human readable file name */
@@ -558,12 +580,14 @@ typedef struct _cr_FileInfo {
     uint32_t maximum_size_bytes; /* /< Determined by storage space */
 } cr_FileInfo;
 
-typedef struct _cr_DiscoverFilesResponse { /* /< The response to discover files */
+/* / The response to discover files */
+typedef struct _cr_DiscoverFilesResponse {
     pb_size_t file_infos_count;
     cr_FileInfo file_infos[4]; /* /< An array of File Info structures */
 } cr_DiscoverFilesResponse;
 
-typedef struct _cr_FileTransferRequest { /* /< Begins a File Transfer (Upload / Download) */
+/* / Begins a File Transfer (Upload / Download) */
+typedef struct _cr_FileTransferRequest {
     uint32_t file_id; /* /< ID by which this file is referenced */
     uint32_t read_write; /* /< 0 for read, 1 for write. */
     uint32_t request_offset; /* /< where to access in the file, in bytes */
@@ -575,7 +599,8 @@ typedef struct _cr_FileTransferRequest { /* /< Begins a File Transfer (Upload / 
     bool require_checksum; /* /< set true to enable checksum generation and validation. */
 } cr_FileTransferRequest;
 
-typedef struct _cr_FileTransferResponse { /* /< The response to a file transfer request */
+/* / The response to a file transfer request */
+typedef struct _cr_FileTransferResponse {
     int32_t result; /* /< 0 if OK */
     uint32_t transfer_id; /* /< Echos the request. */
     uint32_t ack_rate; /* /< confirms or overrides request */
@@ -585,8 +610,8 @@ typedef struct _cr_FileTransferResponse { /* /< The response to a file transfer 
 } cr_FileTransferResponse;
 
 typedef PB_BYTES_ARRAY_T(194) cr_FileTransferData_message_data_t;
-/* Bi-Directional Message */
-typedef struct _cr_FileTransferData { /* /< Descibes a packet of file data */
+/* / A bidirectional message describing a packet of file data */
+typedef struct _cr_FileTransferData {
     int32_t result; /* /< non-zero for error */
     uint32_t transfer_id; /* /< Unchanged during the continuued transfer. */
     uint32_t message_number; /* /< counts up from 1 in the first transfer */
@@ -595,7 +620,8 @@ typedef struct _cr_FileTransferData { /* /< Descibes a packet of file data */
     int32_t checksum; /* /< Optional RFC 1071 checksum for integrity checking */
 } cr_FileTransferData;
 
-typedef struct _cr_FileTransferDataNotification { /* /< The response to a file transfer */
+/* / The response to a file transfer */
+typedef struct _cr_FileTransferDataNotification {
     int32_t result; /* /< 0 for success */
     bool has_result_message;
     char result_message[194]; /* /< Provides more information if an error occurs. */
@@ -604,50 +630,59 @@ typedef struct _cr_FileTransferDataNotification { /* /< The response to a file t
     uint32_t retry_offset; /* /< If there is an error, this gives the offset at which a new transfer should start with good data. */
 } cr_FileTransferDataNotification;
 
-typedef struct _cr_FileEraseRequest { /* /< A request to erase (set size to zero) a file. */
+/* / A request to erase (set size to zero) a file. */
+typedef struct _cr_FileEraseRequest {
     uint32_t file_id; /* /< File ID to be erased */
 } cr_FileEraseRequest;
 
-typedef struct _cr_FileEraseResponse { /* /< The response to a file erase request */
+/* / The response to a file erase request */
+typedef struct _cr_FileEraseResponse {
     uint32_t file_id; /* /< File ID that has been erased */
     int32_t result; /* /< 0 on success */
     bool has_result_message;
     char result_message[194]; /* /< Provides more information if an error occurs. */
 } cr_FileEraseResponse;
 
+/* / A request to list the streams supported by the device */
 typedef struct _cr_DiscoverStreams {
     char dummy_field;
 } cr_DiscoverStreams;
 
-typedef struct _cr_StreamInfo { /* /< A structure describing a stream */
+/* / A structure describing a stream */
+typedef struct _cr_StreamInfo {
     int32_t stream_id; /* /< The ID by which this stream is addressed. */
     cr_AccessLevel access; /* /< Access Level for Stream  (Read / Write). */
     char name[24]; /* /< A human readable name for this stream. */
 } cr_StreamInfo;
 
-typedef struct _cr_DiscoverStreamsResponse { /* /< The response to DiscoverStreams */
+/* / The response to DiscoverStreams */
+typedef struct _cr_DiscoverStreamsResponse {
     pb_size_t streams_count;
     cr_StreamInfo streams[4]; /* /< An array containing descriptions of the supported streams */
 } cr_DiscoverStreamsResponse;
 
-typedef struct _cr_StreamOpen { /* /< A structure requesting to open a stream */
+/* / A structure requesting to open a stream */
+typedef struct _cr_StreamOpen {
     int32_t stream_id; /* /< The ID by which this stream is addressed. */
     cr_AccessLevel access; /* /< Read or write access */
 } cr_StreamOpen;
 
-typedef struct _cr_StreamOpenResponse { /* /< The response to a StreamOpen request */
+/* / The response to a StreamOpen request */
+typedef struct _cr_StreamOpenResponse {
     int32_t stream_id; /* /< The ID by which this stream is addressed. */
     int32_t result; /* /< A result of zero indicates OK */
     bool has_result_message;
     char result_message[194]; /* /< Allows to provide a human readable explanation in case of an error. */
 } cr_StreamOpenResponse;
 
-typedef struct _cr_StreamClose { /* /< A structure requesting to close a stream */
+/* / A structure requesting to close a stream */
+typedef struct _cr_StreamClose {
     int32_t stream_id; /* /< The ID by which this stream is addressed. */
 } cr_StreamClose;
 
 typedef PB_BYTES_ARRAY_T(194) cr_StreamData_message_data_t;
-typedef struct _cr_StreamData { /* /< Bi-Directional message used to asynchronously send stream data to the other side. */
+/* / Bi-Directional message used to asynchronously send stream data to the other side. */
+typedef struct _cr_StreamData {
     int32_t stream_id; /* /< The ID by which this stream is addressed. */
     uint32_t roll_count; /* /< Message Number.  Increases with each send.  As stream transmission may be less relaible, allows for continuity checking. */
     cr_StreamData_message_data_t message_data; /* /< An array of bytes representing the streami data. */
@@ -660,7 +695,8 @@ typedef struct _cr_DiscoverCommands {
     char dummy_field;
 } cr_DiscoverCommands;
 
-typedef struct _cr_CommandInfo { /* /< The description of a command. */
+/* / The description of a command. */
+typedef struct _cr_CommandInfo {
     uint32_t id; /* /< The id by which the command is dispatched */
     char name[24]; /* /< Human readable descriptive name */
     bool has_description;
@@ -669,16 +705,19 @@ typedef struct _cr_CommandInfo { /* /< The description of a command. */
     uint32_t timeout; /* /< Optional command timeout, in milliseconds, to account for slow commands. */
 } cr_CommandInfo;
 
-typedef struct _cr_DiscoverCommandsResponse { /* /< Response to a DiscoverCommands request. */
+/* / Response to a DiscoverCommands request. */
+typedef struct _cr_DiscoverCommandsResponse {
     pb_size_t available_commands_count;
     cr_CommandInfo available_commands[2]; /* /< An array of command descriptions. */
 } cr_DiscoverCommandsResponse;
 
+/* / Prompts the device to execute this command. */
 typedef struct _cr_SendCommand {
-    uint32_t command_id;
+    uint32_t command_id; /* /< The ID of the command to execute. */
 } cr_SendCommand;
 
-typedef struct _cr_SendCommandResponse { /* /< A response acknowledging the completion of a command. */
+/* / A response acknowledging the completion of a command. */
+typedef struct _cr_SendCommandResponse {
     int32_t result; /* /< A result of zero indicates OK */
     bool has_result_message;
     char result_message[194]; /* /< Allows to provide a human readable explanation in case of an error. */
@@ -687,32 +726,37 @@ typedef struct _cr_SendCommandResponse { /* /< A response acknowledging the comp
 /* / The optional Command Line Interface (CLI) service allows command line messages to be transfered
 / between the client and the server.  Messages can travel in both directions.  Messages are asynchronous.
 / The client can send a command line and the server can respond.
-/ The server can also asynchrously send strings representing the output of the device. */
-typedef struct _cr_CLIData { /* /< Bi-Directional CLI_DATA Message */
+/ The server can also asynchrously send strings representing the output of the device. 
+/ The CLIData message is used in both directions. */
+typedef struct _cr_CLIData {
     char message_data[194]; /* /< The command line as a null terminated string. */
 } cr_CLIData;
 
-/* The optional Time Service is designed to allow the client to 
- set and adjust the real time clock in a server device.
- The time is best specified as UTC plus timezone offset.
- Although the timezone is optional, it's best to use it. */
-typedef struct _cr_TimeSetRequest { /* /< Request setting the server device time to this value. */
+/* / The optional Time Service is designed to allow the client to 
+/ set and adjust the real time clock in a server device.
+/ The time is best specified as UTC plus timezone offset.
+/ Although the timezone is optional, it's best to use it.
+/ TimeSetRequest requests setting the server device time to this value. */
+typedef struct _cr_TimeSetRequest {
     int64_t seconds_utc; /* /< linux epoch, since 1970 */
     bool has_timezone;
     int32_t timezone; /* /< An adjustmeent in seconds to UTC time respresenting the local timezone. */
 } cr_TimeSetRequest;
 
-typedef struct _cr_TimeSetResponse { /* /< The response to the TimeSetRequest */
+/* / The response to the TimeSetRequest */
+typedef struct _cr_TimeSetResponse {
     int32_t result; /* /< A result of zero indicates OK */
     bool has_result_message;
     char result_message[194]; /* /< Allows to provide a human readable explanation in case of an error. */
 } cr_TimeSetResponse;
 
+/* / A request to read the time from the server. */
 typedef struct _cr_TimeGetRequest {
     char dummy_field;
 } cr_TimeGetRequest;
 
-typedef struct _cr_TimeGetResponse { /* /< The response to a TimeGetRequest */
+/* / The response to a TimeGetRequest */
+typedef struct _cr_TimeGetResponse {
     int32_t result; /* /< A result of zero indicates OK */
     bool has_result_message;
     char result_message[194]; /* /< Allows to provide a human readable explanation in case of an error. */
@@ -721,9 +765,10 @@ typedef struct _cr_TimeGetResponse { /* /< The response to a TimeGetRequest */
     int32_t timezone; /* /< An adjustmeent in seconds to UTC time respresenting the local timezone. */
 } cr_TimeGetResponse;
 
-/* The optional WiFi service is intended to simplify the 
- repetitive task of communicating WiFi credentials to the device. */
-typedef struct _cr_ConnectionDescription { /* /< A structure describing a WiFi connection or access point */
+/* / A structure describing a WiFi connection or access point
+/ The optional WiFi service is intended to simplify the 
+/ repetitive task of communicating WiFi credentials to the device. */
+typedef struct _cr_ConnectionDescription {
     char ssid[32]; /* /< The SSID of this connection */
     bool is_connected; /* /< true if connected */
     bool has_signal_strength;
@@ -740,16 +785,19 @@ typedef struct _cr_ScanWiFi {
     char dummy_field;
 } cr_ScanWiFi;
 
+/* / A request to provide a list access points */
 typedef struct _cr_DiscoverWiFi {
     char dummy_field;
 } cr_DiscoverWiFi;
 
-typedef struct _cr_DiscoverWiFiResponse { /* /< response to DiscoverWiFi */
+/* / response to DiscoverWiFi */
+typedef struct _cr_DiscoverWiFiResponse {
     bool scan_is_valid; /* /< true if a recent scan is complete. */
     pb_size_t cd_count;
     cr_ConnectionDescription cd[4]; /* /< An array of available access points */
 } cr_DiscoverWiFiResponse;
 
+/* / A structure describing a WiFi connection request */
 typedef struct _cr_WiFiConnectionRequest {
     pb_callback_t ssid; /* /< The SSID to be addressed */
     bool connect; /* /< connect and disconnect false to get info on this SSID */
@@ -760,6 +808,7 @@ typedef struct _cr_WiFiConnectionRequest {
     bool autoconnect; /* /< true to remember and autoconnect to this AP. */
 } cr_WiFiConnectionRequest;
 
+/* / Describes the response to a WiFi connection request */
 typedef struct _cr_WiFiConnectionResponse {
     int32_t result; /* /< A result of zero indicates OK */
     bool has_signal_strength;
@@ -1204,10 +1253,10 @@ extern "C" {
 #define cr_ParameterValue_parameter_id_tag       1
 #define cr_ParameterValue_timestamp_tag          2
 #define cr_ParameterValue_uint32_value_tag       3
-#define cr_ParameterValue_sint32_value_tag       4
+#define cr_ParameterValue_int32_value_tag        4
 #define cr_ParameterValue_float32_value_tag      5
 #define cr_ParameterValue_uint64_value_tag       6
-#define cr_ParameterValue_sint64_value_tag       7
+#define cr_ParameterValue_int64_value_tag        7
 #define cr_ParameterValue_float64_value_tag      8
 #define cr_ParameterValue_bool_value_tag         9
 #define cr_ParameterValue_string_value_tag       10
@@ -1587,10 +1636,10 @@ X(a, STATIC,   REPEATED, MESSAGE,  values,            2)
 X(a, STATIC,   SINGULAR, UINT32,   parameter_id,      1) \
 X(a, STATIC,   SINGULAR, UINT32,   timestamp,         2) \
 X(a, STATIC,   ONEOF,    UINT32,   (value,uint32_value,value.uint32_value),   3) \
-X(a, STATIC,   ONEOF,    SINT32,   (value,sint32_value,value.sint32_value),   4) \
+X(a, STATIC,   ONEOF,    SINT32,   (value,int32_value,value.int32_value),   4) \
 X(a, STATIC,   ONEOF,    FLOAT,    (value,float32_value,value.float32_value),   5) \
 X(a, STATIC,   ONEOF,    UINT64,   (value,uint64_value,value.uint64_value),   6) \
-X(a, STATIC,   ONEOF,    SINT64,   (value,sint64_value,value.sint64_value),   7) \
+X(a, STATIC,   ONEOF,    SINT64,   (value,int64_value,value.int64_value),   7) \
 X(a, STATIC,   ONEOF,    DOUBLE,   (value,float64_value,value.float64_value),   8) \
 X(a, STATIC,   ONEOF,    BOOL,     (value,bool_value,value.bool_value),   9) \
 X(a, STATIC,   ONEOF,    STRING,   (value,string_value,value.string_value),  10) \

@@ -873,7 +873,7 @@
             // I don't see how this can fail right after discover.
             crcb_parameter_discover_next(&paramInfo);
             sCr_last_param_values[i].which_value = paramInfo.which_desc - cr_ParameterInfo_uint32_desc_tag;
-            sCr_last_param_values[i].value.sint32_value = 0;
+            sCr_last_param_values[i].value.int32_value = 0;
         }
         return;
       #endif
@@ -950,8 +950,8 @@ void pvtCrParam_check_for_notifications()
             checkedDelta = true;
             break;
         }
-        case cr_ParameterValue_sint32_value_tag:
-            delta = abs(curVal.value.sint32_value - sCr_last_param_values[idx].value.sint32_value);
+        case cr_ParameterValue_int32_value_tag:
+            delta = abs(curVal.value.int32_value - sCr_last_param_values[idx].value.int32_value);
             checkedDelta = true;
             break;
         case cr_ParameterValue_float32_value_tag:
@@ -969,10 +969,10 @@ void pvtCrParam_check_for_notifications()
           checkedDelta = true;
           break;
           }
-        case cr_ParameterValue_sint64_value_tag:
+        case cr_ParameterValue_int64_value_tag:
           {
-            int64_t cur  = curVal.value.sint64_value;
-            int64_t last = sCr_last_param_values[idx].value.sint64_value;
+            int64_t cur  = curVal.value.int64_value;
+            int64_t last = sCr_last_param_values[idx].value.int64_value;
             if (cur>last)
               delta = (float)(cur-last);
             else
