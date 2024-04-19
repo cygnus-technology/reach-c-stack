@@ -726,33 +726,33 @@ static int handle_coded_prompt() // ahsoka version
     }
 
     // save the things we need out of the header.
-    sCr_transaction_id = header.client_message_id;
+    sCr_transaction_id = header.transaction_id;
     sCr_endpoint_id    = header.endpoint_id;
     memcpy(&sCr_client_id, header.client_id.bytes, header.client_id.size);
-    pvtCr_num_remaining_objects = header.message_size;
+    pvtCr_num_remaining_objects = header.remaining_objects;
 
     // The coded data begins after the header
     uint8_t *coded_data = (uint8_t *)((unsigned int)(&sCr_encoded_message_buffer)
                                       + 2 + coded_header_size);
-    uint16_t message_size = sCr_encoded_message_size - 2 - coded_header_size;
+    uint16_t remaining_objects = sCr_encoded_message_size - 2 - coded_header_size;
     uint8_t *coded_payload = (uint8_t *)&sCr_uncoded_message_structure;
-    memcpy(coded_payload, coded_data, message_size);
+    memcpy(coded_payload, coded_data, remaining_objects);
 
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
-           msg_type_string(header.transport_id));
+           msg_type_string(header.message_type));
 
     // I don't see how to get the size without decoding.
     LOG_DUMP_WIRE("handle_coded_prompt ahsoka payload: ",
-                       coded_payload, message_size);
+                       coded_payload, remaining_objects);
     I3_LOG(LOG_MASK_REACH, "Prompt Payload: size: %d, Transaction ID %d, client_id %d, endpoint_id %d.", 
-           message_size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
+           remaining_objects, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
     // The result will be fully encoded at sCr_encoded_response_buffer[]
     // in case of a non-zero return there will be an encoded error report.
     cr_ReachMessageHeader rhdr = {0};
-    rhdr.message_type = header.transport_id;
-    return handle_message(&rhdr, coded_payload, message_size);
+    rhdr.message_type = header.message_type;
+    return handle_message(&rhdr, coded_payload, remaining_objects);
 }
 
 #else // classic reach header
@@ -1860,12 +1860,12 @@ static int sCr_encode_message(cr_ReachMessageTypes message_type,   // in
 
     LOG_REACH("Encode Ahsoka message:");
     cr_AhsokaMessageHeader ahdr;
-    ahdr.transport_id          = message_type;
+    ahdr.message_type          = message_type;
     ahdr.client_id.size        = sizeof(hdr->client_id);
     memcpy(ahdr.client_id.bytes, &hdr->client_id, sizeof(hdr->client_id));
     ahdr.endpoint_id           = hdr->endpoint_id;
-    ahdr.client_message_id     = hdr->transaction_id;
-    ahdr.message_size          = hdr->remaining_objects;
+    ahdr.transaction_id     = hdr->transaction_id;
+    ahdr.remaining_objects          = hdr->remaining_objects;
     ahdr.is_message_compressed = false;
 
     // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,

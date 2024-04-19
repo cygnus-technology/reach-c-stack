@@ -33,40 +33,40 @@ typedef enum _cr_ReachProto_PATCH_Version {
 } cr_ReachProto_PATCH_Version;
 
 typedef enum _cr_ReachMessageTypes {
-    cr_ReachMessageTypes_INVALID = 0, /* No Valid Message */
-    cr_ReachMessageTypes_ERROR_REPORT = 1,
-    cr_ReachMessageTypes_PING = 2,
-    cr_ReachMessageTypes_GET_DEVICE_INFO = 3,
+    cr_ReachMessageTypes_INVALID = 0, /* /> No Valid Message */
+    cr_ReachMessageTypes_ERROR_REPORT = 1, /* /> Inform client of an error condition */
+    cr_ReachMessageTypes_PING = 2, /* /> Test the link to the server */
+    cr_ReachMessageTypes_GET_DEVICE_INFO = 3, /* /> Open the communication with a server */
     /* Parameters */
-    cr_ReachMessageTypes_DISCOVER_PARAMETERS = 5,
-    cr_ReachMessageTypes_DISCOVER_PARAM_EX = 6,
-    cr_ReachMessageTypes_READ_PARAMETERS = 7,
-    cr_ReachMessageTypes_WRITE_PARAMETERS = 8,
-    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10, /* A parameter has changed */
-    cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11, /* find out how notifications are setup */
-    cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY = 50, /* setup parameter notifications */
-    cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY = 51, /* disable parameter notifications */
+    cr_ReachMessageTypes_DISCOVER_PARAMETERS = 5, /* /> Get a list of all of the parameters in the repository */
+    cr_ReachMessageTypes_DISCOVER_PARAM_EX = 6, /* /> An extension to discover used by verbose parameters */
+    cr_ReachMessageTypes_READ_PARAMETERS = 7, /* /> Get the values of a set of parameters */
+    cr_ReachMessageTypes_WRITE_PARAMETERS = 8, /* /> Change the values of a set of parameters */
+    cr_ReachMessageTypes_PARAMETER_NOTIFICATION = 10, /* /> Sent from the server to the client when a parameter has changed */
+    cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS = 11, /* /> Find out how notifications are setup */
+    cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY = 50, /* /> setup parameter notifications */
+    cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY = 51, /* /> disable parameter notifications */
     /* File Transfers */
-    cr_ReachMessageTypes_DISCOVER_FILES = 12,
-    cr_ReachMessageTypes_TRANSFER_INIT = 13, /* Begins a Transfer */
-    cr_ReachMessageTypes_TRANSFER_DATA = 14, /* Sends Data */
-    /* Clears Sender (Client / Service) to Send More Data: */
-    cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION = 15,
-    cr_ReachMessageTypes_DISCOVER_COMMANDS = 17,
-    cr_ReachMessageTypes_SEND_COMMAND = 18,
+    cr_ReachMessageTypes_DISCOVER_FILES = 12, /* /> Get a list of supported files */
+    cr_ReachMessageTypes_TRANSFER_INIT = 13, /* /> Begin a file transfer */
+    cr_ReachMessageTypes_TRANSFER_DATA = 14, /* /> (bi-directional) sends the requested data */
+    cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION = 15, /* /> (bi-directional) Clears Sender to Send More Data */
+    cr_ReachMessageTypes_DELETE_FILE = 16, /* /> Delete a file */
+    cr_ReachMessageTypes_DISCOVER_COMMANDS = 17, /* /> Get a list of supported commands */
+    cr_ReachMessageTypes_SEND_COMMAND = 18, /* /> Reqeuest excecution of a command */
     /* Command Line Interface */
-    cr_ReachMessageTypes_CLI_NOTIFICATION = 20,
+    cr_ReachMessageTypes_CLI_NOTIFICATION = 20, /* /> Inform the other side (bi-directional) of a command line. */
     /* Streams */
-    cr_ReachMessageTypes_DISCOVER_STREAMS = 25,
-    cr_ReachMessageTypes_OPEN_STREAM = 26,
-    cr_ReachMessageTypes_CLOSE_STREAM = 27,
-    cr_ReachMessageTypes_STREAM_DATA_NOTIFICATION = 28,
+    cr_ReachMessageTypes_DISCOVER_STREAMS = 25, /* /> Get a list of supported streams */
+    cr_ReachMessageTypes_OPEN_STREAM = 26, /* /> Open a stream */
+    cr_ReachMessageTypes_CLOSE_STREAM = 27, /* /> Close a stream */
+    cr_ReachMessageTypes_STREAM_DATA_NOTIFICATION = 28, /* /> Inform the other side (bi-directional) of data on a stream. */
     /* Time */
-    cr_ReachMessageTypes_SET_TIME = 30,
-    cr_ReachMessageTypes_GET_TIME = 31,
+    cr_ReachMessageTypes_SET_TIME = 30, /* /> Set the real time clock */
+    cr_ReachMessageTypes_GET_TIME = 31, /* /> Read the real time clock */
     /* WiFi */
-    cr_ReachMessageTypes_DISCOVER_WIFI = 40,
-    cr_ReachMessageTypes_WIFI_CONNECT = 41
+    cr_ReachMessageTypes_DISCOVER_WIFI = 40, /* /> Get a list of WiFi acces points */
+    cr_ReachMessageTypes_WIFI_CONNECT = 41 /* /> Connect or disconnect to an access point */
 } cr_ReachMessageTypes;
 
 /* binary bit masks or'ed together into the DeviceInfoResponse.services */
@@ -195,19 +195,20 @@ typedef enum _cr_SizesOffsets {
 } cr_SizesOffsets;
 
 /* Struct definitions */
-/* ----------------------------
- Service Routing Message Header
----------------------------- */
+/* /----------------------------
+/ "Classic" Reach service routing message header.  
+/ Now deprecated in favor of the AhsokaMessageHeader.
+/---------------------------- */
 typedef struct _cr_ReachMessageHeader {
-    /* This ID defines the Type of Message being carried in the Envelope / Header */
+    /* / This ID defines the Type of Message being carried in the Envelope / Header */
     uint32_t message_type;
-    /* Routing for endpoints other than zero. */
+    /* / Routing for endpoints other than zero. */
     uint32_t endpoint_id;
-    /* To support multiple clients */
+    /* / To support multiple clients */
     uint32_t client_id;
-    /* Zero when transaction is complete */
+    /* / Zero when transaction is complete */
     uint32_t remaining_objects;
-    /* An ID for a series of messages */
+    /* / An ID for a series of messages */
     uint32_t transaction_id;
 } cr_ReachMessageHeader;
 
@@ -219,25 +220,35 @@ typedef struct _cr_ReachMessage {
 } cr_ReachMessage;
 
 typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
-/* ----------------------------
- This Service Routing Message Header is used in the OpenPV system.
- Reach can speak it.
- This object represents the Layer 2 Message Format for OpenPV Service Messages.
----------------------------- */
+/* /----------------------------
+/ This Service Routing Message Header is used in the OpenPV system.
+/ Reach can speak it.
+/ This object represents the Layer 2 Message Format for OpenPV Service Messages.
+/ The ordinals are presereved but the names are changed to match 
+/---------------------------- */
 typedef struct _cr_AhsokaMessageHeader {
-    /* This ID defines the Type of Message being carried in the Envelope / Header */
-    int32_t transport_id;
-    /* This ID defines a unique Message / Response used when out of order messages are needed */
-    int32_t client_message_id;
-    /* Unique ID for a Client used in Services that support Multiple Clients 
+    /* / This ID defines the Type of Message being carried in the Envelope / Header
+/ Called transport_id in OpenPV terminology.
+/ Called message_type in Reach terms. */
+    int32_t message_type;
+    /* / This ID defines a unique Message / Response used when out of order messages are needed
+/ Called transaction_id in the OpenPV system.
+/ Called transaction_id in Reach terms. */
+    int32_t transaction_id;
+    /* / Unique ID for a Client used in Services that support Multiple Clients 
  OpenPV would use a GUID but Reach uses a 4 byte integer */
     cr_AhsokaMessageHeader_client_id_t client_id;
-    /* The size of the message payload (in packets) that follows this header */
-    int32_t message_size;
+    /* / Called message_size in the OpenPV system.
+/ Called remaining_objects in Reach terms
+/ In Reach it defines the number of objects that remain to be 
+/ transmitted in a continuued transaction.
+/ The size of the message payload (in packets) that follows this header */
+    int32_t remaining_objects;
     /* Routing for Non-Endpoint Style Transports. 
  Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports */
     uint32_t endpoint_id;
-    /* (Not supported) Indicates that the message has used deflate compression in addition to pbuff encoding */
+    /* Not used or supported in Reach.  
+ In OpenPV, indicates that the message has used deflate compression in addition to pbuff encoding */
     bool is_message_compressed;
 } cr_AhsokaMessageHeader;
 
@@ -696,12 +707,12 @@ typedef struct _cr_DiscoverCommands {
 } cr_DiscoverCommands;
 
 typedef struct _cr_CommandInfo {
-    uint32_t id;
-    char name[24]; /* Descriptive name */
+    uint32_t id; /* /< The id by which the command is dispatched */
+    char name[24]; /* /< Human readable descriptive name */
     bool has_description;
-    char description[48]; /* Optional description of the command */
+    char description[48]; /* /< Optional longer description of the command */
     bool has_timeout;
-    uint32_t timeout; /* Optional command timeout */
+    uint32_t timeout; /* /< Optional command timeout, in milliseconds, to account for slow commands. */
 } cr_CommandInfo;
 
 typedef struct _cr_DiscoverCommandsResponse {
@@ -1155,10 +1166,10 @@ extern "C" {
 #define cr_ReachMessageHeader_transaction_id_tag 5
 #define cr_ReachMessage_header_tag               1
 #define cr_ReachMessage_payload_tag              2
-#define cr_AhsokaMessageHeader_transport_id_tag  1
-#define cr_AhsokaMessageHeader_client_message_id_tag 2
+#define cr_AhsokaMessageHeader_message_type_tag  1
+#define cr_AhsokaMessageHeader_transaction_id_tag 2
 #define cr_AhsokaMessageHeader_client_id_tag     3
-#define cr_AhsokaMessageHeader_message_size_tag  4
+#define cr_AhsokaMessageHeader_remaining_objects_tag 4
 #define cr_AhsokaMessageHeader_endpoint_id_tag   5
 #define cr_AhsokaMessageHeader_is_message_compressed_tag 6
 #define cr_ErrorReport_result_tag                1
@@ -1392,10 +1403,10 @@ X(a, STATIC,   SINGULAR, BYTES,    payload,           2)
 #define cr_ReachMessage_header_MSGTYPE cr_ReachMessageHeader
 
 #define cr_AhsokaMessageHeader_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    transport_id,      1) \
-X(a, STATIC,   SINGULAR, INT32,    client_message_id,   2) \
+X(a, STATIC,   SINGULAR, INT32,    message_type,      1) \
+X(a, STATIC,   SINGULAR, INT32,    transaction_id,    2) \
 X(a, STATIC,   SINGULAR, BYTES,    client_id,         3) \
-X(a, STATIC,   SINGULAR, INT32,    message_size,      4) \
+X(a, STATIC,   SINGULAR, INT32,    remaining_objects,   4) \
 X(a, STATIC,   SINGULAR, UINT32,   endpoint_id,       5) \
 X(a, STATIC,   SINGULAR, BOOL,     is_message_compressed,   6)
 #define cr_AhsokaMessageHeader_CALLBACK NULL
