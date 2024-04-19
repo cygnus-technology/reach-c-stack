@@ -195,7 +195,10 @@ PB_BIND(cr_TimeGetResponse, cr_TimeGetResponse, AUTO)
 PB_BIND(cr_ConnectionDescription, cr_ConnectionDescription, AUTO)
 
 
-PB_BIND(cr_DiscoverWiFiRequest, cr_DiscoverWiFiRequest, AUTO)
+PB_BIND(cr_ScanWiFi, cr_ScanWiFi, AUTO)
+
+
+PB_BIND(cr_DiscoverWiFi, cr_DiscoverWiFi, AUTO)
 
 
 PB_BIND(cr_DiscoverWiFiResponse, cr_DiscoverWiFiResponse, AUTO)
@@ -208,9 +211,6 @@ PB_BIND(cr_WiFiConnectionResponse, cr_WiFiConnectionResponse, AUTO)
 
 
 PB_BIND(cr_BufferSizes, cr_BufferSizes, AUTO)
-
-
-
 
 
 

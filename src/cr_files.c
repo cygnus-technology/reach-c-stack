@@ -379,8 +379,6 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         // the transfer_id is not rigorously enforced (yet)
         I3_LOG(LOG_MASK_WARN, "Unmatched transfer_id (%d not %d)", 
                   dataTransfer->transfer_id, sCr_file_xfer_state.transfer_id);
-        // response->result = cr_ErrorCodes_INVALID_PARAMETER;
-        // return 0;
     }
     response->transfer_id = dataTransfer->transfer_id;
     int bytes_to_write = dataTransfer->message_data.size;

@@ -278,9 +278,7 @@ static int handle_continued_transactions()
     #ifdef INCLUDE_WIFI_SERVICE
     case cr_ReachMessageTypes_DISCOVER_WIFI:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued disc wifi.", __FUNCTION__);
-        rval = 
-            handle_discover_wifi(NULL,
-                                     (cr_DiscoverWiFiResponse *)sCr_uncoded_response_buffer);
+        rval = handle_discover_wifi(NULL, (cr_DiscoverWiFiResponse *)sCr_uncoded_response_buffer);
         break;
     #endif  // def INCLUDE_WIFI_SERVICE
 
@@ -835,43 +833,43 @@ void cr_test_sizes()
     /// reach.pb.h gives us some "Maximum encoded size of messages".
     /// Check these against MAX_BLE_SZ, the limit of an encoded 
     /// buffer. 
-    rval += sCr_checkSize(cr_CLIData_size, MAX_BLE_SZ, "cr_CLIData_size");
-    rval += sCr_checkSize(cr_CommandInfo_size, MAX_BLE_SZ, "cr_CommandInfo_size");
-    rval += sCr_checkSize(cr_DeviceInfoResponse_size, MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
+    rval += sCr_checkSize(cr_CLIData_size,                  MAX_BLE_SZ, "cr_CLIData_size");
+    rval += sCr_checkSize(cr_CommandInfo_size,              MAX_BLE_SZ, "cr_CommandInfo_size");
+    rval += sCr_checkSize(cr_DeviceInfoResponse_size,       MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
     rval += sCr_checkSize(cr_DiscoverCommandsResponse_size, MAX_BLE_SZ, "cr_DiscoverCommandsResponse_size");
-    rval += sCr_checkSize(cr_DiscoverFilesResponse_size, MAX_BLE_SZ, "cr_DiscoverFilesResponse_size");
-    rval += sCr_checkSize(cr_DiscoverStreamsResponse_size, MAX_BLE_SZ, "cr_DiscoverStreamsResponse_size");
-    rval += sCr_checkSize(cr_ParamExKey_size, MAX_BLE_SZ, "cr_ParamExKey_size");
-    rval += sCr_checkSize(cr_ErrorReport_size, MAX_BLE_SZ, "cr_ErrorReport_size");
-    rval += sCr_checkSize(cr_FileInfo_size, MAX_BLE_SZ, "cr_FileInfo_size");
+    rval += sCr_checkSize(cr_DiscoverFilesResponse_size,    MAX_BLE_SZ, "cr_DiscoverFilesResponse_size");
+    rval += sCr_checkSize(cr_DiscoverStreamsResponse_size,  MAX_BLE_SZ, "cr_DiscoverStreamsResponse_size");
+    rval += sCr_checkSize(cr_ParamExKey_size,               MAX_BLE_SZ, "cr_ParamExKey_size");
+    rval += sCr_checkSize(cr_ErrorReport_size,              MAX_BLE_SZ, "cr_ErrorReport_size");
+    rval += sCr_checkSize(cr_FileInfo_size,                 MAX_BLE_SZ, "cr_FileInfo_size");
     rval += sCr_checkSize(cr_FileTransferDataNotification_size, MAX_BLE_SZ, "cr_FileTransferDataNotification_size");
-    rval += sCr_checkSize(cr_FileTransferData_size, MAX_BLE_SZ, "cr_FileTransferData_size");
-    rval += sCr_checkSize(cr_FileTransferResponse_size, MAX_BLE_SZ, "cr_FileTransferResponse_size");
-    rval += sCr_checkSize(cr_FileTransferRequest_size, MAX_BLE_SZ, "cr_FileTransferRequest_size");
-    rval += sCr_checkSize(cr_ParamExInfoResponse_size, MAX_BLE_SZ, "cr_ParamExInfoResponse_size");
-    rval += sCr_checkSize(cr_ParameterInfoRequest_size, MAX_BLE_SZ, "cr_ParameterInfoRequest_size");
-    rval += sCr_checkSize(cr_ParameterInfoResponse_size, MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
-    rval += sCr_checkSize(cr_ParameterInfo_size, MAX_BLE_SZ, "cr_ParameterInfo_size");
-    rval += sCr_checkSize(cr_ParameterNotification_size, MAX_BLE_SZ, "cr_ParameterNotification_size");
+    rval += sCr_checkSize(cr_FileTransferData_size,         MAX_BLE_SZ, "cr_FileTransferData_size");
+    rval += sCr_checkSize(cr_FileTransferResponse_size,     MAX_BLE_SZ, "cr_FileTransferResponse_size");
+    rval += sCr_checkSize(cr_FileTransferRequest_size,      MAX_BLE_SZ, "cr_FileTransferRequest_size");
+    rval += sCr_checkSize(cr_ParamExInfoResponse_size,      MAX_BLE_SZ, "cr_ParamExInfoResponse_size");
+    rval += sCr_checkSize(cr_ParameterInfoRequest_size,     MAX_BLE_SZ, "cr_ParameterInfoRequest_size");
+    rval += sCr_checkSize(cr_ParameterInfoResponse_size,    MAX_BLE_SZ, "cr_ParameterInfoResponse_size");
+    rval += sCr_checkSize(cr_ParameterInfo_size,            MAX_BLE_SZ, "cr_ParameterInfo_size");
+    rval += sCr_checkSize(cr_ParameterNotification_size,    MAX_BLE_SZ, "cr_ParameterNotification_size");
     rval += sCr_checkSize(cr_ParameterNotifyConfigResponse_size, MAX_BLE_SZ, "cr_ParameterNotifyConfigResponse_size");
-    rval += sCr_checkSize(cr_ParameterNotifyConfig_size, MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
-    rval += sCr_checkSize(cr_ParameterReadResponse_size, MAX_BLE_SZ, "cr_ParameterReadResponse_size");
-    rval += sCr_checkSize(cr_ParameterRead_size, MAX_BLE_SZ, "cr_ParameterRead_size");
-    rval += sCr_checkSize(cr_ParameterValue_size, MAX_BLE_SZ, "cr_ParameterValue_size");
-    rval += sCr_checkSize(cr_ParameterWrite_size, MAX_BLE_SZ, "cr_ParameterWrite_size");
-    rval += sCr_checkSize(cr_ParameterWriteResponse_size, MAX_BLE_SZ, "cr_ParameterWriteResponse_size");
-    rval += sCr_checkSize(cr_PingRequest_size, MAX_BLE_SZ, "cr_PingRequest_size");
-    rval += sCr_checkSize(cr_PingResponse_size, MAX_BLE_SZ, "cr_PingResponse_size");
-    rval += sCr_checkSize(cr_ReachMessageHeader_size, MAX_BLE_SZ, "cr_ReachMessageHeader_size");
-    rval += sCr_checkSize(cr_ReachMessage_size, MAX_BLE_SZ, "cr_ReachMessage_size");
-    rval += sCr_checkSize(cr_SendCommandResponse_size, MAX_BLE_SZ, "cr_SendCommandResponse_size");
-    rval += sCr_checkSize(cr_StreamData_size, MAX_BLE_SZ, "cr_StreamData_size");
-    rval += sCr_checkSize(cr_StreamInfo_size, MAX_BLE_SZ, "cr_StreamInfo_size");
+    rval += sCr_checkSize(cr_ParameterNotifyConfig_size,    MAX_BLE_SZ, "cr_ParameterNotifyConfig_size");
+    rval += sCr_checkSize(cr_ParameterReadResponse_size,    MAX_BLE_SZ, "cr_ParameterReadResponse_size");
+    rval += sCr_checkSize(cr_ParameterRead_size,            MAX_BLE_SZ, "cr_ParameterRead_size");
+    rval += sCr_checkSize(cr_ParameterValue_size,           MAX_BLE_SZ, "cr_ParameterValue_size");
+    rval += sCr_checkSize(cr_ParameterWrite_size,           MAX_BLE_SZ, "cr_ParameterWrite_size");
+    rval += sCr_checkSize(cr_ParameterWriteResponse_size,   MAX_BLE_SZ, "cr_ParameterWriteResponse_size");
+    rval += sCr_checkSize(cr_PingRequest_size,              MAX_BLE_SZ, "cr_PingRequest_size");
+    rval += sCr_checkSize(cr_PingResponse_size,             MAX_BLE_SZ, "cr_PingResponse_size");
+    rval += sCr_checkSize(cr_ReachMessageHeader_size,       MAX_BLE_SZ, "cr_ReachMessageHeader_size");
+    rval += sCr_checkSize(cr_ReachMessage_size,             MAX_BLE_SZ, "cr_ReachMessage_size");
+    rval += sCr_checkSize(cr_SendCommandResponse_size,      MAX_BLE_SZ, "cr_SendCommandResponse_size");
+    rval += sCr_checkSize(cr_StreamData_size,               MAX_BLE_SZ, "cr_StreamData_size");
+    rval += sCr_checkSize(cr_StreamInfo_size,               MAX_BLE_SZ, "cr_StreamInfo_size");
 
-    rval += sCr_checkSize(cr_WiFiConnectionRequest_size,    MAX_BLE_SZ, "cr_WiFiConnectionRequest_size");
+    // rval += sCr_checkSize(cr_WiFiConnectionRequest_size,    MAX_BLE_SZ, "cr_WiFiConnectionRequest_size");
     rval += sCr_checkSize(cr_WiFiConnectionResponse_size,   MAX_BLE_SZ, "cr_WiFiConnectionResponse_size");
-    rval += sCr_checkSize(cr_DiscoverWiFiResponse_size,          MAX_BLE_SZ, "cr_DiscoverWiFiResponse_size");
-    rval += sCr_checkSize(cr_DiscoverWiFiRequest_size,          MAX_BLE_SZ, "cr_DiscoverWiFiRequest_size");
+    rval += sCr_checkSize(cr_DiscoverWiFiResponse_size,     MAX_BLE_SZ, "cr_DiscoverWiFiResponse_size");
+    rval += sCr_checkSize(cr_WiFiConnectionResponse_size,   MAX_BLE_SZ, "cr_WiFiConnectionResponse_size");
 
 
 
@@ -880,24 +878,24 @@ void cr_test_sizes()
     /// </summary>
     #define MAX_RAW_SZ  CR_DECODED_BUFFER_SIZE
 
-    rval += sCr_checkSize(sizeof(cr_StreamInfo), MAX_RAW_SZ, "sizeof(cr_StreamInfo)");
-    rval += sCr_checkSize(sizeof(cr_ErrorReport), MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
+    rval += sCr_checkSize(sizeof(cr_StreamInfo),            MAX_RAW_SZ, "sizeof(cr_StreamInfo)");
+    rval += sCr_checkSize(sizeof(cr_ErrorReport),           MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
     rval += sCr_checkSize(sizeof(cr_ParameterReadResponse), MAX_RAW_SZ, "sizeof(cr_ParameterReadResponse)");
-    rval += sCr_checkSize(sizeof(cr_ParameterWrite), MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
+    rval += sCr_checkSize(sizeof(cr_ParameterWrite),        MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfigResponse), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfigResponse)");
-    rval += sCr_checkSize(sizeof(cr_ParameterValue), MAX_RAW_SZ, "sizeof(cr_ParameterValue)");
-    rval += sCr_checkSize(sizeof(cr_CLIData), MAX_RAW_SZ, "sizeof(cr_CLI_Data)");
-    rval += sCr_checkSize(sizeof(cr_ParameterRead), MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
-    rval += sCr_checkSize(sizeof(cr_FileTransferData), MAX_RAW_SZ, "sizeof(cr_FileTransferData)");
-    rval += sCr_checkSize(sizeof(cr_ParameterInfo), MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
+    rval += sCr_checkSize(sizeof(cr_ParameterValue),        MAX_RAW_SZ, "sizeof(cr_ParameterValue)");
+    rval += sCr_checkSize(sizeof(cr_CLIData),               MAX_RAW_SZ, "sizeof(cr_CLI_Data)");
+    rval += sCr_checkSize(sizeof(cr_ParameterRead),         MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
+    rval += sCr_checkSize(sizeof(cr_FileTransferData),      MAX_RAW_SZ, "sizeof(cr_FileTransferData)");
+    rval += sCr_checkSize(sizeof(cr_ParameterInfo),         MAX_RAW_SZ, "sizeof(cr_ParameterInfo)");
 
 
     rval += sCr_checkSize(sizeof(cr_WiFiConnectionRequest),         MAX_RAW_SZ, "cr_WiFiConnectionRequest");
     rval += sCr_checkSize(sizeof(cr_WiFiConnectionResponse_size),   MAX_RAW_SZ, "cr_WiFiConnectionResponse");
-    rval += sCr_checkSize(sizeof(cr_DiscoverWiFiResponse_size),          MAX_RAW_SZ, "cr_DiscoverWiFiResponse");
-    rval += sCr_checkSize(sizeof(cr_DiscoverWiFiRequest_size),          MAX_RAW_SZ, "cr_DiscoverWiFiRequest");
+    rval += sCr_checkSize(sizeof(cr_DiscoverWiFiResponse_size),     MAX_RAW_SZ, "cr_DiscoverWiFiResponse");
+    rval += sCr_checkSize(sizeof(cr_WiFiConnectionRequest),         MAX_RAW_SZ, "cr_WiFiConnectionRequest");
 
 
     // If these don't match, check the structures associated with them
@@ -1425,6 +1423,18 @@ static int handle_send_command(const cr_SendCommand *request,
 
 
 #ifdef INCLUDE_WIFI_SERVICE
+
+    #error WiFi service implementation is incomplete.
+
+    /*
+        Intended Message Sequence
+        * Client sends ScanWiFi, which initiates a scan.
+        * Client sends DiscoverWiFi with a count indicating how many to send.
+        * Server replies with a list of access points as well as an indication whether the scan is complete.
+        * Client sends WiFiConnectionRequest w/pw
+        * Server responds with status
+    */
+
     static int handle_discover_wifi(const cr_DiscoverWiFiRequest *request, 
                                     cr_DiscoverWiFiResponse *response)
     {
@@ -1676,6 +1686,9 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
 #endif // def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_STREAM_SERVICE
+
+    #error Stream service implementation is incomplete.
+
   case cr_ReachMessageTypes_DISCOVER_STREAMS:
     // if (request) {
     //   status = pb_encode(&os_stream, cr_StreamsRequest_fields, data);
