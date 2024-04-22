@@ -242,18 +242,16 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         If no requested_ack_rate is provided, the server must provide the ack_rate
         which can be one or a higher number.
      */
-    int requested_ack_rate = 0; // default
-    /* 
     int compare = pvtCr_compare_proto_version(0,1,3);
-    i3_log(LOG_MASK_FILES, "pvtCr_compare_proto_version() returned %d", compare);
+    // i3_log(LOG_MASK_FILES, "pvtCr_compare_proto_version() returned %d", compare);
     if (compare < 0)
     {   // optional has_requested_ack_rate deployed at 0.1.3
         // messages_per_ack is now obsolete.
-        I3_LOG(LOG_MASK_FILES, "Old version use messages_per_ack %d.",
-               request->messages_per_ack);
-        requested_ack_rate = request->messages_per_ack;
+        I3_LOG(LOG_MASK_ERROR, "Your older client version is very inefficient transferring files.");
     }
-    else */
+
+
+    int requested_ack_rate = 0; // default
     if (request->has_requested_ack_rate)
     {
         requested_ack_rate = request->requested_ack_rate;
@@ -381,8 +379,6 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         // the transfer_id is not rigorously enforced (yet)
         I3_LOG(LOG_MASK_WARN, "Unmatched transfer_id (%d not %d)", 
                   dataTransfer->transfer_id, sCr_file_xfer_state.transfer_id);
-        // response->result = cr_ErrorCodes_INVALID_PARAMETER;
-        // return 0;
     }
     response->transfer_id = dataTransfer->transfer_id;
     int bytes_to_write = dataTransfer->message_data.size;
@@ -690,6 +686,18 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     pvtCr_watchdog_stroke_timeout(cr_get_current_ticks());
     return 0;
 }
+
+int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
+                            cr_FileEraseResponse *response)
+{
+    I3_LOG(LOG_MASK_ALWAYS, "Erase file %d.", request->file_id);
+    response->file_id = request->file_id;
+    response->result  = crcb_erase_file(request->file_id);
+    response->has_result_message = false;
+    response->result_message[0] = 0;
+    return 0;
+}
+
 
 // 
 // Timeout Watchdog interface

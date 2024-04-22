@@ -326,7 +326,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   pid The parameter ID to which the parameter table pointer should be 
     *              reset. Use 0 for the first entry.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_parameter_discover_reset(const uint32_t pid)
     {
@@ -347,8 +347,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *              not be continuous or in order.
     * @param   pDesc Stack provided memory into which the description must be 
     *                copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last parameter has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last parameter has
+    *          already been returned.
     */
     int __attribute__((weak)) crcb_parameter_discover_next(cr_ParameterInfo *pDesc)
     {
@@ -378,7 +379,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   pid The parameter ID to which the parameter extension table pointer 
     *              should be reset. Use 0 for the first entry.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_parameter_ex_discover_reset(const int32_t pid)
     {
@@ -396,8 +397,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          the parameter extension table.
     * @param   pDesc Pointer to stack provided memory into which the extension 
     *               is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last parameter extension has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last parameter
+    *          extension has already been returned.
     */
     int __attribute__((weak)) crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
     {
@@ -439,8 +441,8 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   data Pointer to stack provided memory containing data to be written 
     *               into the devices parameter repository.
     * @return  cr_ErrorCodes_NO_ERROR on success or an error like  
-    *          cr_ErrorCodes_INVALID_PARAMETER if the parameter ID is not valid.
-    *          Also can return cr_ErrorCodes_WRITE_FAILED or
+    *          cr_ErrorCodes_INVALID_ID if the parameter ID is not
+    *          valid. Also can return cr_ErrorCodes_WRITE_FAILED or
     *          cr_ErrorCodes_PERMISSION_DENIED
     */
     int __attribute__((weak)) crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
@@ -493,7 +495,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          describing the desired notifications.
     * @param   pNum How many are in the array.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray, size_t *pNum)
     {
@@ -528,7 +530,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   cid The ID to which the command table pointer 
     *              should be reset.  0 for the first command.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_command_discover_reset(const uint32_t cid)
     {
@@ -544,8 +546,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          pointer into the command table.
     * @param   cmd_desc Pointer to stack provided memory into which the 
     *               command description is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last command has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last command has
+    *          already been returned.
     */
     int __attribute__((weak)) crcb_command_discover_next(cr_CommandInfo *cmd_desc)
     {
@@ -607,8 +610,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          pointer into the file table.
     * @param   file_desc Pointer to stack provided memory into which the 
     *               file description is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last file has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last file has already
+    *          been returned.
     */
     int __attribute__((weak)) crcb_file_discover_next(cr_FileInfo *file_desc)
     {
@@ -624,7 +628,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   file_desc Pointer to stack provided memory into which the 
     *               file description is to be copied
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_file_get_description(uint32_t fid, 
                                                       cr_FileInfo *file_desc)
@@ -836,7 +840,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   cid The ID to which the wifi table pointer 
     *              should be reset.  0 for the first AP.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_wifi_discover_reset(const uint32_t cid)
     {
@@ -853,8 +857,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          the wifi table.
     * @param   cmd_desc Pointer to stack provided memory into which the 
     *               wifi description is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last wifi has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last wifi has already
+    *          been returned.
     */
     int __attribute__((weak)) crcb_wifi_discover_next(cr_ConnectionDescription *AP_desc)
     {

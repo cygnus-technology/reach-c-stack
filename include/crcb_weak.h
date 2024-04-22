@@ -531,7 +531,6 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @details The device overrides this method to accept a command to set the 
     *          length of a file to zero, erasing it.
     * @param   fid (input) which file
-    * @param   offset (input) offset, negative value specifies current location.
     * @return  returns zero or an error code
     */
     int crcb_erase_file(const uint32_t fid);

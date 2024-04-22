@@ -74,13 +74,18 @@ extern "C"
     #define LOG_DUMP_WIRE(banner, buf, len)
     #define LOG_DUMP_MASK(mask, banner, buf, len)
 #else
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define I3_LOG(m, f, ...)     i3_log(m, f, ##__VA_ARGS__)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_REACH(format, ...)                                                 \
         I3_LOG(LOG_MASK_REACH, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_ERROR(format, ...)                                                 \
         i3_log(LOG_MASK_ERROR, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_DUMP_WIRE(banner, buf, len)                                        \
         i3_log_dump_buffer(LOG_MASK_WIRE, banner, buf, len)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_DUMP_MASK(mask, banner, buf, len)                                  \
         i3_log_dump_buffer(mask, banner, buf, len)
 #endif  // def NO_LOGGING
@@ -102,9 +107,10 @@ uint32_t i3_log_get_mask(void);
 
 /**
 * @brief   i3_log_set_remote_cli_enable
-* @details Enabling the remote CLI can generate significant BLE traffic. This 
-*          can slow down speed related things like file transfer.  Hence this
-*          API allows the remote command line to be easily
+* @param   enable : Enabling the remote CLI can generate 
+*          significant BLE traffic. This can slow down speed
+*          related things like file transfer.  Hence this API
+*          allows the remote command line to be easily
 *          supressed.  The initial state can be set in
 *          reach-server.h
 * @return  cr_ErrorCodes_NO_ERROR on success.
@@ -142,6 +148,7 @@ int i3_log_get_remote_buffer(char **pRcli);
 *          enabled the string is copied to the remote buffer and sent via
 *          crcb_cli_respond().
 * @param   mask See LOG_MASK_.
+* @param   fmt : standard printf format.
 */
 void i3_log(const uint32_t mask, const char *fmt, ...);
 

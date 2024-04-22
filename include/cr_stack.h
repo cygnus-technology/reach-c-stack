@@ -97,7 +97,7 @@ extern "C" {
 // In all cases, resetting to zero will select the lowest available object.
 //
 
-#define MAX_NUM_PARAM_ID                32767 // 16 bits
+#define MAX_NUM_PARAM_ID                32767 ///< The largest acceptable parameter ID is 16 bits
 
 //----------------------------------------------------------------------------
 // API
@@ -118,7 +118,9 @@ extern "C" {
  
 */
 
+/// \cond IGNORE
 #define ALIGN_TO_WORD   __attribute__((aligned(4)))
+/// \endcond 
 
 /**
 * @brief   cr_init
@@ -317,7 +319,7 @@ typedef struct {
 *          containing the C stack version.
 */
 const char *cr_get_reach_version();
-#define CR_STACK_VERSION_LEN    16
+#define CR_STACK_VERSION_LEN    16  ///< The length of the version string
 
 /**
 * @brief   cr_get_proto_version 

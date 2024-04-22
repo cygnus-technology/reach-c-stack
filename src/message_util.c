@@ -122,8 +122,8 @@ static void sLogParameterValue(const cr_ParameterValue *param)
   case cr_ParameterValue_uint32_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   uint32: %u", param->parameter_id, param->value.uint32_value);
     break;
-  case cr_ParameterValue_sint32_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   sint32: %d", param->parameter_id, param->value.sint32_value);
+  case cr_ParameterValue_int32_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   sint32: %d", param->parameter_id, param->value.int32_value);
       break;
   case cr_ParameterValue_float32_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   float32: %.2f", param->parameter_id, param->value.float32_value);
@@ -131,8 +131,8 @@ static void sLogParameterValue(const cr_ParameterValue *param)
   case cr_ParameterValue_uint64_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   uint64: %llu", param->parameter_id, param->value.uint64_value);
       break;
-  case cr_ParameterValue_sint64_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   sint64: %lld", param->parameter_id, param->value.sint64_value);
+  case cr_ParameterValue_int64_value_tag:
+    i3_log(LOG_MASK_REACH, "    id : %d.   sint64: %lld", param->parameter_id, param->value.int64_value);
       break;
   case cr_ParameterValue_float64_value_tag:
     i3_log(LOG_MASK_REACH, "    id : %d.   float64: %.3llf", param->parameter_id, param->value.float64_value);
@@ -203,6 +203,8 @@ const char *msg_type_string(int32_t message_type) {
     return "Transfer Data";
   case cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION:
     return "Transfer Data Notification";
+  case cr_ReachMessageTypes_ERASE_FILE:
+    return "Erase File";
   case cr_ReachMessageTypes_DISCOVER_COMMANDS:
     return "Discover Commands";
   case cr_ReachMessageTypes_SEND_COMMAND:
@@ -275,7 +277,7 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
   i3_log(LOG_MASK_REACH, "  Discover Files Response:");
   for (int i=0; i < response->file_infos_count; i++)
   {
-    i3_log(LOG_MASK_REACH, "    [id                  : %d", response->file_infos[i].file_id);
+    i3_log(LOG_MASK_REACH, "    [file_id             : %d", response->file_infos[i].file_id);
     i3_log(LOG_MASK_REACH, "     name                : %s", response->file_infos[i].file_name);
     i3_log(LOG_MASK_REACH, "     access              : 0x%x", response->file_infos[i].access);
     i3_log(LOG_MASK_REACH, "     current byte length : %d", response->file_infos[i].current_size_bytes);
@@ -288,7 +290,7 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
 void message_util_log_file_transfer_request(const cr_FileTransferRequest *request)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Request:");
-  i3_log(LOG_MASK_REACH, "    id                 : %d", request->file_id);
+  i3_log(LOG_MASK_REACH, "    file_id            : %d", request->file_id);
   i3_log(LOG_MASK_REACH, "    read_write         : %d", request->read_write);
   i3_log(LOG_MASK_REACH, "    request offset     : %d", request->request_offset);
   i3_log(LOG_MASK_REACH, "    transfer length    : %d", request->transfer_length);
@@ -345,6 +347,24 @@ message_util_log_transfer_data_response(const cr_FileTransferData *request)
 } 
 */ 
 
+void message_util_log_file_erase_request(cr_FileEraseRequest *request)
+{
+  i3_log(LOG_MASK_REACH, "  File Erase Request:");
+  i3_log(LOG_MASK_REACH, "    file_id           : %d\r\n", request->file_id);
+}
+
+void message_util_log_file_erase_response(cr_FileEraseResponse *response)
+{
+  i3_log(LOG_MASK_REACH, "  File Erase Response:");
+  i3_log(LOG_MASK_REACH, "    file_id           : %d", response->file_id);
+  i3_log(LOG_MASK_REACH, "    result            : %d", response->result);
+  if (response->has_result_message) {            
+    i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
+  }
+  i3_log(LOG_MASK_REACH, "\r\n");
+}
+
+
 void message_util_log_transfer_data_notification(bool is_request,
     const cr_FileTransferDataNotification *request)
 {
@@ -384,19 +404,9 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
   } 
   for (size_t i = 0; i < response->parameter_infos_count; i++) {
     i3_log(LOG_MASK_REACH, "    [id            : %d", response->parameter_infos[i].id);
-    i3_log(LOG_MASK_REACH, "     data type     : %d", response->parameter_infos[i].data_type);
-    i3_log(LOG_MASK_REACH, "     sz in bytes   : %d", response->parameter_infos[i].size_in_bytes);
+    i3_log(LOG_MASK_REACH, "     data type     : %d", response->parameter_infos[i].which_desc - cr_ParameterInfo_uint32_desc_tag);
     i3_log(LOG_MASK_REACH, "     name          : %s", response->parameter_infos[i].name);
     i3_log(LOG_MASK_REACH, "     access        : 0x%x", response->parameter_infos[i].access);
-    if (response->parameter_infos[i].has_description)
-        i3_log(LOG_MASK_REACH, "     description   : %s", response->parameter_infos[i].description);
-    i3_log(LOG_MASK_REACH, "     units         : %s", response->parameter_infos[i].units);
-    if (response->parameter_infos[i].has_range_min)
-        i3_log(LOG_MASK_REACH, "     min           : %.1f", response->parameter_infos[i].range_min);
-    if (response->parameter_infos[i].has_range_max)
-        i3_log(LOG_MASK_REACH, "     max           : %.1f", response->parameter_infos[i].range_max);
-    if (response->parameter_infos[i].has_default_value)
-        i3_log(LOG_MASK_REACH, "     default       : %.1f", response->parameter_infos[i].default_value);
     i3_log(LOG_MASK_REACH, "     storage location: %d", response->parameter_infos[i].storage_location);
     i3_log(LOG_MASK_REACH, "    ]");
   }
@@ -406,13 +416,13 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
 void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  Parameter Info Ex Response:");
-  i3_log(LOG_MASK_REACH, "    associated_pid     : %d", response->associated_pid);
+  i3_log(LOG_MASK_REACH, "    pei_id     : %d", response->pei_id);
   i3_log(LOG_MASK_REACH, "    data_type          : %d", response->data_type);
-  i3_log(LOG_MASK_REACH, "    enumerations_count : %d", response->enumerations_count);
-  for (size_t i = 0; i < response->enumerations_count; i++) 
+  i3_log(LOG_MASK_REACH, "    keys_count : %d", response->keys_count);
+  for (size_t i = 0; i < response->keys_count; i++)
   {
     i3_log(LOG_MASK_REACH, "    [id: %d.  name: %s]", 
-           response->enumerations[i].id, response->enumerations[i].name);
+           response->keys[i].id, response->keys[i].name);
   }
 }
 
@@ -771,6 +781,9 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_transfer_data_response(const cr_FileTransferData *){}
         void message_util_log_transfer_data_notification(bool is_request,
                 const cr_FileTransferDataNotification *){}
+        void message_util_log_file_erase_response(cr_FileEraseResponse *data){};
+        void message_util_log_file_erase_request(cr_FileEraseRequest *data){};
+
     #endif // def INCLUDE_FILE_SERVICE
 
     #ifdef INCLUDE_STREAM_SERVICE

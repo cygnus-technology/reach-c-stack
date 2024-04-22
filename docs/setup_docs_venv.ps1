@@ -96,15 +96,16 @@ if ((Split-Path -Path $currentDirectory -Leaf) -ne "docs") {
     exit 1
 }
 
-# Check if pyenv is installed
-$pyenvPath = (Get-Command pyenv -ErrorAction SilentlyContinue).Path
+# Check if pyenv is installed:
+# - Since pyenv install is failing on Chuck's machine, this code is bypassed.
+## $pyenvPath = (Get-Command pyenv -ErrorAction SilentlyContinue).Path
 
-if (-not $pyenvPath) {
-    Install-Pyenv
-}
+##if (-not $pyenvPath) {
+##    Install-Pyenv
+##}
 
 # After installing pyenv, set the local Python version as per .python-version file
-Set-PyenvLocalVersion
+##Set-PyenvLocalVersion
 
 # Check if __venv directory exists
 if (-not (Test-Path "__venv")) {
