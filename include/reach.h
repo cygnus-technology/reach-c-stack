@@ -213,7 +213,10 @@ typedef struct _cr_ReachMessageHeader {
     uint32_t transaction_id; /**< An ID for a series of messages */
 } cr_ReachMessageHeader;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(208) cr_ReachMessage_payload_t;
+/// \endcond
+
 /** A reach packet includes a header and a payload. */
 typedef struct _cr_ReachMessage {
     bool has_header;  ///< Controls corresponding optional member
@@ -221,7 +224,11 @@ typedef struct _cr_ReachMessage {
     cr_ReachMessage_payload_t payload; /**< The encoded payload */
 } cr_ReachMessage;
 
+
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
+/// \endcond 
+
 /** This Service Routing Message Header is used in the OpenPV system.
 / Reach can speak it.
 / This object represents the Layer 2 Message Format for OpenPV Service Messages.
@@ -258,13 +265,19 @@ typedef struct _cr_ErrorReport {
     char result_message[194]; /**< A human readable string describing the error. */
 } cr_ErrorReport;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
+/// \endcond 
+
 /** Request Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingRequest {
     cr_PingRequest_echo_data_t echo_data; /**< Data which should be echoed in the response */
 } cr_PingRequest;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(194) cr_PingResponse_echo_data_t;
+/// \endcond 
+
 /** Response Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingResponse {
     cr_PingResponse_echo_data_t echo_data; /**< The same data sent in the request */
@@ -279,8 +292,11 @@ typedef struct _cr_DeviceInfoRequest {
     char client_protocol_version[16]; /**< The client shares its version to enable backward compatibility. */
 } cr_DeviceInfoRequest;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_sizes_struct_t;
+/// \endcond 
+
 /** This message is returned in answer to the first "who are you" query from the client. */
 typedef struct _cr_DeviceInfoResponse {
     char device_name[24]; /**< Human readable name of the device */
@@ -425,7 +441,10 @@ typedef struct _cr_BitfieldParameterInfo {
     uint32_t pei_id; /**< The (optional) ID of the extended description that names the bits. */
 } cr_BitfieldParameterInfo;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(32) cr_ByteArrayParameterInfo_default_value_t;
+/// \endcond 
+
 /** A member of a union (oneof) that describes a byte array */
 typedef struct _cr_ByteArrayParameterInfo {
     bool has_default_value;  ///< Controls corresponding optional member
@@ -455,7 +474,7 @@ typedef struct _cr_ParameterInfo {
         cr_EnumParameterInfo enum_desc; /**< If an enumeated type */
         cr_BitfieldParameterInfo bitfield_desc; /**< If a bitfield */
         cr_ByteArrayParameterInfo bytearray_desc; /**< If a byte array */
-    } desc;
+    } desc;  /**< A union to efficiently store the details of each parameter description */
 } cr_ParameterInfo;
 
 /** The response to ParameterInfoRequest */
@@ -534,7 +553,10 @@ typedef struct _cr_DiscoverParameterNotificationsResponse {
     cr_ParameterNotifyConfig configs[8]; /**< An array of parameter notification configurations containing information only on parameters that have notifications enabled. */
 } cr_DiscoverParameterNotificationsResponse;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
+/// \endcond 
+
 /** A message used to send or receive a single parameter value. */
 typedef struct _cr_ParameterValue {
     uint32_t parameter_id; /**< The integer ID of this parameter. */
@@ -619,7 +641,9 @@ typedef struct _cr_FileTransferResponse {
     uint32_t transfer_length; /**< If the file is smaller than the requested offset + length, this will reflect how much data can be transferred */
 } cr_FileTransferResponse;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(194) cr_FileTransferData_message_data_t;
+/// \endcond
 /** A bidirectional message describing a packet of file data */
 typedef struct _cr_FileTransferData {
     int32_t result; /**< non-zero for error */
@@ -690,7 +714,9 @@ typedef struct _cr_StreamClose {
     int32_t stream_id; /**< The ID by which this stream is addressed. */
 } cr_StreamClose;
 
+/// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(194) cr_StreamData_message_data_t;
+/// \endcond
 /** Bi-Directional message used to asynchronously send stream data to the other side. */
 typedef struct _cr_StreamData {
     int32_t stream_id; /**< The ID by which this stream is addressed. */
