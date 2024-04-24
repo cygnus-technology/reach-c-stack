@@ -48,6 +48,7 @@
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *);
         void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *);
         void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *);
+        void message_util_log_param_notification(const cr_ParameterNotification *data);
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
@@ -66,6 +67,14 @@
     #ifdef INCLUDE_STREAM_SERVICE
         // Streams
         void message_util_log_discover_streams();
+        void message_util_log_discover_streams_response(const cr_DiscoverStreamsResponse *);
+        void message_util_log_open_stream(const cr_StreamOpen *);
+        void message_util_log_open_stream_response(const cr_StreamResponse *);
+        void message_util_log_close_stream(const cr_StreamClose *);
+        void message_util_log_close_stream_response(const cr_StreamResponse *);
+        void message_util_log_send_stream_notification(const cr_StreamData *);
+        void message_util_log_receive_stream_notification(const cr_StreamData *);
+
     #endif // def INCLUDE_STREAM_SERVICE
 
 

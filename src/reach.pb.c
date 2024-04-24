@@ -153,7 +153,7 @@ PB_BIND(cr_StreamInfo, cr_StreamInfo, AUTO)
 PB_BIND(cr_StreamOpen, cr_StreamOpen, AUTO)
 
 
-PB_BIND(cr_StreamOpenResponse, cr_StreamOpenResponse, AUTO)
+PB_BIND(cr_StreamResponse, cr_StreamResponse, AUTO)
 
 
 PB_BIND(cr_StreamClose, cr_StreamClose, AUTO)
@@ -193,9 +193,6 @@ PB_BIND(cr_TimeGetResponse, cr_TimeGetResponse, AUTO)
 
 
 PB_BIND(cr_ConnectionDescription, cr_ConnectionDescription, AUTO)
-
-
-PB_BIND(cr_ScanWiFi, cr_ScanWiFi, AUTO)
 
 
 PB_BIND(cr_DiscoverWiFi, cr_DiscoverWiFi, AUTO)

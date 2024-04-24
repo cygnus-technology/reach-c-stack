@@ -360,6 +360,48 @@
         return cr_ErrorCodes_NO_DATA;
     }
 
+    // sanitize in place using a buffer on the stack
+    // Added because a bad string can kill the protobuf codec
+    static void sanitize_to_utf8(char *input) {
+        if (input == NULL) return;
+
+        // Get the length of the input string
+        size_t input_len = strlen(input);
+
+        // Allocate memory for the sanitized string
+        char sanitized[REACH_BIG_DATA_BUFFER_LEN];
+
+        // Initialize index for the sanitized string
+        size_t index = 0;
+
+        // Loop through the input string
+        for (size_t i = 0; i < input_len; ++i) {
+            // Check if the character is ASCII
+            if ((input[i] & 0x80) == 0) {
+                // If ASCII, copy as is
+                sanitized[index++] = input[i];
+            } else {
+                // If non-ASCII, convert to UTF-8
+                if ((input[i] & 0xE0) == 0xC0) {
+                    // Two-byte sequence
+                    sanitized[index++] = (char)(((input[i] & 0x1F) << 6) | (input[i + 1] & 0x3F));
+                    i += 1;
+                } else if ((input[i] & 0xF0) == 0xE0) {
+                    // Three-byte sequence
+                    sanitized[index++] = (char)(((input[i] & 0x0F) << 12) | ((input[i + 1] & 0x3F) << 6) | (input[i + 2] & 0x3F));
+                    i += 2;
+                } else if ((input[i] & 0xF8) == 0xF0) {
+                    // Four-byte sequence
+                    sanitized[index++] = (char)(((input[i] & 0x07) << 18) | ((input[i + 1] & 0x3F) << 12) | ((input[i + 2] & 0x3F) << 6) | (input[i + 3] & 0x3F));
+                    i += 3;
+                }
+            }
+        }
+
+        // Null-terminate the sanitized string
+        sanitized[index] = '\0';
+        strcpy(input, sanitized);
+    }
 
     // This can be called directly in response to the read request
     // or it can be called on a continuing basis to complete the 
@@ -437,6 +479,9 @@
                     return 0;
                 }
                 crcb_parameter_read(paramInfo.id, &response->values[i]);
+                if (response->values[i].which_value == cr_ParameterDataType_STRING)
+                    sanitize_to_utf8(response->values[i].value.string_value);
+
                 I3_LOG(LOG_MASK_PARAMS, "Add param read %d.", sCr_requested_param_index);
                 sCr_requested_param_index++;
                 pvtCr_num_remaining_objects--;
@@ -470,6 +515,9 @@
                    sCr_requested_param_index, sCr_requested_param_read_count);
             cr_ParameterValue paramVal;
             rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], &paramVal);
+            if (paramVal.which_value == cr_ParameterDataType_STRING)
+                sanitize_to_utf8(paramVal.value.string_value);
+
             if (rval == cr_ErrorCodes_INVALID_PARAMETER) {
                 I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d, INVALID_PARAMETER.", 
                           sCr_requested_param_array[sCr_requested_param_index], rval);
@@ -502,7 +550,7 @@
         return 0;
     }
 
-    int pvtCrParam_write_param(const cr_ParameterWrite *request,
+    int pvtCrParam_write_param(cr_ParameterWrite *request,
                                cr_ParameterWriteResponse *response) 
     {
         if (!crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, -1)) {
@@ -532,6 +580,10 @@
         for (int i=0; i<request->values_count; i++)
         {
             I3_LOG(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
+
+            if (request->values[i].which_value == cr_ParameterDataType_STRING)
+                sanitize_to_utf8(request->values[i].value.string_value);
+
             rval = crcb_parameter_write(request->values[i].parameter_id, &request->values[i]);
             if (rval != cr_ErrorCodes_NO_ERROR) {
                 cr_report_error(cr_ErrorCodes_WRITE_FAILED, "Parameter write of ID %d failed.", request->values[i].parameter_id);
@@ -905,6 +957,28 @@ void cr_clear_param_notifications(void)
   #endif
 }
 
+int pvtCr_notify_param(cr_ParameterValue *param)
+{
+    if (!cr_get_comm_link_connected())
+        return 0;
+
+    uint8_t *pRaw, *pCoded;
+    size_t size;
+    pvtCr_get_raw_notification_buffer(&pRaw, &size);
+
+    cr_ParameterNotification *note = (cr_ParameterNotification*)pRaw;
+    note->values_count = 1;
+    memcpy(&note->values[0], param, sizeof(cr_ParameterValue));
+
+    pvtCr_encode_message(cr_ReachMessageTypes_PARAMETER_NOTIFICATION, pRaw, NULL);
+    pvtCr_get_coded_notification_buffers(&pCoded, &size);
+
+    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "notification", pCoded, size);
+    // i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d" TEXT_RESET, param->parameter_id);
+    crcb_send_coded_response(pCoded, size);
+    return 0;
+}
+
 /// <summary>
 /// A local function called in cr_process() to determine whether
 /// any parameter notifications need to be generated. 
@@ -1023,7 +1097,7 @@ void pvtCrParam_check_for_notifications()
         if (needToNotify)
         {
             sCr_numNotificationsSent++;
-            crcb_notify_param(&curVal);
+            pvtCr_notify_param(&curVal);
 
             // save it for next time
             sCr_last_param_values[idx] = curVal;
