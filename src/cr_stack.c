@@ -339,6 +339,8 @@ char sCr_advertised_name[APP_ADVERTISED_NAME_LENGTH];
 int cr_set_advertised_name(char *name, int length)
 {
     strncpy(sCr_advertised_name, name, APP_ADVERTISED_NAME_LENGTH);
+    // I3_LOG(LOG_MASK_ALWAYS, "Call sanitize from %s", __FUNCTION__);
+    pvtCr_sanitize_string_to_utf8(sCr_advertised_name);
     if (length >= APP_ADVERTISED_NAME_LENGTH) 
         return APP_ADVERTISED_NAME_LENGTH;
     return cr_ErrorCodes_NO_ERROR;
@@ -351,6 +353,8 @@ int cr_set_advertised_name(char *name, int length)
 */
 const char *cr_get_advertised_name()
 {
+    // I3_LOG(LOG_MASK_PARAMS, "Call sanitize from %s", __FUNCTION__);
+    pvtCr_sanitize_string_to_utf8(sCr_advertised_name);
     return (const char *)sCr_advertised_name;
 }
 
@@ -1987,5 +1991,57 @@ int pvtCr_notify_error(cr_ErrorReport *err)
     crcb_send_coded_response(pCoded, size);
     return 0;
 }
+
+// sanitize in place using a buffer on the stack
+// Added because a bad string can kill the protobuf codec
+void pvtCr_sanitize_string_to_utf8(char *input) {
+    if (input == NULL) 
+    {
+        // I3_LOG(LOG_MASK_ALWAYS, "Sanitize null");
+        return;
+    }
+
+    // Get the length of the input string
+    size_t input_len = strlen(input);
+
+    // Allocate memory for the sanitized string
+    char sanitized[REACH_BIG_DATA_BUFFER_LEN];
+
+    // Initialize index for the sanitized string
+    size_t index = 0;
+
+    // LOG_DUMP_MASK(LOG_MASK_ALWAYS, "Before Sanitize", (uint8_t*)input, input_len);
+
+    // Loop through the input string
+    for (size_t i = 0; i < input_len; ++i) {
+        // Check if the character is ASCII
+        if ((input[i] & 0x80) == 0) {
+            // If ASCII, copy as is
+            sanitized[index++] = input[i];
+        } else {
+            // If non-ASCII, convert to UTF-8
+            if ((input[i] & 0xE0) == 0xC0) {
+                // Two-byte sequence
+                sanitized[index++] = (char)(((input[i] & 0x1F) << 6) | (input[i + 1] & 0x3F));
+                i += 1;
+            } else if ((input[i] & 0xF0) == 0xE0) {
+                // Three-byte sequence
+                sanitized[index++] = (char)(((input[i] & 0x0F) << 12) | ((input[i + 1] & 0x3F) << 6) | (input[i + 2] & 0x3F));
+                i += 2;
+            } else if ((input[i] & 0xF8) == 0xF0) {
+                // Four-byte sequence
+                sanitized[index++] = (char)(((input[i] & 0x07) << 18) | ((input[i + 1] & 0x3F) << 12) | ((input[i + 2] & 0x3F) << 6) | (input[i + 3] & 0x3F));
+                i += 3;
+            }
+        }
+    }
+
+    // Null-terminate the sanitized string
+    sanitized[index] = '\0';
+    strcpy(input, sanitized);
+    // LOG_DUMP_MASK(LOG_MASK_ALWAYS, "After Sanitize", (uint8_t*)input, strlen(input));
+    // I3_LOG(LOG_MASK_ALWAYS, "Sanitized %s", input);
+}
+
 
 

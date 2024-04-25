@@ -360,49 +360,6 @@
         return cr_ErrorCodes_NO_DATA;
     }
 
-    // sanitize in place using a buffer on the stack
-    // Added because a bad string can kill the protobuf codec
-    static void sanitize_to_utf8(char *input) {
-        if (input == NULL) return;
-
-        // Get the length of the input string
-        size_t input_len = strlen(input);
-
-        // Allocate memory for the sanitized string
-        char sanitized[REACH_BIG_DATA_BUFFER_LEN];
-
-        // Initialize index for the sanitized string
-        size_t index = 0;
-
-        // Loop through the input string
-        for (size_t i = 0; i < input_len; ++i) {
-            // Check if the character is ASCII
-            if ((input[i] & 0x80) == 0) {
-                // If ASCII, copy as is
-                sanitized[index++] = input[i];
-            } else {
-                // If non-ASCII, convert to UTF-8
-                if ((input[i] & 0xE0) == 0xC0) {
-                    // Two-byte sequence
-                    sanitized[index++] = (char)(((input[i] & 0x1F) << 6) | (input[i + 1] & 0x3F));
-                    i += 1;
-                } else if ((input[i] & 0xF0) == 0xE0) {
-                    // Three-byte sequence
-                    sanitized[index++] = (char)(((input[i] & 0x0F) << 12) | ((input[i + 1] & 0x3F) << 6) | (input[i + 2] & 0x3F));
-                    i += 2;
-                } else if ((input[i] & 0xF8) == 0xF0) {
-                    // Four-byte sequence
-                    sanitized[index++] = (char)(((input[i] & 0x07) << 18) | ((input[i + 1] & 0x3F) << 12) | ((input[i + 2] & 0x3F) << 6) | (input[i + 3] & 0x3F));
-                    i += 3;
-                }
-            }
-        }
-
-        // Null-terminate the sanitized string
-        sanitized[index] = '\0';
-        strcpy(input, sanitized);
-    }
-
     // This can be called directly in response to the read request
     // or it can be called on a continuing basis to complete the 
     // read transaction.  
@@ -478,10 +435,29 @@
                     I3_LOG(LOG_MASK_PARAMS, "Added read %d.", response->values_count);
                     return 0;
                 }
-                crcb_parameter_read(paramInfo.id, &response->values[i]);
-                if (response->values[i].which_value == cr_ParameterDataType_STRING)
-                    sanitize_to_utf8(response->values[i].value.string_value);
-
+                // I3_LOG(LOG_MASK_PARAMS, "line %d, call crcb_parameter_read(%d).", 
+                //        __LINE__, paramInfo.id);
+                rval = crcb_parameter_read(paramInfo.id, &response->values[i]);
+                if (rval == cr_ErrorCodes_INVALID_PARAMETER) {
+                    int pid = paramInfo.id;
+                    I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d, INVALID_PARAMETER.", 
+                              pid, rval);
+                    cr_report_error(rval, "pid %d is not valid.", pid);
+                    memset(&response->values[i], 0, sizeof(cr_ParameterReadResponse));
+                    response->values[i].parameter_id = pid;
+                }
+                else if (rval != cr_ErrorCodes_NO_ERROR) {
+                    int pid = paramInfo.id;
+                    cr_report_error(rval, "pid %d is not valid, ret %d.", pid, rval);
+                    I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d.",
+                              pid, rval);
+                    memset(&response->values[i], 0, sizeof(cr_ParameterReadResponse));
+                    response->values[i].parameter_id = pid;
+                }
+                if (response->values[i].which_value == cr_ParameterValue_string_value_tag)
+                {
+                    pvtCr_sanitize_string_to_utf8(response->values[i].value.string_value);
+                }
                 I3_LOG(LOG_MASK_PARAMS, "Add param read %d.", sCr_requested_param_index);
                 sCr_requested_param_index++;
                 pvtCr_num_remaining_objects--;
@@ -511,12 +487,14 @@
                 pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                 break;
             }
-            I3_LOG(LOG_MASK_PARAMS, "Read param %d from list of %d", 
-                   sCr_requested_param_index, sCr_requested_param_read_count);
+            I3_LOG(LOG_MASK_PARAMS, "Line %d: Read param %d (%d) from list of %d", 
+                   __LINE__, sCr_requested_param_index, 
+                   sCr_requested_param_array[sCr_requested_param_index],
+                   sCr_requested_param_read_count);
+
             cr_ParameterValue paramVal;
-            rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], &paramVal);
-            if (paramVal.which_value == cr_ParameterDataType_STRING)
-                sanitize_to_utf8(paramVal.value.string_value);
+            rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], 
+                                       &paramVal);
 
             if (rval == cr_ErrorCodes_INVALID_PARAMETER) {
                 I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d, INVALID_PARAMETER.", 
@@ -534,6 +512,12 @@
                           sCr_requested_param_array[sCr_requested_param_index], rval);
                 memset(&paramVal, 0, sizeof(paramVal));
                 paramVal.parameter_id = sCr_requested_param_array[sCr_requested_param_index];
+            }
+            if (paramVal.which_value == cr_ParameterValue_string_value_tag)
+            {
+                // i3_log(LOG_MASK_ALWAYS, "Sanitize parameter ID %d (%d)", paramVal.parameter_id,
+                //        sCr_requested_param_array[sCr_requested_param_index]);
+                pvtCr_sanitize_string_to_utf8(paramVal.value.string_value);
             }
             response->values[i] = paramVal;
             sCr_requested_param_array[sCr_requested_param_index] = -1;
@@ -581,8 +565,8 @@
         {
             I3_LOG(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
 
-            if (request->values[i].which_value == cr_ParameterDataType_STRING)
-                sanitize_to_utf8(request->values[i].value.string_value);
+            if (request->values[i].which_value == cr_ParameterValue_string_value_tag)
+                pvtCr_sanitize_string_to_utf8(request->values[i].value.string_value);
 
             rval = crcb_parameter_write(request->values[i].parameter_id, &request->values[i]);
             if (rval != cr_ErrorCodes_NO_ERROR) {

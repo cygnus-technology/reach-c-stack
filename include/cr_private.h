@@ -252,6 +252,8 @@ extern "C" {
     */
     void pvtCr_get_coded_notification_buffers(uint8_t **pCoded, size_t *pSize);
 
+    void pvtCr_sanitize_string_to_utf8(char *input);
+
 
 #ifdef __cplusplus
 }
