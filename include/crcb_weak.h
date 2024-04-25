@@ -491,9 +491,15 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     /**
     * @brief   crcb_erase_file
     * @details The device overrides this method to accept a command to set the 
-    *          length of a file to zero, erasing it.
+    *          length of a file to zero, erasing it.  The erase
+    *          process may take some time the implementation can
+    *          choose to return cr_ErrorCodes_INCOMPLETE to indicate
+    *          that the erase command needs to be issued again until
+    *          it succeeds.  Other errors are reported via the
+    *          result field and its message.
     * @param   fid (input) which file
-    * @return  returns zero or an error code
+    * @return  returns cr_ErrorCodes_NO_ERROR or 
+    *          cr_ErrorCodes_INCOMPLETE.
     */
     int crcb_erase_file(const uint32_t fid);
 

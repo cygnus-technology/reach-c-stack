@@ -695,7 +695,19 @@ int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
     response->result  = crcb_erase_file(request->file_id);
     response->has_result_message = false;
     response->result_message[0] = 0;
-    return 0;
+    switch (response->result)
+    {
+    default:
+    case cr_ErrorCodes_NO_ERROR:
+        break;
+    case cr_ErrorCodes_INCOMPLETE:
+        // crcb_erase_file() can report incomplete to avoid blocking the main 
+        // loop for an extended time.  If the erase takes a long time it's 
+        // accepted that several calls to erase might be required to know that
+        // the erase has completed.
+        return cr_ErrorCodes_INCOMPLETE;
+    }
+    return cr_ErrorCodes_NO_ERROR;
 }
 
 
