@@ -779,93 +779,101 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
 #endif  // def INCLUDE_TIME_SERVICE
 
 #ifdef INCLUDE_WIFI_SERVICE
-    void message_util_log_discover_wifi_request(const cr_DiscoverWiFiRequest *payload)
+    void message_util_log_discover_wifi_request(const cr_DiscoverWiFi *payload)
     {
-        if (payload->state == cr_WiFiState_CONNECTED)
-            i3_log(LOG_MASK_REACH, "  WiFi Info request for connected link\r\n");
-        else
-            i3_log(LOG_MASK_REACH, "  WiFi Info request for unconnected link(s)\r\n");
+        (void)payload;
+        i3_log(LOG_MASK_REACH, "  Discover WiFi\r\n");
     }
 
-    void message_util_log_WiFi_connect_request(const cr_WiFiConnectionRequest *payload)
+    void message_util_log_WiFi_connection_request(const cr_WiFiConnectionRequest *payload)
     {
-        if (payload->action == cr_WiFiState_CONNECTED)
-        {
-            if (!payload->has_cd)
-            {
-                i3_log(LOG_MASK_REACH, "  WiFi connection request without description.\r\n");
-                LOG_ERROR("WiFi connection request without description.\r\n");
-                return;
-            }
-            i3_log(LOG_MASK_REACH, "  WiFi connect request for connection to:");
-            i3_log(LOG_MASK_REACH, "    SSID : '%s'", payload->cd.ssid);
-            if (payload->cd.has_signal_strength)
-                i3_log(LOG_MASK_REACH, "    Signal Strength : %d", payload->cd.signal_strength);
-            if (payload->cd.has_sec)
-            {
-                switch (payload->cd.sec)
-                {
-                case cr_WiFiSecurity_OPEN:
-                    i3_log(LOG_MASK_REACH, "    Open connection\r\n");
-                    break;
-                case cr_WiFiSecurity_WEP:
-                    i3_log(LOG_MASK_REACH, "    WEP security\r\n");
-                    break;
-                case cr_WiFiSecurity_WPA:
-                    i3_log(LOG_MASK_REACH, "    WPA security\r\n");
-                    break;
-                case cr_WiFiSecurity_WPA2:
-                    i3_log(LOG_MASK_REACH, "    WPA2 security\r\n");
-                    break;
-                case cr_WiFiSecurity_WPA3:
-                    i3_log(LOG_MASK_REACH, "    WPA3 security\r\n");
-                    break;
-                default:
-                    i3_log(LOG_MASK_REACH, "    Unknown security %d", payload->cd.sec);
-                    break;
-                }
-            }
-            else
-                i3_log(LOG_MASK_REACH, "    No security specified");
-            if (payload->cd.has_band)
-                i3_log(LOG_MASK_REACH, "    Radio band %d", payload->cd.band);
-            if (payload->has_autoconnect && payload->autoconnect)
-                i3_log(LOG_MASK_REACH, "    Autoconnect requested");
-            i3_log(LOG_MASK_REACH, "\r\n");
-        }
-        else
-        {
-            i3_log(LOG_MASK_REACH, "  WiFi connect request for disconnect.\r\n");
-        }
+      if (payload->connect)
+      {
+        i3_log(LOG_MASK_REACH, "  Request Connection to WiFi SSID %s.", payload->ssid);
+        if (payload->has_password)
+          i3_log(LOG_MASK_REACH, "    Password provided");
+        if (payload->has_autoconnect)
+          i3_log(LOG_MASK_REACH, "    Autoconenct requested.");
+        i3_log(LOG_MASK_REACH, "\r\n");
+        return;
+      }
+      if (payload->disconnect)
+      {
+        i3_log(LOG_MASK_REACH, "  Request Disconnection from WiFi SSID %s.\r\n", payload->ssid);
+        return;
+      }
+      i3_log(LOG_MASK_REACH, "  WiFi connection request for info on SSID %s.\r\n", payload->ssid);
+      return;
     }
 
     void message_util_log_discover_wifi_response(cr_DiscoverWiFiResponse *payload)
     {
-        i3_log(LOG_MASK_REACH, "  Discover WiFi Response:");
-        if (payload->state == cr_WiFiState_CONNECTED)
-            i3_log(LOG_MASK_REACH, "    Connected.\r\n");
-        else 
-            i3_log(LOG_MASK_REACH, "    Not Connected, connection ID %d.\r\n", payload->connectionId);
-        if (payload->has_cd) 
-            i3_log(LOG_MASK_REACH, "    SSID : '%s'.\r\n", payload->cd.ssid);
-        if (payload->cd.has_signal_strength)
-            i3_log(LOG_MASK_REACH, "    Signal strength %d\r\n", payload->cd.signal_strength);
-        if (payload->cd.has_signal_strength)
-            i3_log(LOG_MASK_REACH, "    Signal strength %d\r\n", payload->cd.signal_strength);
-        if (payload->cd.has_band)
-            i3_log(LOG_MASK_REACH, "    Radio band %d\r\n", payload->cd.band);
-        i3_log(LOG_MASK_REACH, "\r\n");
+        i3_log(LOG_MASK_REACH, "  Discover WiFi Response, result %d:", payload->result);
+        for (int i = 0; i < payload->cd_count; i++)
+        {
+            i3_log(LOG_MASK_REACH, "    AP %d:", i);
+            i3_log(LOG_MASK_REACH, "      SSID : '%s'.", payload->cd[i].ssid);
+            if (payload->cd[i].is_connected) i3_log(LOG_MASK_REACH, "      Connected.");
+            if (payload->cd[i].has_signal_strength) i3_log(LOG_MASK_REACH, "      Signal strength: %d.", payload->cd[i].signal_strength);
+            if (payload->cd[i].has_sec)
+            {
+                switch (payload->cd[i].sec)
+                {
+                case cr_WiFiSecurity_OPEN:
+                    i3_log(LOG_MASK_REACH, "      Security mode: Open (none).");
+                    break;
+                case cr_WiFiSecurity_WEP:
+                    i3_log(LOG_MASK_REACH, "      Security mode: WEP.");
+                    break;
+                case cr_WiFiSecurity_WPA:
+                    i3_log(LOG_MASK_REACH, "      Security mode: WPA.");
+                    break;
+                case cr_WiFiSecurity_WPA2:
+                    i3_log(LOG_MASK_REACH, "      Security mode: WPA2.");
+                    break;
+                case cr_WiFiSecurity_WPA3:
+                    i3_log(LOG_MASK_REACH, "      Security mode: WPA3.");
+                    break;
+                default:
+                    i3_log(LOG_MASK_WARN,  "      Security mode: %d (unsupported).", payload->cd[i].sec);
+                }
+            }
+            if (payload->cd[i].has_band)
+            {
+                switch (payload->cd[i].band)
+                {
+                case cr_WiFiBand_NO_BAND:
+                    i3_log(LOG_MASK_REACH, "      Band not specified.");
+                    break;
+                case cr_WiFiBand_BAND_2:
+                    i3_log(LOG_MASK_REACH, "      2.4GHz band specified.");
+                    break;
+                case cr_WiFiBand_BAND_5:
+                    i3_log(LOG_MASK_REACH, "      5GHz band specified.");
+                    break;
+                default:
+                    i3_log(LOG_MASK_WARN,  "      Band: %d (unsupported).", payload->cd[i].band);
+                }
+            }
+            i3_log(LOG_MASK_REACH, "\r\n");
+        }
     }
 
-    void message_util_log_WiFi_connect_response(cr_WiFiConnectionResponse *payload)
+    void message_util_log_WiFi_connection_response(cr_WiFiConnectionResponse *payload)
     {
-        i3_log(LOG_MASK_REACH, "  WiFi Connect Response:");
-        i3_log(LOG_MASK_REACH, "    Connection Result %d\r\n", payload->result);
-        if (payload->has_signal_strength)
-            i3_log(LOG_MASK_REACH, "    Signal strength %d\r\n", payload->signal_strength);
-        if (payload->has_error_message)
-            i3_log(LOG_MASK_REACH, "    Message: '%s'\r\n", payload->error_message);
+      i3_log(LOG_MASK_REACH, "  WiFi ConnectionResponse, result %d:", payload->result);
+      if (payload->connected)
+        i3_log(LOG_MASK_REACH, "    Connected.");
+      else
+        i3_log(LOG_MASK_REACH, "    NOT Connected.");
+      if (payload->has_signal_strength)
+        i3_log(LOG_MASK_REACH, "    Signal strength: %d.", payload->signal_strength);
+      if (payload->has_result_message)
+        i3_log(LOG_MASK_REACH, "    Message: '%s'.", payload->result_message);
+      i3_log(LOG_MASK_REACH, "\r\n");
+      return;
     }
+
   #endif  // def INCLUDE_WIFI_SERVICE
 
 
@@ -944,10 +952,10 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
     #endif // def INCLUDE_TIME_SERVICE
 
     #ifdef INCLUDE_WIFI_SERVICE
-        void message_util_log_discover_wifi_request(const cr_DiscoverWiFiRequest *payload){}
-        void message_util_log_WiFi_connect_request(const cr_WiFiConnectionRequest *payload){}
+        void message_util_log_discover_wifi_request(const cr_DiscoverWiFi *payload){}
         void message_util_log_discover_wifi_response(cr_DiscoverWiFiResponse *payload){}
-        void message_util_log_WiFi_connect_response(cr_WiFiConnectionResponse *payload);
+        void message_util_log_WiFi_connection_request(const cr_WiFiConnectionRequest *payload){}
+        void message_util_log_WiFi_connection_response(cr_WiFiConnectionResponse *payload);
     #endif  // def INCLUDE_WIFI_SERVICE
 
 #endif  // ndef NO_REACH_LOGGING

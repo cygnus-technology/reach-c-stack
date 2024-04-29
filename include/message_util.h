@@ -100,10 +100,10 @@
     #endif // def INCLUDE_TIME_SERVICE
 
     #ifdef INCLUDE_WIFI_SERVICE
-        void message_util_log_discover_wifi_request(const cr_DiscoverWiFiRequest *payload);
-        void message_util_log_WiFi_connect_request(const cr_WiFiConnectionRequest *payload);
+        void message_util_log_discover_wifi_request(const cr_DiscoverWiFi *payload);
         void message_util_log_discover_wifi_response(cr_DiscoverWiFiResponse *payload);
-        void message_util_log_WiFi_connect_response(cr_WiFiConnectionResponse *payload);
+        void message_util_log_WiFi_connection_request(const cr_WiFiConnectionRequest *payload);
+        void message_util_log_WiFi_connection_response(cr_WiFiConnectionResponse *payload);
     #endif  // def INCLUDE_WIFI_SERVICE
 
   #endif // ndef NO_REACH_LOGGING

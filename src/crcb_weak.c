@@ -759,8 +759,8 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   response (output) The requested info
     * @return  returns zero or an error code
     */
-    int crcb_discover_wifi(const cr_DiscoverWiFiRequest *request, 
-                                cr_DiscoverWiFiResponse *response)
+    int __attribute__((weak)) crcb_discover_wifi(const cr_DiscoverWiFi *request, 
+                                                 cr_DiscoverWiFiResponse *response)
     {
         (void)request;
         (void)response;

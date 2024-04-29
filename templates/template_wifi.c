@@ -67,14 +67,19 @@
 * @return  returns cr_ErrorCodes_NO_ERROR or 
 *          cr_ErrorCodes_INCOMPLETE. 
 */
-int crcb_discover_wifi(const cr_DiscoverWiFiRequest *request, 
+int crcb_discover_wifi(const cr_DiscoverWiFi *request, 
                              cr_DiscoverWiFiResponse *response)
 {
+    (void)request;
+    response->result = cr_ErrorCodes_NOT_IMPLEMENTED;
+    // If you haven not just launched a scan, launch one.
+    // If you don't yet have data, return cr_ErrorCodes_INCOMPLETE.
     // User code start [crcb_discover_wifi]
     // User code end [crcb_discover_wifi]
     return 0;
 }
 
+uint8_t sWiFi_index = 0;
 /**
 * @brief   crcb_get_wifi_count
 * @return  The number of wifi access points available to the
@@ -84,7 +89,7 @@ int crcb_get_wifi_count()
 {
     // User code start [crcb_get_wifi_count]
     // User code end [crcb_get_wifi_count]
-    return 0;
+    return NUM_WIFI_AP;
 }
 
 /**
@@ -101,6 +106,11 @@ int crcb_get_wifi_count()
 */
 int crcb_wifi_discover_reset(const uint32_t cid)
 {
+    if (cid >= NUM_WIFI_AP)
+    {
+        sWiFi_index = NUM_WIFI_AP;
+        return cr_ErrorCodes_INVALID_ID;
+    }
     // User code start [crcb_wifi_discover_reset]
     // User code end [crcb_wifi_discover_reset]
     return 0;
@@ -118,8 +128,15 @@ int crcb_wifi_discover_reset(const uint32_t cid)
 */
 int crcb_wifi_discover_next(cr_ConnectionDescription *conn_desc)
 {
+    if (sWiFi_index >= NUM_WIFI_AP)
+        return cr_ErrorCodes_INVALID_ID;
+
+    *conn_desc = wifi_desc[sWiFi_index];
+
     // User code start [crcb_wifi_discover_next]
     // User code end [crcb_wifi_discover_next]
+
+    sWiFi_index++;
     return 0;
 }
 
@@ -131,10 +148,14 @@ int crcb_wifi_discover_next(cr_ConnectionDescription *conn_desc)
 * @return  returns zero or an error code
 */
 int crcb_wifi_connection(const cr_WiFiConnectionRequest *request, 
-                                  cr_WiFiConnectionResponse *response)
+                               cr_WiFiConnectionResponse *response)
 {
+    affirm(request);
+    affirm(response);
+
     // User code start [crcb_wifi_connection]
     // User code end [crcb_wifi_connection]
+
     return 0;
 }
 

@@ -568,7 +568,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @return  returns cr_ErrorCodes_NO_ERROR or 
     *          cr_ErrorCodes_INCOMPLETE. 
     */
-    int crcb_discover_wifi(const cr_DiscoverWiFiRequest *request, 
+    int crcb_discover_wifi(const cr_DiscoverWiFi *request,
                                  cr_DiscoverWiFiResponse *response);
    /**
     * @brief   crcb_get_wifi_count
