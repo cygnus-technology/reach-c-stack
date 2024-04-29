@@ -979,23 +979,6 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif /// INCLUDE_STREAM_SERVICE
 
 
