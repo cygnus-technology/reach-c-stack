@@ -49,7 +49,17 @@
 // User code start [P1]
 // User code end [P1]
 
-
+static int sFindIndexFromPid(uint32_t pid, uint32_t *index)
+{
+    uint32_t idx;
+    for (idx=0; idx<NUM_PARAMS; idx++) {
+        if (param_desc[idx].id == pid) {
+            *index = idx;
+            return 0;
+        }
+    }
+    return cr_ErrorCodes_INVALID_ID;
+}
 
 void init_param_repo()
 {
@@ -161,23 +171,27 @@ int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
 {
     int rval = 0;
     affirm(data != NULL);
-    if (pid >= NUM_PARAMS)
-        return cr_ErrorCodes_INVALID_ID;
+    uint32_t idx;
+    rval = sFindIndexFromPid(pid, &idx);
+    if (0 != rval)
+        return rval;
 
-    //rval = app_handle_param_repo_read(&sCr_param_val[pid]);
+    //rval = app_handle_param_repo_read(&sCr_param_val[idx]);
     // User code start [P5]
     // User code end [P5]
 
-    *data = sCr_param_val[pid];
+    *data = sCr_param_val[idx];
     return rval;
 }
 
 int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
 {   
-    if (pid >= NUM_PARAMS)
-        return cr_ErrorCodes_INVALID_ID;
     int rval = 0;
-    I3_LOG(LOG_MASK_PARAMS, "Write param, pid %d (%d)", pid, data->parameter_id);
+    uint32_t idx;
+    rval = sFindIndexFromPid(pid, &idx);
+    if (0 != rval)
+        return rval;
+    I3_LOG(LOG_MASK_PARAMS, "Write param, pid %d (%d)", idx, data->parameter_id);
     I3_LOG(LOG_MASK_PARAMS, "  timestamp %d", data->timestamp);
     I3_LOG(LOG_MASK_PARAMS, "  which %d", data->which_value);
 
@@ -190,62 +204,62 @@ int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
         // Invalid data or NVM storage failed
         return rval;
     }
-    sCr_param_val[pid].timestamp = data->timestamp;
-    sCr_param_val[pid].which_value = data->which_value;
+    sCr_param_val[idx].timestamp = data->timestamp;
+    sCr_param_val[idx].which_value = data->which_value;
 
     switch ((data->which_value - cr_ParameterValue_uint32_value_tag))
     {
         case cr_ParameterDataType_UINT32:
-            sCr_param_val[pid].value.uint32_value = data->value.uint32_value;
+            sCr_param_val[idx].value.uint32_value = data->value.uint32_value;
             break;
         case cr_ParameterDataType_INT32:
-            sCr_param_val[pid].value.int32_value = data->value.int32_value;
+            sCr_param_val[idx].value.int32_value = data->value.int32_value;
             break;
         case cr_ParameterDataType_FLOAT32:
-            sCr_param_val[pid].value.float32_value = data->value.float32_value;
+            sCr_param_val[idx].value.float32_value = data->value.float32_value;
             break;
         case cr_ParameterDataType_UINT64:
-            sCr_param_val[pid].value.uint64_value = data->value.uint64_value;
+            sCr_param_val[idx].value.uint64_value = data->value.uint64_value;
             break;
         case cr_ParameterDataType_INT64:
-            sCr_param_val[pid].value.int64_value = data->value.int64_value;
+            sCr_param_val[idx].value.int64_value = data->value.int64_value;
             break;
         case cr_ParameterDataType_FLOAT64:
-            sCr_param_val[pid].value.float64_value = data->value.float64_value;
+            sCr_param_val[idx].value.float64_value = data->value.float64_value;
             break;
         case cr_ParameterDataType_BOOL:
-            sCr_param_val[pid].value.bool_value = data->value.bool_value;
+            sCr_param_val[idx].value.bool_value = data->value.bool_value;
             break;
         case cr_ParameterDataType_STRING:
-            memcpy(sCr_param_val[pid].value.string_value,
+            memcpy(sCr_param_val[idx].value.string_value,
                    data->value.string_value, REACH_PVAL_STRING_LEN);
-            sCr_param_val[pid].value.string_value[REACH_PVAL_STRING_LEN-1] = 0;
+            sCr_param_val[idx].value.string_value[REACH_PVAL_STRING_LEN-1] = 0;
             I3_LOG(LOG_MASK_PARAMS, "String value: %s",
-                   sCr_param_val[pid].value.string_value);
+                   sCr_param_val[idx].value.string_value);
             break;
         case cr_ParameterDataType_BIT_FIELD:
-            sCr_param_val[pid].value.bitfield_value = data->value.bitfield_value;
+            sCr_param_val[idx].value.bitfield_value = data->value.bitfield_value;
             break;
         case cr_ParameterDataType_ENUMERATION:
-            sCr_param_val[pid].value.enum_value = data->value.enum_value;
+            sCr_param_val[idx].value.enum_value = data->value.enum_value;
             break;
         case cr_ParameterDataType_BYTE_ARRAY:
-            memcpy(sCr_param_val[pid].value.bytes_value.bytes,
+            memcpy(sCr_param_val[idx].value.bytes_value.bytes,
                    data->value.bytes_value.bytes, 
                    REACH_PVAL_BYTES_LEN);
             if (data->value.bytes_value.size > REACH_PVAL_BYTES_LEN)
             {
                 LOG_ERROR("Parameter write of bytes has invalid size %d > %d",
                           data->value.bytes_value.size, REACH_PVAL_BYTES_LEN);
-                sCr_param_val[pid].value.bytes_value.size = REACH_PVAL_BYTES_LEN;
+                sCr_param_val[idx].value.bytes_value.size = REACH_PVAL_BYTES_LEN;
             }
             else
             {
-                sCr_param_val[pid].value.bytes_value.size = data->value.bytes_value.size;
+                sCr_param_val[idx].value.bytes_value.size = data->value.bytes_value.size;
             }
             LOG_DUMP_MASK(LOG_MASK_PARAMS, "bytes value",
-                          sCr_param_val[pid].value.bytes_value.bytes,
-                          sCr_param_val[pid].value.bytes_value.size);
+                          sCr_param_val[idx].value.bytes_value.bytes,
+                          sCr_param_val[idx].value.bytes_value.size);
             break;
         default:
             LOG_ERROR("Parameter write which_value %d not recognized.", 
@@ -313,25 +327,17 @@ static int sCurrentParameter = 0;
 // description of this parameter.
 int crcb_parameter_discover_reset(const uint32_t pid)
 {
-    if (pid >= NUM_PARAMS)
+    int rval = 0;
+    uint32_t idx;
+    rval = sFindIndexFromPid(pid, &idx);
+    if (0 != rval)
     {
         sCurrentParameter = 0;
         I3_LOG(LOG_MASK_PARAMS, "dp reset(%d) reset > defaults to %d", pid, sCurrentParameter);
-        return cr_ErrorCodes_INVALID_ID;
+        return rval;
     }
-    sCurrentParameter = pid;
-    int i;
-    sCurrentParameter = 0;  // in case none match
-    for (i = 0; i < NUM_PARAMS; i++)
-    {
-        if (param_desc[i].id == pid) {
-            sCurrentParameter = i;
-            // I3_LOG(LOG_MASK_PARAMS, "dp reset(%d) reset to %d", pid, sCurrentParameter);
-            return 0;
-        }
-    }
-    I3_LOG(LOG_MASK_PARAMS, "dp reset(%d) reset not found defaults to %d", pid, sCurrentParameter);
-    return cr_ErrorCodes_INVALID_ID;
+    sCurrentParameter = idx;
+    return 0;
 }
 
 // Gets the parameter description for the next parameter.

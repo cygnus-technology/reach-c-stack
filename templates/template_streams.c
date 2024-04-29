@@ -52,6 +52,25 @@
 // User code start [S1]
 // User code end [S1]
 
+static uint8_t sSid_index;  // assumes never more than 255 streams.
+#if NUM_STREAMS > 255
+  #error "Can't have more than 255 streams"
+#endif
+
+static int sFindIndexFromSid(uint32_t sid, uint8_t *index)
+{
+    uint8_t idx;
+    affirm(NUM_STREAMS <256);
+    for (idx=0; idx<NUM_STREAMS; idx++) {
+        if (streams_desc[idx].id == sid) {
+            *index = idx;
+            return 0;
+        }
+    }
+    return cr_ErrorCodes_INVALID_ID;
+}
+
+
 /**
 * @brief   crcb_stream_get_count
 * @return  The overriding implementation must returns the number 
@@ -59,9 +78,15 @@
 */    
 int crcb_stream_get_count()
 {
+    int i;
+    int numAvailable = 0;
+    for (i = 0; i < NUM_STREAMS; i++)
+    {
+        if (crcb_access_granted(cr_ServiceIds_STREAMS, streams_desc[i].stream_id)) numAvailable++;
+    }
     // User code start [crcb_stream_get_count]
     // User code end [crcb_stream_get_count]
-    return 0;
+    return numAvailable;
 }
 
 /**
@@ -76,6 +101,24 @@ int crcb_stream_get_count()
 */
 int crcb_stream_discover_reset(const uint8_t sid)
 {
+
+    int rval = 0;
+    uint32_t idx;
+    rval = sFindIndexFromSid(sid, &idx);
+    if (0 != rval)
+    {
+        I3_LOG(LOG_MASK_ERROR, "%s(%d): invalid SID, using NUM_STREAMS.", __FUNCTION__, sid);
+        sSid_index = NUM_STREAMS;
+        return cr_ErrorCodes_BAD_ID;
+    }
+    if (!crcb_access_granted(cr_ServiceIds_FILES, file_descriptions[sSid_index].file_id))
+    {
+        I3_LOG(LOG_MASK_ERROR, "%s(%d): Access not granted, using NUM_STREAMS.", __FUNCTION__, sid);
+        sSid_index = NUM_STREAMS;
+        return cr_ErrorCodes_BAD_ID;
+    }
+    sSid_index = idx;
+
     // User code start [crcb_stream_discover_reset]
     // User code end [crcb_stream_discover_reset]
     return 0;
@@ -93,6 +136,22 @@ int crcb_stream_discover_reset(const uint8_t sid)
 */
 int crcb_stream_discover_next(cr_StreamInfo *stream_desc)
 {
+    if (sSid_index >= NUM_STREAMS) // end of search
+        return cr_ErrorCodes_NO_DATA;
+
+    while (!crcb_access_granted(cr_ServiceIds_STREAMS, streams_desc[sSid_index].stream_id))
+    {
+        I3_LOG(LOG_MASK_FILES, "%s: sSid_index (%d) skip, access not granted",
+               __FUNCTION__, sSid_index);
+        sSid_index++;
+        if (sSid_index >= NUM_STREAMS)
+        {
+            I3_LOG(LOG_MASK_PARAMS, "%s: skipped to sSid_index (%d) >= NUM_STREAMS (%d)",
+                   __FUNCTION__, sSid_index, NUM_STREAMS);
+            return cr_ErrorCodes_NO_DATA;
+        }
+    }
+    *stream_desc = streams_desc[sSid_index++];
     // User code start [crcb_stream_discover_next]
     // User code end [crcb_stream_discover_next]
     return 0;
@@ -109,6 +168,12 @@ int crcb_stream_discover_next(cr_StreamInfo *stream_desc)
 */
 int crcb_stream_get_description(uint32_t sid, cr_StreamInfo *stream_desc)
 {
+    int rval = 0;
+    affirm(stream_desc != NULL);
+    uint32_t idx;
+    rval = sFindIndexFromFid(sid, &idx);
+    if (rval != 0) return rval;
+    *stream_desc = streams_desc[idx];
     // User code start [crcb_stream_get_description]
     // User code end [crcb_stream_get_description]
     return 0;
@@ -128,6 +193,12 @@ int crcb_stream_get_description(uint32_t sid, cr_StreamInfo *stream_desc)
 */
 int crcb_stream_read(uint32_t sid, cr_StreamData *data)
 {
+    int rval = 0;
+    affirm(stream_desc != NULL);
+    uint32_t idx;
+    rval = sFindIndexFromFid(sid, &idx);
+    if (rval != 0) return rval;
+
     // User code start [crcb_stream_read]
     // User code end [crcb_stream_read]
     return 0;
@@ -146,6 +217,12 @@ int crcb_stream_read(uint32_t sid, cr_StreamData *data)
 */
 int crcb_stream_write(uint32_t sid, cr_StreamData *data)
 {
+    int rval = 0;
+    affirm(stream_desc != NULL);
+    uint32_t idx;
+    rval = sFindIndexFromFid(sid, &idx);
+    if (rval != 0) return rval;
+
     // User code start [crcb_stream_write]
     // User code end [crcb_stream_write]
     return 0;
@@ -161,6 +238,12 @@ int crcb_stream_write(uint32_t sid, cr_StreamData *data)
 */
 int crcb_stream_open(uint32_t sid)
 {
+    int rval = 0;
+    affirm(stream_desc != NULL);
+    uint32_t idx;
+    rval = sFindIndexFromFid(sid, &idx);
+    if (rval != 0) return rval;
+
     // User code start [crcb_stream_open]
     // User code end [crcb_stream_open]
     return 0;
@@ -175,6 +258,12 @@ int crcb_stream_open(uint32_t sid)
 */
 int crcb_stream_close(uint32_t sid)
 {
+    int rval = 0;
+    affirm(stream_desc != NULL);
+    uint32_t idx;
+    rval = sFindIndexFromFid(sid, &idx);
+    if (rval != 0) return rval;
+
     // User code start [crcb_stream_close]
     // User code end [crcb_stream_close]
     return 0;
