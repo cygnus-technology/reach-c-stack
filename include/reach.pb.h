@@ -651,7 +651,7 @@ typedef struct _cr_DiscoverStreams {
 
 /** A structure describing a stream */
 typedef struct _cr_StreamInfo {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
     cr_AccessLevel access; /**< Read:  The stream flows from the device.  Write:  The stream flows to the device. */
     char name[24]; /**< A human readable name for this stream. */
     char description[48]; /**< A longer human readable description of this stream. */
@@ -665,12 +665,12 @@ typedef struct _cr_DiscoverStreamsResponse {
 
 /** A structure requesting to open a stream */
 typedef struct _cr_StreamOpen {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
 } cr_StreamOpen;
 
 /** The response to StreamOpen and StreamClose requests */
 typedef struct _cr_StreamResponse {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
     int32_t result; /**< A result of zero indicates OK */
     bool has_result_message;
     char result_message[194]; /**< Allows to provide a human readable explanation in case of an error. */
@@ -678,13 +678,13 @@ typedef struct _cr_StreamResponse {
 
 /** A structure requesting to close a stream */
 typedef struct _cr_StreamClose {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
 } cr_StreamClose;
 
 typedef PB_BYTES_ARRAY_T(194) cr_StreamData_message_data_t;
 /** Bi-Directional message used to asynchronously send stream data to the other side. */
 typedef struct _cr_StreamData {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
     uint32_t roll_count; /**< Message Number.  Increases with each send.  As stream transmission may be less relaible, allows for continuity checking. */
     cr_StreamData_message_data_t message_data; /**< An array of bytes representing the streami data. */
     bool has_checksum;
@@ -1727,7 +1727,7 @@ X(a, STATIC,   REPEATED, MESSAGE,  streams,           1)
 #define cr_DiscoverStreamsResponse_streams_MSGTYPE cr_StreamInfo
 
 #define cr_StreamInfo_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
+X(a, STATIC,   SINGULAR, UINT32,   stream_id,         1) \
 X(a, STATIC,   SINGULAR, UENUM,    access,            2) \
 X(a, STATIC,   SINGULAR, STRING,   name,              3) \
 X(a, STATIC,   SINGULAR, STRING,   description,       4)
@@ -1735,24 +1735,24 @@ X(a, STATIC,   SINGULAR, STRING,   description,       4)
 #define cr_StreamInfo_DEFAULT NULL
 
 #define cr_StreamOpen_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    stream_id,         1)
+X(a, STATIC,   SINGULAR, UINT32,   stream_id,         1)
 #define cr_StreamOpen_CALLBACK NULL
 #define cr_StreamOpen_DEFAULT NULL
 
 #define cr_StreamResponse_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
+X(a, STATIC,   SINGULAR, UINT32,   stream_id,         1) \
 X(a, STATIC,   SINGULAR, INT32,    result,            2) \
 X(a, STATIC,   OPTIONAL, STRING,   result_message,    3)
 #define cr_StreamResponse_CALLBACK NULL
 #define cr_StreamResponse_DEFAULT NULL
 
 #define cr_StreamClose_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    stream_id,         1)
+X(a, STATIC,   SINGULAR, UINT32,   stream_id,         1)
 #define cr_StreamClose_CALLBACK NULL
 #define cr_StreamClose_DEFAULT NULL
 
 #define cr_StreamData_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
+X(a, STATIC,   SINGULAR, UINT32,   stream_id,         1) \
 X(a, STATIC,   SINGULAR, UINT32,   roll_count,        2) \
 X(a, STATIC,   SINGULAR, BYTES,    message_data,      3) \
 X(a, STATIC,   OPTIONAL, INT32,    checksum,          4)
@@ -2032,7 +2032,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DiscoverFiles_size                    0
 #define cr_DiscoverParameterNotificationsResponse_size 200
 #define cr_DiscoverParameterNotifications_size   192
-#define cr_DiscoverStreamsResponse_size          178
+#define cr_DiscoverStreamsResponse_size          168
 #define cr_DiscoverStreams_size                  0
 #define cr_DiscoverWiFiResponse_size             219
 #define cr_DiscoverWiFi_size                     0
@@ -2070,11 +2070,11 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_ReachMessage_size                     243
 #define cr_SendCommandResponse_size              207
 #define cr_SendCommand_size                      6
-#define cr_StreamClose_size                      11
-#define cr_StreamData_size                       225
-#define cr_StreamInfo_size                       87
-#define cr_StreamOpen_size                       11
-#define cr_StreamResponse_size                   218
+#define cr_StreamClose_size                      6
+#define cr_StreamData_size                       220
+#define cr_StreamInfo_size                       82
+#define cr_StreamOpen_size                       6
+#define cr_StreamResponse_size                   213
 #define cr_StringParameterInfo_size              39
 #define cr_TimeGetRequest_size                   0
 #define cr_TimeGetResponse_size                  229
