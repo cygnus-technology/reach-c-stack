@@ -37,7 +37,7 @@
  *
  ********************************************************************************************/
 
-#include "definitions.h"
+#include "param_definitions.h"
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -49,6 +49,7 @@
 // User code start [P1]
 // User code end [P1]
 
+#if DESCRIPTIONS==1
 static int sFindIndexFromPid(uint32_t pid, uint32_t *index)
 {
     uint32_t idx;
@@ -61,6 +62,7 @@ static int sFindIndexFromPid(uint32_t pid, uint32_t *index)
     return cr_ErrorCodes_INVALID_ID;
 }
 
+// this should be a crcb function.
 void init_param_repo()
 {
     int rval = 0;
@@ -441,3 +443,99 @@ int crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
 // User code start [P7]
 // User code end [P7]
 
+#else  // No definitions
+
+void init_param_repo()
+{
+    // User code start [P8]
+    // User code end [P8]
+}
+
+// Populate a parameter value structure
+int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
+{
+    int rval = 0;
+    affirm(data != NULL);
+    // User code start [P9]
+    // User code end [P9]
+    return rval;
+}
+
+int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
+{   
+    int rval = 0;
+    // User code start [P10]
+    // User code end [P10]
+    return rval;
+}
+
+
+int crcb_parameter_get_count()
+{
+    int numAvailable = 0;
+    // User code start [P11]
+    // User code end [P11]
+    return numAvailable;
+}
+
+// return a number that changes if the parameter descriptions have changed.
+uint32_t crcb_compute_parameter_hash(void)
+{
+    uint32_t hash = 0
+    // User code start [P12]
+    // User code end [P12]
+    return hash;
+}
+
+static int sCurrentParameter = 0;
+
+// Resets the application's pointer into the parameter table such that
+// the next call to crcb_parameter_discover_next() will return the
+// description of this parameter.
+int crcb_parameter_discover_reset(const uint32_t pid)
+{
+    // User code start [P13]
+    // User code end [P13]
+    return 0;
+}
+
+// Gets the parameter description for the next parameter.
+// Allows the stack to iterate through the parameter list.
+// The caller provides a cr_ParameterInfo containing string pointers that will be overwritten.
+// The app owns the string pointers which must not be on the stack.
+int crcb_parameter_discover_next(cr_ParameterInfo *ppDesc)
+{
+    // User code start [P14]
+    // User code end [P14]
+    return 0;
+}
+
+int crcb_parameter_ex_get_count(const int32_t pid)
+{
+    // User code start [P15]
+    // User code end [P15]
+    return 0;
+}
+
+int crcb_parameter_ex_discover_reset(const int32_t pid)
+{
+    // User code start [P16]
+    // User code end [P16]
+    return 0;
+}
+
+int crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
+{
+    affirm(pDesc);
+
+    // User code start [P17]
+    // User code end [P17]
+
+    return cr_ErrorCodes_INVALID_ID;
+}
+
+// User functions here
+// User code start [P18]
+// User code end [P18]
+
+#endif // DEFINITIONS
