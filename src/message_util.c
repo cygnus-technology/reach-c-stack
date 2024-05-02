@@ -426,10 +426,82 @@ void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *respo
   }
 }
 
-void message_util_log_discover_streams()
-{
-  i3_log(LOG_MASK_REACH, "  Discover Streams:");
-}
+#ifdef INCLUDE_STREAM_SERVICE
+    // Streams
+    void message_util_log_discover_streams()
+    {
+        i3_log(LOG_MASK_REACH, "  Discover Streams:\r\n");
+    }
+
+    void message_util_log_discover_streams_response(const cr_DiscoverStreamsResponse *resp)
+    {
+        i3_log(LOG_MASK_REACH, "  Discover Streams Response:");
+        for (int i=0; i<resp->streams_count; i++)
+        {
+            i3_log(LOG_MASK_REACH, "  Stream %d:", i);
+            i3_log(LOG_MASK_REACH, "    ID: %d, named '%s'", 
+                   resp->streams[i].stream_id, resp->streams[i].name);
+            i3_log(LOG_MASK_REACH, "    Description: '%s'", resp->streams[i].description);
+            if (resp->streams[i].access == cr_AccessLevel_READ)
+                i3_log(LOG_MASK_REACH, "    Read:  The stream flows from the device.");
+            else if (resp->streams[i].access == cr_AccessLevel_WRITE)
+                i3_log(LOG_MASK_REACH, "    Write:  The stream flows to the device.");
+            else
+                i3_log(LOG_MASK_ERROR, "    StreamAccess %d not allowed.", resp->streams[i].access);
+        }
+        i3_log(LOG_MASK_REACH, "\r\n");
+    }
+
+    void message_util_log_open_stream(const cr_StreamOpen *pen)
+    {
+        i3_log(LOG_MASK_REACH, "  Open Stream %d.\r\n, ", pen->stream_id);
+    }
+    void message_util_log_open_stream_response(const cr_StreamResponse *resp)
+    {
+        i3_log(LOG_MASK_REACH, "  Open Stream %d response: %d.", 
+               resp->stream_id, resp->result);
+        if (resp->has_result_message)
+        {
+            i3_log(LOG_MASK_REACH, "    Message '%s'.", resp->result_message);
+        }
+        i3_log(LOG_MASK_REACH, "\r\n");
+    }
+
+    void message_util_log_close_stream(const cr_StreamClose *clo)
+    {
+        i3_log(LOG_MASK_REACH, "  Close Stream %d.\r\n, ", clo->stream_id);
+    }
+
+    void message_util_log_close_stream_response(const cr_StreamResponse *resp)
+    {
+        i3_log(LOG_MASK_REACH, "  Close Stream %d response: %d.", 
+               resp->stream_id, resp->result);
+        if (resp->has_result_message)
+        {
+            i3_log(LOG_MASK_REACH, "    Message '%s'.", resp->result_message);
+        }
+        i3_log(LOG_MASK_REACH, "\r\n");
+    }
+
+    void message_util_log_send_stream_notification(const cr_StreamData *data)
+    {
+        i3_log(LOG_MASK_REACH, "  Send Stream %d Notification.", data->stream_id);
+        i3_log(LOG_MASK_REACH, "    Roll count %d.  %d bytes of data.",
+               data->roll_count, data->message_data.size);
+        if (data->has_checksum)
+            i3_log(LOG_MASK_REACH, "    Checksum 0x%x.", data->checksum);
+    }
+
+    void message_util_log_receive_stream_notification(const cr_StreamData *data)
+    {
+        i3_log(LOG_MASK_REACH, "  Receive Stream %d Notification.", data->stream_id);
+        i3_log(LOG_MASK_REACH, "    Roll count %d.  %d bytes of data.",
+               data->roll_count, data->message_data.size);
+        if (data->has_checksum)
+            i3_log(LOG_MASK_REACH, "    Checksum 0x%x.", data->checksum);
+    }
+
+#endif // def INCLUDE_STREAM_SERVICE
 
 /** Commands */
 void message_util_log_discover_commands() {
@@ -545,7 +617,7 @@ void message_util_log_discover_notifications(const cr_DiscoverParameterNotificat
 
 void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *payload)
 {
-    i3_log(LOG_MASK_REACH, "  Discover Notifications response: %d configs\n", (int)payload->configs_count);
+    i3_log(LOG_MASK_REACH, "  Discover Notifications response: %d configs", (int)payload->configs_count);
     for (int i=0; i<payload->configs_count; i++)
     {
         // all zero is disabled
@@ -564,8 +636,57 @@ void message_util_log_discover_notifications_response(const cr_DiscoverParameter
                payload->configs[i].minimum_delta);
         }
     }
+    i3_log(LOG_MASK_BARE, "\r\n");
 }
 
+void message_util_log_param_notification(const cr_ParameterNotification *data)
+{
+  i3_log(LOG_MASK_REACH, "  Paramter Notification(s):");
+  for (int i= 0; i< data->values_count; i++)
+  {
+    i3_log(LOG_MASK_REACH, "    Notification %d: pid %d, which %d:", i, 
+           data->values[i].parameter_id, data->values[i].which_value);
+    switch (data->values[i].which_value)
+    {
+    case cr_ParameterValue_uint32_value_tag:
+      i3_log(LOG_MASK_REACH, "      uint32, %u", data->values[i].value.uint32_value);
+      break;
+    case cr_ParameterValue_int32_value_tag:
+      i3_log(LOG_MASK_REACH, "      int32, %d", data->values[i].value.int32_value);
+      break;
+    case cr_ParameterValue_float32_value_tag:
+      i3_log(LOG_MASK_REACH, "      float32, %.1f", data->values[i].value.float32_value);
+      break;
+    case cr_ParameterValue_uint64_value_tag:
+      i3_log(LOG_MASK_REACH, "      uint64, %llu", data->values[i].value.uint64_value);
+      break;
+    case cr_ParameterValue_int64_value_tag:
+      i3_log(LOG_MASK_REACH, "      int64, %lld", data->values[i].value.int64_value);
+      break;
+    case cr_ParameterValue_float64_value_tag:
+      i3_log(LOG_MASK_REACH, "      float64, %.1llf", data->values[i].value.float64_value);
+      break;
+    case cr_ParameterValue_bool_value_tag:
+      i3_log(LOG_MASK_REACH, "      bool, %u", data->values[i].value.bool_value);
+      break;
+
+    case cr_ParameterValue_string_value_tag:
+      i3_log(LOG_MASK_REACH, "      string, %s", data->values[i].value.string_value);
+      break;
+    case cr_ParameterValue_enum_value_tag:
+      i3_log(LOG_MASK_REACH, "      enum, %u", data->values[i].value.enum_value);
+      break;
+    case cr_ParameterValue_bitfield_value_tag:
+      i3_log(LOG_MASK_REACH, "      bitfield, %u", data->values[i].value.bitfield_value);
+      break;
+    case cr_ParameterValue_bytes_value_tag:
+      i3_log(LOG_MASK_REACH, "      %u bytes", data->values[i].value.bytes_value.size);
+      break;
+    }
+  }
+  i3_log(LOG_MASK_BARE, "\r\n");
+
+}
 #endif  // def INCLUDE_PARAMETER_SERVICE
 
 
@@ -770,6 +891,7 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload) {}
         void message_util_log_discover_notifications_response(const bool,
                                                               const cr_DiscoverParameterNotificationsResponse *payload) {}
+        void message_util_log_param_notification(const cr_ParameterNotification *data){}
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
@@ -781,14 +903,22 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_transfer_data_response(const cr_FileTransferData *){}
         void message_util_log_transfer_data_notification(bool is_request,
                 const cr_FileTransferDataNotification *){}
-        void message_util_log_file_erase_response(cr_FileEraseResponse *data){};
-        void message_util_log_file_erase_request(cr_FileEraseRequest *data){};
+        void message_util_log_file_erase_response(cr_FileEraseResponse *data){}
+        void message_util_log_file_erase_request(cr_FileEraseRequest *data){}
 
     #endif // def INCLUDE_FILE_SERVICE
 
     #ifdef INCLUDE_STREAM_SERVICE
         // Streams
-        void message_util_log_discover_streams(){}
+        void message_util_log_discover_streams(){};
+        void message_util_log_discover_streams_response(const cr_DiscoverStreamsResponse *){}
+        void message_util_log_open_stream(const cr_StreamOpen *){}
+        void message_util_log_open_stream_response(const cr_StreamResponse *){}
+        void message_util_log_close_stream(const cr_StreamClose *){}
+        void message_util_log_close_stream_response(const cr_StreamResponse *){}
+        void message_util_log_send_stream_notification(const cr_StreamData *){}
+        void message_util_log_receive_stream_notification(const cr_StreamData *){}
+
     #endif // def INCLUDE_STREAM_SERVICE
 
 

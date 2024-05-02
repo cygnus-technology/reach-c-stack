@@ -146,7 +146,7 @@ int i3_log_get_remote_buffer(char **pRcli);
 *          Reach logging (cyan).  The color reset code and a \r\n are appended
 *          to all strings except for LOG_MASK_BARE. When the remote CLI is
 *          enabled the string is copied to the remote buffer and sent via
-*          crcb_cli_respond().
+*          pvtCr_cli_respond().
 * @param   mask See LOG_MASK_.
 * @param   fmt : standard printf format.
 */

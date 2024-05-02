@@ -118,7 +118,7 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
         // Here implies we are responding to the initial request.
         crcb_file_discover_reset(0);
         pvtCr_num_remaining_objects = crcb_file_get_file_count();
-        if (pvtCr_num_remaining_objects > REACH_COUNT_PARAM_READ_VALUES)
+        if (pvtCr_num_remaining_objects > REACH_DISCOVER_FILES_COUNT)
         {
             pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_FILES;
             I3_LOG(LOG_MASK_PARAMS, "discover files, Too many for one.");
@@ -129,7 +129,7 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
 
     
     response->file_infos_count = 0;
-    for (int i=0; i<REACH_COUNT_PARAM_READ_VALUES; i++)
+    for (int i=0; i<REACH_DISCOVER_FILES_COUNT; i++)
     {
         rval = crcb_file_discover_next(&response->file_infos[i]);
         if (rval != cr_ErrorCodes_NO_ERROR) 
@@ -695,7 +695,19 @@ int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
     response->result  = crcb_erase_file(request->file_id);
     response->has_result_message = false;
     response->result_message[0] = 0;
-    return 0;
+    switch (response->result)
+    {
+    default:
+    case cr_ErrorCodes_NO_ERROR:
+        break;
+    case cr_ErrorCodes_INCOMPLETE:
+        // crcb_erase_file() can report incomplete to avoid blocking the main 
+        // loop for an extended time.  If the erase takes a long time it's 
+        // accepted that several calls to erase might be required to know that
+        // the erase has completed.
+        return cr_ErrorCodes_INCOMPLETE;
+    }
+    return cr_ErrorCodes_NO_ERROR;
 }
 
 

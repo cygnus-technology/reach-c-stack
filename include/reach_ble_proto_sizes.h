@@ -35,7 +35,7 @@
 #define REACH_NUM_COMMANDS_IN_RESPONSE          2
 #define REACH_NUM_SMALL_STRUCTS_IN_MESSAGE      8
 #define REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE     4
-#define REACH_COUNT_PARAM_DESC_IN_RESPONSE      2
+#define REACH_NUM_LARGE_STRUCTS_IN_MESSAGE      2
 
 // These specific sizes and counts are defined in terms of a lesser number
 // of generic macros which are used in the reach.options file to set 
@@ -71,6 +71,8 @@
 #define REACH_COUNT_PARAM_NOTIF_VALUES          REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_DISCOVER_FILES_COUNT              REACH_NUM_MEDIUM_STRUCTS_IN_MESSAGE
 #define REACH_NUM_PARAM_BYTES                   32
+#define REACH_COUNT_PARAM_DESC_IN_RESPONSE      REACH_NUM_LARGE_STRUCTS_IN_MESSAGE
+#define REACH_COUNT_STREAM_DESC_IN_RESPONSE     REACH_NUM_LARGE_STRUCTS_IN_MESSAGE
     
 // REACH_SIZE_STRUCT_SIZE must match the size of the reach_sizes_t defined in cr_stack.h
 #define REACH_SIZE_STRUCT_SIZE      16    

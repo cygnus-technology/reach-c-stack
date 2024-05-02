@@ -360,7 +360,6 @@
         return cr_ErrorCodes_NO_DATA;
     }
 
-
     // This can be called directly in response to the read request
     // or it can be called on a continuing basis to complete the 
     // read transaction.  
@@ -436,7 +435,29 @@
                     I3_LOG(LOG_MASK_PARAMS, "Added read %d.", response->values_count);
                     return 0;
                 }
-                crcb_parameter_read(paramInfo.id, &response->values[i]);
+                // I3_LOG(LOG_MASK_PARAMS, "line %d, call crcb_parameter_read(%d).", 
+                //        __LINE__, paramInfo.id);
+                rval = crcb_parameter_read(paramInfo.id, &response->values[i]);
+                if (rval == cr_ErrorCodes_INVALID_PARAMETER) {
+                    int pid = paramInfo.id;
+                    I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d, INVALID_PARAMETER.", 
+                              pid, rval);
+                    cr_report_error(rval, "pid %d is not valid.", pid);
+                    memset(&response->values[i], 0, sizeof(cr_ParameterReadResponse));
+                    response->values[i].parameter_id = pid;
+                }
+                else if (rval != cr_ErrorCodes_NO_ERROR) {
+                    int pid = paramInfo.id;
+                    cr_report_error(rval, "pid %d is not valid, ret %d.", pid, rval);
+                    I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d.",
+                              pid, rval);
+                    memset(&response->values[i], 0, sizeof(cr_ParameterReadResponse));
+                    response->values[i].parameter_id = pid;
+                }
+                if (response->values[i].which_value == cr_ParameterValue_string_value_tag)
+                {
+                    pvtCr_sanitize_string_to_utf8(response->values[i].value.string_value);
+                }
                 I3_LOG(LOG_MASK_PARAMS, "Add param read %d.", sCr_requested_param_index);
                 sCr_requested_param_index++;
                 pvtCr_num_remaining_objects--;
@@ -466,10 +487,15 @@
                 pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                 break;
             }
-            I3_LOG(LOG_MASK_PARAMS, "Read param %d from list of %d", 
-                   sCr_requested_param_index, sCr_requested_param_read_count);
+            I3_LOG(LOG_MASK_PARAMS, "Line %d: Read param %d (%d) from list of %d", 
+                   __LINE__, sCr_requested_param_index, 
+                   sCr_requested_param_array[sCr_requested_param_index],
+                   sCr_requested_param_read_count);
+
             cr_ParameterValue paramVal;
-            rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], &paramVal);
+            rval = crcb_parameter_read(sCr_requested_param_array[sCr_requested_param_index], 
+                                       &paramVal);
+
             if (rval == cr_ErrorCodes_INVALID_PARAMETER) {
                 I3_LOG(LOG_MASK_ERROR, "crcb_parameter_read(pid %d) returned %d, INVALID_PARAMETER.", 
                           sCr_requested_param_array[sCr_requested_param_index], rval);
@@ -487,6 +513,12 @@
                 memset(&paramVal, 0, sizeof(paramVal));
                 paramVal.parameter_id = sCr_requested_param_array[sCr_requested_param_index];
             }
+            if (paramVal.which_value == cr_ParameterValue_string_value_tag)
+            {
+                // i3_log(LOG_MASK_ALWAYS, "Sanitize parameter ID %d (%d)", paramVal.parameter_id,
+                //        sCr_requested_param_array[sCr_requested_param_index]);
+                pvtCr_sanitize_string_to_utf8(paramVal.value.string_value);
+            }
             response->values[i] = paramVal;
             sCr_requested_param_array[sCr_requested_param_index] = -1;
             sCr_requested_param_index++;
@@ -502,7 +534,7 @@
         return 0;
     }
 
-    int pvtCrParam_write_param(const cr_ParameterWrite *request,
+    int pvtCrParam_write_param(cr_ParameterWrite *request,
                                cr_ParameterWriteResponse *response) 
     {
         if (!crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, -1)) {
@@ -532,6 +564,10 @@
         for (int i=0; i<request->values_count; i++)
         {
             I3_LOG(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
+
+            if (request->values[i].which_value == cr_ParameterValue_string_value_tag)
+                pvtCr_sanitize_string_to_utf8(request->values[i].value.string_value);
+
             rval = crcb_parameter_write(request->values[i].parameter_id, &request->values[i]);
             if (rval != cr_ErrorCodes_NO_ERROR) {
                 cr_report_error(cr_ErrorCodes_WRITE_FAILED, "Parameter write of ID %d failed.", request->values[i].parameter_id);
@@ -905,6 +941,28 @@ void cr_clear_param_notifications(void)
   #endif
 }
 
+int pvtCr_notify_param(cr_ParameterValue *param)
+{
+    if (!cr_get_comm_link_connected())
+        return 0;
+
+    uint8_t *pRaw, *pCoded;
+    size_t size;
+    pvtCr_get_raw_notification_buffer(&pRaw, &size);
+
+    cr_ParameterNotification *note = (cr_ParameterNotification*)pRaw;
+    note->values_count = 1;
+    memcpy(&note->values[0], param, sizeof(cr_ParameterValue));
+
+    pvtCr_encode_message(cr_ReachMessageTypes_PARAMETER_NOTIFICATION, pRaw, NULL);
+    pvtCr_get_coded_notification_buffers(&pCoded, &size);
+
+    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "notification", pCoded, size);
+    // i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d" TEXT_RESET, param->parameter_id);
+    crcb_send_coded_response(pCoded, size);
+    return 0;
+}
+
 /// <summary>
 /// A local function called in cr_process() to determine whether
 /// any parameter notifications need to be generated. 
@@ -1023,7 +1081,7 @@ void pvtCrParam_check_for_notifications()
         if (needToNotify)
         {
             sCr_numNotificationsSent++;
-            crcb_notify_param(&curVal);
+            pvtCr_notify_param(&curVal);
 
             // save it for next time
             sCr_last_param_values[idx] = curVal;

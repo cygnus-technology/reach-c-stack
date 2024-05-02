@@ -217,12 +217,30 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
 #endif // def INCLUDE_FILE_SERVICE
 
 #ifdef INCLUDE_STREAM_SERVICE
-  case cr_ReachMessageTypes_DISCOVER_STREAMS:
-    //   status = pb_decode(&is_stream, cr_StreamsRequest_fields, data);
-    //   if (status) {
-    //     message_util_log_discover_streams((cr_StreamsRequest *)data);
-    //   }
-    break;
+    case cr_ReachMessageTypes_DISCOVER_STREAMS:
+        status = pb_decode(&is_stream, cr_DiscoverStreamsResponse_fields, data);
+        if (status) {
+          message_util_log_discover_streams();
+        }
+        break;
+    case cr_ReachMessageTypes_OPEN_STREAM:
+        status = pb_decode(&is_stream, cr_StreamOpen_fields, data);
+        if (status) {
+          message_util_log_open_stream((cr_StreamOpen *)data);
+        }
+        break;
+    case cr_ReachMessageTypes_CLOSE_STREAM:
+        status = pb_decode(&is_stream, cr_StreamClose_fields, data);
+        if (status) {
+          message_util_log_close_stream((cr_StreamClose *)data);
+        }
+        break;
+    case cr_ReachMessageTypes_STREAM_DATA_NOTIFICATION:
+        status = pb_decode(&is_stream, cr_StreamData_fields, data);
+        if (status) {
+          message_util_log_receive_stream_notification((cr_StreamData *)data);
+        }
+      break;
 #endif  // def INCLUDE_STREAM_SERVICE
 
 #ifdef INCLUDE_COMMAND_SERVICE

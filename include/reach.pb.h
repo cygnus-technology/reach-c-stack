@@ -26,7 +26,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 /** The patch version changes every time a hex file goes out the door. */
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /**< Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 2 /**< Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 3 /**< Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 /** These values identify the type of the Reach message. */
@@ -160,6 +160,7 @@ typedef enum _cr_ErrorCodes {
     cr_ErrorCodes_RESERVED_3 = 18, /**< not yet used */
     cr_ErrorCodes_NO_RESOURCE = 19, /**< Some required resource is not available. */
     cr_ErrorCodes_INVALID_ID = 20, /**< The ID provided is not valid */
+    cr_ErrorCodes_INCOMPLETE = 21, /**< The requested operation is incomplete and must be retried. */
     cr_ErrorCodes_ABORT = 1000 /**< Operation cancellation */
 } cr_ErrorCodes;
 
@@ -651,29 +652,29 @@ typedef struct _cr_DiscoverStreams {
 /** A structure describing a stream */
 typedef struct _cr_StreamInfo {
     int32_t stream_id; /**< The ID by which this stream is addressed. */
-    cr_AccessLevel access; /**< Access Level for Stream  (Read / Write). */
+    cr_AccessLevel access; /**< Read:  The stream flows from the device.  Write:  The stream flows to the device. */
     char name[24]; /**< A human readable name for this stream. */
+    char description[48]; /**< A longer human readable description of this stream. */
 } cr_StreamInfo;
 
 /** The response to DiscoverStreams */
 typedef struct _cr_DiscoverStreamsResponse {
     pb_size_t streams_count;
-    cr_StreamInfo streams[4]; /**< An array containing descriptions of the supported streams */
+    cr_StreamInfo streams[2]; /**< An array containing descriptions of the supported streams */
 } cr_DiscoverStreamsResponse;
 
 /** A structure requesting to open a stream */
 typedef struct _cr_StreamOpen {
     int32_t stream_id; /**< The ID by which this stream is addressed. */
-    cr_AccessLevel access; /**< Read or write access */
 } cr_StreamOpen;
 
-/** The response to a StreamOpen request */
-typedef struct _cr_StreamOpenResponse {
+/** The response to StreamOpen and StreamClose requests */
+typedef struct _cr_StreamResponse {
     int32_t stream_id; /**< The ID by which this stream is addressed. */
     int32_t result; /**< A result of zero indicates OK */
     bool has_result_message;
     char result_message[194]; /**< Allows to provide a human readable explanation in case of an error. */
-} cr_StreamOpenResponse;
+} cr_StreamResponse;
 
 /** A structure requesting to close a stream */
 typedef struct _cr_StreamClose {
@@ -779,12 +780,6 @@ typedef struct _cr_ConnectionDescription {
     cr_WiFiBand band; /**< The RF band used by this connection */
 } cr_ConnectionDescription;
 
-/** Commands the server to initiate a scan for WiFi access points.
-/ As this may take some time, issue it and check the response later. */
-typedef struct _cr_ScanWiFi {
-    char dummy_field;
-} cr_ScanWiFi;
-
 /** A request to provide a list access points */
 typedef struct _cr_DiscoverWiFi {
     char dummy_field;
@@ -792,7 +787,7 @@ typedef struct _cr_DiscoverWiFi {
 
 /** response to DiscoverWiFi */
 typedef struct _cr_DiscoverWiFiResponse {
-    bool scan_is_valid; /**< true if a recent scan is complete. */
+    int32_t result; /**< A result of zero indicates completed OK. The "INCOMPLETE" result means the operation must be retried. */
     pb_size_t cd_count;
     cr_ConnectionDescription cd[4]; /**< An array of available access points */
 } cr_DiscoverWiFiResponse;
@@ -810,11 +805,12 @@ typedef struct _cr_WiFiConnectionRequest {
 
 /** Describes the response to a WiFi connection request */
 typedef struct _cr_WiFiConnectionResponse {
-    int32_t result; /**< A result of zero indicates OK */
-    bool has_signal_strength;
-    int32_t signal_strength; /**< RSSI */
+    int32_t result; /**< A result of zero indicates completed OK. The "INCOMPLETE" result means the operation must be retried. */
+    bool connected; /**< true if the requested connection is valid. */
     bool has_result_message;
     char result_message[194]; /**< Allows to provide a human readable explanation in case of an error. */
+    bool has_signal_strength;
+    int32_t signal_strength; /**< RSSI */
 } cr_WiFiConnectionResponse;
 
 /** This data describing the sizes of the structures used in C code is 
@@ -977,7 +973,6 @@ extern "C" {
 
 #define cr_StreamInfo_access_ENUMTYPE cr_AccessLevel
 
-#define cr_StreamOpen_access_ENUMTYPE cr_AccessLevel
 
 
 
@@ -994,7 +989,6 @@ extern "C" {
 
 #define cr_ConnectionDescription_sec_ENUMTYPE cr_WiFiSecurity
 #define cr_ConnectionDescription_band_ENUMTYPE cr_WiFiBand
-
 
 
 
@@ -1049,10 +1043,10 @@ extern "C" {
 #define cr_FileEraseRequest_init_default         {0}
 #define cr_FileEraseResponse_init_default        {0, 0, false, ""}
 #define cr_DiscoverStreams_init_default          {0}
-#define cr_DiscoverStreamsResponse_init_default  {0, {cr_StreamInfo_init_default, cr_StreamInfo_init_default, cr_StreamInfo_init_default, cr_StreamInfo_init_default}}
-#define cr_StreamInfo_init_default               {0, _cr_AccessLevel_MIN, ""}
-#define cr_StreamOpen_init_default               {0, _cr_AccessLevel_MIN}
-#define cr_StreamOpenResponse_init_default       {0, 0, false, ""}
+#define cr_DiscoverStreamsResponse_init_default  {0, {cr_StreamInfo_init_default, cr_StreamInfo_init_default}}
+#define cr_StreamInfo_init_default               {0, _cr_AccessLevel_MIN, "", ""}
+#define cr_StreamOpen_init_default               {0}
+#define cr_StreamResponse_init_default           {0, 0, false, ""}
 #define cr_StreamClose_init_default              {0}
 #define cr_StreamData_init_default               {0, 0, {0, {0}}, false, 0}
 #define cr_DiscoverCommands_init_default         {0}
@@ -1066,11 +1060,10 @@ extern "C" {
 #define cr_TimeGetRequest_init_default           {0}
 #define cr_TimeGetResponse_init_default          {0, false, "", 0, false, 0}
 #define cr_ConnectionDescription_init_default    {"", 0, false, 0, false, _cr_WiFiSecurity_MIN, false, _cr_WiFiBand_MIN}
-#define cr_ScanWiFi_init_default                 {0}
 #define cr_DiscoverWiFi_init_default             {0}
 #define cr_DiscoverWiFiResponse_init_default     {0, 0, {cr_ConnectionDescription_init_default, cr_ConnectionDescription_init_default, cr_ConnectionDescription_init_default, cr_ConnectionDescription_init_default}}
 #define cr_WiFiConnectionRequest_init_default    {{{NULL}, NULL}, 0, 0, false, "", false, 0}
-#define cr_WiFiConnectionResponse_init_default   {0, false, 0, false, ""}
+#define cr_WiFiConnectionResponse_init_default   {0, 0, false, "", false, 0}
 #define cr_BufferSizes_init_default              {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define cr_ReachMessageHeader_init_zero          {0, 0, 0, 0, 0}
 #define cr_ReachMessage_init_zero                {false, cr_ReachMessageHeader_init_zero, {0, {0}}}
@@ -1118,10 +1111,10 @@ extern "C" {
 #define cr_FileEraseRequest_init_zero            {0}
 #define cr_FileEraseResponse_init_zero           {0, 0, false, ""}
 #define cr_DiscoverStreams_init_zero             {0}
-#define cr_DiscoverStreamsResponse_init_zero     {0, {cr_StreamInfo_init_zero, cr_StreamInfo_init_zero, cr_StreamInfo_init_zero, cr_StreamInfo_init_zero}}
-#define cr_StreamInfo_init_zero                  {0, _cr_AccessLevel_MIN, ""}
-#define cr_StreamOpen_init_zero                  {0, _cr_AccessLevel_MIN}
-#define cr_StreamOpenResponse_init_zero          {0, 0, false, ""}
+#define cr_DiscoverStreamsResponse_init_zero     {0, {cr_StreamInfo_init_zero, cr_StreamInfo_init_zero}}
+#define cr_StreamInfo_init_zero                  {0, _cr_AccessLevel_MIN, "", ""}
+#define cr_StreamOpen_init_zero                  {0}
+#define cr_StreamResponse_init_zero              {0, 0, false, ""}
 #define cr_StreamClose_init_zero                 {0}
 #define cr_StreamData_init_zero                  {0, 0, {0, {0}}, false, 0}
 #define cr_DiscoverCommands_init_zero            {0}
@@ -1135,11 +1128,10 @@ extern "C" {
 #define cr_TimeGetRequest_init_zero              {0}
 #define cr_TimeGetResponse_init_zero             {0, false, "", 0, false, 0}
 #define cr_ConnectionDescription_init_zero       {"", 0, false, 0, false, _cr_WiFiSecurity_MIN, false, _cr_WiFiBand_MIN}
-#define cr_ScanWiFi_init_zero                    {0}
 #define cr_DiscoverWiFi_init_zero                {0}
 #define cr_DiscoverWiFiResponse_init_zero        {0, 0, {cr_ConnectionDescription_init_zero, cr_ConnectionDescription_init_zero, cr_ConnectionDescription_init_zero, cr_ConnectionDescription_init_zero}}
 #define cr_WiFiConnectionRequest_init_zero       {{{NULL}, NULL}, 0, 0, false, "", false, 0}
-#define cr_WiFiConnectionResponse_init_zero      {0, false, 0, false, ""}
+#define cr_WiFiConnectionResponse_init_zero      {0, 0, false, "", false, 0}
 #define cr_BufferSizes_init_zero                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -1304,12 +1296,12 @@ extern "C" {
 #define cr_StreamInfo_stream_id_tag              1
 #define cr_StreamInfo_access_tag                 2
 #define cr_StreamInfo_name_tag                   3
+#define cr_StreamInfo_description_tag            4
 #define cr_DiscoverStreamsResponse_streams_tag   1
 #define cr_StreamOpen_stream_id_tag              1
-#define cr_StreamOpen_access_tag                 2
-#define cr_StreamOpenResponse_stream_id_tag      1
-#define cr_StreamOpenResponse_result_tag         2
-#define cr_StreamOpenResponse_result_message_tag 3
+#define cr_StreamResponse_stream_id_tag          1
+#define cr_StreamResponse_result_tag             2
+#define cr_StreamResponse_result_message_tag     3
 #define cr_StreamClose_stream_id_tag             1
 #define cr_StreamData_stream_id_tag              1
 #define cr_StreamData_roll_count_tag             2
@@ -1337,7 +1329,7 @@ extern "C" {
 #define cr_ConnectionDescription_signal_strength_tag 3
 #define cr_ConnectionDescription_sec_tag         4
 #define cr_ConnectionDescription_band_tag        5
-#define cr_DiscoverWiFiResponse_scan_is_valid_tag 1
+#define cr_DiscoverWiFiResponse_result_tag       1
 #define cr_DiscoverWiFiResponse_cd_tag           2
 #define cr_WiFiConnectionRequest_ssid_tag        1
 #define cr_WiFiConnectionRequest_connect_tag     2
@@ -1345,8 +1337,9 @@ extern "C" {
 #define cr_WiFiConnectionRequest_password_tag    4
 #define cr_WiFiConnectionRequest_autoconnect_tag 5
 #define cr_WiFiConnectionResponse_result_tag     1
-#define cr_WiFiConnectionResponse_signal_strength_tag 2
+#define cr_WiFiConnectionResponse_connected_tag  2
 #define cr_WiFiConnectionResponse_result_message_tag 3
+#define cr_WiFiConnectionResponse_signal_strength_tag 4
 #define cr_BufferSizes_max_message_size_tag      1
 #define cr_BufferSizes_big_data_buffer_size_tag  2
 #define cr_BufferSizes_parameter_buffer_count_tag 3
@@ -1736,22 +1729,22 @@ X(a, STATIC,   REPEATED, MESSAGE,  streams,           1)
 #define cr_StreamInfo_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
 X(a, STATIC,   SINGULAR, UENUM,    access,            2) \
-X(a, STATIC,   SINGULAR, STRING,   name,              3)
+X(a, STATIC,   SINGULAR, STRING,   name,              3) \
+X(a, STATIC,   SINGULAR, STRING,   description,       4)
 #define cr_StreamInfo_CALLBACK NULL
 #define cr_StreamInfo_DEFAULT NULL
 
 #define cr_StreamOpen_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
-X(a, STATIC,   SINGULAR, UENUM,    access,            2)
+X(a, STATIC,   SINGULAR, INT32,    stream_id,         1)
 #define cr_StreamOpen_CALLBACK NULL
 #define cr_StreamOpen_DEFAULT NULL
 
-#define cr_StreamOpenResponse_FIELDLIST(X, a) \
+#define cr_StreamResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    stream_id,         1) \
 X(a, STATIC,   SINGULAR, INT32,    result,            2) \
 X(a, STATIC,   OPTIONAL, STRING,   result_message,    3)
-#define cr_StreamOpenResponse_CALLBACK NULL
-#define cr_StreamOpenResponse_DEFAULT NULL
+#define cr_StreamResponse_CALLBACK NULL
+#define cr_StreamResponse_DEFAULT NULL
 
 #define cr_StreamClose_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    stream_id,         1)
@@ -1835,18 +1828,13 @@ X(a, STATIC,   OPTIONAL, UENUM,    band,              5)
 #define cr_ConnectionDescription_CALLBACK NULL
 #define cr_ConnectionDescription_DEFAULT NULL
 
-#define cr_ScanWiFi_FIELDLIST(X, a) \
-
-#define cr_ScanWiFi_CALLBACK NULL
-#define cr_ScanWiFi_DEFAULT NULL
-
 #define cr_DiscoverWiFi_FIELDLIST(X, a) \
 
 #define cr_DiscoverWiFi_CALLBACK NULL
 #define cr_DiscoverWiFi_DEFAULT NULL
 
 #define cr_DiscoverWiFiResponse_FIELDLIST(X, a) \
-X(a, STATIC,   SINGULAR, BOOL,     scan_is_valid,     1) \
+X(a, STATIC,   SINGULAR, INT32,    result,            1) \
 X(a, STATIC,   REPEATED, MESSAGE,  cd,                2)
 #define cr_DiscoverWiFiResponse_CALLBACK NULL
 #define cr_DiscoverWiFiResponse_DEFAULT NULL
@@ -1863,8 +1851,9 @@ X(a, STATIC,   OPTIONAL, BOOL,     autoconnect,       5)
 
 #define cr_WiFiConnectionResponse_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, INT32,    result,            1) \
-X(a, STATIC,   OPTIONAL, INT32,    signal_strength,   2) \
-X(a, STATIC,   OPTIONAL, STRING,   result_message,    3)
+X(a, STATIC,   SINGULAR, BOOL,     connected,         2) \
+X(a, STATIC,   OPTIONAL, STRING,   result_message,    3) \
+X(a, STATIC,   OPTIONAL, INT32,    signal_strength,   4)
 #define cr_WiFiConnectionResponse_CALLBACK NULL
 #define cr_WiFiConnectionResponse_DEFAULT NULL
 
@@ -1935,7 +1924,7 @@ extern const pb_msgdesc_t cr_DiscoverStreams_msg;
 extern const pb_msgdesc_t cr_DiscoverStreamsResponse_msg;
 extern const pb_msgdesc_t cr_StreamInfo_msg;
 extern const pb_msgdesc_t cr_StreamOpen_msg;
-extern const pb_msgdesc_t cr_StreamOpenResponse_msg;
+extern const pb_msgdesc_t cr_StreamResponse_msg;
 extern const pb_msgdesc_t cr_StreamClose_msg;
 extern const pb_msgdesc_t cr_StreamData_msg;
 extern const pb_msgdesc_t cr_DiscoverCommands_msg;
@@ -1949,7 +1938,6 @@ extern const pb_msgdesc_t cr_TimeSetResponse_msg;
 extern const pb_msgdesc_t cr_TimeGetRequest_msg;
 extern const pb_msgdesc_t cr_TimeGetResponse_msg;
 extern const pb_msgdesc_t cr_ConnectionDescription_msg;
-extern const pb_msgdesc_t cr_ScanWiFi_msg;
 extern const pb_msgdesc_t cr_DiscoverWiFi_msg;
 extern const pb_msgdesc_t cr_DiscoverWiFiResponse_msg;
 extern const pb_msgdesc_t cr_WiFiConnectionRequest_msg;
@@ -2006,7 +1994,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DiscoverStreamsResponse_fields &cr_DiscoverStreamsResponse_msg
 #define cr_StreamInfo_fields &cr_StreamInfo_msg
 #define cr_StreamOpen_fields &cr_StreamOpen_msg
-#define cr_StreamOpenResponse_fields &cr_StreamOpenResponse_msg
+#define cr_StreamResponse_fields &cr_StreamResponse_msg
 #define cr_StreamClose_fields &cr_StreamClose_msg
 #define cr_StreamData_fields &cr_StreamData_msg
 #define cr_DiscoverCommands_fields &cr_DiscoverCommands_msg
@@ -2020,7 +2008,6 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_TimeGetRequest_fields &cr_TimeGetRequest_msg
 #define cr_TimeGetResponse_fields &cr_TimeGetResponse_msg
 #define cr_ConnectionDescription_fields &cr_ConnectionDescription_msg
-#define cr_ScanWiFi_fields &cr_ScanWiFi_msg
 #define cr_DiscoverWiFi_fields &cr_DiscoverWiFi_msg
 #define cr_DiscoverWiFiResponse_fields &cr_DiscoverWiFiResponse_msg
 #define cr_WiFiConnectionRequest_fields &cr_WiFiConnectionRequest_msg
@@ -2045,9 +2032,9 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_DiscoverFiles_size                    0
 #define cr_DiscoverParameterNotificationsResponse_size 200
 #define cr_DiscoverParameterNotifications_size   192
-#define cr_DiscoverStreamsResponse_size          160
+#define cr_DiscoverStreamsResponse_size          178
 #define cr_DiscoverStreams_size                  0
-#define cr_DiscoverWiFiResponse_size             210
+#define cr_DiscoverWiFiResponse_size             219
 #define cr_DiscoverWiFi_size                     0
 #define cr_EnumParameterInfo_size                41
 #define cr_ErrorReport_size                      207
@@ -2081,14 +2068,13 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_PingResponse_size                     208
 #define cr_ReachMessageHeader_size               30
 #define cr_ReachMessage_size                     243
-#define cr_ScanWiFi_size                         0
 #define cr_SendCommandResponse_size              207
 #define cr_SendCommand_size                      6
 #define cr_StreamClose_size                      11
 #define cr_StreamData_size                       225
-#define cr_StreamInfo_size                       38
-#define cr_StreamOpenResponse_size               218
-#define cr_StreamOpen_size                       13
+#define cr_StreamInfo_size                       87
+#define cr_StreamOpen_size                       11
+#define cr_StreamResponse_size                   218
 #define cr_StringParameterInfo_size              39
 #define cr_TimeGetRequest_size                   0
 #define cr_TimeGetResponse_size                  229
@@ -2096,7 +2082,7 @@ extern const pb_msgdesc_t cr_BufferSizes_msg;
 #define cr_TimeSetResponse_size                  207
 #define cr_Uint32ParameterInfo_size              35
 #define cr_Uint64ParameterInfo_size              50
-#define cr_WiFiConnectionResponse_size           218
+#define cr_WiFiConnectionResponse_size           220
 
 #ifdef __cplusplus
 } /* extern "C" */
