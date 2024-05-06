@@ -45,6 +45,15 @@
 #include "app_version.h"
 #include "cr_stack.h"
 
+#define PARAM_EI_TO_NUM_PEI_RESPONSES(param_ex) ((param_ex.num_labels / 8) + ((param_ex.num_labels % 8) ? 1:0))
+
+typedef struct {
+    uint32_t pei_id;
+    uint8_t data_type;
+    uint8_t num_labels;
+    const cr_ParamExKey *labels;
+} cr_gen_param_ex_t;
+
 // Extra includes and forward declarations here.
 // User code start [P1]
 // User code end [P1]
@@ -54,6 +63,18 @@ static int sFindIndexFromPid(uint32_t pid, uint32_t *index)
     uint32_t idx;
     for (idx=0; idx<NUM_PARAMS; idx++) {
         if (param_desc[idx].id == pid) {
+            *index = idx;
+            return 0;
+        }
+    }
+    return cr_ErrorCodes_INVALID_ID;
+}
+
+static int sFindIndexFromPeiId(uint32_t pei_id, uint32_t *index)
+{
+    uint32_t idx;
+    for (idx=0; idx<NUM_EX_PARAMS; idx++) {
+        if (param_ex_desc[idx].pei_id == pei_id) {
             *index = idx;
             return 0;
         }
@@ -164,6 +185,20 @@ void init_param_repo()
     {
         I3_LOG(LOG_MASK_ERROR, "App-specific param repo pre-init failed (error %d), continuing with init", rval);
     }
+}
+
+const char * param_repo_get_ex_label(uint32_t pei_id, uint32_t value)
+{
+	uint32_t index = 0;
+	int rval = sFindIndexFromPeiId(pei_id, &index);
+	if (rval)
+		return 0;
+	for (int i = 0; i < param_ex_desc[index].num_labels; i++)
+	{
+		if (value == param_ex_desc[index].labels[i].id)
+			return param_ex_desc[index].labels[i].name;
+	}
+	return 0;
 }
 
 // Populate a parameter value structure
@@ -298,17 +333,24 @@ uint32_t crcb_compute_parameter_hash(void)
     {
         if (crcb_access_granted(cr_ServiceIds_PARAMETER_REPO, jj))
         {
-            for (size_t i= 0; i<sizeof(cr_ParameterInfo); i++)
+            for (size_t i= 0; i < (sizeof(cr_ParameterInfo) / sizeof(uint32_t)); i++)
                 hash ^= ptr[i];
         }
     }
 
 #ifdef NUM_EX_PARAMS
-    ptr = (uint32_t*)param_ex_desc;
-    size_t sz1 = sizeof(param_ex_desc)/(sizeof(uint32_t));
-
-    for (size_t i= 0; i<sz1; i++)
-        hash ^= ptr[i];
+	for (int i = 0; i < NUM_EX_PARAMS; i++)
+	{
+		hash ^= param_ex_desc[i].pei_id;
+		hash ^= (uint32_t) param_ex_desc[i].data_type;
+		hash ^= (uint32_t) param_ex_desc[i].num_labels;
+		for (int j = 0; j < param_ex_desc[i].num_labels; j++)
+		{
+			ptr = (uint32_t *) param_ex_desc[i].labels[j];
+			for (size_t k = 0; k < (sizeof(cr_ParamExKey) / sizeof(uint32_t)); k++)
+				hash ^= ptr[i];
+		}
+	}
 
     I3_LOG(LOG_MASK_PARAMS, "%s: hash 0x%x over %d+%d = %d words.\n",
            __FUNCTION__, hash, sz, sz1, sz+sz1);
@@ -371,23 +413,27 @@ int crcb_parameter_discover_next(cr_ParameterInfo *ppDesc)
 
 // In parallel to the parameter discovery, use this to find out 
 // about enumerations and bitfields
-static int sCurrentExParam = 0;
-static int sRequestedParamPid = -1; // negative means all
+static int requested_pei_id = -1;
+static int current_pei_index = 0;
+static int current_pei_key_index = 0;
 
 int crcb_parameter_ex_get_count(const int32_t pid)
 {
 #ifdef NUM_EX_PARAMS
-    if (pid < 0)  // all 
-        return NUM_EX_PARAMS;
+    if (pid < 0)  // all
+	{
+		int rval = 0;
+        for (int i = 0; i < NUM_EX_PARAMS; i++)
+			rval += PARAM_EI_TO_NUM_PEI_RESPONSES(param_ex_desc[i]);
+		return rval;
+	}
 
-    int num_ex_msgs = 0;
-
-    for (int i=0; i<NUM_EX_PARAMS; i++) {
-        if ((int32_t)param_ex_desc[i].pei_id == pid) {
-            num_ex_msgs++;
-        }
+    for (int i=0; i<NUM_EX_PARAMS; i++)
+	{
+        if (param_ex_desc[i].pei_id == (param_ei_t) pid)
+            return PARAM_EI_TO_NUM_PEI_RESPONSES(param_ex_desc[i]);
     }
-    return num_ex_msgs;
+    return 0;
 #else
     return 0;
 #endif // NUM_EX_PARAMS
@@ -395,46 +441,66 @@ int crcb_parameter_ex_get_count(const int32_t pid)
 
 int crcb_parameter_ex_discover_reset(const int32_t pid)
 {
-    // unlike the full params, reset of param_ex always goes to zero.
-    sCurrentExParam = 0;
-    sRequestedParamPid = pid;
-    return 0;
+#ifdef NUM_EX_PARAMS
+	requested_pei_id = pid;
+	if (pid < 0)
+		current_pei_index = 0;
+	else
+	{
+		current_pei_index = -1;
+		for (int i=0; i<NUM_EX_PARAMS; i++)
+		{
+			if (param_ex_desc[i].pei_id == (param_ei_t) pid)
+			{
+				current_pei_index = i;
+				break;
+			}
+		}
+	}
+	current_pei_key_index = 0;
+#endif // NUM_EX_PARAMS
+	return 0;
 }
 
 int crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
 {
     affirm(pDesc);
-    pDesc->keys_count = 0;
 #ifdef NUM_EX_PARAMS
-    if (sCurrentExParam>=NUM_EX_PARAMS)
-    {
-        I3_LOG(LOG_MASK_PARAMS, "%s: No more ex params.", __FUNCTION__);
+	if (current_pei_index < 0)
+	{
+		I3_LOG(LOG_MASK_PARAMS, "%s: No more ex params.", __FUNCTION__);
         return cr_ErrorCodes_INVALID_ID;
-    }
-
-    if (sRequestedParamPid < 0)
-    {
-        I3_LOG(LOG_MASK_PARAMS, "%s: For all, return param_ex %d.", __FUNCTION__, sCurrentExParam);
-        *pDesc = param_ex_desc[sCurrentExParam];
-        sCurrentExParam++;
-        return 0;
-    }
-
-    for (int i=sCurrentExParam; i<NUM_EX_PARAMS; i++)
-    {
-        if ((int32_t)param_ex_desc[i].pei_id == sRequestedParamPid)
-        {
-            I3_LOG(LOG_MASK_PARAMS, "%s: For pid %d, return param_ex %d.",
-                   __FUNCTION__, sRequestedParamPid, sCurrentExParam);
-            *pDesc = param_ex_desc[i];
-            sCurrentExParam = i+1;;
-            return 0;
-        }
-    }
-    // should not get here.
-    I3_LOG(LOG_MASK_PARAMS, "%s: No more ex params 2.", __FUNCTION__);
+	}
+	else
+	{
+		pDesc->pei_id = param_ex_desc[current_pei_index].pei_id;
+		pDesc->data_type = param_ex_desc[current_pei_index].data_type;
+		pDesc->keys_count = param_ex_desc[current_pei_index].num_labels - current_pei_key_index;
+		if (pDesc->keys_count > 8)
+			pDesc->keys_count = 8;
+		memcpy(&pDesc->keys, &param_ex_desc[current_pei_index].labels[current_pei_key_index], pDesc->keys_count * sizeof(cr_ParamExKey));
+		current_pei_key_index += pDesc->keys_count;
+		if (current_pei_key_index >= param_ex_desc[current_pei_index].num_labels)
+		{
+			if (requested_pei_id == -1)
+			{
+				// Advance to the next pei_id index
+				current_pei_index++;
+				if (current_pei_index >= NUM_EX_PARAMS)
+					current_pei_index = -1;
+			}
+			else
+			{
+				// Out of data for the selected pei_id
+				current_pei_index = -1;
+			}
+			current_pei_key_index = 0;
+		}
+	}
+	return 0;
+#else
+	return cr_ErrorCodes_INVALID_ID;
 #endif // NUM_EX_PARAMS
-    return cr_ErrorCodes_INVALID_ID;
 }
 
 // User functions here
