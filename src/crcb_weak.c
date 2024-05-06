@@ -115,24 +115,6 @@ int __attribute__((weak)) crcb_send_coded_response(const uint8_t *response, size
   #endif
 }
 
-/**
-* @brief   crcb_notify_error
-* @details Called by cr_report_error().  Can be called at any 
-*          point. A complete implementation
-*          must overridde this implementation to send 
-*          error messages to the client.
-* @param   err Pointer to a structure with a code and a string.
-* @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from
-*          the cr_ErrorCodes_ enumeration
-*/
-int __attribute__((weak)) crcb_notify_error(cr_ErrorReport *err)
-{
-    (void)err;
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-    return cr_ErrorCodes_NOT_IMPLEMENTED;
-}
-
-
 
 ///*************************************************************************
 ///  Device Service
@@ -185,16 +167,33 @@ void __attribute__((weak)) crcb_invalidate_challenge_key(void)
     I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
 }
 
+
 /**
-* @brief   crcb_enable_remote_cli
-* @details As the logging utility is technically part of Reach, 
-*          this callback lets the app block the remote CLI.
+* @brief   crcb_access_granted
+* @details A gateway to access control. Called anywhere that 
+*          access might be blocked.
+* @param  service : Which service to check. 
+* @param  id : Which ID to check.  Negative to check any. 
 * @return  true if access is granted.
 */
-bool __attribute__((weak)) crcb_enable_remote_cli(void)
+bool __attribute__((weak)) crcb_access_granted(const cr_ServiceIds service, const int32_t id)
 {
-    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+    (void)service;
+    (void)id;
     return true;
+}
+
+/**
+* @brief   crcb_configure_access_control
+* @details Configure the device info response based on the 
+*          challenge key in the device info request.
+* @return  true if access is granted.
+*/
+void __attribute__((weak)) crcb_configure_access_control(const cr_DeviceInfoRequest *request, cr_DeviceInfoResponse *pDi)
+{
+    (void)request;
+    (void)pDi;
+    I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
 }
 
 
@@ -233,25 +232,6 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          cr_ErrorCodes_ enumeration
     */
     int __attribute__((weak)) crcb_cli_enter(const char *cli)
-    {
-        (void)cli;
-        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
-        return cr_ErrorCodes_NOT_IMPLEMENTED;
-    }
-
-    /**
-    * @brief   crcb_cli_respond
-    * @details When the device supports a CLI it is expected to share anything 
-    *          printed to the CLI back to the stack for remote
-    *          display using crcb_cli_respond().  The device must
-    *          override the weak implementation to support remote
-    *          access to the command line.  The implementation can
-    *          call this at any time to print to the remote CLI
-    * @param   cli A string being sent back to the remote CLI.
-    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from the 
-    *          cr_ErrorCodes_ enumeration.
-    */
-    int __attribute__((weak)) crcb_cli_respond(char *cli)
     {
         (void)cli;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
@@ -309,7 +289,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   pid The parameter ID to which the parameter table pointer should be 
     *              reset. Use 0 for the first entry.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_parameter_discover_reset(const uint32_t pid)
     {
@@ -330,8 +310,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *              not be continuous or in order.
     * @param   pDesc Stack provided memory into which the description must be 
     *                copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last parameter has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last parameter has
+    *          already been returned.
     */
     int __attribute__((weak)) crcb_parameter_discover_next(cr_ParameterInfo *pDesc)
     {
@@ -361,7 +342,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   pid The parameter ID to which the parameter extension table pointer 
     *              should be reset. Use 0 for the first entry.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_parameter_ex_discover_reset(const int32_t pid)
     {
@@ -379,8 +360,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          the parameter extension table.
     * @param   pDesc Pointer to stack provided memory into which the extension 
     *               is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last parameter extension has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last parameter
+    *          extension has already been returned.
     */
     int __attribute__((weak)) crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
     {
@@ -422,8 +404,8 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   data Pointer to stack provided memory containing data to be written 
     *               into the devices parameter repository.
     * @return  cr_ErrorCodes_NO_ERROR on success or an error like  
-    *          cr_ErrorCodes_INVALID_PARAMETER if the parameter ID is not valid.
-    *          Also can return cr_ErrorCodes_WRITE_FAILED or
+    *          cr_ErrorCodes_INVALID_ID if the parameter ID is not
+    *          valid. Also can return cr_ErrorCodes_WRITE_FAILED or
     *          cr_ErrorCodes_PERMISSION_DENIED
     */
     int __attribute__((weak)) crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
@@ -449,24 +431,25 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         return 0;
     }
 
-  #if NUM_SUPPORTED_PARAM_NOTIFY >= 0
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     /**
-    * @brief   crcb_notify_param
-    * @details parameter notifications are handled by the Reach stack. The stack 
-    * will use the read parameters to be notified on an appropriate timescale and 
-    *          send notifications if enough changes. The overriding implementation
-    *          must signal the client that this parameter may have changed.
-    * @param   param (input) pointer to the parameter data that has 
-    *                changed.
-    * @return  cr_ErrorCodes_NO_ERROR on success or an error from the cr_ErrorCodes_
-    *          enumeration if the notification fails.
+    * @brief   crcb_parameter_notification_init
+    * @details Called in cr_init() to enable any notifications that the device 
+    *          wishes to be active.
+    * @param   pNoteArray pointer to an array of cr_ParameterNotifyConfig structures
+    *          describing the desired notifications.
+    * @param   pNum How many are in the array.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_ID.
     */
-    int __attribute__((weak)) crcb_notify_param(cr_ParameterValue *param)
+    int __attribute__((weak)) crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray, size_t *pNum)
     {
-        (void)param;
+        *pNoteArray = NULL;
+        *pNum = 0;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return 0;
     }
+    
   #endif /// NUM_SUPPORTED_PARAM_NOTIFY >= 0
 #endif /// INCLUDE_PARAMETER_SERVICE
 
@@ -492,7 +475,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   cid The ID to which the command table pointer 
     *              should be reset.  0 for the first command.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_command_discover_reset(const uint32_t cid)
     {
@@ -508,8 +491,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          pointer into the command table.
     * @param   cmd_desc Pointer to stack provided memory into which the 
     *               command description is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last command has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last command has
+    *          already been returned.
     */
     int __attribute__((weak)) crcb_command_discover_next(cr_CommandInfo *cmd_desc)
     {
@@ -571,8 +555,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          pointer into the file table.
     * @param   file_desc Pointer to stack provided memory into which the 
     *               file description is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last file has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last file has already
+    *          been returned.
     */
     int __attribute__((weak)) crcb_file_discover_next(cr_FileInfo *file_desc)
     {
@@ -588,7 +573,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   file_desc Pointer to stack provided memory into which the 
     *               file description is to be copied
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_file_get_description(uint32_t fid, 
                                                       cr_FileInfo *file_desc)
@@ -602,15 +587,20 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_file_get_preferred_ack_rate
     * @details If the device has a preferred acknowledge rate it can implement this 
-    *          function to advise the file transfer code of the
-    *          rate. Higher ack rates mean less acknowlegements and
-    *          faster file trasnfer.
+    *          function to advise the file transfer code of the rate.
+    *          Higher ack rates mean less acknowlegements and faster file trasnfer.
+    * @param   fid : File ID, in case this affects the decision 
+    * @param   requested_rate: might factor into the decison. 
     * @param   is_write true if enquiring about write.
     * @return  A return value of zero means that there is no preferred rate and the 
     *          client can specify it.
     */
-    int __attribute__((weak)) crcb_file_get_preferred_ack_rate(bool is_write)
+    int __attribute__((weak)) crcb_file_get_preferred_ack_rate(uint32_t fid,
+                                                               uint32_t requested_rate,
+                                                               bool is_write)
     {
+        (void)fid;
+        (void)requested_rate;
         (void)is_write;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return 0;
@@ -671,10 +661,15 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     /**
     * @brief   crcb_erase_file
     * @details The device overrides this method to accept a command to set the 
-    *          length of a file to zero, erasing it.
+    *          length of a file to zero, erasing it.  The erase
+    *          process may take some time the implementation can
+    *          choose to return cr_ErrorCodes_INCOMPLETE to indicate
+    *          that the erase command needs to be issued again until
+    *          it succeeds.  Other errors are reported via the
+    *          result field and its message.
     * @param   fid (input) which file
-    * @param   offset (input) offset, negative value specifies current location.
-    * @return  returns zero or an error code
+    * @return  returns cr_ErrorCodes_NO_ERROR or 
+    *          cr_ErrorCodes_INCOMPLETE.
     */
     int __attribute__((weak)) crcb_erase_file(const uint32_t fid)
     {
@@ -795,7 +790,7 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   cid The ID to which the wifi table pointer 
     *              should be reset.  0 for the first AP.
     * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
-    *          cr_ErrorCodes_INVALID_PARAMETER.
+    *          cr_ErrorCodes_INVALID_ID.
     */
     int __attribute__((weak)) crcb_wifi_discover_reset(const uint32_t cid)
     {
@@ -812,8 +807,9 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     *          the wifi table.
     * @param   cmd_desc Pointer to stack provided memory into which the 
     *               wifi description is to be copied.
-    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
-    *          if the last wifi has already been returned.
+    * @return  cr_ErrorCodes_NO_ERROR on success or 
+    *          cr_ErrorCodes_INVALID_ID if the last wifi has already
+    *          been returned.
     */
     int __attribute__((weak)) crcb_wifi_discover_next(cr_ConnectionDescription *AP_desc)
     {
@@ -855,31 +851,151 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     ///*************************************************************************
     ///  Stream Service not yet supported
     ///*************************************************************************
-    int __attribute__((weak)) crcb_stream_discover_next(cr_stream_s *stream_desc)
+
+    /** @brief   crcb_stream_get_count
+    * @return  The overriding implementation must returns the number 
+    *          of streams implemented by the device.
+    */    
+    int __attribute__((weak)) crcb_stream_get_count()
+    {
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return 0;
+    }
+
+    /**
+    * @brief   crcb_stream_discover_reset
+    * @details The overriding implementation must reset a pointer into the stream 
+    *          table such that the next call to crcb_stream_discover_next() will
+    *          return the description of this stream.
+    * @param   sid The ID to which the stream table pointer 
+    *              should be reset.  use 0 for the first command.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_stream_discover_reset(const uint8_t sid)
+    {
+        (void)sid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
+    /**
+    * @brief   crcb_stream_discover_next
+    * @details Gets the  description for the next stream.
+    *          The overriding implementation must post-increment its pointer into 
+    *          the stream table.
+    * @param   stream_desc Pointer to stack provided memory into which the 
+    *               stream description is to be copied.
+    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
+    *          if the last stream has already been returned.
+    */
+    int __attribute__((weak)) crcb_stream_discover_next(cr_StreamInfo *stream_desc)
     {
         (void)stream_desc;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
 
-    int __attribute__((weak)) crcb_stream_discover_reset(uint8_t  stream_id)
+    /**
+    * @brief   crcb_stream_get_description
+    * @details Get the description matching the stream ID.
+    * @param   sid The ID of the desired stream.
+    * @param   stream_desc Pointer to stack provided memory into which the 
+    *               stream description is to be copied
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_stream_get_description(uint32_t sid, cr_StreamInfo *stream_desc)
     {
-        (void)stream_id;
+        (void)sid;
+        (void)stream_desc;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
 
-    /// A stream is sent as an array of records.
-    int __attribute__((weak)) crcb_stream_send_packet(const uint8_t stream_id,
-                              void *data,
-                              size_t num_packets)
+    /**
+    * @brief   crcb_stream_read
+    * @details The stream flows from the device.
+    *           Prepare a StreamData packet to be sent to the
+    *           client.  This is called in the main Reach loop.
+    * @param   sid The ID of the desired stream.
+    * @param   data Pointer to stack provided memory into which the 
+    *               data is to be copied
+    * @return  cr_ErrorCodes_NO_ERROR when the data is ready to be 
+    *          sent.  cr_ErrorCodes_NO_DATA if there is no data to
+    *          be sent.
+    */
+    int __attribute__((weak)) crcb_stream_read(uint32_t sid, cr_StreamData *data)
     {
-        (void)stream_id;
+        (void)sid;
         (void)data;
-        (void)num_packets;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
+
+    /**
+    * @brief   crcb_stream_write
+    * @details The stream flows to the device.
+    *           Record or consume this data provided by the client.
+    * @param   sid The ID of the desired stream.
+    * @param   data Pointer to stack provided memory containing the 
+    *               stream data
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_stream_write(uint32_t sid, cr_StreamData *data)
+    {
+        (void)sid;
+        (void)data;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
+    /**
+    * @brief   crcb_stream_open
+    * @details Open the stream matching the stream ID.
+    * @param   sid The ID of the desired stream.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_stream_open(uint32_t sid)
+    {
+        (void)sid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
+    /**
+    * @brief   crcb_stream_close
+    * @details Close the stream matching the stream ID.
+    * @param   sid The ID of the desired stream.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int __attribute__((weak)) crcb_stream_close(uint32_t sid)
+    {
+        (void)sid;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif /// INCLUDE_STREAM_SERVICE
 
 

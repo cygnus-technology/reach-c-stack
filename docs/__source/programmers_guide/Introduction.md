@@ -4,9 +4,9 @@
 
 I3 Product Design
 
-Version     3.1
+Version     3.2
 
-Date        March 20, 2024
+Date        April 17, 2024
 
 # Executive Summary
 
@@ -77,15 +77,17 @@ A proper Cygnus Reach system design includes much input from customer support en
 
 ## Bluetooth Low Energy (BLE)
 
-When presented on a BLE interface, the following interface must be implemented. This standard allows for immediate recognition by and compatibility with a Cygnus capable app.
+The Reach protocol assumes that there exists a reliable underlying transport layer.  The protocol is initially deployed using the Bluetooth Low Energy transport protocol.  The implementation of the Reach stack is easily customized to fit the constraints of the available transport layer.
+
+Reach is most commonly deployed over BLE.  Reach messages are configured to fit efficiently into the 244 byte limit on BLE packets.  Reach over BLE requires a single characteristic. When presented on a BLE interface, the following interface must be implemented. This standard allows for immediate recognition by and compatibility with a Cygnus capable app.
 
 **REACH BLE Service:**
 
 UUID: edd59269-79b3-4ec2-a6a2-89bfb640f930
 
-**Characteristics:**
+**Characteristic:**
 
-The REACH API characteristic is all that is needed to enable access to the protocol. Client messages sent as individual characteristic writes and server responses are sent asynchronously as notifications.
+The single REACH API characteristic is all that is needed to enable access to the protocol. Client messages sent as individual characteristic writes and server responses are sent asynchronously as notifications.
 
 <table>
   <tr>
@@ -132,21 +134,23 @@ The BLE device must advertise this UUID so that mobile apps can identify it as a
 
 ![alt_text](_images/SiLabsBLE.png "image_tooltip")
 
+### Other Transport Protocols
+
+Reach can be implemented on other protocols.  MQTT and CAN are often discussed.  The CAN ecosystem includes a transport layer which is well suited to deliver Reach.  Reach over CAN would be appropriate to connect multiple Reach "endpoints" in a device.
+
 ## Protobufs
 
 The Reach communication protocol is implemented using Google's open source "protobuf" tool.  The big advantage of this tool is how easily it is used on the client side where Reach devices are addressed using multiple high level languages like Kotlin, Swift, and C#.  All of these languages rely on garbage collection to support memory allocation.  Since C does not support garbage collection, we elect to use static buffers to implement the protobuf structures.
 
-The reach.proto file is available on the cygnus-technology github site in the reach-protobuf repository.  As the .proto file defines the communication standard we don't expect users to modify it.  
+The reach.proto file is available on the cygnus-technology github site in the reach-protobuf repository.  The authors don't expect users to modify the .proto file as it defines the communication standard.  
 
-We use nanopb to convert the .proto file into C structures. Following nanopb guidelines, we use a .options file to avoid the use of malloc(). All arrays are converted to fixed sizes which are set in the .options file. The .options file is generated using a python script, reach_proto\proto\preprocess_options.py. This reads in reach-c-stack/reach_ble_proto_sizes.h and a prototype of the options file and outputs an options file that reflects the sizes set by the device. The sizes here are optimized for efficient BLE transfer. A system that does not use BLE could adjust these sizes. The UI applications are designed to respect these size constraints that are advertised in the device info structure.
-
-If you find you are interested in rebuilding the C code from the protobuf source, feel free to contact Cygnus support or open an issue on github.
+We use nanopb to convert the .proto file into C structures. Following nanopb guidelines, we use a .options file to avoid the use of malloc(). All arrays are converted to fixed sizes which are set in the .options file. The .options file is generated using a python script, reach_proto\proto\preprocess_options.py. This reads in reach-c-stack/includes/reach_ble_proto_sizes.h and a prototype of the options file. It outputs an options file that reflects the sizes set by the device. The sizes here are optimized for efficient BLE transfer. A system that does not use BLE could adjust these sizes. The UI applications are designed to respect these size constraints that are advertised in the device info structure.
 
 ## System Structure
 
 The Thunderboard demo has two parts, namely a “server” written in C and a “client” written in Kotlin or Swift or typescript.  The demo server we describe here runs on a Silicon Labs (SiLabs) Thunderboard.  It advertises itself as a Reach device on BLE.  Android and iOS mobile apps are available as the demo client.  These are available in the corresponding play/app store.  Cygnus also supports a web client.
 
-All of the Reach code, including the SiLabs demo is available on the Cygnus Technology github site: 
+All of the Reach code, including demo applications for Silicon Labs and Nordic hardware platforms are available on the Cygnus Technology github site: 
 
     ([https://github.com/cygnus-technology](https://github.com/cygnus-technology))
 
@@ -158,7 +162,7 @@ How to build and run the demo is described elsewhere in the “Getting Started�
 
 We encourage you to run the reach-silabs demo as is on the Thunderboard as it gives you a concrete reference.  This section outlines the process of porting the code to another system.  Here I assume it is a C project.  
 
-The demo uses no RTOS.  Everything goes through an event loop which is part of the SiLabs BLE architecture.  Reach could easily be broken off into a separate RTOS task, but this is not demonstrated.
+The SiLabs demo uses no RTOS.  Everything goes through an event loop which is part of the SiLabs BLE architecture.  The Nordic demo uses the Zephyr RTOS.
 
 The recommendation in general is to bring up your application so that it behaves just like the Reach demo, and then go on to customize it for your own usage.  The rest of this document attempts to give some background to better understand the application.
 
@@ -186,9 +190,11 @@ The “reach-silabs” project uses this top level directory structure.
 
 ### src and include folders
 
-The src and include folders at the top level of the project implement the callbacks that are required for the Reach stack to operate.  This includes application specific source files such as src/params.c which implements the callbacks required for cr_params.c.
+The src and include folders at the top level of the project implement the callbacks that are required for the Reach stack to operate.  This includes application specific source files such as src/params.c which implements the callbacks required for cr_params.c.  There is generally a pair of files for each Reach "service," one in the "app" and one in the stack.
 
-The two silabs specific files are also present here.
+The two silabs specific files (reach-silabs.c and silabs_cli.c) are also present here.
+
+The include folder provides reach-server.h.  This is the compile time configuration file.  It #defines macros that enable or disable features of the system.
 
 ### reach-c-stack
 
@@ -349,19 +355,23 @@ A separate pair of “ping pong” buffers are used to encode notifications.
 
 # Services
 
-Reach devices advertise that they support a set of “services” such as “parameters”, “files” and “commands”.  Reach devices can implement as many or as few services as are appropriate.  Support for each service is segregated into separate files in the apps directory. 
+Reach devices advertise that they support a set of “services” such as “parameters”, “files” and “commands”.  Reach devices can implement as many or as few services as are appropriate.  Support for each service is segregated into separate files. 
 
 ## Configuration
 
-The file includes/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  reach-server.h also demonstrates #defines to configure the security of the Reach system.
+The file include/reach-server.h is designed to be used to configure your use of Reach.  Use #defines to include or exclude services.  reach-server.h also demonstrates #defines to configure the security of the Reach system.
+
+### Code Generator
+
+There is ongoing work to create a code generator that will populate the product specific data.  The first generation of the examples wrote out this data by hand.  The current generation uses an experimental code generator with excel providing the front end.  This is helpful, but you can certainly choose to edit the configuration files by hand.
 
 ## Device Information Service
 
-Device.c implements the crcb_device_get_info() callback function, overriding its weak prototype.  The device info service is required so this function is required.  The basic description of the product can be constant in flash but a copy is made so that parts can be overridden.  The device info request can include a "challenge key" as described in a following section about security.
+The implementation of the crcb_device_get_info() callback function is generated in by the code generator and stored in definitions.c.  This overrides its weak prototype.  The device info service is required so this function is required.  The basic description of the product can be constant in flash but a copy is made so that parts can be overridden.  The device info request can include a "challenge key" as described in a following section about security.
 
 ## Parameter Service
 
-Params.c implements the necessary support for a simple parameter database.  Descriptions of parameters can be stored in flash with the variable data stored in RAM.  The demonstration code includes the storage of parameters in non-volatile memory (NVM).  The various callback functions used are all implemented here.  The interface is designed to support product specific implementations of the parameter database.  The provided parameter repository is quite simple, but it may be sufficient for many applications.
+The implementations of the callback functions necessary to support the parameter repository are generated by the code generator and stored in definitions.c. Descriptions of parameters can be stored in flash with the variable data stored in RAM.  The demonstration code includes the storage of parameters in non-volatile memory (NVM).  The various callback functions used are all implemented here.  The Reach interface is designed to support product specific implementations of the parameter database.  The code generator exists to automate what the designers see as best practice.  The provided parameter repository is quite simple, but it has proved sufficient for many applications.
 
 The parameter interface is designed to support small variables.  Byte arrays up to 32 bytes are supported.  Larger data blocks can be handled using the file service.
 
@@ -385,16 +395,28 @@ Some items to keep in mind are:
 - The number of parameters that can generate notifications is set by NUM_SUPPORTED_PARAM_NOTIFY in reach-server.h. Each notification requires another 56+20 bytes.
 - Parameters are only monitored when the BLE client is connected.
 - All parameter notifications are canceled when the client connects to the device. The client must enable all desired notifications when it connects.
+  - Notifications can be initialized on the device/server.
+  - The client can discover the current configuration of notifications.
+  - The client can efficiently change the configuration of notifications, as when a custom app displays various pages of information.
+
 - Setting any of the notification parameters to zero means they will be ignored. Setting all of them to zero (delta, min, max) is the same as disabling that notification.
 - No delta applies for strings and byte arrays. They are checked for any change by strcmp() and memcmp() respectively.
 
 ### Access Control
 
-The "challenge key" concept exists to allow different users different levels of access to the services and parameters.  Code in params.c demonstrates a trivial implementation of this.  Reach doesn't impose any specific model of access control, but it is able to support it.
+The "challenge key" concept exists to allow different users different levels of access to the services and parameters.  Code in access.c supports a simple implementation of this.  The stack uses a function to check whether access is granted to specific objects.
+
+```
+bool crcb_access_granted(const cr_ServiceIds service, const int32_t id)
+```
 
 ## Command Service
 
-The command service provides an easy way to execute simple functions not requiring parameters.  Commands can be described as having a long timeout which the client should respect.
+The command service provides an easy way to execute simple functions not requiring parameters.  Commands can be described as having a long timeout which the client should respect.  The code generator generates the list of commands and the code to discover this list.  The device author must provide implementations to override the weak functions used by the stack.
+
+```
+int crcb_command_execute(const uint8_t cid)
+```
 
 ## File Service
 
@@ -412,17 +434,19 @@ The time service is designed to support setting and checking the time on devices
 
 The WiFi service is designed to let devices that include WiFi use an existing UI to connect to an access point.  The WiFi service is not yet fully supported.
 
-## Files, Parameters, and Commands
 
-Parameters are supported using a simple key-value pair structure.  The decision to avoid dynamic memory allocation causes the parameter storage structure to have a fixed and limited size.  The limit is set to 32 bytes for a string.  Data that is too large for this is easily handled using the “file” construct.  Reach provides no formal file system.  Files can instead be thought of as a key-value pair in which the value size is not limited.  While the parameter structure is optimized to fetch several parameters together, the file structure is optimized to transfer a larger block of data as quickly as possible.  “Files” can be mapped to a file system if that is appropriate for the application.  They can also simply be larger blocks of data maintained by the app.
+
+# Files, Parameters, and Commands
+
+Parameters are supported using a simple key-value pair structure.  The decision to avoid dynamic memory allocation causes the parameter storage structure to have a fixed and limited size.  The limit is set to 32 bytes for a string.  Data that is too large for this is easily handled using the “file” construct.  Reach provides no formal file system.  Files can instead be thought of as a key-value pair in which the value size is limited only by the device-specific underlying implementation.  While the parameter structure is optimized to fetch several parameters together, the file structure is optimized to transfer a larger block of data as quickly as possible.  “Files” can be mapped to a file system if that is appropriate for the application.  They can also simply be larger blocks of data maintained by the app.
 
 Commands provide a simple means to remotely trigger a function with fixed parameters.  Commands could always be implemented in other ways.  An example is the command to enable the remote CLI.  This can also be engaged using the command line, but providing a command makes it easier to get started with these features.
 
-# Multi-Message (Continuing) Transactions
+## Multi-Message (Continuing) Transactions
 
 The response to DISCOVER_PARAMETERS, and in fact to any “discover” command could extend over multiple “messages”.  To define terms:
 
-* A _transaction _is a series of messages.
+* A _transaction is a series of messages.
 * A _message _has a _header _and a _payload_.
 * The _prompt _is a received payload.
 * The _response _is a generated payload.
@@ -491,15 +515,39 @@ Repeat:
 
 ![alt_text](_images/file_write_sequence.png "image_tooltip")
 
+## File Acknowledgement Rate (ack_rate)
+
+An "ack_rate" is specified for each file transfer.  This specifies the number of messages transmitted before an acknowledge is required.  A high ack_rate enables the highest possible data transfer rates over BLE. A low ack rate allows the system to efficiently respond to transmission errors.  In a BLE system, the BLE layer is already correcting errors, so high ack rates are appropriate. 
+
+The server finally decides the ack rate.  The client can request a different ack rate using the optional requested_ack_rate in the FileTransferRequest (formerly FileTransferInit) message. 
+
+- The requested_ack_rate is optionally sent by the client when requesting a file transfer.  
+
+- The responding "ack_rate" is always present.
+
+- If the requested_ack_rate is provided, then the server should use it.
+  
+  - The weak callback crcb_file_get_preferred_ack_rate() allows the application designer to choose this rate.
+  
+  - The server may confirm the requested ack_rate in its response.
+  
+  - The server may override the requested ack rate with its own preference if there is a good reason.  Ideally this reason would be communicated in the result_message field.
+
+- If no requested_ack_rate is provided, the server will provide the ack_rate via the crcb_file_get_preferred_ack_rate() callback.
+
 # Security
 
-The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.  Reach-server.h contains #defines that configure the BLE interface.  The GATT database must also be configured appropriately.  "Level 2" protection can be achieved with devices that have no display.  Some sort of display or keypad is necssary to achieve "level 4" protection.
+The Reach system relies on industry standards for security.  The BLE interface can easily be encrypted.  With the exchange of a key "out of band" the encryption is quite robust.  Reach-server.h contains #defines that configure the BLE interface.  The GATT database must also be configured appropriately.  "Level 2" protection can be achieved with devices that have no display.  Some sort of display or keypad is necessary to achieve "level 4" protection.
 
-Reach supports access control in the the form of a "challenge key" which is presented when the client requests device info.  If the device is configured to require a challenge key and none is presented then no services will be visible to the client.  The device can be coded to support multiple challenge keys, each with its own level of access.  The demonstration shows "basic" and "full" access based on two keys.
+Reach supports access control in the the form of a "challenge key" which is presented when the client requests device info.  If the device is configured to require a challenge key and none is presented then a limited set of services will be visible to the client.  The device can be coded to support multiple challenge keys, each with its own level of access.  
+
+Basic access control is demonstrated with code in device.c and params.c.  Defining the macro DEMO_ACCESS_CONTROL sets up the "get device info" handler to require a challenge key.  Based on this challenge key matching expectation, the device presents more or less services.  The file params.c defines ACCESS_LEVEL_FULL as a bit that is or'ed into the access member of the parameter info structure to indicate that this parameter is only accessible at the "full" access level.  
+
+All of this code to handle access control is in the app and not in the reach stack.  You are quite welcome use these tools or invent your own to meet your needs.
 
 # Error Handling
 
-Error reporting is considered important and hence Reach provides a method by which a textual error message can be delivered to the remote client.  Commands 6 through 10 trigger error reports for testing.  It can be quite helpful during development to allow device errors to be displayed at the client.  The extra 240 bytes of memory taken by the fully asynchronous error reporter can be eliminated with a #define in reach-server.h if necessary.
+Error reporting is considered important and hence Reach provides a method by which a textual error message can be delivered to the remote client.  The "Wisdom" command triggers a collection of more or less strange error reports for testing.  It can be quite helpful during development to allow device errors to be displayed at the client.  The extra 240 bytes of memory taken by the fully asynchronous error reporter can be eliminated with a #define in reach-server.h if necessary.
 
 # Endpoints
 

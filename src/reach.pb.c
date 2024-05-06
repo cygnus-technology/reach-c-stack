@@ -12,6 +12,9 @@ PB_BIND(cr_ReachMessageHeader, cr_ReachMessageHeader, AUTO)
 PB_BIND(cr_ReachMessage, cr_ReachMessage, AUTO)
 
 
+PB_BIND(cr_AhsokaMessageHeader, cr_AhsokaMessageHeader, AUTO)
+
+
 PB_BIND(cr_ErrorReport, cr_ErrorReport, AUTO)
 
 
@@ -33,6 +36,39 @@ PB_BIND(cr_ParameterInfoRequest, cr_ParameterInfoRequest, AUTO)
 PB_BIND(cr_ParameterInfoResponse, cr_ParameterInfoResponse, 2)
 
 
+PB_BIND(cr_Uint32ParameterInfo, cr_Uint32ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Int32ParameterInfo, cr_Int32ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Float32ParameterInfo, cr_Float32ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Uint64ParameterInfo, cr_Uint64ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Int64ParameterInfo, cr_Int64ParameterInfo, AUTO)
+
+
+PB_BIND(cr_Float64ParameterInfo, cr_Float64ParameterInfo, AUTO)
+
+
+PB_BIND(cr_BoolParameterInfo, cr_BoolParameterInfo, AUTO)
+
+
+PB_BIND(cr_StringParameterInfo, cr_StringParameterInfo, AUTO)
+
+
+PB_BIND(cr_EnumParameterInfo, cr_EnumParameterInfo, AUTO)
+
+
+PB_BIND(cr_BitfieldParameterInfo, cr_BitfieldParameterInfo, AUTO)
+
+
+PB_BIND(cr_ByteArrayParameterInfo, cr_ByteArrayParameterInfo, AUTO)
+
+
 PB_BIND(cr_ParameterInfo, cr_ParameterInfo, AUTO)
 
 
@@ -45,19 +81,31 @@ PB_BIND(cr_ParamExInfoResponse, cr_ParamExInfoResponse, AUTO)
 PB_BIND(cr_ParameterRead, cr_ParameterRead, AUTO)
 
 
-PB_BIND(cr_ParameterReadResult, cr_ParameterReadResult, AUTO)
+PB_BIND(cr_ParameterReadResponse, cr_ParameterReadResponse, AUTO)
 
 
 PB_BIND(cr_ParameterWrite, cr_ParameterWrite, AUTO)
 
 
-PB_BIND(cr_ParameterWriteResult, cr_ParameterWriteResult, AUTO)
+PB_BIND(cr_ParameterWriteResponse, cr_ParameterWriteResponse, AUTO)
 
 
 PB_BIND(cr_ParameterNotifyConfig, cr_ParameterNotifyConfig, AUTO)
 
 
+PB_BIND(cr_ParameterEnableNotifications, cr_ParameterEnableNotifications, AUTO)
+
+
+PB_BIND(cr_ParameterDisableNotifications, cr_ParameterDisableNotifications, AUTO)
+
+
 PB_BIND(cr_ParameterNotifyConfigResponse, cr_ParameterNotifyConfigResponse, AUTO)
+
+
+PB_BIND(cr_DiscoverParameterNotifications, cr_DiscoverParameterNotifications, AUTO)
+
+
+PB_BIND(cr_DiscoverParameterNotificationsResponse, cr_DiscoverParameterNotificationsResponse, AUTO)
 
 
 PB_BIND(cr_ParameterNotification, cr_ParameterNotification, AUTO)
@@ -75,10 +123,10 @@ PB_BIND(cr_DiscoverFilesResponse, cr_DiscoverFilesResponse, AUTO)
 PB_BIND(cr_FileInfo, cr_FileInfo, AUTO)
 
 
-PB_BIND(cr_FileTransferInit, cr_FileTransferInit, AUTO)
+PB_BIND(cr_FileTransferRequest, cr_FileTransferRequest, AUTO)
 
 
-PB_BIND(cr_FileTransferInitResponse, cr_FileTransferInitResponse, AUTO)
+PB_BIND(cr_FileTransferResponse, cr_FileTransferResponse, AUTO)
 
 
 PB_BIND(cr_FileTransferData, cr_FileTransferData, AUTO)
@@ -105,7 +153,7 @@ PB_BIND(cr_StreamInfo, cr_StreamInfo, AUTO)
 PB_BIND(cr_StreamOpen, cr_StreamOpen, AUTO)
 
 
-PB_BIND(cr_StreamOpenResponse, cr_StreamOpenResponse, AUTO)
+PB_BIND(cr_StreamResponse, cr_StreamResponse, AUTO)
 
 
 PB_BIND(cr_StreamClose, cr_StreamClose, AUTO)
@@ -147,7 +195,7 @@ PB_BIND(cr_TimeGetResponse, cr_TimeGetResponse, AUTO)
 PB_BIND(cr_ConnectionDescription, cr_ConnectionDescription, AUTO)
 
 
-PB_BIND(cr_DiscoverWiFiRequest, cr_DiscoverWiFiRequest, AUTO)
+PB_BIND(cr_DiscoverWiFi, cr_DiscoverWiFi, AUTO)
 
 
 PB_BIND(cr_DiscoverWiFiResponse, cr_DiscoverWiFiResponse, AUTO)
@@ -160,9 +208,6 @@ PB_BIND(cr_WiFiConnectionResponse, cr_WiFiConnectionResponse, AUTO)
 
 
 PB_BIND(cr_BufferSizes, cr_BufferSizes, AUTO)
-
-
-
 
 
 

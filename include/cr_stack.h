@@ -97,7 +97,7 @@ extern "C" {
 // In all cases, resetting to zero will select the lowest available object.
 //
 
-#define MAX_NUM_PARAM_ID                32767 // 16 bits
+#define MAX_NUM_PARAM_ID                32767 ///< The largest acceptable parameter ID is 16 bits
 
 //----------------------------------------------------------------------------
 // API
@@ -118,7 +118,9 @@ extern "C" {
  
 */
 
+/// \cond IGNORE
 #define ALIGN_TO_WORD   __attribute__((aligned(4)))
+/// \endcond 
 
 /**
 * @brief   cr_init
@@ -223,6 +225,29 @@ bool cr_get_comm_link_connected(void);
 
 
 /**
+* @brief   cr_clear_param_notifications
+* @details Disable all parameter notifications.
+*/
+void cr_clear_param_notifications(void);
+
+/**
+* @brief   cr_init_param_notifications
+* @details Enable all locally specified parameter notifications 
+*          via crcb_parameter_notification_init().
+*/
+void  cr_init_param_notifications(void);
+
+/**
+* @brief   cr_get_notification_statistics
+* @param   numActive is populated with the number of  
+*          notifications currently enabled.a
+* @param   numSent is populated with the number of notifications
+*          sent since last called.
+* @details numSent is zeroed by each call.
+*/
+void cr_get_notification_statistics(uint32_t *numActive, uint32_t *numSent);
+
+/**
 * @brief   cr_get_current_ticks
 * @details The tick count is passed in to cr_process(). This function gives 
 *          other Reach functions access to that value. 
@@ -267,9 +292,9 @@ typedef struct {
     uint8_t   medium_string_len;
     /// The number of bytes in short strings like the units label.
     uint8_t   short_string_len;
-    /// The max number of enumeration descriptions that a server 
-    /// will provide in a parameter extended description. 
-    uint8_t   param_info_enum_count;
+    /// The max number of parameter notification configurations 
+    /// that a client can provide in a message. 
+    uint8_t   param_notify_config_count;
     /// number of descriptors (stream, file) that fit in one message. 
     uint8_t   num_descriptors_in_response;
     /// Number of parameter notifications supported
@@ -294,7 +319,7 @@ typedef struct {
 *          containing the C stack version.
 */
 const char *cr_get_reach_version();
-#define CR_STACK_VERSION_LEN    16
+#define CR_STACK_VERSION_LEN    16  ///< The length of the version string
 
 /**
 * @brief   cr_get_proto_version 

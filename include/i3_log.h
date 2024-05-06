@@ -63,6 +63,7 @@ extern "C"
 #define LOG_MASK_FILES      0x200   ///< show file handling
 #define LOG_MASK_BLE        0x400   ///< show BLE handling
 #define LOG_MASK_DEBUG      0x800   ///< show other reach features
+#define LOG_MASK_AHSOKA     0x1000  ///< show ahsoka coding
 
 /// Logging can be completely excluded from the build by
 /// defining NO_REACH_LOGGING in reach-server.h.
@@ -73,13 +74,18 @@ extern "C"
     #define LOG_DUMP_WIRE(banner, buf, len)
     #define LOG_DUMP_MASK(mask, banner, buf, len)
 #else
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define I3_LOG(m, f, ...)     i3_log(m, f, ##__VA_ARGS__)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_REACH(format, ...)                                                 \
         I3_LOG(LOG_MASK_REACH, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_ERROR(format, ...)                                                 \
         i3_log(LOG_MASK_ERROR, "[%s][%s] " format, __FILE__, __func__, ##__VA_ARGS__)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_DUMP_WIRE(banner, buf, len)                                        \
         i3_log_dump_buffer(LOG_MASK_WIRE, banner, buf, len)
+    /// A macro allowing logging to be disabled by NO_REACH_LOGGING.
     #define LOG_DUMP_MASK(mask, banner, buf, len)                                  \
         i3_log_dump_buffer(mask, banner, buf, len)
 #endif  // def NO_LOGGING
@@ -101,9 +107,10 @@ uint32_t i3_log_get_mask(void);
 
 /**
 * @brief   i3_log_set_remote_cli_enable
-* @details Enabling the remote CLI can generate significant BLE traffic. This 
-*          can slow down speed related things like file transfer.  Hence this
-*          API allows the remote command line to be easily
+* @param   enable : Enabling the remote CLI can generate 
+*          significant BLE traffic. This can slow down speed
+*          related things like file transfer.  Hence this API
+*          allows the remote command line to be easily
 *          supressed.  The initial state can be set in
 *          reach-server.h
 * @return  cr_ErrorCodes_NO_ERROR on success.
@@ -139,8 +146,9 @@ int i3_log_get_remote_buffer(char **pRcli);
 *          Reach logging (cyan).  The color reset code and a \r\n are appended
 *          to all strings except for LOG_MASK_BARE. When the remote CLI is
 *          enabled the string is copied to the remote buffer and sent via
-*          crcb_cli_respond().
+*          pvtCr_cli_respond().
 * @param   mask See LOG_MASK_.
+* @param   fmt : standard printf format.
 */
 void i3_log(const uint32_t mask, const char *fmt, ...);
 

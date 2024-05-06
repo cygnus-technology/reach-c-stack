@@ -186,7 +186,7 @@ uint32_t i3_log_get_mask(void)
     */
     bool i3_log_get_remote_cli_enable()
     {
-        if (!crcb_enable_remote_cli())
+        if (!crcb_access_granted(cr_ServiceIds_CLI, 0))
             return false;
         return sUseRemoteCLI;
     }
@@ -227,7 +227,7 @@ uint32_t i3_log_get_mask(void)
     *          Reach logging (cyan).  The color reset code and a \r\n are appended
     *          to all strings except for LOG_MASK_BARE. When the remote CLI is
     *          enabled the string is copied to the remote buffer and sent via
-    *          crcb_cli_respond().
+    *          pvtCr_cli_respond().
     * @param   mask See LOG_MASK_.
     */
     void i3_log(const uint32_t mask, const char *fmt, ...)
@@ -311,10 +311,10 @@ uint32_t i3_log_get_mask(void)
         // The i3_log module should not depend on the Reach stack.
         // Yet it is very convenient to emit the remote buffer right here.
         // This might want to be changed in some systems.
-        extern int crcb_cli_respond(char *cli);
+        extern int pvtCr_cli_respond(char *cli);
 
         sLog_rcliBuf[sLog_rcliPtr] = 0;
-        crcb_cli_respond(sLog_rcliBuf);
+        pvtCr_cli_respond(sLog_rcliBuf);
         sLog_rcliPtr = 0;
     }
 

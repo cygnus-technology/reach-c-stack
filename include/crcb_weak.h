@@ -88,17 +88,6 @@ int crcb_get_coded_prompt(uint8_t *prompt, size_t *len);
 */
 int crcb_send_coded_response(const uint8_t *response, size_t len);
 
-/**
-* @brief   crcb_notify_error
-* @details Called by cr_report_error().  Can be called at any point.
-*          The device must override this implementation to send 
-*          error messages to the client.
-* @param   err Pointer to a structure with a code and a string.
-* @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from
-*          the cr_ErrorCodes_ enumeration
-*/
-int crcb_notify_error(cr_ErrorReport *err);
-
 
 ///*************************************************************************
 ///  Device Service
@@ -138,12 +127,22 @@ bool crcb_challenge_key_is_valid(void);
 void crcb_invalidate_challenge_key(void);
 
 /**
-* @brief   crcb_enable_remote_cli
-* @details As the logging utility is technically part of Reach, 
-*          this callback lets the app block the remote CLI.
+* @brief   crcb_access_granted
+* @details A gateway to access control. Called anywhere that 
+*          access might be blocked.
+* @param  service : Which service to check. 
+* @param  id : Which ID to check.  Negative to check any. 
 * @return  true if access is granted.
 */
-bool crcb_enable_remote_cli(void);
+bool crcb_access_granted(const cr_ServiceIds service, const int32_t id);
+
+/**
+* @brief   crcb_configure_access_control
+* @details Configure the device info response based on the 
+*          challenge key in the device info request.
+* @return  true if access is granted.
+*/
+void crcb_configure_access_control(const cr_DeviceInfoRequest *request, cr_DeviceInfoResponse *pDi);
 
 ///*************************************************************************
 ///  Link (ping) Service 
@@ -195,20 +194,6 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     *          cr_ErrorCodes_ enumeration
     */
     int crcb_cli_enter(const char *cli);
-
-    /**
-    * @brief   crcb_cli_respond
-    * @details When the device supports a CLI it is expected to share anything 
-    *          printed to the CLI back to the stack for remote display using
-    *          crcb_cli_respond()
-    *          The device must override the weak implementation to support remote 
-    *          access to the command line.  The implementation can call this at any
-    *          time to print to the remote CLI
-    * @param   cli A string being sent back to the remote CLI.
-    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from the 
-    *          cr_ErrorCodes_ enumeration.
-    */
-    int crcb_cli_respond(char *cli);
 
     /**
     * @brief   crcb_set_command_line
@@ -348,20 +333,20 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     */
     uint32_t crcb_compute_parameter_hash(void);
 
-  #if NUM_SUPPORTED_PARAM_NOTIFY >= 0
-    /**
-    * @brief   crcb_notify_param
-    * @details parameter notifications are handled by the Reach stack. The stack 
-    * will use the read parameters to be notified on an appropriate timescale and 
-    *          send notifications if enough changes. The overriding implementation
-    *          must signal the client that this parameter may have changed.
-    * @param   param (input) pointer to the parameter data that has 
-    *                changed.
-    * @return  cr_ErrorCodes_NO_ERROR on success or an error from the cr_ErrorCodes_
-    *          enumeration if the notification fails.
-    */
-    int crcb_notify_param(cr_ParameterValue *param);
+  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
 
+    /**
+    * @brief   crcb_parameter_notification_init
+    * @details Called in cr_init() to enable any notifications that the device 
+    *          wishes to be active.
+    * @param   pNoteArray pointer to an array of cr_ParameterNotifyConfig structures
+    *          describing the desired notifications.
+    * @param   pNum How many are in the array.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray, size_t *pNum);
+ 
   #endif /// NUM_SUPPORTED_PARAM_NOTIFY >= 0
 
 #endif /// INCLUDE_PARAMETER_SERVICE
@@ -461,11 +446,13 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @details If the device has a preferred acknowledge rate it can implement this 
     *          function to advise the file transfer code of the rate.
     *          Higher ack rates mean less acknowlegements and faster file trasnfer.
+    * @param   fid : File ID, in case this affects the decision 
+    * @param   requested_rate: might factor into the decison. 
     * @param   is_write true if enquiring about write.
     * @return  A return value of zero means that there is no preferred rate and the 
     *          client can specify it.
     */
-    int crcb_file_get_preferred_ack_rate(bool is_write);
+    int crcb_file_get_preferred_ack_rate(uint32_t fid, uint32_t requested_rate, bool is_write);
 
     /**
     * @brief   crcb_read_file
@@ -504,10 +491,15 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     /**
     * @brief   crcb_erase_file
     * @details The device overrides this method to accept a command to set the 
-    *          length of a file to zero, erasing it.
+    *          length of a file to zero, erasing it.  The erase
+    *          process may take some time the implementation can
+    *          choose to return cr_ErrorCodes_INCOMPLETE to indicate
+    *          that the erase command needs to be issued again until
+    *          it succeeds.  Other errors are reported via the
+    *          result field and its message.
     * @param   fid (input) which file
-    * @param   offset (input) offset, negative value specifies current location.
-    * @return  returns zero or an error code
+    * @return  returns cr_ErrorCodes_NO_ERROR or 
+    *          cr_ErrorCodes_INCOMPLETE.
     */
     int crcb_erase_file(const uint32_t fid);
 
@@ -635,22 +627,94 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     ///  Stream Service not yet supported
     ///*************************************************************************
 
-    typedef enum {
-        str_number  = 0,  // Array of numbers of the same type
-        str_record  = 1,  // Array of objects, may include a timestamp
-        str_binary  = 2,  // binary data
-        str_string  = 3,  // string data
-        str_reserved      // for expansion
-    } stream_type_e;
+    /**
+    * @brief   crcb_stream_get_count
+    * @return  The overriding implementation must returns the number 
+    *          of streams implemented by the device.
+    */    
+    int crcb_stream_get_count();
 
-    int crcb_stream_discover_next(cr_stream_s *stream_desc);
+    /**
+    * @brief   crcb_stream_discover_reset
+    * @details The overriding implementation must reset a pointer into the stream 
+    *          table such that the next call to crcb_stream_discover_next() will
+    *          return the description of this stream.
+    * @param   sid The ID to which the stream table pointer 
+    *              should be reset.  use 0 for the first command.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_stream_discover_reset(const uint8_t sid);
 
-    int crcb_stream_discover_reset(uint8_t  stream_id);
+    /**
+    * @brief   crcb_stream_discover_next
+    * @details Gets the  description for the next stream.
+    *          The overriding implementation must post-increment its pointer into 
+    *          the stream table.
+    * @param   stream_desc Pointer to stack provided memory into which the 
+    *               stream description is to be copied.
+    * @return  cr_ErrorCodes_NO_ERROR on success or cr_ErrorCodes_INVALID_PARAMETER 
+    *          if the last stream has already been returned.
+    */
+    int crcb_stream_discover_next(cr_StreamInfo *stream_desc);
 
-    /// A stream is sent as an array of records.
-    int crcb_stream_send_packet(const uint8_t stream_id,
-                                void *data,
-                                size_t num_packets);
+    /**
+    * @brief   crcb_stream_get_description
+    * @details Get the description matching the stream ID.
+    * @param   sid The ID of the desired stream.
+    * @param   stream_desc Pointer to stack provided memory into which the 
+    *               stream description is to be copied
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_stream_get_description(uint32_t sid, cr_StreamInfo *stream_desc);
+
+    /**
+    * @brief   crcb_stream_read
+    * @details The stream flows from the device.
+    *           Prepare a StreamData packet to be sent to the
+    *           client.  This is called in the main Reach loop.
+    * @param   sid The ID of the desired stream.
+    * @param   data Pointer to stack provided memory into which the 
+    *               data is to be copied
+    * @return  cr_ErrorCodes_NO_ERROR when the data is ready to be 
+    *          sent.  cr_ErrorCodes_NO_DATA if there is no data to
+    *          be sent.
+    */
+    int crcb_stream_read(uint32_t sid, cr_StreamData *data);
+    /**
+    * @brief   crcb_stream_write
+    * @details The stream flows to the device.
+    *           Record or consume this data provided by the client.
+    *           Increment and populate the roll count.
+    * @param   sid The ID of the desired stream.
+    * @param   data Pointer to stack provided memory containing the 
+    *               stream data to be populated.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_stream_write(uint32_t sid, cr_StreamData *data);
+
+    /**
+    * @brief   crcb_stream_open
+    * @details Open the stream matching the stream ID. Zero the roll 
+    *          count for this stream.
+    * @param   sid The ID of the desired stream.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_stream_open(uint32_t sid);
+
+    /**
+    * @brief   crcb_stream_close
+    * @details Close the stream matching the stream ID.
+    * @param   sid The ID of the desired stream.
+    * @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error like 
+    *          cr_ErrorCodes_INVALID_PARAMETER.
+    */
+    int crcb_stream_close(uint32_t sid);
+
+
 #endif /// INCLUDE_STREAM_SERVICE
 
 
