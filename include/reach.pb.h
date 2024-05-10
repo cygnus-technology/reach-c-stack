@@ -278,8 +278,8 @@ typedef struct _cr_DeviceInfoResponse {
     char device_description[48]; /**< A longer human readable description. */
     /** Each endpoint advertises a "main" FW version.
 / If there are other FW versions, put them in the parameter repo. */
-    char firmware_version[16];
-    char protocol_version_string[16]; /**< The protocol version as a string against which this device is built. */
+    char firmware_version[16]; /**< MAJOR.MINOR.PATCH-NOTE. Parse MAJOR.MINOR.PATCH for compatibility. Note is not parsed. */
+    char protocol_version_string[16]; /**< The protocol version as a string against which this device is built. Parse MAJOR.MINOR.PATCH for compatibility. */
     uint32_t services; /**< A bit mask, allowing support for up to 32 services */
     uint32_t parameter_metadata_hash; /**< Used to avoid reloading the parameter descriptions */
     bool has_application_identifier;
@@ -852,8 +852,7 @@ typedef struct _cr_BufferSizes {
     uint32_t num_commands_in_response;
     /** number of param descriptions that can be in one info packet. (8 bits) */
     uint32_t count_param_desc_in_response;
-    /** The max number of parameter notification configurations 
-/ that a client will provide. */
+    /** The max number of parameter notification configurations that can be in one packet. (8 bits) */
     uint32_t param_notify_config_count;
 } cr_BufferSizes;
 
