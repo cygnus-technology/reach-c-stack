@@ -427,7 +427,7 @@ int crcb_parameter_ex_get_count(const int32_t pid)
 
     for (int i = 0; i < NUM_EX_PARAMS; i++)
     {
-        if (param_ex_desc[i].pei_id == pid) 
+        if ((int)param_ex_desc[i].pei_id == pid)
             return PARAM_EI_TO_NUM_PEI_RESPONSES(param_ex_desc[i]);
     }
     return 0;
@@ -446,7 +446,7 @@ int crcb_parameter_ex_discover_reset(const int32_t pid)
         current_pei_index = -1;
         for (int i = 0; i < NUM_EX_PARAMS; i++)
         {
-            if (param_ex_desc[i].pei_id == pid)
+            if ((int)param_ex_desc[i].pei_id == pid)
             {
                 current_pei_index = i;
                 break;
