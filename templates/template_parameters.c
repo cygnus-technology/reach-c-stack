@@ -45,12 +45,19 @@
 #include "app_version.h"
 #include "cr_stack.h"
 
+#ifdef NUM_INIT_NOTIFICATIONS
+#if NUM_INIT_NOTIFICATIONS > NUM_SUPPORTED_PARAM_NOTIFY
+#error "Too many default notifications for the current NUM_SUPPORTED_PARAM_NOTIFY value"
+#endif // NUM_INIT_NOTIFICATIONS > NUM_SUPPORTED_PARAM_NOTIFY
+#endif // NUM_INIT_NOTIFICATIONS
+
 #define PARAM_EI_TO_NUM_PEI_RESPONSES(param_ex) ((param_ex.num_labels / 8) + ((param_ex.num_labels % 8) ? 1:0))
 
 // Extra includes and forward declarations here.
 // User code start [P1]
 // User code end [P1]
 
+#ifdef NUM_PARAMS
 static int sFindIndexFromPid(uint32_t pid, uint32_t *index)
 {
     uint32_t idx;
@@ -64,7 +71,9 @@ static int sFindIndexFromPid(uint32_t pid, uint32_t *index)
     }
     return cr_ErrorCodes_INVALID_ID;
 }
+#endif // NUM_PARAMS
 
+#ifdef NUM_EX_PARAMS
 static int sFindIndexFromPeiId(uint32_t pei_id, uint32_t *index)
 {
     uint32_t idx;
@@ -78,17 +87,13 @@ static int sFindIndexFromPeiId(uint32_t pei_id, uint32_t *index)
     }
     return cr_ErrorCodes_INVALID_ID;
 }
+#endif // NUM_EX_PARAMS
 
+#ifdef NUM_PARAMS
 void init_param_repo()
 {
-    int rval = 0;
-    // rval = app_handle_param_repo_pre_init();
     // User code start [P2]
     // User code end [P2]
-    if (rval)
-    {
-        I3_LOG(LOG_MASK_ERROR, "App-specific param repo pre-init failed (error %d), continuing with init", rval);
-    }
     memset(sCr_param_val, 0, sizeof(sCr_param_val));
     for (int i = 0; i < NUM_PARAMS; i++)
     {
@@ -166,26 +171,17 @@ void init_param_repo()
                    i, param_desc[i].storage_location);
         }
 
-        // rval = app_handle_param_repo_init(&sCr_param_val[i], &param_desc[i]);
         // User code start [P3]
         // User code end [P3]
 
-        if (rval != 0)
-        {
-            I3_LOG(LOG_MASK_ERROR, "At param index %d, failed to initialize data (error %d)", i, rval);
-        }
-
     } // end for
 
-    // rval = app_handle_param_repo_post_init();
     // User code start [P4]
     // User code end [P4]
-    if (rval)
-    {
-        I3_LOG(LOG_MASK_ERROR, "App-specific param repo pre-init failed (error %d), continuing with init", rval);
-    }
 }
+#endif // NUM_PARAMS
 
+#ifdef NUM_EX_PARAMS
 const char* param_repo_get_ex_label(uint32_t pei_id, uint32_t value)
 {
     uint32_t index = 0;
@@ -199,7 +195,9 @@ const char* param_repo_get_ex_label(uint32_t pei_id, uint32_t value)
     }
     return 0;
 }
+#endif // NUM_EX_PARAMS
 
+#ifdef NUM_PARAMS
 // Populate a parameter value structure
 int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
 {
@@ -210,7 +208,6 @@ int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
     if (0 != rval) 
         return rval;
 
-    //rval = app_handle_param_repo_read(&sCr_param_val[idx]);
     // User code start [P5]
     // User code end [P5]
 
@@ -223,20 +220,15 @@ int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
     int rval = 0;
     uint32_t idx;
     rval = sFindIndexFromPid(pid, &idx);
-    if (0 != rval) return rval;
+    if (0 != rval)
+        return rval;
     I3_LOG(LOG_MASK_PARAMS, "Write param, pid %d (%d)", idx, data->parameter_id);
     I3_LOG(LOG_MASK_PARAMS, "  timestamp %d", data->timestamp);
     I3_LOG(LOG_MASK_PARAMS, "  which %d", data->which_value);
 
-    // rval = app_handle_param_repo_write((cr_ParameterValue *) data);
     // User code start [P6]
     // User code end [P6]
 
-    if (rval != 0)
-    {
-        // Invalid data or NVM storage failed
-        return rval;
-    }
     sCr_param_val[idx].timestamp = data->timestamp;
     sCr_param_val[idx].which_value = data->which_value;
 
@@ -302,7 +294,6 @@ int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
     }  // end switch
     return rval;
 }
-
 
 int crcb_parameter_get_count()
 {
@@ -407,7 +398,9 @@ int crcb_parameter_discover_next(cr_ParameterInfo *ppDesc)
     sCurrentParameter++;
     return 0;
 }
+#endif // NUM_PARAMS
 
+#ifdef NUM_EX_PARAMS
 // In parallel to the parameter discovery, use this to find out
 // about enumerations and bitfields
 static int requested_pei_id = -1;
@@ -416,7 +409,6 @@ static int current_pei_key_index = 0;
 
 int crcb_parameter_ex_get_count(const int32_t pid)
 {
-#ifdef NUM_EX_PARAMS
     if (pid < 0)  // all
     {
         int rval = 0;
@@ -427,18 +419,14 @@ int crcb_parameter_ex_get_count(const int32_t pid)
 
     for (int i = 0; i < NUM_EX_PARAMS; i++)
     {
-        if ((int)param_ex_desc[i].pei_id == pid)
+        if (param_ex_desc[i].pei_id == (uint32_t) pid)
             return PARAM_EI_TO_NUM_PEI_RESPONSES(param_ex_desc[i]);
     }
     return 0;
-#else
-    return 0;
-#endif // NUM_EX_PARAMS
 }
 
 int crcb_parameter_ex_discover_reset(const int32_t pid)
 {
-#ifdef NUM_EX_PARAMS
     requested_pei_id = pid;
     if (pid < 0) current_pei_index = 0;
     else
@@ -446,7 +434,7 @@ int crcb_parameter_ex_discover_reset(const int32_t pid)
         current_pei_index = -1;
         for (int i = 0; i < NUM_EX_PARAMS; i++)
         {
-            if ((int)param_ex_desc[i].pei_id == pid)
+            if (param_ex_desc[i].pei_id == (uint32_t) pid)
             {
                 current_pei_index = i;
                 break;
@@ -454,14 +442,12 @@ int crcb_parameter_ex_discover_reset(const int32_t pid)
         }
     }
     current_pei_key_index = 0;
-#endif // NUM_EX_PARAMS
     return 0;
 }
 
 int crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
 {
     affirm(pDesc);
-#ifdef NUM_EX_PARAMS
     if (current_pei_index < 0)
     {
         I3_LOG(LOG_MASK_PARAMS, "%s: No more ex params.", __FUNCTION__);
@@ -493,10 +479,17 @@ int crcb_parameter_ex_discover_next(cr_ParamExInfoResponse *pDesc)
         }
     }
     return 0;
-#else
-    return cr_ErrorCodes_INVALID_ID;
-#endif // NUM_EX_PARAMS
 }
+#endif // NUM_EX_PARAMS
+
+#ifdef NUM_INIT_NOTIFICATIONS
+int crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray, size_t *pNum)
+{
+    *pNum = NUM_INIT_NOTIFICATIONS;
+    *pNoteArray = sParamNotifyInit;
+    return 0;
+}
+#endif // NUM_INIT_NOTIFICATIONS
 
 // User functions here
 // User code start [P7]
