@@ -48,11 +48,13 @@
 #include "app_version.h"
 #include "cr_stack.h"
 
-// Extra includes and forward declarations here.
-// User code start [C1]
-// User code end [C1]
+/* User code start [Commands: User Includes] */
+/* User code end [Commands: User Includes] */
 
 uint8_t sCommandIndex = 0;
+
+/* User code start [Commands: User Defines/Variables/Function Declarations] */
+/* User code end [Commands: User Defines/Variables/Function Declarations] */
 
 int crcb_get_command_count()
 {
@@ -120,18 +122,21 @@ int crcb_command_discover_reset(const uint32_t cid)
 int crcb_command_execute(const uint8_t cid)
 {
     int rval = 0;
-    // User code start [C2]
-    // User code end [C2]
+    switch (cid)
+    {
+        /* User code start [Commands: Command Handler] */
+        /* User code end [Commands: Command Handler] */
+        default:
+            rval = cr_ErrorCodes_INVALID_ID;
+            break;
+    }
+    /* User code start [Commands: Command Handler Post-Switch] */
+    /* User code end [Commands: Command Handler Post-Switch] */
     return rval;
 }
 
-
-
-// local variables and functions here.
-// User code start [C3]
-// User code end [C3]
-
-
+/* User code start [Commands: User Functions] */
+/* User code end [Commands: User Functions] */
 
 #endif  // def INCLUDE_COMMAND_SERVICE
 

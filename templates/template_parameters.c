@@ -38,12 +38,18 @@
  ********************************************************************************************/
 
 #include "definitions.h"
+
+#ifdef INCLUDE_PARAMETER_SERVICE
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include "i3_log.h"
 #include "app_version.h"
 #include "cr_stack.h"
+
+/* User code start [Parameter Repository: User Includes] */
+/* User code end [Parameter Repository: User Includes] */
 
 #ifdef NUM_INIT_NOTIFICATIONS
 #if NUM_INIT_NOTIFICATIONS > NUM_SUPPORTED_PARAM_NOTIFY
@@ -53,9 +59,8 @@
 
 #define PARAM_EI_TO_NUM_PEI_RESPONSES(param_ex) ((param_ex.num_labels / 8) + ((param_ex.num_labels % 8) ? 1:0))
 
-// Extra includes and forward declarations here.
-// User code start [P1]
-// User code end [P1]
+/* User code start [Parameter Repository: User Defines/Variables/Function Declarations] */
+/* User code end [Parameter Repository: User Defines/Variables/Function Declarations] */
 
 #ifdef NUM_PARAMS
 static int sFindIndexFromPid(uint32_t pid, uint32_t *index)
@@ -92,8 +97,9 @@ static int sFindIndexFromPeiId(uint32_t pei_id, uint32_t *index)
 #ifdef NUM_PARAMS
 void init_param_repo()
 {
-    // User code start [P2]
-    // User code end [P2]
+    /* User code start [Parameter Repository: Pre-Init]
+     * Here is the place to do any initialization required before individual parameters are initialized */
+    /* User code end [Parameter Repository: Pre-Init] */
     memset(sCr_param_val, 0, sizeof(sCr_param_val));
     for (int i = 0; i < NUM_PARAMS; i++)
     {
@@ -171,13 +177,15 @@ void init_param_repo()
                    i, param_desc[i].storage_location);
         }
 
-        // User code start [P3]
-        // User code end [P3]
+        /* User code start [Parameter Repository: Parameter Init]
+         * Here is the place to do any initialization specific to a certain parameter */
+        /* User code end [Parameter Repository: Parameter Init] */
 
     } // end for
 
-    // User code start [P4]
-    // User code end [P4]
+    /* User code start [Parameter Repository: Post-Init]
+     * Here is the place to do any initialization required after parameters have been initialized */
+    /* User code end [Parameter Repository: Post-Init] */
 }
 #endif // NUM_PARAMS
 
@@ -208,8 +216,9 @@ int crcb_parameter_read(const uint32_t pid, cr_ParameterValue *data)
     if (0 != rval) 
         return rval;
 
-    // User code start [P5]
-    // User code end [P5]
+    /* User code start [Parameter Repository: Parameter Read]
+     * Here is the place to update the data from an external source, and update the return value if necessary */
+    /* User code end [Parameter Repository: Parameter Read] */
 
     *data = sCr_param_val[idx];
     return rval;
@@ -226,8 +235,9 @@ int crcb_parameter_write(const uint32_t pid, const cr_ParameterValue *data)
     I3_LOG(LOG_MASK_PARAMS, "  timestamp %d", data->timestamp);
     I3_LOG(LOG_MASK_PARAMS, "  which %d", data->which_value);
 
-    // User code start [P6]
-    // User code end [P6]
+    /* User code start [Parameter Repository: Parameter Write]
+     * Here is the place to apply this change externally, and return an error if necessary */
+    /* User code end [Parameter Repository: Parameter Write] */
 
     sCr_param_val[idx].timestamp = data->timestamp;
     sCr_param_val[idx].which_value = data->which_value;
@@ -491,8 +501,7 @@ int crcb_parameter_notification_init(const cr_ParameterNotifyConfig **pNoteArray
 }
 #endif // NUM_INIT_NOTIFICATIONS
 
-// User functions here
-// User code start [P7]
-// User code end [P7]
+/* User code start [Parameter Repository: User Functions] */
+/* User code end [Parameter Repository: User Functions] */
 
-
+#endif // INCLUDE_PARAMETER_SERVICE

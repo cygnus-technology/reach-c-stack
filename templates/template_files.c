@@ -47,15 +47,18 @@
 #include "app_version.h"
 #include "cr_stack.h"
 
+/* User code start [Files: User Includes] */
+/* User code end [Files: User Includes] */
 
-// Extra includes and forward declarations here.
-// User code start [F10]
-// User code end [F10]
-
-static uint8_t sFid_index = 0;
 #if NUM_FILES > 255
   #error "Can't have more than 255 files"
 #endif
+
+static uint8_t sFid_index = 0;
+
+/* User code start [Files: User Defines/Variables/Function Declarations] */
+/* User code end [Files: User Defines/Variables/Function Declarations] */
+
 static int sFindIndexFromFid(uint32_t fid, uint8_t *index)
 {
     uint8_t idx;
@@ -75,11 +78,14 @@ int crcb_file_get_description(uint32_t fid, cr_FileInfo *file_desc)
     affirm(file_desc != NULL);
     uint8_t idx;
     rval = sFindIndexFromFid(fid, &idx);
-    if (rval != 0) return rval;
-    *file_desc = file_descriptions[idx];
+    if (rval != 0)
+        return rval;
 
-    // User code start [F0]
-    // User code end [F0]
+    /* User code start [Files: Get Description]
+     * If the file description needs to be updated (for example, changing the current size), now's the time */
+    /* User code end [Files: Get Description] */
+
+    *file_desc = file_descriptions[idx];
 
     return 0;
 }
@@ -137,11 +143,6 @@ int crcb_file_discover_next(cr_FileInfo *file_desc)
     return 0;
 }
 
-// Place helper functions here:
-// User code start [F1]
-// User code end [F1]
-
-
 int crcb_read_file(const uint32_t fid,           // which file
                    const int offset,             // offset, negative value specifies current location.
                    const size_t bytes_requested, // how many bytes to read
@@ -162,10 +163,11 @@ int crcb_read_file(const uint32_t fid,           // which file
         return cr_ErrorCodes_BUFFER_TOO_SMALL;
     }
 
-    // User code start [F2]
-    // User code end [F2]
+    /* User code start [Files: Read]
+     * The code generator does nothing to handle storing files, so this is where pData and bytes_read should be updated */
+    /* User code end [Files: Read] */
 
-    return 0;
+    return rval;
 }
 
 int crcb_file_prepare_to_write(const uint32_t fid, const size_t offset, const size_t bytes)
@@ -178,8 +180,9 @@ int crcb_file_prepare_to_write(const uint32_t fid, const size_t offset, const si
         I3_LOG(LOG_MASK_ERROR, "%s(%d): invalid FID.", __FUNCTION__, fid);
         return cr_ErrorCodes_INVALID_ID;
     }
-    // User code start [F3]
-    // User code end [F3]
+    /* User code start [Files: Pre-Write]
+     * This is the opportunity to prepare for a file write, or to reject it. */
+    /* User code end [Files: Pre-Write] */
     return 0;
 }
 
@@ -196,8 +199,9 @@ int crcb_write_file(const uint32_t fid, // which file
         I3_LOG(LOG_MASK_ERROR, "%s(%d): invalid FID.", __FUNCTION__, fid);
         return cr_ErrorCodes_INVALID_ID;
     }
-    // User code start [F4]
-    // User code end [F4]
+    /* User code start [Files: Write]
+     * Here is where the received data should be copied to wherever the application is storing it */
+    /* User code end [Files: Write] */
     return 0;
 }
 
@@ -211,8 +215,9 @@ int crcb_file_transfer_complete(const uint32_t fid)
         I3_LOG(LOG_MASK_ERROR, "%s(%d): invalid FID.", __FUNCTION__, fid);
         return cr_ErrorCodes_INVALID_ID;
     }
-    // User code start [F5]
-    // User code end [F5]
+    /* User code start [Files: Write Complete]
+     * This allows the application to handle any actions which need to occur after a file has successfully been written */
+    /* User code end [Files: Write Complete] */
     return 0;
 }
 
@@ -227,10 +232,14 @@ int crcb_erase_file(const uint32_t fid)
         I3_LOG(LOG_MASK_ERROR, "%s(%d): invalid FID.", __FUNCTION__, fid);
         return cr_ErrorCodes_INVALID_ID;
     }
-    // User code start [F6]
-    // User code end [F6]
+    /* User code start [Files: Erase]
+     * The exact meaning of "erasing" is user-defined, depending on how files are stored by the application */
+    /* User code end [Files: Erase] */
     return 0;
 }
+
+/* User code start [Files: User Functions] */
+/* User code end [Files: User Functions] */
 
 #endif  // def INCLUDE_FILE_SERVICE
 

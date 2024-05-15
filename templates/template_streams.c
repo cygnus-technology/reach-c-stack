@@ -48,14 +48,16 @@
 #include "app_version.h"
 #include "cr_stack.h"
 
-// Extra includes and forward declarations here.
-// User code start [S1]
-// User code end [S1]
+/* User code start [Streams: User Includes] */
+/* User code end [Streams: User Includes] */
 
 static uint8_t sSid_index;  // assumes never more than 255 streams.
 #if NUM_STREAMS > 255
   #error "Can't have more than 255 streams"
 #endif
+
+/* User code start [Streams: User Defines/Variables/Function Declarations] */
+/* User code end [Streams: User Defines/Variables/Function Declarations] */
 
 static int sFindIndexFromSid(uint32_t sid, uint8_t *index)
 {
@@ -84,8 +86,6 @@ int crcb_stream_get_count()
     {
         if (crcb_access_granted(cr_ServiceIds_STREAMS, streams_desc[i].stream_id)) numAvailable++;
     }
-    // User code start [crcb_stream_get_count]
-    // User code end [crcb_stream_get_count]
     return numAvailable;
 }
 
@@ -119,8 +119,6 @@ int crcb_stream_discover_reset(const uint8_t sid)
     }
     sSid_index = idx;
 
-    // User code start [crcb_stream_discover_reset]
-    // User code end [crcb_stream_discover_reset]
     return 0;
 }
 
@@ -152,8 +150,6 @@ int crcb_stream_discover_next(cr_StreamInfo *stream_desc)
         }
     }
     *stream_desc = streams_desc[sSid_index++];
-    // User code start [crcb_stream_discover_next]
-    // User code end [crcb_stream_discover_next]
     return 0;
 }
 
@@ -174,8 +170,8 @@ int crcb_stream_get_description(uint32_t sid, cr_StreamInfo *stream_desc)
     rval = sFindIndexFromSid(sid, &idx);
     if (rval != 0) return rval;
     *stream_desc = streams_desc[idx];
-    // User code start [crcb_stream_get_description]
-    // User code end [crcb_stream_get_description]
+    /* User code start [Streams: Get Description] */
+    /* User code end [Streams: Get Description] */
     return 0;
 }
 
@@ -199,8 +195,8 @@ int crcb_stream_read(uint32_t sid, cr_StreamData *data)
     rval = sFindIndexFromSid(sid, &idx);
     if (rval != 0) return rval;
 
-    // User code start [crcb_stream_read]
-    // User code end [crcb_stream_read]
+    /* User code start [Streams: Read] */
+    /* User code end [Streams: Read] */
     return 0;
 }
 
@@ -223,8 +219,8 @@ int crcb_stream_write(uint32_t sid, cr_StreamData *data)
     rval = sFindIndexFromSid(sid, &idx);
     if (rval != 0) return rval;
 
-    // User code start [crcb_stream_write]
-    // User code end [crcb_stream_write]
+    /* User code start [Streams: Write] */
+    /* User code end [Streams: Write] */
     return 0;
 }
 
@@ -243,8 +239,8 @@ int crcb_stream_open(uint32_t sid)
     rval = sFindIndexFromSid(sid, &idx);
     if (rval != 0) return rval;
 
-    // User code start [crcb_stream_open]
-    // User code end [crcb_stream_open]
+    /* User code start [Streams: Open] */
+    /* User code end [Streams: Open] */
     return 0;
 }
 
@@ -262,14 +258,12 @@ int crcb_stream_close(uint32_t sid)
     rval = sFindIndexFromSid(sid, &idx);
     if (rval != 0) return rval;
 
-    // User code start [crcb_stream_close]
-    // User code end [crcb_stream_close]
+    /* User code start [Streams: Close] */
+    /* User code end [Streams: Close] */
     return 0;
 }
 
-// local variables and functions here.
-// User code start [S2]
-// User code end [S2]
-
+/* User code start [Streams: User Functions] */
+/* User code end [Streams: User Functions] */
 
 #endif  // def INCLUDE_STREAM_SERVICE

@@ -48,9 +48,13 @@
 #include "app_version.h"
 #include "cr_stack.h"
 
-// Extra includes and forward declarations here.
-// User code start [W1]
-// User code end [W1]
+/* User code start [WiFi: User Includes] */
+/* User code end [WiFi: User Includes] */
+
+uint8_t sWiFi_index = 0;
+
+/* User code start [WiFi: User Defines/Variables/Function Declarations] */
+/* User code end [WiFi: User Defines/Variables/Function Declarations] */
 
 
 /**
@@ -72,14 +76,14 @@ int crcb_discover_wifi(const cr_DiscoverWiFi *request,
 {
     (void)request;
     response->result = cr_ErrorCodes_NOT_IMPLEMENTED;
-    // If you haven not just launched a scan, launch one.
-    // If you don't yet have data, return cr_ErrorCodes_INCOMPLETE.
-    // User code start [crcb_discover_wifi]
-    // User code end [crcb_discover_wifi]
+
+    /* User code start [WiFi: Discover]
+     * If you have not just launched a scan, launch one.
+     * If you don't yet have data, return cr_ErrorCodes_INCOMPLETE. */
+    /* User code end [WiFi: Discover] */
     return 0;
 }
 
-uint8_t sWiFi_index = 0;
 /**
 * @brief   crcb_get_wifi_count
 * @return  The number of wifi access points available to the
@@ -87,8 +91,6 @@ uint8_t sWiFi_index = 0;
 */    
 int crcb_get_wifi_count()
 {
-    // User code start [crcb_get_wifi_count]
-    // User code end [crcb_get_wifi_count]
     return NUM_WIFI_AP;
 }
 
@@ -111,8 +113,6 @@ int crcb_wifi_discover_reset(const uint32_t cid)
         sWiFi_index = NUM_WIFI_AP;
         return cr_ErrorCodes_INVALID_ID;
     }
-    // User code start [crcb_wifi_discover_reset]
-    // User code end [crcb_wifi_discover_reset]
     return 0;
 }
 
@@ -133,9 +133,6 @@ int crcb_wifi_discover_next(cr_ConnectionDescription *conn_desc)
 
     *conn_desc = wifi_desc[sWiFi_index];
 
-    // User code start [crcb_wifi_discover_next]
-    // User code end [crcb_wifi_discover_next]
-
     sWiFi_index++;
     return 0;
 }
@@ -153,15 +150,13 @@ int crcb_wifi_connection(const cr_WiFiConnectionRequest *request,
     affirm(request);
     affirm(response);
 
-    // User code start [crcb_wifi_connection]
-    // User code end [crcb_wifi_connection]
+    /* User code start [WiFi: Connect/Disconnect] */
+    /* User code end [WiFi: Connect/Disconnect] */
 
     return 0;
 }
 
-// Local variables and functions here
-// User code start [W2]
-// User code end [W2]
-
+/* User code start [WiFi: User Functions] */
+/* User code end [WiFi: User Functions] */
 
 #endif  // def INCLUDE_WIFI_SERVICE

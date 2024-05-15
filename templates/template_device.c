@@ -45,6 +45,12 @@
 #include "app_version.h"
 #include "cr_stack.h"
 
+/* User code start [Device: User Includes] */
+/* User code end [Device: User Includes] */
+
+/* User code start [Device: User Defines/Variables/Function Declarations] */
+/* User code end [Device: User Defines/Variables/Function Declarations] */
+
 // The stack will call this function.
 // The const copy of the basis in flash is copied to RAM so that the device
 // can overwrite varying data like SN and hash.
@@ -62,9 +68,12 @@ int crcb_device_get_info(const cr_DeviceInfoRequest *request, cr_DeviceInfoRespo
 
     snprintf(pDi->device_name, REACH_DEVICE_NAME_LEN, "%s", cr_get_advertised_name());
 
-    // User code start [crcb_device_get_info]
-    // User code end [crcb_device_get_info]
+    /* User code start [Device: Get Info] */
+    /* User code end [Device: Get Info] */
 
     return 0;
 }
+
+/* User code start [Device: User Functions] */
+/* User code end [Device: User Functions] */
 
