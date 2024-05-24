@@ -1371,12 +1371,6 @@ static int handle_send_command(const cr_SendCommand *request,
 
 
 #ifdef INCLUDE_WIFI_SERVICE
-
-    #warning "WiFi service implementation is incomplete."
-    #if NUM_WIFI_AP > REACH_WIFI_AP_IN_DISCOVER
-      #error "Up to 4 WiFi access points handled now."
-    #endif
-
     /*
         Intended Message Sequence
         * Client sends DiscoverWiFi.
@@ -1403,15 +1397,27 @@ static int handle_send_command(const cr_SendCommand *request,
         {
             // request will be null on repeated calls.
             // Here implies we are responding to the initial request.
+            cr_DiscoverWiFiResponse resp;
+            rval = crcb_discover_wifi(NULL, &resp);
+            if (rval == cr_ErrorCodes_INCOMPLETE)
+            {
+              // Still discovering access points
+              return 0;
+            }
+            else if (rval != 0)
+            {
+              // Unexpected error
+              return rval;
+            }
             num_ap = crcb_get_wifi_count();
             sCr_requested_WiFI_index = 0;
-            I3_LOG(LOG_MASK_DEBUG, "%s: first request, num_ap %d", 
+            I3_LOG(LOG_MASK_DEBUG, "%s: first request, num_ap %d",
                    __FUNCTION__, num_ap);
         }
         else  // here the request was null and we are continuing the previous request;
         {
             num_ap = pvtCr_num_remaining_objects;
-            I3_LOG(LOG_MASK_DEBUG, "%s: continued request, num_ap %d from %d", 
+            I3_LOG(LOG_MASK_DEBUG, "%s: continued request, num_ap %d from %d",
                    __FUNCTION__, num_ap, sCr_requested_WiFI_index);
 
         }
@@ -1421,21 +1427,20 @@ static int handle_send_command(const cr_SendCommand *request,
             rval = crcb_wifi_discover_next(&response->cd[i]);
             if (rval != 0)
             {
-                if (request != NULL)
+                if (request != NULL && i == 0)
                 {
                     LOG_ERROR("Discover wifi found nothing.");
-                    response->result = cr_ErrorCodes_NO_DATA;
                     pvtCr_num_remaining_objects = 0;
-                    pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-                    return cr_ErrorCodes_NO_DATA; 
+                    return 0;
                 }
-                pvtCr_num_remaining_objects = 0;
-                return 0;
+                break;
             }
-            pvtCr_num_remaining_objects--;
+            else
+                sCr_requested_WiFI_index++;
         }
         if (num_ap <= REACH_WIFI_AP_IN_DISCOVER)
         {
+            response->cd_count = num_ap;
             response->result = 0;
             // One and done
             pvtCr_num_remaining_objects = 0;
@@ -1444,7 +1449,9 @@ static int handle_send_command(const cr_SendCommand *request,
             // and we're done.
         } 
         // otherwise there are more so set up for continued commands
+        response->cd_count = REACH_WIFI_AP_IN_DISCOVER;
         pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_WIFI;
+        pvtCr_num_remaining_objects = num_ap - REACH_WIFI_AP_IN_DISCOVER;
         I3_LOG(LOG_MASK_DEBUG, "%s: continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
         return 0;
     }
@@ -1715,12 +1722,14 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
   case cr_ReachMessageTypes_DISCOVER_WIFI:
       status = pb_encode(&os_stream, cr_DiscoverWiFiResponse_fields, data);
       if (status) {
+        *encode_size = os_stream.bytes_written;
         message_util_log_discover_wifi_response((cr_DiscoverWiFiResponse *)data);
       }
       break;
   case cr_ReachMessageTypes_WIFI_CONNECT:
       status = pb_encode(&os_stream, cr_WiFiConnectionResponse_fields, data);
       if (status) {
+        *encode_size = os_stream.bytes_written;
         message_util_log_WiFi_connection_request((cr_WiFiConnectionRequest *)data);
       }
       break;
