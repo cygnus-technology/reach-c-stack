@@ -202,6 +202,14 @@ int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len);
 */
 void cr_report_error(int error_code, const char *fmt, ...);
 
+/**
+* @brief   cr_notify_stream
+* @details Called by crcb_stream_read().
+* @param   data Pointer to a stream notification structure.
+* @return  cr_ErrorCodes_NO_ERROR on success or a non-zero error preferably from
+*          the cr_ErrorCodes_ enumeration
+*/
+int cr_notify_stream(cr_StreamData *data);
 
 /**
 * @brief   cr_set_comm_link_connected

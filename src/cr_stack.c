@@ -441,6 +441,15 @@ int cr_process(uint32_t ticks)
     memset(sCr_encoded_payload_buffer,      0, sizeof(sCr_encoded_payload_buffer));
     // memset(sCr_encoded_response_buffer,     0, sizeof(sCr_encoded_response_buffer));
 
+  // #define TEST_STREAM
+  #ifdef TEST_STREAM
+    if (!sClassic_header_format)
+    {   // generate some dummy notifications
+        cr_StreamData strData;
+        crcb_stream_read(0, &strData);
+    }
+  #endif  // def TEST_STREAM
+
     // Support for continued transactions:
     //   zero indicates valid data was produced.
     //   cr_ErrorCodes_NO_DATA indicates no data was produced.
@@ -658,7 +667,7 @@ static int handle_coded_classic_prompt()
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s", msg_type_string(msgPtr->header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id %d, endpoint %d.", 
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id 0x%x, endpoint %d.", 
            msgPtr->payload.size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
@@ -2007,6 +2016,25 @@ int pvtCr_notify_error(cr_ErrorReport *err)
     pvtCr_get_coded_notification_buffers(&pCoded, &size);
 
     LOG_DUMP_WIRE("error report", pCoded, size);
+    crcb_send_coded_response(pCoded, size);
+    return 0;
+}
+
+int pvtCr_notify_stream(cr_StreamData *data)
+{
+    if (!cr_get_comm_link_connected())
+        return 0;
+
+    uint8_t *pRaw, *pCoded;
+    size_t size;
+    pvtCr_get_raw_notification_buffer(&pRaw, &size);
+    cr_StreamData *strRep = (cr_StreamData*)pRaw;
+    memcpy(strRep, data, sizeof(cr_StreamData));
+
+    pvtCr_encode_message(cr_ReachMessageTypes_STREAM_DATA_NOTIFICATION, pRaw, NULL);
+    pvtCr_get_coded_notification_buffers(&pCoded, &size);
+
+    LOG_DUMP_WIRE("stream data notification", pCoded, size);
     crcb_send_coded_response(pCoded, size);
     return 0;
 }
