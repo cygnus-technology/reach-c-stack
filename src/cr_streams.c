@@ -115,9 +115,9 @@ int pvtCr_discover_streams(const cr_DiscoverStreams *request,
                 I3_LOG(LOG_MASK_FILES, "No streams with i=0.");
                 return cr_ErrorCodes_NO_DATA; 
             }
-            return 0;
+            return rval;
         }
-        I3_LOG(LOG_MASK_PARAMS, "Added stream %d.", response->streams_count);
+        //I3_LOG(LOG_MASK_PARAMS, "Added stream %d.", response->streams_count);
         response->streams_count++;
     }
     return 0;
