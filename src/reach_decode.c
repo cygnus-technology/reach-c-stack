@@ -285,15 +285,15 @@ bool decode_reach_payload(cr_ReachMessageTypes message_type,     // in:  from th
 
 #ifdef INCLUDE_WIFI_SERVICE
   case cr_ReachMessageTypes_DISCOVER_WIFI:
-      status = pb_decode(&is_stream, cr_DiscoverWiFiRequest_fields, data);
+      status = pb_decode(&is_stream, cr_DiscoverWiFi_fields, data);
       if (status) {
-        message_util_log_discover_wifi_request((cr_DiscoverWiFiRequest *)data);
+        message_util_log_discover_wifi_request((cr_DiscoverWiFi *)data);
       }
       break;
   case cr_ReachMessageTypes_WIFI_CONNECT:
       status = pb_decode(&is_stream, cr_WiFiConnectionRequest_fields, data);
       if (status) {
-        message_util_log_WiFi_connect_request((cr_WiFiConnectionRequest *)data);
+        message_util_log_WiFi_connection_request((cr_WiFiConnectionRequest *)data);
       }
       break;
 #endif  // def INCLUDE_WIFI_SERVICE

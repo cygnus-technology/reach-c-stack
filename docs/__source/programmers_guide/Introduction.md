@@ -4,9 +4,9 @@
 
 I3 Product Design
 
-Version     3.2
+Version     3.3
 
-Date        April 17, 2024
+Date        June 6, 2024
 
 # Executive Summary
 
@@ -36,6 +36,8 @@ This document is addressed to the embedded developer who is considering using th
 3.0: March 12, 2024.  The directory structure of the code is changed to simplify maintenance.
 
 3.1: March 20, 2024. Editing pass to reflectd the latest (stack 2.5) changes.
+
+3.3: June 6, 2024: More overview.
 
 # Product Vision
 
@@ -74,6 +76,28 @@ The three demo systems illustrate Reach on systems of different complexity.  The
 The three system approach to support (device, phone, web page) is a key concept.  This acknowledges the three users in the system.  The product user has access to an embedded device as well as a mobile phone.  The support engineer uses a web browser so as to display data on a larger screen.  The embedded system designer is the third user, as the embedded system builder must include the support required.
 
 A proper Cygnus Reach system design includes much input from customer support engineers.  The Cygnus Reach system exists to facilitate field support.  Hence the information presented to the support engineers must be what they need.  With new products the embedded system designer often has no customer support engineers available to provide design guidance.  Hence Cygnus Reach systems are often deployed in two phases.  The first phase exposes the things that the embedded system designer finds necessary.  The second phase tunes this to emphasize the things customer support needs to see first.
+
+* * * *
+
+## Typical Interactions
+
+A typical Reach session follows a pattern like this:
+
+![alt_text](_images/typical.png "image_tooltip")
+
+The exchange always begins with the client requesting device information.  The server replies.  The client can then request more information such as the parameter data.  The response packets are limited in size so as to fit in a Bluetooth Low Energ (BLE) packet.  The response may require several "continued" packets.  A subsequent section titled "Multi-Message (Continuing) Transactions" gives some more background on how continuing messages are handled.
+The device information response tells the client what services are supported by the server.  The client can then request data from each service as necessary.  
+
+A number of design patterns used by Reach in multiple places.
+1) The prompt-response pattern, where the server provides data in response to a prompt.
+2) The discovery pattern, where the client discovers what the server can provide.
+3) The continuing message pattern, where requested data is provided in several packets of size appropriate for the transport mechanism.
+4) The notification pattern, where the server provides a message to the client without a prompt.
+
+This basis allows a simple system to deliver much utility.
+
+* * * *
+
 
 ## Bluetooth Low Energy (BLE)
 
@@ -393,13 +417,17 @@ When the BLE connection is made and the reach stack is active the parameters tha
 Some items to keep in mind are:
 
 - The number of parameters that can generate notifications is set by NUM_SUPPORTED_PARAM_NOTIFY in reach-server.h. Each notification requires another 56+20 bytes.
+
 - Parameters are only monitored when the BLE client is connected.
+
 - All parameter notifications are canceled when the client connects to the device. The client must enable all desired notifications when it connects.
+  
   - Notifications can be initialized on the device/server.
   - The client can discover the current configuration of notifications.
   - The client can efficiently change the configuration of notifications, as when a custom app displays various pages of information.
 
 - Setting any of the notification parameters to zero means they will be ignored. Setting all of them to zero (delta, min, max) is the same as disabling that notification.
+
 - No delta applies for strings and byte arrays. They are checked for any change by strcmp() and memcmp() respectively.
 
 ### Access Control
@@ -433,8 +461,6 @@ The time service is designed to support setting and checking the time on devices
 ## WiFi Service
 
 The WiFi service is designed to let devices that include WiFi use an existing UI to connect to an access point.  The WiFi service is not yet fully supported.
-
-
 
 # Files, Parameters, and Commands
 

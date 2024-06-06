@@ -557,13 +557,19 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     /**
     * @brief   crcb_discover_wifi
     * @details Retrieve the requested information about the WiFi 
-    *          system.
-    * @param   request (input) What info to get
+     *         system. The discovery process may take some time the
+     *         implementation can choose to return
+     *         cr_ErrorCodes_INCOMPLETE to indicate that the
+     *         discover command needs to be issued again until it
+     *         succeeds. Other errors are reported via the result
+     *         field.
+    * @param   request (input) Unused.
     * @param   response (output) The requested info
-    * @return  returns zero or an error code
+    * @return  returns cr_ErrorCodes_NO_ERROR or 
+    *          cr_ErrorCodes_INCOMPLETE. 
     */
-    int crcb_discover_wifi(const cr_DiscoverWiFiRequest *request, 
-                                cr_DiscoverWiFiResponse *response);
+    int crcb_discover_wifi(const cr_DiscoverWiFi *request,
+                                 cr_DiscoverWiFiResponse *response);
    /**
     * @brief   crcb_get_wifi_count
     * @return  The number of wifi access points available to the

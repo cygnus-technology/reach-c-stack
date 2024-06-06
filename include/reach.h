@@ -4,7 +4,7 @@
  *            reach.pb.h defines the protobuf structures in C. 
  *            This version is hand edited to provide Doxygen comments.
  *             See reach.pb.h for the latest.
- * @date      2024-04-02
+ * @date      2024-05-10
  * @copyright (c) Copyright 2023-2024 i3 Product Development. 
  * All Rights Reserved. The Cygngus Reach firmware stack is 
  * shared under an MIT license. 
@@ -37,7 +37,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 /** The patch version changes every time a hex file goes out the door. */
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /**< Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 2 /**< Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 3 /**< Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 /** These values identify the type of the Reach message. */
@@ -171,6 +171,7 @@ typedef enum _cr_ErrorCodes {
     cr_ErrorCodes_RESERVED_3 = 18, /**< not yet used */
     cr_ErrorCodes_NO_RESOURCE = 19, /**< Some required resource is not available. */
     cr_ErrorCodes_INVALID_ID = 20, /**< The ID provided is not valid */
+    cr_ErrorCodes_INCOMPLETE = 21, /**< The requested operation is incomplete and must be retried. */
     cr_ErrorCodes_ABORT = 1000 /**< Operation cancellation */
 } cr_ErrorCodes;
 
@@ -304,8 +305,8 @@ typedef struct _cr_DeviceInfoResponse {
     char device_description[48]; /**< A longer human readable description. */
     /** Each endpoint advertises a "main" FW version.
  If there are other FW versions, put them in the parameter repo. */
-    char firmware_version[16];
-    char protocol_version_string[16]; /**< The protocol version as a string against which this device is built. */
+    char firmware_version[16]; /**< MAJOR.MINOR.PATCH-NOTE. Parse MAJOR.MINOR.PATCH for compatibility. Note is not parsed. */
+    char protocol_version_string[16]; /**< The protocol version as a string against which this device is built. Parse MAJOR.MINOR.PATCH for compatibility. */
     uint32_t services; /**< A bit mask, allowing support for up to 32 services */
     uint32_t parameter_metadata_hash; /**< Used to avoid reloading the parameter descriptions */
     bool has_application_identifier;    ///< Controls corresponding optional member
@@ -684,34 +685,34 @@ typedef struct _cr_DiscoverStreams {
 
 /** A structure describing a stream */
 typedef struct _cr_StreamInfo {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
-    cr_AccessLevel access; /**< Access Level for Stream  (Read / Write). */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
+    cr_AccessLevel access; /**< Read:  The stream flows from the device.  Write:  The stream flows to the device. */
     char name[24]; /**< A human readable name for this stream. */
+    char description[48]; /**< A longer human readable description of this stream. */
 } cr_StreamInfo;
 
 /** The response to DiscoverStreams */
 typedef struct _cr_DiscoverStreamsResponse {
     pb_size_t streams_count;    ///< Controls corresponding repeated member
-    cr_StreamInfo streams[4]; /**< An array containing descriptions of the supported streams */
+    cr_StreamInfo streams[2]; /**< An array containing descriptions of the supported streams */
 } cr_DiscoverStreamsResponse;
 
 /** A structure requesting to open a stream */
 typedef struct _cr_StreamOpen {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
-    cr_AccessLevel access; /**< Read or write access */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
 } cr_StreamOpen;
 
-/** The response to a StreamOpen request */
-typedef struct _cr_StreamOpenResponse {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+/** The response to StreamOpen and StreamClose requests */
+typedef struct _cr_StreamResponse {
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
     int32_t result; /**< A result of zero indicates OK */
     bool has_result_message;    ///< Controls corresponding optional member
     char result_message[194]; /**< Allows to provide a human readable explanation in case of an error. */
-} cr_StreamOpenResponse;
+} cr_StreamResponse;
 
 /** A structure requesting to close a stream */
 typedef struct _cr_StreamClose {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
 } cr_StreamClose;
 
 /// \cond IGNORE
@@ -719,7 +720,7 @@ typedef PB_BYTES_ARRAY_T(194) cr_StreamData_message_data_t;
 /// \endcond
 /** Bi-Directional message used to asynchronously send stream data to the other side. */
 typedef struct _cr_StreamData {
-    int32_t stream_id; /**< The ID by which this stream is addressed. */
+    uint32_t stream_id; /**< The ID by which this stream is addressed. */
     uint32_t roll_count; /**< Message Number.  Increases with each send.  As stream transmission may be less relaible, allows for continuity checking. */
     cr_StreamData_message_data_t message_data; /**< An array of bytes representing the streami data. */
     bool has_checksum;  ///< Controls corresponding optional member
@@ -828,8 +829,8 @@ typedef struct _cr_DiscoverWiFi {
 
 /** response to DiscoverWiFi */
 typedef struct _cr_DiscoverWiFiResponse {
-    bool scan_is_valid; /**< true if a recent scan is complete. */
-    pb_size_t cd_count; ///< Controls corresponding repeated member
+    int32_t result; /**< A result of zero indicates completed OK. The "INCOMPLETE" result means the operation must be retried. */
+    pb_size_t cd_count;
     cr_ConnectionDescription cd[4]; /**< An array of available access points */
 } cr_DiscoverWiFiResponse;
 
@@ -846,11 +847,56 @@ typedef struct _cr_WiFiConnectionRequest {
 
 /** Describes the response to a WiFi connection request */
 typedef struct _cr_WiFiConnectionResponse {
-    int32_t result; /**< A result of zero indicates OK */
-    bool has_signal_strength;   ///< Controls corresponding optional member
-    int32_t signal_strength; /**< RSSI */
-    bool has_result_message;    ///< Controls corresponding optional member
+    int32_t result; /**< A result of zero indicates completed OK. The "INCOMPLETE" result means the operation must be retried. */
+    bool connected; /**< true if the requested connection is valid. */
+    bool has_result_message;  ///< Controls corresponding optional member
     char result_message[194]; /**< Allows to provide a human readable explanation in case of an error. */
+    bool has_signal_strength; ///< Controls corresponding optional member
+    int32_t signal_strength;  /**< RSSI */
 } cr_WiFiConnectionResponse;
+
+/** This data describing the sizes of the structures used in C code is 
+ *  communicated in a packed format in the device info structure.
+ *  Here it's defined in an unpacked (all 32 bit) format.  Use
+ *  the offsets defined below (SizesOffsets) to unpack into this
+ *  structure. The file "reach_ble_proto_sizes.h" and the
+ *  function populate_device_info_sizes() are good places to
+ *  look for further info. */
+typedef struct _cr_BufferSizes {
+    /** The largest message that can be communicated (16 bits) */
+    uint32_t max_message_size;
+    /** The size of the buffer used for the longest strings. (16 bits) 
+        Examples include the command line and the error string. */
+    uint32_t big_data_buffer_size;
+    /** The number of parameter buffers kept by the device.
+        This determines the number of parameters that can be
+        handled in a single message. (8 bits) */
+    uint32_t parameter_buffer_count;
+    /** The number of parameter values that fit in one message. (8 bits) */
+    uint32_t num_params_in_response;
+    /** number of descriptors (stream, file) that fit in one message.  (8 bits) */
+    uint32_t num_descriptors_in_response;
+    /** The length of the description fields in various structures
+        Previously known as long_string_len.   (8 bits) */
+    uint32_t description_len;
+    /** The number of bytes in the largest parameter data.  (8 bits) */
+    uint32_t max_param_bytes;
+    /** The length of most (medium) strings.  (8 bits)
+        Used for device name, file names, command names. */
+    uint32_t medium_string_len;
+    /** The number of bytes in short strings like the units label.  (8 bits)
+        Also the names of enumerations and the version string. */
+    uint32_t short_string_len;
+    /** The number of bytes in the param info description string  (8 bits) */
+    uint32_t param_info_description_len;
+    /** Number of parameter notifications supported  (8 bits) */
+    uint32_t num_param_notifications;
+    /** not currently used  (8 bits) */
+    uint32_t num_commands_in_response;
+    /** number of param descriptions that can be in one info packet. (8 bits) */
+    uint32_t count_param_desc_in_response;
+    /** The max number of parameter notification configurations that can be in one packet. (8 bits) */
+    uint32_t param_notify_config_count;
+} cr_BufferSizes;
 
 #endif
