@@ -84,7 +84,7 @@
 //*************************************************************************
 //  Stream Service
 //*************************************************************************
-#warning Stream service implementation is untested.
+// The stream service implementation is only partially tested.
 
 int pvtCr_discover_streams(const cr_DiscoverStreams *request,
                            cr_DiscoverStreamsResponse *response)

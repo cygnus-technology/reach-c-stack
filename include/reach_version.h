@@ -8,6 +8,6 @@
 
 #define REACH_C_MAJOR_VERSION 2
 #define REACH_C_MINOR_VERSION 8
-#define REACH_C_PATCH_VERSION 2
+#define REACH_C_PATCH_VERSION 3
 
 #endif  // ndef _REACH_VERSION_H_

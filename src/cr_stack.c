@@ -441,15 +441,6 @@ int cr_process(uint32_t ticks)
     memset(sCr_encoded_payload_buffer,      0, sizeof(sCr_encoded_payload_buffer));
     // memset(sCr_encoded_response_buffer,     0, sizeof(sCr_encoded_response_buffer));
 
-  // #define TEST_STREAM
-  #ifdef TEST_STREAM
-    if (!sClassic_header_format)
-    {   // generate some dummy notifications
-        cr_StreamData strData;
-        crcb_stream_read(0, &strData);
-    }
-  #endif  // def TEST_STREAM
-
     // Support for continued transactions:
     //   zero indicates valid data was produced.
     //   cr_ErrorCodes_NO_DATA indicates no data was produced.
@@ -824,6 +815,8 @@ void cr_test_sizes()
     rval += sCr_checkSize(cr_DiscoverWiFiResponse_size,     MAX_BLE_SZ, "cr_DiscoverWiFiResponse_size");
     rval += sCr_checkSize(cr_WiFiConnectionResponse_size,   MAX_BLE_SZ, "cr_WiFiConnectionResponse_size");
 
+    rval += sCr_checkSize(cr_DiscoverStreamsResponse_size, MAX_BLE_SZ, "cr_DiscoverStreamsResponse_size");
+    rval += sCr_checkSize(cr_StreamData_size,               MAX_BLE_SZ, "cr_StreamData_size");
 
 
     /// <summary>
