@@ -4,7 +4,7 @@
  *            reach.pb.h defines the protobuf structures in C. 
  *            This version is hand edited to provide Doxygen comments.
  *             See reach.pb.h for the latest.
- * @date      2024-05-10
+ * @date      2024-06-06
  * @copyright (c) Copyright 2023-2024 i3 Product Development. 
  * All Rights Reserved. The Cygngus Reach firmware stack is 
  * shared under an MIT license. 
@@ -37,7 +37,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 /** The patch version changes every time a hex file goes out the door. */
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /**< Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 3 /**< Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 4 /**< Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 /** These values identify the type of the Reach message. */
@@ -304,7 +304,7 @@ typedef struct _cr_DeviceInfoResponse {
     char manufacturer[24]; /**< Human readable name of the manufacturer */
     char device_description[48]; /**< A longer human readable description. */
     /** Each endpoint advertises a "main" FW version.
- If there are other FW versions, put them in the parameter repo. */
+        If there are other FW versions, put them in the parameter repo. */
     char firmware_version[16]; /**< MAJOR.MINOR.PATCH-NOTE. Parse MAJOR.MINOR.PATCH for compatibility. Note is not parsed. */
     char protocol_version_string[16]; /**< The protocol version as a string against which this device is built. Parse MAJOR.MINOR.PATCH for compatibility. */
     uint32_t services; /**< A bit mask, allowing support for up to 32 services */
@@ -689,6 +689,7 @@ typedef struct _cr_StreamInfo {
     cr_AccessLevel access; /**< Read:  The stream flows from the device.  Write:  The stream flows to the device. */
     char name[24]; /**< A human readable name for this stream. */
     char description[48]; /**< A longer human readable description of this stream. */
+    cr_ParameterDataType dataType; /**< The type of the data in the stream */
 } cr_StreamInfo;
 
 /** The response to DiscoverStreams */
@@ -725,6 +726,7 @@ typedef struct _cr_StreamData {
     cr_StreamData_message_data_t message_data; /**< An array of bytes representing the streami data. */
     bool has_checksum;  ///< Controls corresponding optional member
     int32_t checksum; /**< Optional RFC 1071 checksum for integrity checking */
+    cr_ParameterDataType dataType; /**< The type of the data in the stream */
 } cr_StreamData;
 
 /** The (optional) Command Service allows actions to be triggered from the Reach UI. */
@@ -836,7 +838,7 @@ typedef struct _cr_DiscoverWiFiResponse {
 
 /** A structure describing a WiFi connection request */
 typedef struct _cr_WiFiConnectionRequest {
-    pb_callback_t ssid; /**< The SSID to be addressed */
+    char ssid[32]; /**< The SSID to be addressed */
     bool connect; /**< connect and disconnect false to get info on this SSID */
     bool disconnect; /**< connect and disconnect false to get info on this SSID */
     bool has_password;  ///< Controls corresponding optional member
