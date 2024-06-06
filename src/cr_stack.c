@@ -125,7 +125,7 @@ static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 /// @private
 static size_t  sCr_encoded_response_size = 0;
 
-static bool sClassic_header_format = true;
+static bool sClassic_header_format = false;
 
 static uint8_t sCr_raw_notification[CR_CODED_BUFFER_SIZE]    ALIGN_TO_WORD;
 static uint8_t sCr_coded_notification[CR_CODED_BUFFER_SIZE]  ALIGN_TO_WORD;
