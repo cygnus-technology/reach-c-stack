@@ -4,7 +4,7 @@
  *            reach.pb.h defines the protobuf structures in C. 
  *            This version is hand edited to provide Doxygen comments.
  *             See reach.pb.h for the latest.
- * @date      2024-06-06
+ * @date      2024-06-14
  * @copyright (c) Copyright 2023-2024 i3 Product Development. 
  * All Rights Reserved. The Cygngus Reach firmware stack is 
  * shared under an MIT license. 
@@ -689,7 +689,6 @@ typedef struct _cr_StreamInfo {
     cr_AccessLevel access; /**< Read:  The stream flows from the device.  Write:  The stream flows to the device. */
     char name[24]; /**< A human readable name for this stream. */
     char description[48]; /**< A longer human readable description of this stream. */
-    cr_ParameterDataType dataType; /**< The type of the data in the stream */
 } cr_StreamInfo;
 
 /** The response to DiscoverStreams */
@@ -726,7 +725,6 @@ typedef struct _cr_StreamData {
     cr_StreamData_message_data_t message_data; /**< An array of bytes representing the streami data. */
     bool has_checksum;  ///< Controls corresponding optional member
     int32_t checksum; /**< Optional RFC 1071 checksum for integrity checking */
-    cr_ParameterDataType dataType; /**< The type of the data in the stream */
 } cr_StreamData;
 
 /** The (optional) Command Service allows actions to be triggered from the Reach UI. */
