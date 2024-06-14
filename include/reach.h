@@ -37,7 +37,7 @@ typedef enum _cr_ReachProto_MINOR_Version {
 /** The patch version changes every time a hex file goes out the door. */
 typedef enum _cr_ReachProto_PATCH_Version {
     cr_ReachProto_PATCH_Version_PATCH_V0 = 0, /**< Must have a zero */
-    cr_ReachProto_PATCH_Version_PATCH_VERSION = 4 /**< Update when something changes */
+    cr_ReachProto_PATCH_Version_PATCH_VERSION = 3 /**< Update when something changes */
 } cr_ReachProto_PATCH_Version;
 
 /** These values identify the type of the Reach message. */
