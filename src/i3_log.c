@@ -165,7 +165,7 @@ uint32_t i3_log_get_mask(void)
 
 #else
 
-  #ifdef ENABLE_REMOTE_CLI
+  #ifdef DISABLE_REMOTE_CLI
     static bool sUseRemoteCLI = false;
   #else
     static bool sUseRemoteCLI = true;
