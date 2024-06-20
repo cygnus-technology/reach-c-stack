@@ -61,7 +61,7 @@
 #include "reach-server.h"
 
 #ifndef DEFAULT_LOG_MASK
-  #define DEFAULT_LOG_MASK 0xFC7
+  #define DEFAULT_LOG_MASK 0
 #endif
 static uint32_t sLogMask = DEFAULT_LOG_MASK;
 
