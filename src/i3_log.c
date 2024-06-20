@@ -165,6 +165,12 @@ uint32_t i3_log_get_mask(void)
 
 #else
 
+  #ifdef ENABLE_REMOTE_CLI
+    static bool sUseRemoteCLI = false;
+  #else
+    static bool sUseRemoteCLI = true;
+  #endif
+
     /**
     * @brief   i3_log_set_remote_cli_enable
     * @details Enabling the remote CLI can generate significant BLE traffic. This 
@@ -173,7 +179,6 @@ uint32_t i3_log_get_mask(void)
     *          The initial state can be set in reach-server.h 
     * @return  cr_ErrorCodes_NO_ERROR on success.
     */
-    static bool sUseRemoteCLI = REMOTE_CLI_ECHO_ON_DEFAULT;  
     int i3_log_set_remote_cli_enable(bool enable)
     {
         sUseRemoteCLI = enable;
