@@ -453,9 +453,10 @@ int cr_process(uint32_t ticks)
         if (rval == cr_ErrorCodes_NO_DATA)
         {
             sCr_encoded_message_size = 0;
-
+#ifdef INCLUDE_PARAMETER_SERVICE
             // check notifications when nothing else is happening.
             pvtCrParam_check_for_notifications();
+#endif
 
             return cr_ErrorCodes_NO_DATA;
         }
@@ -514,7 +515,9 @@ void cr_set_comm_link_connected(bool connected)
        // we are newly connected, so clear any stale data.
        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
        pvtCr_num_remaining_objects = 0;
+#ifdef INCLUDE_PARAMETER_SERVICE
        cr_clear_param_notifications();
+#endif
        crcb_invalidate_challenge_key();
    }
    sCr_comm_link_is_connected = connected;
@@ -1158,7 +1161,11 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     crcb_device_get_info(request, response);
     crcb_configure_access_control(request, response);
     if (response->services &  cr_ServiceIds_PARAMETER_REPO)
+    {
+#ifdef INCLUDE_PARAMETER_SERVICE
         response->parameter_metadata_hash = crcb_compute_parameter_hash();
+#endif
+    }
 
     // Store the client's protocol version to be used in compatibility checks.
     int numRead = sscanf(request->client_protocol_version, "%d.%d.%d", &major, &minor, &patch);

@@ -925,8 +925,6 @@
         }
         return numNotifying;
     }
-#endif // def INCLUDE_PARAMETER_SERVICE
-
 
 /// <summary>
 /// clears any stale notifications. 
@@ -970,7 +968,7 @@ int pvtCr_notify_param(cr_ParameterValue *param)
 /// </summary>
 void pvtCrParam_check_for_notifications()
 {
-  #if (defined(INCLUDE_PARAMETER_SERVICE) && (NUM_SUPPORTED_PARAM_NOTIFY != 0) )
+  #if (NUM_SUPPORTED_PARAM_NOTIFY != 0)
 
     for (int idx=0; idx<NUM_SUPPORTED_PARAM_NOTIFY; idx++ )
     {
@@ -1090,5 +1088,7 @@ void pvtCrParam_check_for_notifications()
     }
   #endif  // NUM_SUPPORTED_PARAM_NOTIFY != 0
 }
+
+#endif // def INCLUDE_PARAMETER_SERVICE
 
 
