@@ -27,8 +27,8 @@
     #include "reach.pb.h"
     #include "reach-server.h"
 
-  // None of these message utilities are required without logging.
-  #ifndef NO_REACH_LOGGING
+    // None of these message utilities are required without logging.
+    // Stubs are provided.
     const char *msg_type_string(int32_t);
 
     void message_util_log_device_info_request();
@@ -106,5 +106,4 @@
         void message_util_log_WiFi_connection_response(cr_WiFiConnectionResponse *payload);
     #endif  // def INCLUDE_WIFI_SERVICE
 
-  #endif // ndef NO_REACH_LOGGING
 #endif /* __MESSAGE_UTIL_H__ */

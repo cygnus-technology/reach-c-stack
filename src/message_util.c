@@ -900,8 +900,7 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_write_param_response(const cr_ParameterWriteResponse *){}
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *){}
         void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload) {}
-        void message_util_log_discover_notifications_response(const bool,
-                                                              const cr_DiscoverParameterNotificationsResponse *payload) {}
+        void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *payload) {}
         void message_util_log_param_notification(const cr_ParameterNotification *data){}
     #endif  // INCLUDE_PARAMETER_SERVICE
 
