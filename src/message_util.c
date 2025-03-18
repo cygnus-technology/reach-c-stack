@@ -899,9 +899,9 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_write_param(const cr_ParameterWrite *){}
         void message_util_log_write_param_response(const cr_ParameterWriteResponse *){}
         void message_util_log_config_notify_param(const cr_ParameterNotifyConfigResponse *){}
-        void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *payload) {}
-        void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *payload) {}
-        void message_util_log_param_notification(const cr_ParameterNotification *data){}
+        void message_util_log_discover_notifications(const cr_DiscoverParameterNotifications *) {}
+        void message_util_log_discover_notifications_response(const cr_DiscoverParameterNotificationsResponse *) {}
+        void message_util_log_param_notification(const cr_ParameterNotification *){}
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
@@ -911,10 +911,9 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_file_transfer_response(const cr_FileTransferResponse *){}
         void message_util_log_transfer_data(const cr_FileTransferData *){}
         void message_util_log_transfer_data_response(const cr_FileTransferData *){}
-        void message_util_log_transfer_data_notification(bool is_request,
-                const cr_FileTransferDataNotification *){}
-        void message_util_log_file_erase_response(cr_FileEraseResponse *data){}
-        void message_util_log_file_erase_request(cr_FileEraseRequest *data){}
+        void message_util_log_transfer_data_notification(bool, const cr_FileTransferDataNotification *){}
+        void message_util_log_file_erase_response(cr_FileEraseResponse *){}
+        void message_util_log_file_erase_request(cr_FileEraseRequest *){}
 
     #endif // def INCLUDE_FILE_SERVICE
 
