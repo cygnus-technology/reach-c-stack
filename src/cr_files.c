@@ -221,6 +221,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
                             "%s File ID %d read permission denied.", 
                             __FUNCTION__, request->file_id);
             response->result = cr_ErrorCodes_PERMISSION_DENIED;
+            return rval;
         }
         break;
     case cr_AccessLevel_READ_WRITE:
