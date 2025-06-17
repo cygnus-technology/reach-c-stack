@@ -65,6 +65,11 @@
 #endif
 static uint32_t sLogMask = DEFAULT_LOG_MASK;
 
+#ifdef LOCAL_PRINT_BUFFER_SIZE
+  // For systems that have no vprintf() equivalent
+  static char sLocalPrintBuffer[LOCAL_PRINT_BUFFER_SIZE];
+#endif
+
 /**
 * @brief   i3_log_set_mask
 * @details Sets the mask which determines whether or not a log statement 
@@ -155,7 +160,13 @@ uint32_t i3_log_get_mask(void)
             printf(TEXT_CYAN);
         }
         va_start(args, fmt);
+      #ifdef LOCAL_PRINT_BUFFER_SIZE
+        // For systems that have no vprintf() equivalent
+        vsnprintf(sLocalPrintBuffer, LOCAL_PRINT_BUFFER_SIZE, fmt, args);
+        printf(sLocalPrintBuffer);
+      #else
         vprintf(fmt, args);
+      #endif
         va_end(args);
 
         printf(TEXT_RESET);  // this could be prefixed by if (color mask)
@@ -260,7 +271,13 @@ uint32_t i3_log_get_mask(void)
         // printf("0x%x ", mask);  
 
         va_start(args, fmt);
+      #ifdef LOCAL_PRINT_BUFFER_SIZE
+        // For systems that have no vprintf() equivalent
+        vsnprintf(sLocalPrintBuffer, LOCAL_PRINT_BUFFER_SIZE, fmt, args);
+        printf(sLocalPrintBuffer);
+      #else
         vprintf(fmt, args);
+      #endif
         va_end(args);
 
         printf(TEXT_RESET);  // this could be prefixed by if (color mask)
