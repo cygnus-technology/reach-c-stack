@@ -159,6 +159,10 @@ uint32_t i3_log_get_mask(void)
         {
             printf(TEXT_CYAN);
         }
+        else if (mask & LOG_MASK_BLE)
+        {
+            printf(TEXT_BOLD_BRIGHT_BLUE);
+        }
         va_start(args, fmt);
       #ifdef LOCAL_PRINT_BUFFER_SIZE
         // For systems that have no vprintf() equivalent
@@ -267,6 +271,10 @@ uint32_t i3_log_get_mask(void)
         else if (mask & LOG_MASK_REACH)
         {
             printf(TEXT_CYAN);
+        }
+        else if (mask & LOG_MASK_BLE)
+        {
+            printf(TEXT_BOLD_BRIGHT_BLUE);
         }
         // printf("0x%x ", mask);  
 
