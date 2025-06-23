@@ -60,6 +60,14 @@
 // current transport means.  For example, BLE.
 #include "reach-server.h"
 
+#ifdef BZ6_REACH_PORT
+  #include "FreeRTOS.h"
+  #include "task.h"
+  #define DELAY_FOR_PRINT() vTaskDelay(5)
+#else
+  #define DELAY_FOR_PRINT()
+#endif
+
 #ifndef DEFAULT_LOG_MASK
   #define DEFAULT_LOG_MASK 0
 #endif
@@ -176,6 +184,8 @@ uint32_t i3_log_get_mask(void)
         printf(TEXT_RESET);  // this could be prefixed by if (color mask)
 
         if (0 == (mask & LOG_MASK_BARE)) printf("\r\n");
+
+        DELAY_FOR_PRINT();
     }
 
 #else
@@ -291,6 +301,8 @@ uint32_t i3_log_get_mask(void)
         printf(TEXT_RESET);  // this could be prefixed by if (color mask)
 
         if (0 == (mask & LOG_MASK_BARE)) printf("\r\n");
+
+        DELAY_FOR_PRINT();
 
         if (!i3_log_get_remote_cli_enable()) 
             return;
