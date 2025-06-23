@@ -228,11 +228,30 @@ void i3_log_dump_buffer(const uint32_t mask,
     #define TEXT_BOLD_BRIGHT_CYAN       TEXT_BOLD TEXT_BRIGHT_CYAN    // Bold Bright Cyan
     #define TEXT_BOLD_BRIGHT_WHITE      TEXT_BOLD TEXT_BRIGHT_WHITE   // Bold Bright White
 
+//Cursor Movement
+// Command support moving by n:
+//  ESC[nA — move cursor up n lines
+//  ESC[nB — move cursor down n lines
+//  ESC[nC — move cursor right n
+//  ESC[nD — move cursor left n
+    #define CURSOR_UP         CSI"1A"
+    #define CURSOR_DOWN       CSI"1B"
+    #define CURSOR_RIGH       CSI"1C"
+    #define CURSOR_LEFT       CSI"1D"
+// ESC[n;nH or ESC[n;n f — set cursor position (row; column) 
+    #define CURSOR_HOME       CSI"H"
+
+// Screen and Line Erasing
+//  ESC[2J — clear whole screen
+//  ESC[1J — clear from cursor to beginning
+//  ESC[0J — clear from cursor to end (default)
+    #define CLEAR_SCREEN        CSI"2J"
+//  ESC[2K — erase current line
+//  ESC[0K, ESC[1K — clear to end or from start of line 
     #define EMPTY_LINE          CSI"1K"
     #define CLR_TO_END          CSI"0K"
-    #define CURSOR_LEFT         CSI"1D"
-    #define CURSOR_RIGHT        CSI"1C"
 
+// There are others, including background colors and a 256 color mode.
 
 #endif  // ndef TEXT_RESET
 
