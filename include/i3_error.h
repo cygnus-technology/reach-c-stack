@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "reach-server.h"
+//#include "sys_console.h"
+// SYS_CONSOLE_Print(SYS_CONSOLE_DEFAULT_INSTANCE
 
 // i3_assert() is intended to catch cases unhandled by the programmer. 
 // These are programming errors, not recoverable application errors.
@@ -14,7 +16,7 @@
 // The BZ6 in a FreeRTOS environment and we have to vTaskDelay in order to let all of 
 // the buffered printf's escape.
   #define affirm(a)  if(!(a)) { \
-    printf(TEXT_RED "\r\n!!!\r\n!!! affirm() failed in file %s, at %s.%u\r\n!!!\r\n" TEXT_RESET, __FILE__, __FUNCTION__, __LINE__); \
+    SYS_CONSOLE_PRINT(TEXT_RED "\r\n!!!\r\n!!! affirm() failed in file %s, at %s.%u\r\n!!!\r\n" TEXT_RESET, __FILE__, __FUNCTION__, __LINE__); \
     vTaskDelay(100); \
     __BKPT(0); \
     exit(1); \
@@ -22,7 +24,7 @@
 
 
   #define i3_assert(a)  if(!(a)) { \
-    printf(TEXT_RED "\r\n!!!\r\n!!! i3_assert() failed in file %s, at %s.%u\r\n!!!\r\n" TEXT_RESET, __FILE__, __FUNCTION__, __LINE__); \
+    SYS_CONSOLE_PRINT(TEXT_RED "\r\n!!!\r\n!!! i3_assert() failed in file %s, at %s.%u\r\n!!!\r\n" TEXT_RESET, __FILE__, __FUNCTION__, __LINE__); \
     vTaskDelay(100); \
     __BKPT(0); \
     exit(1); \

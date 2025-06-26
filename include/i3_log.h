@@ -45,7 +45,8 @@ extern "C"
  * modules that you want to debug. Reach uses a few bits.  You can assign your 
  * own bits. 
  * The lowest nibble is reserved to system things. 
- * Higher bits can be defined and used by the application. 
+ * Higher bits can be defined and used by the application in 
+ * app_log_masks.h. 
  */
 
 ///  The lowest nibble is reserved to system things.
@@ -64,6 +65,8 @@ extern "C"
 #define LOG_MASK_BLE        0x400   ///< show BLE handling
 #define LOG_MASK_DEBUG      0x800   ///< show other reach features
 #define LOG_MASK_AHSOKA     0x1000  ///< show ahsoka coding
+
+#include "app_log_masks.h"  // defined per device program
 
 /// Logging can be completely excluded from the build by
 /// defining NO_REACH_LOGGING in reach-server.h.
