@@ -855,6 +855,17 @@
         return cr_ErrorCodes_NO_ERROR;
     }
 
+    size_t cr_get_active_notify_count(void)
+    {
+        size_t numNotifying = 0;
+        for (int i=0; i<NUM_SUPPORTED_PARAM_NOTIFY; i++)
+        {
+            if (sParamNotifyEnabled(&sCr_param_notify_list[i]))
+                numNotifying++;
+        }
+        return numNotifying;
+    }
+
 
   #else
     ///  Private helper function to discover current parameter
@@ -867,6 +878,17 @@
         pvtCr_num_remaining_objects = response->configs_count = 0;
         return cr_ErrorCodes_NO_DATA;
     } 
+
+    static bool sParamNotifyEnabled(const cr_ParameterNotifyConfig *pCfg)
+    {
+        return false;
+    }
+
+    size_t cr_get_active_notify_count(void)
+    {
+        return 0;
+    }
+
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
 
     ///  Private helper function to initialize parameter notificaitons.
@@ -915,16 +937,6 @@
       #endif
     }
 
-    size_t cr_get_active_notify_count(void)
-    {
-        size_t numNotifying = 0;
-        for (int i=0; i<NUM_SUPPORTED_PARAM_NOTIFY; i++)
-        {
-            if (sParamNotifyEnabled(&sCr_param_notify_list[i]))
-                numNotifying++;
-        }
-        return numNotifying;
-    }
 
 /// <summary>
 /// clears any stale notifications. 
