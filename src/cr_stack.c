@@ -58,6 +58,8 @@
  * The Cygngus Reach firmware stack is shared under an MIT license.
  */
 
+#include "platform_stdlib.h" // use rom version of some functions
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
