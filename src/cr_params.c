@@ -515,7 +515,7 @@
             }
             if (paramVal.which_value == cr_ParameterValue_string_value_tag)
             {
-                // i3_log(LOG_MASK_ALWAYS, "Sanitize parameter ID %d (%d)", paramVal.parameter_id,
+                // I3_LOG(LOG_MASK_ALWAYS, "Sanitize parameter ID %d (%d)", paramVal.parameter_id,
                 //        sCr_requested_param_array[sCr_requested_param_index]);
                 pvtCr_sanitize_string_to_utf8(paramVal.value.string_value);
             }
@@ -768,7 +768,7 @@
                 if (sCr_param_notify_list[notify_idx].parameter_id == pnd->parameter_ids[disable_idx])
                 {
                     memset(&sCr_param_notify_list[notify_idx], 0, sizeof(cr_ParameterNotifyConfig));
-                    i3_log(LOG_MASK_PARAMS, "%s: Disabled notification on pid %u.", __FUNCTION__, pnd->parameter_ids[disable_idx]);
+                    I3_LOG(LOG_MASK_PARAMS, "%s: Disabled notification on pid %u.", __FUNCTION__, pnd->parameter_ids[disable_idx]);
                     break;
                 }
             }
@@ -789,7 +789,7 @@
         if (pnc->disable_all_first)
         {
             // all zero means not in use.
-            i3_log(LOG_MASK_PARAMS, "%s: Disabled all notifications first.", __FUNCTION__);
+            I3_LOG(LOG_MASK_PARAMS, "%s: Disabled all notifications first.", __FUNCTION__);
             memset(sCr_param_notify_list, 0, sizeof(sCr_param_notify_list));
         }
 
@@ -819,7 +819,7 @@
                 if (pnc->configs[i].parameter_id == sCr_param_notify_list[idx].parameter_id) {
                     sCr_param_notify_list[idx] = pnc->configs[i];
                     // store the index of the param with this PID.
-                    i3_log(LOG_MASK_PARAMS, "Updated notification %d on PID %d",
+                    I3_LOG(LOG_MASK_PARAMS, "Updated notification %d on PID %d",
                            idx, pnc->configs[i].parameter_id);
                     pncr->result = cr_ErrorCodes_NO_ERROR;
                     canContinue = true;
@@ -848,7 +848,7 @@
             }
             sCr_param_notify_list[idx] = pnc->configs[i];
             // store the index of the param with this PID.
-            i3_log(LOG_MASK_PARAMS, "Enabled notification %d on PID %d",
+            I3_LOG(LOG_MASK_PARAMS, "Enabled notification %d on PID %d",
                    idx, pnc->configs[i].parameter_id);
         }
         pncr->result = rval;
@@ -956,7 +956,7 @@ int pvtCr_notify_param(cr_ParameterValue *param)
     pvtCr_get_coded_notification_buffers(&pCoded, &size);
 
     LOG_DUMP_MASK(LOG_MASK_AHSOKA, "notification", pCoded, size);
-    // i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d" TEXT_RESET, param->parameter_id);
+    // I3_LOG(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d" TEXT_RESET, param->parameter_id);
     crcb_send_coded_response(pCoded, size);
     return 0;
 }
@@ -1052,7 +1052,7 @@ void pvtCrParam_check_for_notifications()
         }
         if (checkedDelta && (delta >= sCr_param_notify_list[idx].minimum_delta))
         {
-            i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on delta %.1f" TEXT_RESET,
+            I3_LOG(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on delta %.1f" TEXT_RESET,
                    sCr_param_notify_list[idx].parameter_id, delta);
             needToNotify = true;
         }
@@ -1071,7 +1071,7 @@ void pvtCrParam_check_for_notifications()
         if ((sCr_param_notify_list[idx].maximum_notification_period !=0) &&
             (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period) )
         {
-            i3_log(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on max period" TEXT_RESET,
+            I3_LOG(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on max period" TEXT_RESET,
                    sCr_param_notify_list[idx].parameter_id);
             needToNotify = true;
         }
