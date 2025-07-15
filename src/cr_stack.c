@@ -58,6 +58,9 @@
  * The Cygngus Reach firmware stack is shared under an MIT license.
  */
 
+// from the applicaiton
+#include "reach-server.h"
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -67,9 +70,6 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-
-// from the applicaiton
-#include "reach-server.h"
 
 #include "cr_stack.h"
 #include "cr_private.h"
