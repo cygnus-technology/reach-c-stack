@@ -1236,6 +1236,15 @@ const char *cr_get_proto_version()
  */
 int pvtCr_compare_proto_version(uint8_t major, uint8_t minor, uint8_t patch)
 {
+    if ((sClientProtocolVersion[0] == 0)
+        && (sClientProtocolVersion[1] == 0)
+        && (sClientProtocolVersion[2] == 0))
+    {
+        i3_log(LOG_MASK_WARN, "Client protocol version reports zero." );
+        // this happens when you reconnect to a restarted device. It's OK.
+        return 0;
+    }
+
     if ((sClientProtocolVersion[0] == major)
         && (sClientProtocolVersion[1] == minor) 
         && (sClientProtocolVersion[2] == patch))

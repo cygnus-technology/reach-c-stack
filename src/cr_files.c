@@ -229,28 +229,30 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     }
 
     /*
-     The ack rate today is specified in the FileTransferRequest (renamed) message
-     and answered in the FileTransferResponse (renamed).  Let's write down the rules.
+     The ack rate can be specified by the client in the FileTransferRequest message
+     and in the FileTransferResponse. There is a precedence rule:
         The requested_ack_rate is optional.
             Optional uint32 requested_ack_rate;
         The responding ack_rate is not optional.
      
-        If the requested_ack_rate is provided, then the server should try to use it.
-            The server may confirm the requested ack_rate in its response.
-            The server may override the requested ack rate with its own preference if
+        If the requested_ack_rate is provided, then the reach device should try to use it.
+            The reach device may confirm the requested ack_rate in its response.
+            The reach device may override the requested ack rate with its own preference if
                 there is a good reason.  Ideally this reason would be communicated in
                 the result_message field.
-        If no requested_ack_rate is provided, the server must provide the ack_rate
-        which can be one or a higher number.
+        In any case, the reach device will fill in the ack_rate. Zero is the default.
+        The Cygnus app may use 500 if zero is specified.
      */
+  #if 0  // We can assume there is no 0.1.3 Cygnus app in the field.
     int compare = pvtCr_compare_proto_version(0,1,3);
     // i3_log(LOG_MASK_FILES, "pvtCr_compare_proto_version() returned %d", compare);
     if (compare < 0)
     {   // optional has_requested_ack_rate deployed at 0.1.3
         // messages_per_ack is now obsolete.
-        I3_LOG(LOG_MASK_ERROR, "Your older client version is very inefficient transferring files.");
+        I3_LOG(LOG_MASK_WARN, "Client Protocol version seems old.");
+        // I3_LOG(LOG_MASK_ERROR, "Your older client version is very inefficient transferring files.");
     }
-
+  #endif
 
     int requested_ack_rate = 0; // default
     if (request->has_requested_ack_rate)
@@ -259,6 +261,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         I3_LOG(LOG_MASK_FILES, "Has requested_ack_rate %d.",
                request->requested_ack_rate);
     }
+    // crcb_file_get_preferred_ack_rate() is weak by default and an implementation can override it.
     int preferred_ack_rate =
         crcb_file_get_preferred_ack_rate(request->file_id,
                                          requested_ack_rate,
