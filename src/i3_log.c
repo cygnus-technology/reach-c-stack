@@ -170,6 +170,8 @@ uint32_t i3_log_get_mask(void)
   #else
     static bool sUseRemoteCLI = true;
   #endif
+    
+    static bool sBleErrorsDetected = false;
 
     /**
     * @brief   i3_log_set_remote_cli_enable
@@ -194,6 +196,30 @@ uint32_t i3_log_get_mask(void)
         if (!crcb_access_granted(cr_ServiceIds_CLI, 0))
             return false;
         return sUseRemoteCLI;
+    }
+
+    /**
+    * @brief   i3_log_set_ble_error_state
+    * @details In the event of BLE communication issues (particularly if
+    *          notifications cannot be sent), making the logger aware of
+    *          this means it can avoid attempting to use the BLE connection
+    *          to send log messages.  This makes it safe to use LOG_MASK_ERROR
+    *          to log error information.
+    * @return  cr_ErrorCodes_NO_ERROR on success.
+    */
+    int i3_log_set_ble_error_state(bool errors_detected)
+    {
+        sBleErrorsDetected = errors_detected;
+        return cr_ErrorCodes_NO_ERROR;
+    }
+
+    /**
+    * @brief   i3_log_get_ble_error_state
+    * @return  true if a BLE error has been detected.
+    */
+    bool i3_log_get_ble_error_state()
+    {
+        return sBleErrorsDetected;
     }
 
     /**
@@ -267,7 +293,7 @@ uint32_t i3_log_get_mask(void)
 
         if (0 == (mask & LOG_MASK_BARE)) printf("\r\n");
 
-        if (!i3_log_get_remote_cli_enable()) 
+        if (!i3_log_get_remote_cli_enable() || i3_log_get_ble_error_state()) 
             return;
 
         // Then record any remote messages.

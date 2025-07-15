@@ -123,6 +123,23 @@ int i3_log_set_remote_cli_enable(bool enable);
 */
 bool i3_log_get_remote_cli_enable();
 
+/**
+* @brief   i3_log_set_ble_error_state
+* @details In the event of BLE communication issues (particularly if
+*          notifications cannot be sent), making the logger aware of
+*          this means it can avoid attempting to use the BLE connection
+*          to send log messages.  This makes it safe to use LOG_MASK_ERROR
+*          to log error information.
+* @return  cr_ErrorCodes_NO_ERROR on success.
+*/
+int i3_log_set_ble_error_state(bool errors_detected);
+
+/**
+* @brief   i3_log_get_ble_error_state
+* @return  true if a BLE error has been detected.
+*/
+bool i3_log_get_ble_error_state();
+
 #if 0
 /**
 * @brief   i3_log_get_remote_buffer
