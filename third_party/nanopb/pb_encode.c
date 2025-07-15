@@ -922,7 +922,7 @@ static bool checkreturn pb_enc_string(pb_ostream_t *stream, const pb_field_iter_
             char badStr[16];
             strncpy(badStr, str, 16);
             badStr[15] = 0;
-            i3_log(LOG_MASK_ERROR, "Unterminated string starts: '%s'", badStr);
+            I3_LOG(LOG_MASK_ERROR, "Unterminated string starts: '%s'", badStr);
           #endif
             PB_RETURN_ERROR(stream, "unterminated string");
         }

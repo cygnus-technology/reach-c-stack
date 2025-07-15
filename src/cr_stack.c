@@ -424,14 +424,14 @@ int cr_process(uint32_t ticks)
   #ifdef INCLUDE_FILE_SERVICE
     int timeout = pvtCr_watchdog_check_timeout(ticks);
     if (timeout) {
-        i3_log(LOG_MASK_ERROR, "Timeout watchdog expired.");
+        I3_LOG(LOG_MASK_ERROR, "Timeout watchdog expired.");
         pvtCr_watchdog_end_timeout();
     }
   #endif // def INCLUDE_FILE_SERVICE
 
     /*if (ticks - lastTick > 10001)
     {
-        i3_log(LOG_MASK_ALWAYS, "\r\n--------%s: tick %d", __FUNCTION__, ticks);
+        I3_LOG(LOG_MASK_ALWAYS, "\r\n--------%s: tick %d", __FUNCTION__, ticks);
         lastTick = ticks;
     }*/
 
@@ -556,14 +556,14 @@ bool cr_get_comm_link_connected(void)
     void cr_report_error(int error_code, const char *fmt, ...)
     {
         (void)fmt;
-        i3_log(LOG_MASK_ERROR, "cr_report_error(%d) is disabled", error_code);
+        I3_LOG(LOG_MASK_ERROR, "cr_report_error(%d) is disabled", error_code);
     }
 #else
   #if (ERROR_REPORT_FORMAT == ERROR_FORMAT_LOG_ONLY)
     void cr_report_error(int error_code, const char *fmt, ...)
     {
         (void)fmt;
-        i3_log(LOG_MASK_ERROR, "cr_report_error(%d) to log only", err);
+        I3_LOG(LOG_MASK_ERROR, "cr_report_error(%d) to log only", err);
     }
   #elif (ERROR_REPORT_FORMAT == ERROR_FORMAT_SHORT)
     #define SHORT_ERROR_BUF_LEN  16
@@ -582,7 +582,7 @@ bool cr_get_comm_link_connected(void)
                            SHORT_ERROR_BUF_LEN,
                            "Error %d.", error_code);
         pvtCr_notify_error(err);
-        i3_log(LOG_MASK_ERROR, "Logged short error report, code %d:", error_code);
+        I3_LOG(LOG_MASK_ERROR, "Logged short error report, code %d:", error_code);
     }
   #else  // (ERROR_REPORT_FORMAT == ERROR_FORMAT_FULL)
     // The asynchronous version requires a buffer.
@@ -605,11 +605,11 @@ bool cr_get_comm_link_connected(void)
         // force termination
         err->result_message[REACH_BYTES_IN_A_FILE_PACKET-1] = 0;
         va_end(args);
-        // i3_log(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
+        // I3_LOG(LOG_MASK_WARN, "error string %d char", strlen(err->result_string));
 
         pvtCr_notify_error(err);
-        i3_log(LOG_MASK_WARN, "Logged Error full report:");
-        i3_log(LOG_MASK_ERROR, "%s", err->result_message);
+        I3_LOG(LOG_MASK_WARN, "Logged Error full report:");
+        I3_LOG(LOG_MASK_ERROR, "%s", err->result_message);
     }
   #endif  // ERROR_REPORT_FORMAT ==
 #endif // #ifndef ERROR_REPORT_FORMAT
@@ -687,7 +687,7 @@ static int handle_coded_prompt() // ahsoka version
         return handle_coded_classic_prompt(); 
     }
     sClassic_header_format = false;
-    i3_log(LOG_MASK_REACH, TEXT_MAGENTA "Decode Ahsoka header:");
+    I3_LOG(LOG_MASK_REACH, TEXT_MAGENTA "Decode Ahsoka header:");
 
     // We will first decode the header, skipping over the two byte 
     // packet size at the front. This can go on the stack as it's not large and 
@@ -752,11 +752,11 @@ static int sCr_checkSize(size_t test, size_t limit, char *name)
 
     if (test > limit)
     {
-        i3_log(LOG_MASK_ALWAYS, TEXT_RED "  %s = %d, TOO BIG." TEXT_RESET, name, test);
+        I3_LOG(LOG_MASK_ALWAYS, TEXT_RED "  %s = %d, TOO BIG." TEXT_RESET, name, test);
         return 1;
     }
   #ifdef VERBOSE_SIZES
-    i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "  %s = %d, OK." TEXT_RESET, name, test);
+    I3_LOG(LOG_MASK_ALWAYS, TEXT_GREEN "  %s = %d, OK." TEXT_RESET, name, test);
   #endif  // def VERBOSE_SIZES
     return 0;
 }
@@ -773,9 +773,9 @@ void cr_test_sizes()
     #define MAX_BLE_SZ  CR_CODED_BUFFER_SIZE
 
   #ifdef VERBOSE_SIZES
-    i3_log(LOG_MASK_ALWAYS, "Verbose buffer size report:" TEXT_RESET);
+    I3_LOG(LOG_MASK_ALWAYS, "Verbose buffer size report:" TEXT_RESET);
   #else
-    i3_log(LOG_MASK_ALWAYS, "Silent buffer size check:  " TEXT_RESET);
+    I3_LOG(LOG_MASK_ALWAYS, "Silent buffer size check:  " TEXT_RESET);
   #endif
     /// reach.pb.h gives us some "Maximum encoded size of messages".
     /// Check these against MAX_BLE_SZ, the limit of an encoded 
@@ -852,13 +852,13 @@ void cr_test_sizes()
     affirm(REACH_MAX_RESPONSE_SIZE == CR_CODED_BUFFER_SIZE);
 
   #ifdef VERBOSE_SIZES
-    i3_log(LOG_MASK_ALWAYS, "\n");
+    I3_LOG(LOG_MASK_ALWAYS, "\n");
   #endif  // def VERBOSE_SIZES
 
     // affirm(rval == 0);     // halt if failure
 
    #ifndef VERBOSE_SIZES
-    i3_log(LOG_MASK_ALWAYS, TEXT_GREEN "     Size tests all pass.");
+    I3_LOG(LOG_MASK_ALWAYS, TEXT_GREEN "     Size tests all pass.");
   #endif  // def VERBOSE_SIZES
 
 }
@@ -1092,7 +1092,7 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 
     if (request->echo_data.size > 0) {
         response->echo_data.size = request->echo_data.size;
-        i3_log(LOG_MASK_ALWAYS, "ping data size %d", request->echo_data.size);
+        I3_LOG(LOG_MASK_ALWAYS, "ping data size %d", request->echo_data.size);
         memcpy(response->echo_data.bytes, request->echo_data.bytes,
                request->echo_data.size);
     }
@@ -1153,7 +1153,7 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 {
     if (sClassic_header_format)
     {
-        i3_log(LOG_MASK_ERROR, "Please use the Ahsoka header format.");
+        I3_LOG(LOG_MASK_ERROR, "Please use the Ahsoka header format.");
     }
     int major = 0, minor = 0, patch = 0;
     memset(sClientProtocolVersion, 0, 3);
@@ -1347,9 +1347,9 @@ static int handle_send_command(const cr_SendCommand *request,
                                         cr_CLIData *response)
     {
         (void)response;
-        i3_log(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
+        I3_LOG(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
         if (!i3_log_get_remote_cli_enable()) 
-            i3_log(LOG_MASK_WARN, "  -> Command received, remote CLI response is disabled.");
+            I3_LOG(LOG_MASK_WARN, "  -> Command received, remote CLI response is disabled.");
         crcb_cli_enter(request->message_data);
         return cr_ErrorCodes_NO_RESPONSE;
     }
@@ -1806,7 +1806,7 @@ static int sCr_encode_classic_message(cr_ReachMessageTypes message_type,   // in
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
-    i3_log(LOG_MASK_REACH, TEXT_MAGENTA "Encode classic header:");
+    I3_LOG(LOG_MASK_REACH, TEXT_MAGENTA "Encode classic header:");
 
     // build the message envelope
     sCr_uncoded_message_structure.header     = *hdr;
@@ -1867,7 +1867,7 @@ int pvtCr_encode_message(cr_ReachMessageTypes message_type, // in
         if (hdr)
             return sCr_encode_classic_message(message_type, payload, hdr);
 
-        i3_log(LOG_MASK_ERROR, "Notifications no longer supported in Reach format.");
+        I3_LOG(LOG_MASK_ERROR, "Notifications no longer supported in Reach format.");
         return 0;
     }
 
