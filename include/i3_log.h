@@ -30,7 +30,6 @@
 #include <stdbool.h>
 #include "reach-server.h"  // excludes logging
 #include "i3_error.h"
-#include "text_colors.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -126,19 +125,16 @@ int i3_log_set_remote_cli_enable(bool enable);
 */
 bool i3_log_get_remote_cli_enable();
 
-#if 0
 /**
 * @brief   i3_log_get_remote_buffer
-* @details Retrieve the pointer and size of the remote buffer.  Set the size to 
-*          zero before returning so that the next string can overwrite the
-*          buffer.
-*          The assumption is that the contents of the buffer will be quickly 
-*          transmitted before anyone else writes into the buffer.
-* @param   pRcli   pointer to char pointer of buffer.
-* @return  number of bytes currently in use by the remote cli buffer.
+* @details Retrieve the pointer and size of the remote buffer. 
+*           Intended to be used by implementations that override
+*           the weak i3_log() given here.
+* @param   pRcli    pointer to char pointer of buffer.
+* @param   pBufSize  pointer to the size of the buffer.
+* @return  zero.
 */
-int i3_log_get_remote_buffer(char **pRcli);
-#endif
+int i3_log_get_remote_buffer(char **pRcli, size_t *bufSize);
 
 /**
 * @brief   i3_log
