@@ -65,8 +65,11 @@ extern "C"
 #define LOG_MASK_DEBUG      0x800   ///< show other reach features
 #define LOG_MASK_AHSOKA     0x1000  ///< show ahsoka coding
 
-#include "app_log_masks.h"  // defined per device program
-
+#ifdef APP_DEFINES_LOG_MASKS
+  // You are encouraged to define APP_DEFINES_LOG_MASKS in your reach_server.h
+  // then define your own log masks in the high bits.
+  #include "app_log_masks.h"  // defined per device program
+#endif
 /// Logging can be completely excluded from the build by
 /// defining NO_REACH_LOGGING in reach-server.h.
 #ifdef NO_REACH_LOGGING
@@ -246,24 +249,24 @@ void i3_log_dump_buffer(const uint32_t mask,
 
 //Cursor Movement
 // Command support moving by n:
-//  ESC[nA — move cursor up n lines
-//  ESC[nB — move cursor down n lines
-//  ESC[nC — move cursor right n
-//  ESC[nD — move cursor left n
+//  ESC[nA ï¿½ move cursor up n lines
+//  ESC[nB ï¿½ move cursor down n lines
+//  ESC[nC ï¿½ move cursor right n
+//  ESC[nD ï¿½ move cursor left n
     #define CURSOR_UP         CSI"1A"
     #define CURSOR_DOWN       CSI"1B"
     #define CURSOR_RIGH       CSI"1C"
     #define CURSOR_LEFT       CSI"1D"
-// ESC[n;nH or ESC[n;n f — set cursor position (row; column) 
+// ESC[n;nH or ESC[n;n f ï¿½ set cursor position (row; column) 
     #define CURSOR_HOME       CSI"H"
 
 // Screen and Line Erasing
-//  ESC[2J — clear whole screen
-//  ESC[1J — clear from cursor to beginning
-//  ESC[0J — clear from cursor to end (default)
+//  ESC[2J ï¿½ clear whole screen
+//  ESC[1J ï¿½ clear from cursor to beginning
+//  ESC[0J ï¿½ clear from cursor to end (default)
     #define CLEAR_SCREEN        CSI"2J"
-//  ESC[2K — erase current line
-//  ESC[0K, ESC[1K — clear to end or from start of line 
+//  ESC[2K ï¿½ erase current line
+//  ESC[0K, ESC[1K ï¿½ clear to end or from start of line 
     #define EMPTY_LINE          CSI"1K"
     #define CLR_TO_END          CSI"0K"
 
