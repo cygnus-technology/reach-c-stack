@@ -51,10 +51,9 @@
 #include <time.h>
 #include "crcb_weak.h"
 #include "i3_log.h"
-#include "text_colors.h"
 
 #ifndef DEFAULT_LOG_MASK
-  #define DEFAULT_LOG_MASK 0
+    #define DEFAULT_LOG_MASK 0
 #endif
 static uint32_t sLogMask = DEFAULT_LOG_MASK;
 
@@ -78,6 +77,48 @@ uint32_t i3_log_get_mask(void)
     return sLogMask;
 }
 
+static bool sBleErrorsDetected = false;
+
+/**
+* @brief   i3_log_set_ble_error_state
+* @details In the event of BLE communication issues (particularly if
+*          notifications cannot be sent), making the logger aware of
+*          this means it can avoid attempting to use the BLE connection
+*          to send log messages.  This makes it safe to use LOG_MASK_ERROR
+*          to log error information.
+* @return  cr_ErrorCodes_NO_ERROR on success.
+*/
+int i3_log_set_ble_error_state(bool errors_detected)
+{
+    sBleErrorsDetected = errors_detected;
+    return cr_ErrorCodes_NO_ERROR;
+}
+
+/**
+* @brief   i3_log_get_ble_error_state
+* @return  true if a BLE error has been detected.
+*/
+bool i3_log_get_ble_error_state()
+{
+    return sBleErrorsDetected;
+}
+
+#ifdef DEV_BUILD
+    // This should be used by any derived fatal error handler.
+    char gFatalErrorBuffer[256];
+#endif
+
+void __attribute__((weak)) i3_log_fatal_error(char * msg)
+{
+    printf(msg);
+  #ifdef DEV_BUILD
+    __asm__("bkpt");
+    exit(1);
+  #else
+    // reboot
+    exit(1);
+  #endif
+}
 
 // defined in reach-server.h
 #ifdef INCLUDE_CLI_SERVICE
@@ -90,19 +131,10 @@ uint32_t i3_log_get_mask(void)
      * implementations. 
      */
     static char sLog_rcliBuf[REACH_ERROR_BUFFER_LEN];
-    /**
-    * @brief   i3_log_get_remote_buffer
-    * @details Retrieve the pointer and size of the remote buffer. 
-    *           Intended to be used by implementations that override
-    *           the weak i3_log() given here.
-    * @param   pRcli    pointer to char pointer of buffer.
-    * @param   pBufSize  pointer to the size of the buffer.
-    * @return  zero.
-    */
     int i3_log_get_remote_buffer(char **pRcli, size_t *bufSize)
     {
         *pRcli = sLog_rcliBuf;
-        *bufSize = sizeof(sLog_rcliBuf) ;
+        *bufSize = sizeof(sLog_rcliBuf);
         return 0;
     }
 
@@ -132,6 +164,7 @@ uint32_t i3_log_get_mask(void)
     }
 
 #else
+    // indicate remote CLI not supported
     int i3_log_get_remote_buffer(char **pRcli, size_t *bufSize)
     {
         *pRcli = NULL;
@@ -153,13 +186,15 @@ uint32_t i3_log_get_mask(void)
 
 
 #ifdef NO_REACH_LOGGING
+    // default to weak empty versions
     void __attribute__((weak)) i3_log(const uint32_t mask, const char *fmt, ...)
     {
     }
-    void i3_log_dump_buffer(const uint32_t mask,
-                            const char *banner,
-                            const uint8_t *ptr,
-                            const size_t len)
+
+    void __attribute__((weak)) i3_log_dump_buffer(const uint32_t mask,
+                                                  const char *banner,
+                                                  const uint8_t *ptr,
+                                                  const size_t len)
     {
         (void)mask;
         (void)banner;
@@ -189,19 +224,13 @@ uint32_t i3_log_get_mask(void)
 
         if (0 == (mask & localMask)) return;
 
-        if (mask & LOG_MASK_ERROR)
-        {
+        if (mask & LOG_MASK_ERROR) {
             printf(TEXT_RED);
-        }
-        else if (mask & LOG_MASK_WARN)
-        {
+        } else if (mask & LOG_MASK_WARN) {
             printf(TEXT_YELLOW);
-        }
-        else if (mask & LOG_MASK_REACH)
-        {
+        } else if (mask & LOG_MASK_REACH) {
             printf(TEXT_CYAN);
         }
-        // printf("0x%x ", mask);  
 
         va_start(args, fmt);
         vprintf(fmt, args);
@@ -211,52 +240,47 @@ uint32_t i3_log_get_mask(void)
 
         if (0 == (mask & LOG_MASK_BARE)) printf("\r\n");
 
-    #ifdef INCLUDE_CLI_SERVICE
+      #ifndef INCLUDE_CLI_SERVICE
+        // Return here if there is no CLI service.
+        return;
 
-    /**
-     * When remote logging is enabled the strings for output are generated into a 
-     * local buffer with length REACH_ERROR_BUFFER_LEN. 
-     */
-    static char sLog_rcliBuf[REACH_ERROR_BUFFER_LEN];
-    static size_t sLog_rcliPtr = 0;
+      #else // ifdef INCLUDE_CLI_SERVICE
 
-
-
-        if (!i3_log_get_remote_cli_enable()) 
+        if (!i3_log_get_remote_cli_enable() || i3_log_get_ble_error_state()) 
             return;
+
+        char *rcliBuf;
+        size_t rcli_size;
+        size_t rcliPtr = 0;
+        i3_log_get_remote_buffer(&rcliBuf, &rcli_size);
+        i3_assert(rcliBuf != NULL);
 
         // Then record any remote messages.
         localMask = LOG_MASK_ALWAYS | LOG_MASK_ERROR | LOG_MASK_WARN | LOG_MASK_REMOTE;
 
-        if (0 == (mask & localMask)) return;
+        if (0 == (mask & localMask)) 
+            return;
 
-        sLog_rcliPtr = 0;
-      #ifdef COLORS_REMOTE
-        if (mask & LOG_MASK_ERROR)
-        {
-            sLog_rcliPtr += snprintf(&sLog_rcliBuf[sLog_rcliPtr], REACH_ERROR_BUFFER_LEN, TEXT_RED);
+       #ifdef COLORS_REMOTE
+        if (mask & LOG_MASK_ERROR) {
+            rcliPtr += snprintf(&rcliBuf[rcliPtr], rcli_size, TEXT_RED);
+        } else if (mask & LOG_MASK_WARN) {
+            rcliPtr += snprintf(&rcliBuf[rcliPtr], rcli_size, TEXT_YELLOW);
+        } else if (mask & LOG_MASK_REACH) {
+            rcliPtr += snprintf(&rcliBuf[rcliPtr], rcli_size, TEXT_CYAN);
         }
-        else if (mask & LOG_MASK_WARN)
-        {
-            sLog_rcliPtr += snprintf(&sLog_rcliBuf[sLog_rcliPtr], REACH_ERROR_BUFFER_LEN, TEXT_YELLOW);
-        }
-        else if (mask & LOG_MASK_REACH)
-        {
-            sLog_rcliPtr += snprintf(&sLog_rcliBuf[sLog_rcliPtr], REACH_ERROR_BUFFER_LEN, TEXT_CYAN);
-        }
-      #endif  // def COLORS_REMOTE
+       #endif  // def COLORS_REMOTE
 
         va_start(args, fmt);
-        sLog_rcliPtr += vsnprintf(&sLog_rcliBuf[sLog_rcliPtr], REACH_ERROR_BUFFER_LEN-8, fmt, args);
+        rcliPtr += vsnprintf(&rcliBuf[rcliPtr], rcli_size - 8, fmt, args);
         va_end(args);
 
-      #ifdef COLORS_REMOTE
-        sLog_rcliPtr += snprintf(&sLog_rcliBuf[sLog_rcliPtr], REACH_ERROR_BUFFER_LEN, TEXT_RESET);
-      #endif  // def COLORS_REMOTE
+       #ifdef COLORS_REMOTE
+        rcliPtr += snprintf(&rcliBuf[rcliPtr], rcli_size, TEXT_RESET);
+       #endif  // def COLORS_REMOTE
 
-        if (0 == (mask & LOG_MASK_BARE))
-        {
-            sLog_rcliPtr += snprintf(&sLog_rcliBuf[sLog_rcliPtr], REACH_ERROR_BUFFER_LEN, "\r\n");
+        if (0 == (mask & LOG_MASK_BARE)) {
+            rcliPtr += snprintf(&rcliBuf[rcliPtr], rcli_size, "\r\n");
         }
 
         // The i3_log module should not depend on the Reach stack.
@@ -264,10 +288,10 @@ uint32_t i3_log_get_mask(void)
         // This might want to be changed in some systems.
         extern int pvtCr_cli_respond(char *cli);
 
-        sLog_rcliBuf[sLog_rcliPtr] = 0;
-        pvtCr_cli_respond(sLog_rcliBuf);
-        sLog_rcliPtr = 0;
-    #endif  // def INCLUDE_CLI_SERVICE
+        rcliBuf[rcliPtr] = 0;
+        pvtCr_cli_respond(rcliBuf);
+        rcliPtr = 0;
+      #endif  // def INCLUDE_CLI_SERVICE
     }
 
 
@@ -285,15 +309,14 @@ uint32_t i3_log_get_mask(void)
     * @param   len The number of bytes to be displayed..
     */
     void __attribute__((weak)) i3_log_dump_buffer(const uint32_t mask,
-                            const char *banner,
-                            const uint8_t *ptr,
-                            const size_t len)
+                                                  const char *banner,
+                                                  const uint8_t *ptr,
+                                                  const size_t len)
     {
         if (0 == (mask & sLogMask)) return;
         printf("%s: %d bytes.\r\n  ", banner, (int)len);
 
-        for (size_t i = 0; i < len; i++)
-        {
+        for (size_t i = 0; i < len; i++) {
             printf("%02X ", (unsigned char)ptr[i]);
 
             if ((i > 0) && (((i + 1) % DUMP_WIDTH) == 0)) printf("\r\n  ");
@@ -301,21 +324,4 @@ uint32_t i3_log_get_mask(void)
         printf("\r\n");
     }
 #endif // def NO_REACH_LOGGING
-
-#ifdef DEV_BUILD
-  char gFatalErrorBuffer[256];
-#endif
-  
-void __attribute__((weak)) i3_log_fatal_error(char * msg)
-{
-    printf(msg);
-  #ifdef DEV_BUILD
-    __asm__("bkpt");
-    exit(1); 
-  #else
-    // reboot
-    exit(1); 
-  #endif
-
-}
 
