@@ -110,7 +110,9 @@ bool i3_log_get_ble_error_state()
 
 void __attribute__((weak)) i3_log_fatal_error(char * msg)
 {
-    printf(msg);
+    if (msg) {
+        printf(msg);
+    }
   #ifdef DEV_BUILD
     __asm__("bkpt");
     exit(1);
