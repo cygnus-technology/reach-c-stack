@@ -98,10 +98,6 @@ static size_t  sCr_encoded_message_size = 0;
 /// @private
 static cr_ReachMessage sCr_uncoded_message_structure;
 
-/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
-/// so that the header can be added.
-#define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
-
 union uncoded_response_message {
   cr_PingResponse ping_response;
   cr_DeviceInfoResponse device_info_response;
@@ -144,7 +140,6 @@ union uncoded_response_message {
 };
 
 // A decoded prompt payload. This can be reused from the encoded message buffer. 
-// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 /// @private
 static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
@@ -152,9 +147,13 @@ static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 /// @private
 static union uncoded_response_message sCr_uncoded_response_buffer ALIGN_TO_WORD;
 
+/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
+/// so that the header can be added.
+#define ENCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
+
 // The response payload is encoded into sCr_encoded_payload_buffer[]. 
 /// @private
-static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
+static uint8_t sCr_encoded_payload_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
 /// @private
 static size_t sCr_encoded_payload_size; 
  
@@ -625,7 +624,7 @@ bool cr_get_comm_link_connected(void)
   #else  // (ERROR_REPORT_FORMAT == ERROR_FORMAT_FULL)
     // The asynchronous version requires a buffer.
     /// @private
-    static uint8_t sCr_async_error_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+    static uint8_t sCr_async_error_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
     void cr_report_error(int error_code, const char *fmt, ...)
     {
@@ -1993,16 +1992,16 @@ int pvtCr_encode_message(cr_ReachMessageTypes message_type, // in
 
     // message_util_log_param_notification((cr_ParameterNotification *)payload);
 
-    size_t encoded_payload_size;
+    size_t coded_payload_size;
     if (!encode_reach_payload(message_type, payload,
                               &encBuffer[header_size+2],
                               enbBufferSize - 2 - header_size,
-                              &encoded_payload_size))
+                              &coded_payload_size))
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode notification payload %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
-    sCr_encoded_notification_size = encoded_payload_size + header_size + 2;
+    sCr_encoded_notification_size = coded_payload_size + header_size + 2;
     LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka notification message complete: ",
                   sCr_coded_notification, sCr_encoded_notification_size);
     return 0;
