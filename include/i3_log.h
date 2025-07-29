@@ -188,6 +188,44 @@ void i3_log_dump_buffer(const uint32_t mask,
                         const uint8_t *ptr,
                         const size_t len);
 
+/// Persistent Logging:
+/// Simple code will sprintf into a circular buffer.
+/// This buffer should persist across warm boots
+/// It can be dumped to the regular log on request.
+
+/**
+* @brief   i3_log_persistent_init
+* @details Creates a buffer that persists across warm resets. 
+*/
+void i3_log_persistent_init(void);
+
+/**
+* @brief   i3_log_persist
+* @details A printf style logging function. Has no OS 
+*          dependency. Just sprintf into a buffer. The buffer is
+*          designed to persist over a (warm) reboot. The simple
+*          function should also have no OS dependency so that it
+*          can be called regardless of the state of the OS.
+* @param   fmt : standard printf format.
+*/
+void i3_log_persist(const char *fmt, ...);
+
+/**
+* @brief   i3_log_persistent_clear
+* @details Clears the persistent buffer.
+*/
+void i3_log_persistent_clear(void);
+
+/**
+* @brief   i3_log_persistent_dump
+* @details Prints the console of the persistent buffer to the 
+*          console using i3_log().
+* @param   lines : If negative, dump the entire buffer. Else 
+*                dump only the last N lines of the buffer.
+*/
+void i3_log_persistent_dump(int lines);
+
+
 #ifdef __cplusplus
 }
 #endif

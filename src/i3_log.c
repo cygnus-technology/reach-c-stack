@@ -325,5 +325,32 @@ void __attribute__((weak)) i3_log_fatal_error(char * msg)
         }
         printf("\r\n");
     }
+
+    /// Persistent Logging:
+    /// Simple code will sprintf into a circular buffer
+    /// This buffer should persist across warm boots
+    /// It can be dumped to the regular log on request. 
+    /// The implementation is up to the integration. 
+    void __attribute__((weak)) i3_log_persistent_init(void)
+    {
+    }
+
+    void __attribute__((weak)) i3_log_persist(const char *fmt, ...)
+    {
+    }
+
+    void __attribute__((weak)) i3_log_persistent_clear(void)
+    {
+    }
+
+    void __attribute__((weak)) i3_log_persistent_dump(int lines)
+    {
+        (void)lines; // unused
+    }
+
+
+
+
+
 #endif // def NO_REACH_LOGGING
 
