@@ -98,22 +98,62 @@ static size_t  sCr_encoded_message_size = 0;
 /// @private
 static cr_ReachMessage sCr_uncoded_message_structure;
 
-/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
-/// so that the header can be added.
-#define UNCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
+union uncoded_response_message {
+  cr_PingResponse ping_response;
+  cr_DeviceInfoResponse device_info_response;
+#ifdef INCLUDE_PARAMETER_SERVICE
+  cr_ParameterInfoResponse parameter_info_response;
+  cr_ParamExInfoResponse parameter_ex_info_response;
+  cr_ParameterReadResponse parameter_read_response;
+  cr_ParameterWriteResponse parameter_write_response;
+  cr_DiscoverParameterNotificationsResponse discover_notifications_response;
+#if NUM_SUPPORTED_PARAM_NOTIFY != 0
+  cr_ParameterNotifyConfigResponse notify_config_response;
+#endif  // NUM_SUPPORTED_PARAM_NOTIFY != 0
+#endif  // def INCLUDE_PARAMETER_SERVICE
+#ifdef INCLUDE_FILE_SERVICE
+  cr_DiscoverFilesResponse discover_files_response;
+  cr_FileTransferResponse file_transfer_response;
+  cr_FileTransferData file_transfer_data;
+  cr_FileTransferDataNotification file_transfer_data_notification;
+  cr_FileEraseResponse file_erase_response;
+#endif // def INCLUDE_FILE_SERVICE
+#ifdef INCLUDE_STREAM_SERVICE
+  cr_DiscoverStreamsResponse discover_streams_response;
+  cr_StreamResponse stream_response;
+#endif // def INCLUDE_STREAM_SERVICE
+#ifdef INCLUDE_COMMAND_SERVICE
+  cr_DiscoverCommandsResponse discover_commands_response;
+  cr_SendCommandResponse send_command_response;
+#endif  // def INCLUDE_COMMAND_SERVICE
+#ifdef INCLUDE_CLI_SERVICE
+  cr_CLIData cli_data;
+#endif // def INCLUDE_CLI_SERVICE
+#ifdef INCLUDE_TIME_SERVICE
+  cr_TimeSetResponse time_set_response;
+  cr_TimeGetResponse time_get_response;
+#endif  // def INCLUDE_TIME_SERVICE
+#ifdef INCLUDE_WIFI_SERVICE
+  cr_DiscoverWiFiResponse discover_wifi_response;
+  cr_WiFiConnectionResponse wifi_connection_response;
+#endif  // def INCLUDE_WIFI_SERVICE
+};
 
 // A decoded prompt payload. This can be reused from the encoded message buffer. 
-// static uint8_t sCr_decoded_prompt_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 /// @private
 static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
 // An uncoded response payload.
 /// @private
-static uint8_t sCr_uncoded_response_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+static union uncoded_response_message sCr_uncoded_response_buffer ALIGN_TO_WORD;
+
+/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
+/// so that the header can be added.
+#define ENCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
 // The response payload is encoded into sCr_encoded_payload_buffer[]. 
 /// @private
-static uint8_t sCr_encoded_payload_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
+static uint8_t sCr_encoded_payload_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
 /// @private
 static size_t sCr_encoded_payload_size; 
  
@@ -234,21 +274,19 @@ static int handle_continued_transactions()
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dp.", __FUNCTION__);
         rval = 
-            pvtCrParam_discover_parameters(NULL, 
-                                       (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
+            pvtCrParam_discover_parameters(NULL, &sCr_uncoded_response_buffer.parameter_info_response);
         break;
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dpx.", __FUNCTION__);
         rval = 
-            pvtCrParam_discover_parameters_ex(NULL, 
-                                       (cr_ParamExInfoResponse *)sCr_uncoded_response_buffer);
+            pvtCrParam_discover_parameters_ex(NULL, &sCr_uncoded_response_buffer.parameter_ex_info_response);
         break;
     case cr_ReachMessageTypes_READ_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rp.", __FUNCTION__);
-        rval = pvtCrParam_read_param(NULL, (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCrParam_read_param(NULL, &sCr_uncoded_response_buffer.parameter_read_response);
         break;
     case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
-        rval = pvtCrParam_discover_notifications(NULL, (cr_DiscoverParameterNotificationsResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCrParam_discover_notifications(NULL, &sCr_uncoded_response_buffer.discover_notifications_response);
         break;
     #endif  // def INCLUDE_PARAMETER_SERVICE
 
@@ -256,22 +294,21 @@ static int handle_continued_transactions()
     case cr_ReachMessageTypes_DISCOVER_COMMANDS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued disc cmds.", __FUNCTION__);
         rval = 
-            handle_discover_commands(NULL,
-                                     (cr_DiscoverCommandsResponse *)sCr_uncoded_response_buffer);
+            handle_discover_commands(NULL, &sCr_uncoded_response_buffer.discover_commands_response);
         break;
     #endif  // def INCLUDE_COMMAND_SERVICE
 
     #ifdef INCLUDE_WIFI_SERVICE
     case cr_ReachMessageTypes_DISCOVER_WIFI:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued discover WiFi.", __FUNCTION__);
-        rval = handle_discover_wifi(NULL, (cr_DiscoverWiFiResponse *)sCr_uncoded_response_buffer);
+        rval = handle_discover_wifi(NULL, &sCr_uncoded_response_buffer.discover_wifi_response);
         break;
     #endif  // def INCLUDE_WIFI_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_TRANSFER_DATA:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
-        rval = pvtCrFile_transfer_data_notification(NULL, (cr_FileTransferData *)sCr_uncoded_response_buffer);
+        rval = pvtCrFile_transfer_data_notification(NULL, &sCr_uncoded_response_buffer.file_transfer_data);
         encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
     #endif // def INCLUDE_FILE_SERVICE
@@ -294,7 +331,7 @@ static int handle_continued_transactions()
     msg_header.remaining_objects = pvtCr_num_remaining_objects;
 
     rval = pvtCr_encode_message(encode_message_type,         // in
-                             sCr_uncoded_response_buffer,  // in:  to be encoded
+                             &sCr_uncoded_response_buffer,   // in:  to be encoded
                              &msg_header);
 
     if (pvtCr_num_remaining_objects == 0)
@@ -437,7 +474,7 @@ int cr_process(uint32_t ticks)
 
     // clear buffers of previous data
     memset(&sCr_uncoded_message_structure,  0, sizeof(cr_ReachMessage));
-    memset(sCr_uncoded_response_buffer,     0, sizeof(sCr_uncoded_response_buffer));
+    memset(&sCr_uncoded_response_buffer,    0, sizeof(sCr_uncoded_response_buffer));
     memset(sCr_encoded_payload_buffer,      0, sizeof(sCr_encoded_payload_buffer));
     // memset(sCr_encoded_response_buffer,     0, sizeof(sCr_encoded_response_buffer));
 
@@ -587,7 +624,7 @@ bool cr_get_comm_link_connected(void)
   #else  // (ERROR_REPORT_FORMAT == ERROR_FORMAT_FULL)
     // The asynchronous version requires a buffer.
     /// @private
-    static uint8_t sCr_async_error_buffer[UNCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
+    static uint8_t sCr_async_error_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
     void cr_report_error(int error_code, const char *fmt, ...)
     {
@@ -813,7 +850,7 @@ void cr_test_sizes()
     rval += sCr_checkSize(cr_StreamData_size,               MAX_BLE_SZ, "cr_StreamData_size");
     rval += sCr_checkSize(cr_StreamInfo_size,               MAX_BLE_SZ, "cr_StreamInfo_size");
 
-    // rval += sCr_checkSize(cr_WiFiConnectionRequest_size,    MAX_BLE_SZ, "cr_WiFiConnectionRequest_size");
+    rval += sCr_checkSize(cr_WiFiConnectionRequest_size,    MAX_BLE_SZ, "cr_WiFiConnectionRequest_size");
     rval += sCr_checkSize(cr_WiFiConnectionResponse_size,   MAX_BLE_SZ, "cr_WiFiConnectionResponse_size");
     rval += sCr_checkSize(cr_DiscoverWiFiResponse_size,     MAX_BLE_SZ, "cr_DiscoverWiFiResponse_size");
     rval += sCr_checkSize(cr_WiFiConnectionResponse_size,   MAX_BLE_SZ, "cr_WiFiConnectionResponse_size");
@@ -829,11 +866,9 @@ void cr_test_sizes()
 
     rval += sCr_checkSize(sizeof(cr_StreamInfo),            MAX_RAW_SZ, "sizeof(cr_StreamInfo)");
     rval += sCr_checkSize(sizeof(cr_ErrorReport),           MAX_RAW_SZ, "sizeof(cr_ErrorReport)");
-    rval += sCr_checkSize(sizeof(cr_ParameterReadResponse), MAX_RAW_SZ, "sizeof(cr_ParameterReadResponse)");
     rval += sCr_checkSize(sizeof(cr_ParameterWrite),        MAX_RAW_SZ, "sizeof(cr_ParameterWrite)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfig), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfig)");
     rval += sCr_checkSize(sizeof(cr_ParameterNotification), MAX_RAW_SZ, "sizeof(cr_ParameterNotification)");
-    rval += sCr_checkSize(sizeof(cr_ParameterNotifyConfigResponse), MAX_RAW_SZ, "sizeof(cr_ParameterNotifyConfigResponse)");
     rval += sCr_checkSize(sizeof(cr_ParameterValue),        MAX_RAW_SZ, "sizeof(cr_ParameterValue)");
     rval += sCr_checkSize(sizeof(cr_CLIData),               MAX_RAW_SZ, "sizeof(cr_CLI_Data)");
     rval += sCr_checkSize(sizeof(cr_ParameterRead),         MAX_RAW_SZ, "sizeof(cr_ParameterRead)");
@@ -842,8 +877,6 @@ void cr_test_sizes()
 
 
     rval += sCr_checkSize(sizeof(cr_WiFiConnectionRequest),         MAX_RAW_SZ, "cr_WiFiConnectionRequest");
-    rval += sCr_checkSize(sizeof(cr_WiFiConnectionResponse_size),   MAX_RAW_SZ, "cr_WiFiConnectionResponse");
-    rval += sCr_checkSize(sizeof(cr_DiscoverWiFiResponse_size),     MAX_RAW_SZ, "cr_DiscoverWiFiResponse");
     rval += sCr_checkSize(sizeof(cr_WiFiConnectionRequest),         MAX_RAW_SZ, "cr_WiFiConnectionRequest");
 
 
@@ -855,7 +888,7 @@ void cr_test_sizes()
     I3_LOG(LOG_MASK_ALWAYS, "\n");
   #endif  // def VERBOSE_SIZES
 
-    // affirm(rval == 0);     // halt if failure
+    affirm(rval == 0);     // halt if failure
 
    #ifndef VERBOSE_SIZES
     I3_LOG(LOG_MASK_ALWAYS, TEXT_GREEN "     Size tests all pass.");
@@ -908,46 +941,46 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     {
     case cr_ReachMessageTypes_PING:
         rval = handle_ping((cr_PingRequest *)sCr_decoded_prompt_buffer,
-                    (cr_PingResponse *)sCr_uncoded_response_buffer);
+                           &sCr_uncoded_response_buffer.ping_response);
         break;
 
     case cr_ReachMessageTypes_GET_DEVICE_INFO:
         rval = handle_get_device_info((cr_DeviceInfoRequest *)sCr_decoded_prompt_buffer,
-                               (cr_DeviceInfoResponse *)sCr_uncoded_response_buffer);
+                                      &sCr_uncoded_response_buffer.device_info_response);
         break;
   #ifdef INCLUDE_PARAMETER_SERVICE
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
         rval = pvtCrParam_discover_parameters((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
-                                   (cr_ParameterInfoResponse *)sCr_uncoded_response_buffer);
+                                              &sCr_uncoded_response_buffer.parameter_info_response);
         break;
 
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
         rval = pvtCrParam_discover_parameters_ex((cr_ParameterInfoRequest *)sCr_decoded_prompt_buffer,
-                                   (cr_ParamExInfoResponse *)sCr_uncoded_response_buffer);
+                                                 &sCr_uncoded_response_buffer.parameter_ex_info_response);
         break;
 
     case cr_ReachMessageTypes_READ_PARAMETERS:
         rval = pvtCrParam_read_param((cr_ParameterRead *)sCr_decoded_prompt_buffer,
-                          (cr_ParameterReadResponse *)sCr_uncoded_response_buffer);
+                                     &sCr_uncoded_response_buffer.parameter_read_response);
         break;
 
     case cr_ReachMessageTypes_WRITE_PARAMETERS:
         rval = pvtCrParam_write_param((cr_ParameterWrite *)sCr_decoded_prompt_buffer,
-                           (cr_ParameterWriteResponse *)sCr_uncoded_response_buffer);
+                                      &sCr_uncoded_response_buffer.parameter_write_response);
         break;
     case cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS:
         rval = pvtCrParam_discover_notifications((cr_DiscoverParameterNotifications *)sCr_decoded_prompt_buffer,
-                           (cr_DiscoverParameterNotificationsResponse *)sCr_uncoded_response_buffer);
+                                                 &sCr_uncoded_response_buffer.discover_notifications_response);
         break;
 
     #if NUM_SUPPORTED_PARAM_NOTIFY != 0
     case cr_ReachMessageTypes_PARAM_ENABLE_NOTIFY:
         rval = pvtCrParam_param_enable_notify((cr_ParameterEnableNotifications *)sCr_decoded_prompt_buffer,
-                           (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
+                                              &sCr_uncoded_response_buffer.notify_config_response);
         break;
     case cr_ReachMessageTypes_PARAM_DISABLE_NOTIFY:
         rval = pvtCrParam_param_disable_notify((cr_ParameterDisableNotifications *)sCr_decoded_prompt_buffer,
-                           (cr_ParameterNotifyConfigResponse *)sCr_uncoded_response_buffer);
+                                               &sCr_uncoded_response_buffer.notify_config_response);
         break;
     #endif
   #endif // def INCLUDE_PARAMETER_SERVICE
@@ -955,18 +988,18 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_DISCOVER_FILES:
         rval = pvtCrFile_discover((cr_DiscoverFiles *)sCr_decoded_prompt_buffer,
-                              (cr_DiscoverFilesResponse *)sCr_uncoded_response_buffer);
+                                  &sCr_uncoded_response_buffer.discover_files_response);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_INIT:
         rval = pvtCrFile_transfer_init((cr_FileTransferRequest *)sCr_decoded_prompt_buffer,
-                             (cr_FileTransferResponse *)sCr_uncoded_response_buffer);
+                                       &sCr_uncoded_response_buffer.file_transfer_response);
         break;
 
     case cr_ReachMessageTypes_TRANSFER_DATA:
         // file write:
         rval = pvtCrFile_transfer_data((cr_FileTransferData *)sCr_decoded_prompt_buffer,
-                             (cr_FileTransferDataNotification *)sCr_uncoded_response_buffer);
+                                       &sCr_uncoded_response_buffer.file_transfer_data_notification);
         // returns cr_ErrorCodes_NO_RESPONSE and hence no error when no response is desired.
         // when zero is returned we need to ack with a notification.
         if (rval == cr_ErrorCodes_NO_ERROR)
@@ -977,8 +1010,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     {
         cr_FileTransferDataNotification *request = 
             (cr_FileTransferDataNotification *)sCr_decoded_prompt_buffer;
-        rval = pvtCrFile_transfer_data_notification(request,
-                                          (cr_FileTransferData *)sCr_uncoded_response_buffer);
+        rval = pvtCrFile_transfer_data_notification(request, &sCr_uncoded_response_buffer.file_transfer_data);
         // for continuing transactions we need more data.
         if (!request->is_complete)
             encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
@@ -987,7 +1019,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     case cr_ReachMessageTypes_ERASE_FILE:
         I3_LOG(LOG_MASK_REACH, "%s(): Delete file.", __FUNCTION__);
         rval = pvtCrFile_erase_file((cr_FileEraseRequest *)sCr_decoded_prompt_buffer,
-                                (cr_FileEraseResponse *)sCr_uncoded_response_buffer);
+                                    &sCr_uncoded_response_buffer.file_erase_response);
         if (rval == cr_ErrorCodes_NO_ERROR)
             encode_message_type = cr_ReachMessageTypes_ERASE_FILE;
         break;
@@ -997,16 +1029,16 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #ifdef INCLUDE_STREAM_SERVICE
 
     case cr_ReachMessageTypes_DISCOVER_STREAMS:
-        rval = pvtCr_discover_streams( (cr_DiscoverStreams *)sCr_decoded_prompt_buffer,
-                                       (cr_DiscoverStreamsResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCr_discover_streams((cr_DiscoverStreams *)sCr_decoded_prompt_buffer,
+                                      &sCr_uncoded_response_buffer.discover_streams_response);
         break;
     case cr_ReachMessageTypes_OPEN_STREAM:
-        rval = pvtCr_open_stream( (cr_StreamOpen *)sCr_decoded_prompt_buffer,
-                                   (cr_StreamResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCr_open_stream((cr_StreamOpen *)sCr_decoded_prompt_buffer,
+                                 &sCr_uncoded_response_buffer.stream_response);
         break;
     case cr_ReachMessageTypes_CLOSE_STREAM:
-        rval = pvtCr_close_stream( (cr_StreamClose *)sCr_decoded_prompt_buffer,
-                                   (cr_StreamResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCr_close_stream((cr_StreamClose *)sCr_decoded_prompt_buffer,
+                                  &sCr_uncoded_response_buffer.stream_response);
         break;
     case cr_ReachMessageTypes_STREAM_DATA_NOTIFICATION:
         rval = pvtCr_stream_receive_notification( (cr_StreamData *)sCr_decoded_prompt_buffer);
@@ -1016,41 +1048,41 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #ifdef INCLUDE_COMMAND_SERVICE
     case cr_ReachMessageTypes_DISCOVER_COMMANDS:
         rval = handle_discover_commands((cr_DiscoverCommands *)sCr_decoded_prompt_buffer,
-                                 (cr_DiscoverCommandsResponse *)sCr_uncoded_response_buffer);
+                                        &sCr_uncoded_response_buffer.discover_commands_response);
         break;
 
     case cr_ReachMessageTypes_SEND_COMMAND:
         rval = handle_send_command((cr_SendCommand *)sCr_decoded_prompt_buffer,
-                            (cr_SendCommandResponse *)sCr_uncoded_response_buffer);
+                                   &sCr_uncoded_response_buffer.send_command_response);
         break;
   #endif  // def INCLUDE_COMMAND_SERVICE
 
   #ifdef INCLUDE_CLI_SERVICE
     case cr_ReachMessageTypes_CLI_NOTIFICATION:
         rval = handle_cli_notification((cr_CLIData *)sCr_decoded_prompt_buffer,
-                                 (cr_CLIData *)sCr_uncoded_response_buffer);
+                                       &sCr_uncoded_response_buffer.cli_data);
         break;
   #endif // def INCLUDE_CLI_SERVICE
 
   #ifdef INCLUDE_TIME_SERVICE
     case cr_ReachMessageTypes_SET_TIME:
         rval = handle_time_set((cr_TimeSetRequest *)sCr_decoded_prompt_buffer, 
-                                (cr_TimeSetResponse *)sCr_uncoded_response_buffer);
+                               &sCr_uncoded_response_buffer.time_set_response);
         break;
     case cr_ReachMessageTypes_GET_TIME:
         rval = handle_time_get((cr_TimeGetRequest *)sCr_decoded_prompt_buffer, 
-                                (cr_TimeGetResponse *)sCr_uncoded_response_buffer);
+                               &sCr_uncoded_response_buffer.time_get_response);
         break;
   #endif  // def INCLUDE_TIME_SERVICE
 
   #ifdef INCLUDE_WIFI_SERVICE
     case cr_ReachMessageTypes_DISCOVER_WIFI:
         rval = handle_discover_wifi((cr_DiscoverWiFi *)sCr_decoded_prompt_buffer,
-                                (cr_DiscoverWiFiResponse *)sCr_uncoded_response_buffer);
+                                    &sCr_uncoded_response_buffer.discover_wifi_response);
         break;
     case cr_ReachMessageTypes_WIFI_CONNECT:
         rval = handle_wifi_connect((cr_WiFiConnectionRequest *)sCr_decoded_prompt_buffer, 
-                                   (cr_WiFiConnectionResponse *)sCr_uncoded_response_buffer);
+                                   &sCr_uncoded_response_buffer.wifi_connection_response);
         break;
   #endif  // def INCLUDE_WIFI_SERVICE
 
@@ -1071,7 +1103,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     msg_header.client_id         = sCr_client_id;
 
     rval = pvtCr_encode_message(encode_message_type,
-                              sCr_uncoded_response_buffer,
+                              &sCr_uncoded_response_buffer,
                               &msg_header);
     if (rval != 0)
     {
@@ -1960,16 +1992,16 @@ int pvtCr_encode_message(cr_ReachMessageTypes message_type, // in
 
     // message_util_log_param_notification((cr_ParameterNotification *)payload);
 
-    size_t encoded_payload_size;
+    size_t coded_payload_size;
     if (!encode_reach_payload(message_type, payload,
                               &encBuffer[header_size+2],
                               enbBufferSize - 2 - header_size,
-                              &encoded_payload_size))
+                              &coded_payload_size))
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode notification payload %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
-    sCr_encoded_notification_size = encoded_payload_size + header_size + 2;
+    sCr_encoded_notification_size = coded_payload_size + header_size + 2;
     LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka notification message complete: ",
                   sCr_coded_notification, sCr_encoded_notification_size);
     return 0;
