@@ -177,7 +177,7 @@ void __attribute__((weak)) i3_log_fatal_error(char * msg)
     int i3_log_set_remote_cli_enable(bool enable)
     {
         (void)enable;
-        return cr_ErrorCodes_NO_SERVICE;
+        return cr_ErrorCodes_NOT_IMPLEMENTED;
     }
 
     bool i3_log_get_remote_cli_enable()
