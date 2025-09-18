@@ -134,7 +134,7 @@ union uncoded_response_message {
   cr_TimeGetResponse time_get_response;
 #endif  // def INCLUDE_TIME_SERVICE
 #ifdef INCLUDE_WIFI_SERVICE
-  cr_DiscoverWifiResponse discover_wifi_response;
+  cr_DiscoverWiFi discover_wifi_response;
   cr_WiFiConnectionResponse wifi_connection_response;
 #endif  // def INCLUDE_WIFI_SERVICE
 };
@@ -308,7 +308,7 @@ static int handle_continued_transactions()
     #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_TRANSFER_DATA:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
-        rval = pvtCrFile_transfer_data_notification(NULL, &scr_uncoded_response_buffer.file_transfer_data);
+        rval = pvtCrFile_transfer_data_notification(NULL, &sCr_uncoded_response_buffer.file_transfer_data);
         encode_message_type = cr_ReachMessageTypes_TRANSFER_DATA;
         break;
     #endif // def INCLUDE_FILE_SERVICE
@@ -1019,7 +1019,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     case cr_ReachMessageTypes_ERASE_FILE:
         I3_LOG(LOG_MASK_REACH, "%s(): Delete file.", __FUNCTION__);
         rval = pvtCrFile_erase_file((cr_FileEraseRequest *)sCr_decoded_prompt_buffer,
-                                    &scr_uncoded_response_buffer.file_erase_response);
+                                    &sCr_uncoded_response_buffer.file_erase_response);
         if (rval == cr_ErrorCodes_NO_ERROR)
             encode_message_type = cr_ReachMessageTypes_ERASE_FILE;
         break;
@@ -1060,7 +1060,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
   #ifdef INCLUDE_CLI_SERVICE
     case cr_ReachMessageTypes_CLI_NOTIFICATION:
         rval = handle_cli_notification((cr_CLIData *)sCr_decoded_prompt_buffer,
-                                       &sCr_uncoded_response_buffer.cli_data_response);
+                                       &sCr_uncoded_response_buffer.cli_data);
         break;
   #endif // def INCLUDE_CLI_SERVICE
 
