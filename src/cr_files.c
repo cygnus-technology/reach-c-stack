@@ -145,6 +145,7 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
         }
         I3_LOG(LOG_MASK_PARAMS, "Added file %d.", response->file_infos_count);
         response->file_infos_count++;
+        pvtCr_num_remaining_objects--;
     }
     return 0;
 }
