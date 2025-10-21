@@ -134,7 +134,7 @@ union uncoded_response_message {
   cr_TimeGetResponse time_get_response;
 #endif  // def INCLUDE_TIME_SERVICE
 #ifdef INCLUDE_WIFI_SERVICE
-  cr_DiscoverWiFi discover_wifi_response;
+  cr_DiscoverWiFiResponse discover_wifi_response;
   cr_WiFiConnectionResponse wifi_connection_response;
 #endif  // def INCLUDE_WIFI_SERVICE
 };
@@ -1451,6 +1451,7 @@ static int handle_send_command(const cr_SendCommand *request,
             rval = crcb_discover_wifi(NULL, &resp);
             if (rval == cr_ErrorCodes_INCOMPLETE)
             {
+              response->result = cr_ErrorCodes_INCOMPLETE;
               // Still discovering access points
               return 0;
             }
