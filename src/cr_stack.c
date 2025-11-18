@@ -77,6 +77,7 @@
 
 #include "pb_decode.h"
 #include "pb_encode.h"
+#include "pbtypes.h"
 
 #include "message_util.h"
 #include "reach_decode.h"
@@ -191,7 +192,7 @@ static bool sCr_error_reported = false;
 ///----------------------------------------------------------------------------
 
 /// @private
-static int handle_coded_prompt();
+static int handle_coded_prompt(void);
 
 /// @private
 static int 
@@ -257,7 +258,7 @@ bool encode_reach_message(const cr_ReachMessage *message,       // in:  message 
                           size_t buffer_size,                   // in:  max size of encoded message
                           size_t *encode_size);                 // out: actual size of encoded message.
 
-static int handle_continued_transactions()
+static int handle_continued_transactions(void)
 {
     int rval = 0;
 
@@ -344,7 +345,7 @@ static int handle_continued_transactions()
 * @details To be called before starting the stack.
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
 */
-int cr_init() 
+int cr_init(void) 
 {
     return cr_ErrorCodes_NO_ERROR;
 }
@@ -388,7 +389,7 @@ int cr_set_advertised_name(char *name, int length)
 * @details Retrieves the name stored by cr_set_advertised_name().
 * @return  pointer to a string of length REACH_SHORT_STRING_LEN.
 */
-const char *cr_get_advertised_name()
+const char *cr_get_advertised_name(void)
 {
     // I3_LOG(LOG_MASK_PARAMS, "Call sanitize from %s", __FUNCTION__);
     pvtCr_sanitize_string_to_utf8(sCr_advertised_name);
@@ -528,7 +529,7 @@ int cr_process(uint32_t ticks)
 *          other Reach functions access to that value. 
 * @return  The same tick count passed into cr_process().
 */
-uint32_t cr_get_current_ticks()
+uint32_t cr_get_current_ticks(void)
 {
     // a 32 bit number will roll over in 49 days at 1kHz.
     return sCr_currentTicks;
@@ -676,7 +677,7 @@ bool cr_get_comm_link_connected(void)
 * @return Zero on success or an error code.
 */
 /// @private
-static int handle_coded_classic_prompt() 
+static int handle_coded_classic_prompt(void) 
 {
     // sCr_uncoded_message_structure will hold the decoded message.
     cr_ReachMessage *msgPtr = &sCr_uncoded_message_structure;
@@ -698,7 +699,7 @@ static int handle_coded_classic_prompt()
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s", msg_type_string(msgPtr->header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %d. Transaction ID %d, client_id 0x%x, endpoint %d.", 
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %"PRIu_pb". Transaction ID %"PRIu32", client_id 0x%"PRIx32", endpoint %"PRIu32".", 
            msgPtr->payload.size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
@@ -714,7 +715,7 @@ static int handle_coded_classic_prompt()
 * @return Zero on success or an error code.
 */
 /// @private
-static int handle_coded_prompt() // ahsoka version
+static int handle_coded_prompt(void) // ahsoka version
 {
     // Is this a classic Reach header or an Ahsoka header?
     // Classic reach witll start with 0x0A
@@ -732,8 +733,7 @@ static int handle_coded_prompt() // ahsoka version
     cr_AhsokaMessageHeader header;
 
     // Store the size of message is in the first two bytes.
-    // endian?
-    uint16_t coded_header_size = *(uint16_t*)&sCr_encoded_message_buffer;
+    uint16_t coded_header_size = (sCr_encoded_message_buffer[1] << 8) | sCr_encoded_message_buffer[0];
 
     // feed the header into the stream buffer, skipping the leading size
     pb_istream_t is_stream = 
@@ -770,7 +770,7 @@ static int handle_coded_prompt() // ahsoka version
     // I don't see how to get the size without decoding.
     LOG_DUMP_WIRE("handle_coded_prompt ahsoka payload: ",
                        coded_payload, remaining_objects);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload: size: %d, Transaction ID %d, client_id %d, endpoint_id %d.", 
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload: size: %"PRIu16", Transaction ID %"PRIu32", client_id %"PRIu32", endpoint_id %"PRIu32".", 
            remaining_objects, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
@@ -801,7 +801,7 @@ static int sCr_checkSize(size_t test, size_t limit, char *name)
 /// cr_test_sizes(): The test harness checks that buffer sizes
 /// are not too big. These buffer sizes are adjusted via 
 /// reach.options.prototype and update_proto.bat 
-void cr_test_sizes()
+void cr_test_sizes(void)
 {
     int rval = 0;
 
@@ -1124,7 +1124,7 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 
     if (request->echo_data.size > 0) {
         response->echo_data.size = request->echo_data.size;
-        I3_LOG(LOG_MASK_ALWAYS, "ping data size %d", request->echo_data.size);
+        I3_LOG(LOG_MASK_ALWAYS, "ping data size %" PRIu_pb, request->echo_data.size);
         memcpy(response->echo_data.bytes, request->echo_data.bytes,
                request->echo_data.size);
     }
@@ -1215,7 +1215,7 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
     sClientProtocolVersion[2] = 0xFF & patch;
 
     // response->protocol_version = cr_ReachProtoVersion_CURRENT_VERSION;
-    snprintf(response->protocol_version_string, CR_STACK_VERSION_LEN, cr_get_proto_version());
+    snprintf(response->protocol_version_string, CR_STACK_VERSION_LEN, "%s", cr_get_proto_version());
     sCr_populate_device_info_sizes(response);
     return 0;
 }
@@ -1229,7 +1229,7 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 * @return  Returns a pointer to a null terminated string 
 *          containing the C stack version.
 */
-const char *cr_get_reach_version()
+const char *cr_get_reach_version(void)
 {
     static char sCr_c_stack_version[CR_STACK_VERSION_LEN];
     snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
@@ -1246,7 +1246,7 @@ const char *cr_get_reach_version()
 * @return  Returns a pointer to a null terminated string 
 *          containing the C protobuf version.
 */
-const char *cr_get_proto_version()
+const char *cr_get_proto_version(void)
 {
     static char sCr_proto_version[CR_STACK_VERSION_LEN];
 
@@ -1355,7 +1355,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
     response->available_commands_count = REACH_NUM_COMMANDS_IN_RESPONSE;
     pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_COMMANDS;
     pvtCr_num_remaining_objects = num_commands - REACH_NUM_COMMANDS_IN_RESPONSE;
-    I3_LOG(LOG_MASK_DEBUG, "%s: Setup continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
+    I3_LOG(LOG_MASK_DEBUG, "%s: Setup continuing with %"PRIu32, __FUNCTION__, pvtCr_num_remaining_objects);
     return 0;
 }
 
@@ -1503,7 +1503,7 @@ static int handle_send_command(const cr_SendCommand *request,
         response->cd_count = REACH_WIFI_AP_IN_DISCOVER;
         pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_WIFI;
         pvtCr_num_remaining_objects = num_ap - REACH_WIFI_AP_IN_DISCOVER;
-        I3_LOG(LOG_MASK_DEBUG, "%s: continuing with %d", __FUNCTION__, pvtCr_num_remaining_objects);
+        I3_LOG(LOG_MASK_DEBUG, "%s: continuing with %"PRIu32, __FUNCTION__, pvtCr_num_remaining_objects);
         return 0;
     }
 
@@ -1552,7 +1552,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
           status = pb_encode(&os_stream, cr_DeviceInfoRequest_fields, data);
           if (status) {
             *encode_size = os_stream.bytes_written;
-            LOG_REACH("Encoded get device info request: \n%s\n");
+            LOG_REACH("Encoded get device info request\n");
           }
           break;
       }
@@ -1849,7 +1849,7 @@ static int sCr_encode_classic_message(cr_ReachMessageTypes message_type,   // in
            sCr_encoded_payload_size);
     sCr_uncoded_message_structure.payload.size = sCr_encoded_payload_size;  
 
-    I3_LOG(LOG_MASK_REACH, "%s(): type %d, remain %d, trans_id %d, client %d, ep %d.", 
+    I3_LOG(LOG_MASK_REACH, "%s(): type %"PRIu32", remain %"PRIu32", trans_id %"PRIu32", client %"PRIu32", ep %"PRIu32".", 
            __FUNCTION__,
            sCr_uncoded_message_structure.header.message_type, 
            sCr_uncoded_message_structure.header.remaining_objects, 
@@ -1883,7 +1883,7 @@ bool encode_ahsoka_header(const cr_AhsokaMessageHeader *header,  // in:  message
   } else {
     LOG_ERROR("Encoding ahsoka header failed: %s\n", PB_GET_ERROR(&os_stream));
   }
-  I3_LOG(LOG_MASK_AHSOKA, "The encoded ahsoka header", buffer, *encode_size);
+  LOG_DUMP_WIRE("The encoded ahsoka header", buffer, *encode_size);
 
   return status;
 }

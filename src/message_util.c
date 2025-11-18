@@ -268,7 +268,7 @@ void message_util_log_device_info_response(const cr_DeviceInfoResponse *response
     i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-void message_util_log_discover_files() 
+void message_util_log_discover_files(void) 
 {
   i3_log(LOG_MASK_REACH, "  Discover Files Request\r\n");
 }
@@ -508,7 +508,7 @@ void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *respo
 #endif // def INCLUDE_STREAM_SERVICE
 
 /** Commands */
-void message_util_log_discover_commands() {
+void message_util_log_discover_commands(void) {
 
   i3_log(LOG_MASK_REACH, "  Discover Commands:");
 }

@@ -226,7 +226,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @details returns the number of parameters exposed by this device.
     * @return  Total number of parameter descriptions
     */
-    int crcb_parameter_get_count();
+    int crcb_parameter_get_count(void);
 
     /**
     * @brief   crcb_parameter_discover_reset
@@ -359,7 +359,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     *          implemented by the device.
     * @return  the number of commands implemented by the device.
     */    
-    int crcb_get_command_count();
+    int crcb_get_command_count(void);
 
     /**
     * @brief   crcb_command_discover_reset
@@ -404,7 +404,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     *          implemented by the device.
     * @return  the number of files implemented by the device.
     */    
-    int crcb_file_get_file_count();
+    int crcb_file_get_file_count(void);
 
     /**
     * @brief   crcb_file_discover_reset
@@ -577,7 +577,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @return  The number of wifi access points available to the
     *          the device.
     */    
-    int crcb_get_wifi_count();
+    int crcb_get_wifi_count(void);
 
     /**
     * @brief   crcb_wifi_discover_reset

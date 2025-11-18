@@ -105,7 +105,7 @@ extern "C" {
     void pvtCr_watchdog_stroke_timeout(uint32_t ticks);
 
     /// disables the watchdog
-    void pvtCr_watchdog_end_timeout();
+    void pvtCr_watchdog_end_timeout(void);
 
     /// if active, compares ticks to expected timeout.
     /// return 1 if timeout occurred

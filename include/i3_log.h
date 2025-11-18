@@ -126,7 +126,7 @@ int i3_log_set_remote_cli_enable(bool enable);
 * @brief   i3_log_get_remote_cli_enable
 * @return  true if enabled.
 */
-bool i3_log_get_remote_cli_enable();
+bool i3_log_get_remote_cli_enable(void);
 
 /**
 * @brief   i3_log_set_ble_error_state
@@ -143,7 +143,7 @@ int i3_log_set_ble_error_state(bool errors_detected);
 * @brief   i3_log_get_ble_error_state
 * @return  true if a BLE error has been detected.
 */
-bool i3_log_get_ble_error_state();
+bool i3_log_get_ble_error_state(void);
 
 /**
 * @brief   i3_log_get_remote_buffer
