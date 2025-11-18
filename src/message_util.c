@@ -51,6 +51,7 @@
 #include "reach-server.h"
 #include "message_util.h"
 #include "i3_log.h"
+#include "pbtypes.h"
 
 // None of these message utilities are required without logging.
 #ifndef NO_REACH_LOGGING
@@ -61,7 +62,7 @@ static void sLogNumberList(const uint32_t *entries, size_t num)
   size_t i=0;
   while (remaining_entries >= 8)
   {
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d, %d, %d, %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32, i,
            entries[i+0], entries[i+1], entries[i+2], entries[i+3],
            entries[i+4], entries[i+5], entries[i+6], entries[i+7]);
     remaining_entries -= 8;
@@ -71,34 +72,34 @@ static void sLogNumberList(const uint32_t *entries, size_t num)
   switch (remaining_entries)
   {
   case 7:
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d, %d, %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32, i,
            entries[i+0], entries[i+1], entries[i+2], entries[i+3],
            entries[i+4], entries[i+5], entries[i+6]);
     break;
   case 6:
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d, %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32, i,
            entries[i+0], entries[i+1], entries[i+2], entries[i+3],
            entries[i+4], entries[i+5]);
     break;
   case 5:
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d, %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32, i,
            entries[i+0], entries[i+1], entries[i+2], entries[i+3],
            entries[i+4]);
     break;
   case 4:
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d, %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32", %"PRIu32", %"PRIu32", %"PRIu32, i,
            entries[i+0], entries[i+1], entries[i+2], entries[i+3]);
     break;
   case 3:
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d, %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32", %"PRIu32", %"PRIu32, i,
            entries[i+0], entries[i+1], entries[i+2]);
     break;
   case 2:
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d, %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32", %"PRIu32, i,
            entries[i+0], entries[i+1]);
     break;
   case 1:
-    i3_log(LOG_MASK_REACH, "      idx %d:  %d", i,
+    i3_log(LOG_MASK_REACH, "      idx %zd:  %"PRIu32, i,
            entries[i+0]);
     break;
   default:
@@ -120,34 +121,34 @@ static void sLogParameterValue(const cr_ParameterValue *param)
   switch (param->which_value)
   {
   case cr_ParameterValue_uint32_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   uint32: %u", param->parameter_id, param->value.uint32_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   uint32: %"PRIu32, param->parameter_id, param->value.uint32_value);
     break;
   case cr_ParameterValue_int32_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   sint32: %d", param->parameter_id, param->value.int32_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   sint32: %"PRId32, param->parameter_id, param->value.int32_value);
       break;
   case cr_ParameterValue_float32_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   float32: %.2f", param->parameter_id, param->value.float32_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   float32: %.2f", param->parameter_id, param->value.float32_value);
       break;
   case cr_ParameterValue_uint64_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   uint64: %llu", param->parameter_id, param->value.uint64_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   uint64: %"PRIu64, param->parameter_id, param->value.uint64_value);
       break;
   case cr_ParameterValue_int64_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   sint64: %lld", param->parameter_id, param->value.int64_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   sint64: %"PRId64, param->parameter_id, param->value.int64_value);
       break;
   case cr_ParameterValue_float64_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   float64: %.3llf", param->parameter_id, param->value.float64_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   float64: %.3lf", param->parameter_id, param->value.float64_value);
       break;
   case cr_ParameterValue_bool_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   boolean: %s", param->parameter_id, param->value.bool_value? "true":"false");
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   boolean: %s", param->parameter_id, param->value.bool_value? "true":"false");
       break;
   case cr_ParameterValue_string_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   string: %s", param->parameter_id, param->value.string_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   string: %s", param->parameter_id, param->value.string_value);
       break;
   case cr_ParameterValue_enum_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   enum: %d", param->parameter_id, param->value.enum_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   enum: %"PRIu32, param->parameter_id, param->value.enum_value);
       break;
   case cr_ParameterValue_bitfield_value_tag:
-    i3_log(LOG_MASK_REACH, "    id : %d.   bitfield: 0x%x", param->parameter_id, param->value.bitfield_value);
+    i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   bitfield: 0x%"PRIx64, param->parameter_id, param->value.bitfield_value);
       break;
   case cr_ParameterValue_bytes_value_tag:
     {
@@ -155,7 +156,7 @@ static void sLogParameterValue(const cr_ParameterValue *param)
       sByte_array_to_hex_string(param->value.bytes_value.bytes,
                                 param->value.bytes_value.size,
                                 hexStr);
-      i3_log(LOG_MASK_REACH, "    id : %d.   bytes: %s", param->parameter_id, hexStr);
+      i3_log(LOG_MASK_REACH, "    id : %"PRIu32".   bytes: %s", param->parameter_id, hexStr);
       break;
     }
   default:
@@ -252,9 +253,9 @@ void message_util_log_device_info_response(const cr_DeviceInfoResponse *response
     i3_log(LOG_MASK_REACH, "    firmware version      : %s", response->firmware_version);
     i3_log(LOG_MASK_REACH, "    manufacturer          : %s", response->manufacturer);
     i3_log(LOG_MASK_REACH, "    device description    : %s", response->device_description);
-    i3_log(LOG_MASK_REACH, "    services              : 0x%x", response->services);
-    i3_log(LOG_MASK_REACH, "    metadata hash         : 0x%x", response->parameter_metadata_hash);
-    i3_log(LOG_MASK_REACH, "    endpoints             : 0x%x", response->endpoints);
+    i3_log(LOG_MASK_REACH, "    services              : 0x%"PRIx32, response->services);
+    i3_log(LOG_MASK_REACH, "    metadata hash         : 0x%"PRIx32, response->parameter_metadata_hash);
+    i3_log(LOG_MASK_REACH, "    endpoints             : 0x%"PRIx32, response->endpoints);
     if (response->has_application_identifier)
     {
         char hex_string[48];
@@ -277,12 +278,12 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
   i3_log(LOG_MASK_REACH, "  Discover Files Response:");
   for (int i=0; i < response->file_infos_count; i++)
   {
-    i3_log(LOG_MASK_REACH, "    [file_id             : %d", response->file_infos[i].file_id);
+    i3_log(LOG_MASK_REACH, "    [file_id             : %"PRIu32, response->file_infos[i].file_id);
     i3_log(LOG_MASK_REACH, "     name                : %s", response->file_infos[i].file_name);
     i3_log(LOG_MASK_REACH, "     access              : 0x%x", response->file_infos[i].access);
-    i3_log(LOG_MASK_REACH, "     current_size_bytes  : %d", response->file_infos[i].current_size_bytes);
+    i3_log(LOG_MASK_REACH, "     current_size_bytes  : %"PRIu32, response->file_infos[i].current_size_bytes);
     if (response->file_infos[i].has_maximum_size_bytes)
-        i3_log(LOG_MASK_REACH, "     maximum_size_bytes  : %d", response->file_infos[i].maximum_size_bytes);
+        i3_log(LOG_MASK_REACH, "     maximum_size_bytes  : %"PRIu32, response->file_infos[i].maximum_size_bytes);
     else
         i3_log(LOG_MASK_REACH, "     maximum_size_bytes not provided");
     i3_log(LOG_MASK_REACH, "    ]");
@@ -293,26 +294,26 @@ void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *re
 void message_util_log_file_transfer_request(const cr_FileTransferRequest *request)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Request:");
-  i3_log(LOG_MASK_REACH, "    file_id            : %d", request->file_id);
-  i3_log(LOG_MASK_REACH, "    read_write         : %d", request->read_write);
-  i3_log(LOG_MASK_REACH, "    request offset     : %d", request->request_offset);
-  i3_log(LOG_MASK_REACH, "    transfer length    : %d", request->transfer_length);
-  i3_log(LOG_MASK_REACH, "    transfer id        : %d", request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    file_id            : %"PRIu32, request->file_id);
+  i3_log(LOG_MASK_REACH, "    read_write         : %"PRIu32, request->read_write);
+  i3_log(LOG_MASK_REACH, "    request offset     : %"PRIu32, request->request_offset);
+  i3_log(LOG_MASK_REACH, "    transfer length    : %"PRIu32, request->transfer_length);
+  i3_log(LOG_MASK_REACH, "    transfer id        : %"PRIu32, request->transfer_id);
   // i3_log(LOG_MASK_REACH, "    messages_per_ack   : %d (obsolete)", request->messages_per_ack);
-  i3_log(LOG_MASK_REACH, "    timeout            : %d", request->timeout_in_ms);
+  i3_log(LOG_MASK_REACH, "    timeout            : %"PRIu32, request->timeout_in_ms);
   if (request->has_requested_ack_rate)
-    i3_log(LOG_MASK_REACH, "    has requested_ack_rate: %d", request->requested_ack_rate);
+    i3_log(LOG_MASK_REACH, "    has requested_ack_rate: %"PRIu32, request->requested_ack_rate);
   else
-    i3_log(LOG_MASK_REACH, "    No requested_ack_rate (%d)", request->requested_ack_rate);
+    i3_log(LOG_MASK_REACH, "    No requested_ack_rate (%"PRIu32")", request->requested_ack_rate);
   i3_log(LOG_MASK_REACH, "    require_checksum : %d\r\n", request->require_checksum);
 }
 
 void message_util_log_file_transfer_response(const cr_FileTransferResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Init Response:");
-  i3_log(LOG_MASK_REACH, "    result            : %d", response->result);
-  i3_log(LOG_MASK_REACH, "    transfer_id       : %d", response->transfer_id);
-  i3_log(LOG_MASK_REACH, "    ack_rate          : %d", response->ack_rate);
+  i3_log(LOG_MASK_REACH, "    result            : %"PRIu32, response->result);
+  i3_log(LOG_MASK_REACH, "    transfer_id       : %"PRIu32, response->transfer_id);
+  i3_log(LOG_MASK_REACH, "    ack_rate          : %"PRIu32, response->ack_rate);
   if (response->has_result_message) {            
     i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
   }
@@ -322,13 +323,13 @@ void message_util_log_file_transfer_response(const cr_FileTransferResponse *resp
 void message_util_log_transfer_data(const cr_FileTransferData *request)
 {
   i3_log(LOG_MASK_REACH, "  File Transfer Data Request:");
-  i3_log(LOG_MASK_REACH, "    transfer id    : %d", request->transfer_id);
-  i3_log(LOG_MASK_REACH, "    message number : %d", request->message_number);
-  i3_log(LOG_MASK_REACH, "    messsage size  : %d", request->message_data.size);
+  i3_log(LOG_MASK_REACH, "    transfer id    : %"PRIu32, request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    message number : %"PRIu32, request->message_number);
+  i3_log(LOG_MASK_REACH, "    messsage size  : %"PRIu_pb, request->message_data.size);
   // don't print the data here.
   if (request->has_checksum)
   {
-    i3_log(LOG_MASK_REACH, "    checksum       : 0x%x\r\n", request->checksum);
+    i3_log(LOG_MASK_REACH, "    checksum       : 0x%"PRIx32"\r\n", request->checksum);
   }
   i3_log(LOG_MASK_REACH, "    No CRC\r\n");
 }
@@ -353,14 +354,14 @@ message_util_log_transfer_data_response(const cr_FileTransferData *request)
 void message_util_log_file_erase_request(cr_FileEraseRequest *request)
 {
   i3_log(LOG_MASK_REACH, "  File Erase Request:");
-  i3_log(LOG_MASK_REACH, "    file_id           : %d\r\n", request->file_id);
+  i3_log(LOG_MASK_REACH, "    file_id           : %"PRIu32"\r\n", request->file_id);
 }
 
 void message_util_log_file_erase_response(cr_FileEraseResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  File Erase Response:");
-  i3_log(LOG_MASK_REACH, "    file_id           : %d", response->file_id);
-  i3_log(LOG_MASK_REACH, "    result            : %d", response->result);
+  i3_log(LOG_MASK_REACH, "    file_id           : %"PRIu32, response->file_id);
+  i3_log(LOG_MASK_REACH, "    result            : %"PRIu32, response->result);
   if (response->has_result_message) {            
     i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
   }
@@ -375,9 +376,9 @@ void message_util_log_transfer_data_notification(bool is_request,
     i3_log(LOG_MASK_REACH, "  Transfer Data Notification Request:");
   else
     i3_log(LOG_MASK_REACH, "  Transfer Data Notification Response:");
-  i3_log(LOG_MASK_REACH, "    result       : %d", request->result);
-  i3_log(LOG_MASK_REACH, "    transfer_id  : %d", request->transfer_id);
-  i3_log(LOG_MASK_REACH, "    retry_offset : %d", request->retry_offset);
+  i3_log(LOG_MASK_REACH, "    result       : %"PRIu32, request->result);
+  i3_log(LOG_MASK_REACH, "    transfer_id  : %"PRIu32, request->transfer_id);
+  i3_log(LOG_MASK_REACH, "    retry_offset : %"PRIu32, request->retry_offset);
   if (request->has_result_message)
     i3_log(LOG_MASK_REACH, "    result_message: %s", request->result_message);
   if (request->is_complete)
@@ -393,7 +394,7 @@ void message_util_log_param_info_request(const cr_ParameterInfoRequest *request)
     i3_log(LOG_MASK_REACH, "    Count zero means request all.\r\n");
     return;
   }
-  i3_log(LOG_MASK_REACH, "    %d parameters requested:");
+  i3_log(LOG_MASK_REACH, "    %"PRIu_pb" parameters requested:", request->parameter_ids_count);
   sLogNumberList(request->parameter_ids, request->parameter_ids_count);
   i3_log(LOG_MASK_REACH, "\r\n");
 }
@@ -406,7 +407,7 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
     return;
   } 
   for (size_t i = 0; i < response->parameter_infos_count; i++) {
-    i3_log(LOG_MASK_REACH, "    [id            : %d", response->parameter_infos[i].id);
+    i3_log(LOG_MASK_REACH, "    [id            : %"PRIu32, response->parameter_infos[i].id);
     i3_log(LOG_MASK_REACH, "     data type     : %d", response->parameter_infos[i].which_desc - cr_ParameterInfo_uint32_desc_tag);
     i3_log(LOG_MASK_REACH, "     name          : %s", response->parameter_infos[i].name);
     i3_log(LOG_MASK_REACH, "     access        : 0x%x", response->parameter_infos[i].access);
@@ -419,12 +420,12 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
 void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *response)
 {
   i3_log(LOG_MASK_REACH, "  Parameter Info Ex Response:");
-  i3_log(LOG_MASK_REACH, "    pei_id     : %d", response->pei_id);
+  i3_log(LOG_MASK_REACH, "    pei_id     : %"PRIu32, response->pei_id);
   i3_log(LOG_MASK_REACH, "    data_type          : %d", response->data_type);
-  i3_log(LOG_MASK_REACH, "    keys_count : %d", response->keys_count);
+  i3_log(LOG_MASK_REACH, "    keys_count : %"PRIu_pb, response->keys_count);
   for (size_t i = 0; i < response->keys_count; i++)
   {
-    i3_log(LOG_MASK_REACH, "    [id: %d.  name: %s]", 
+    i3_log(LOG_MASK_REACH, "    [id: %"PRIu32".  name: %s]", 
            response->keys[i].id, response->keys[i].name);
   }
 }
@@ -517,25 +518,25 @@ void message_util_log_discover_commands_response(
 {
   i3_log(LOG_MASK_REACH, "  Discover Commands Response:");
   for (size_t i = 0; i < payload->available_commands_count; i++) {
-    i3_log(LOG_MASK_REACH, "    [id         : %d", payload->available_commands[i].id);
+    i3_log(LOG_MASK_REACH, "    [id         : %"PRIu32, payload->available_commands[i].id);
     i3_log(LOG_MASK_REACH, "     name       : %s", payload->available_commands[i].name);
     if ( payload->available_commands[i].has_description ) 
       i3_log(LOG_MASK_REACH, "     description : %s", payload->available_commands[i].description);
     if ( payload->available_commands[i].has_timeout ) 
-      i3_log(LOG_MASK_REACH, "     timeout     : %d", payload->available_commands[i].timeout);
+      i3_log(LOG_MASK_REACH, "     timeout     : %"PRIu32, payload->available_commands[i].timeout);
     i3_log(LOG_MASK_REACH, "    ]");
   }
 }
 
 void message_util_log_send_command(const cr_SendCommand *payload)
 {
-  i3_log(LOG_MASK_REACH, "  Send Command %d\r\n", payload->command_id);
+  i3_log(LOG_MASK_REACH, "  Send Command %"PRIu32"\r\n", payload->command_id);
 }
 
 void message_util_log_command_response(const cr_SendCommandResponse *payload)
 {
   i3_log(LOG_MASK_REACH, "  Send Command Response:");
-  i3_log(LOG_MASK_REACH, "    result  : %d", payload->result);
+  i3_log(LOG_MASK_REACH, "    result  : %"PRIu32, payload->result);
   if (payload->has_result_message)
     i3_log(LOG_MASK_REACH, "    message : %s", payload->result_message);
   i3_log(LOG_MASK_REACH, "\n");
@@ -611,7 +612,7 @@ void message_util_log_discover_notifications(const cr_DiscoverParameterNotificat
     i3_log(LOG_MASK_BARE, "    ");
     for (int i=0; i<payload->parameter_ids_count; i++)
     {
-        i3_log(LOG_MASK_BARE, "%d ", payload->parameter_ids[i]);
+        i3_log(LOG_MASK_BARE, "%"PRIu32" ", payload->parameter_ids[i]);
         if (i== 16)
             i3_log(LOG_MASK_BARE, "\r\n    ");
     }
@@ -629,10 +630,10 @@ void message_util_log_discover_notifications_response(const cr_DiscoverParameter
                          (payload->configs[i].maximum_notification_period == 0) &&
                          (payload->configs[i].minimum_delta == 0.0));
         if (!enabled) {
-            i3_log(LOG_MASK_REACH, "    ID %d, disabled", payload->configs[i].parameter_id);
+            i3_log(LOG_MASK_REACH, "    ID %"PRIu32", disabled", payload->configs[i].parameter_id);
         }
         else {
-            i3_log(LOG_MASK_REACH, "    ID %d, enabled, period min %u, max %u, delta %.1f",
+            i3_log(LOG_MASK_REACH, "    ID %"PRIu32", enabled, period min %"PRIu32", max %"PRIu32", delta %.1f",
                payload->configs[i].parameter_id, 
                payload->configs[i].minimum_notification_period,
                payload->configs[i].maximum_notification_period, 
@@ -647,27 +648,27 @@ void message_util_log_param_notification(const cr_ParameterNotification *data)
   i3_log(LOG_MASK_REACH, "  Paramter Notification(s):");
   for (int i= 0; i< data->values_count; i++)
   {
-    i3_log(LOG_MASK_REACH, "    Notification %d: pid %d, which %d:", i, 
+    i3_log(LOG_MASK_REACH, "    Notification %d: pid %"PRIu32", which %"PRIu_pb":", i, 
            data->values[i].parameter_id, data->values[i].which_value);
     switch (data->values[i].which_value)
     {
     case cr_ParameterValue_uint32_value_tag:
-      i3_log(LOG_MASK_REACH, "      uint32, %u", data->values[i].value.uint32_value);
+      i3_log(LOG_MASK_REACH, "      uint32, %"PRIu32, data->values[i].value.uint32_value);
       break;
     case cr_ParameterValue_int32_value_tag:
-      i3_log(LOG_MASK_REACH, "      int32, %d", data->values[i].value.int32_value);
+      i3_log(LOG_MASK_REACH, "      int32, %"PRId32, data->values[i].value.int32_value);
       break;
     case cr_ParameterValue_float32_value_tag:
       i3_log(LOG_MASK_REACH, "      float32, %.1f", data->values[i].value.float32_value);
       break;
     case cr_ParameterValue_uint64_value_tag:
-      i3_log(LOG_MASK_REACH, "      uint64, %llu", data->values[i].value.uint64_value);
+      i3_log(LOG_MASK_REACH, "      uint64, %"PRIu64, data->values[i].value.uint64_value);
       break;
     case cr_ParameterValue_int64_value_tag:
-      i3_log(LOG_MASK_REACH, "      int64, %lld", data->values[i].value.int64_value);
+      i3_log(LOG_MASK_REACH, "      int64, %"PRId64, data->values[i].value.int64_value);
       break;
     case cr_ParameterValue_float64_value_tag:
-      i3_log(LOG_MASK_REACH, "      float64, %.1llf", data->values[i].value.float64_value);
+      i3_log(LOG_MASK_REACH, "      float64, %.1lf", data->values[i].value.float64_value);
       break;
     case cr_ParameterValue_bool_value_tag:
       i3_log(LOG_MASK_REACH, "      bool, %u", data->values[i].value.bool_value);
@@ -677,13 +678,13 @@ void message_util_log_param_notification(const cr_ParameterNotification *data)
       i3_log(LOG_MASK_REACH, "      string, %s", data->values[i].value.string_value);
       break;
     case cr_ParameterValue_enum_value_tag:
-      i3_log(LOG_MASK_REACH, "      enum, %u", data->values[i].value.enum_value);
+      i3_log(LOG_MASK_REACH, "      enum, %"PRIu32, data->values[i].value.enum_value);
       break;
     case cr_ParameterValue_bitfield_value_tag:
-      i3_log(LOG_MASK_REACH, "      bitfield, %u", data->values[i].value.bitfield_value);
+      i3_log(LOG_MASK_REACH, "      bitfield, %"PRIu64, data->values[i].value.bitfield_value);
       break;
     case cr_ParameterValue_bytes_value_tag:
-      i3_log(LOG_MASK_REACH, "      %u bytes", data->values[i].value.bytes_value.size);
+      i3_log(LOG_MASK_REACH, "      %"PRIu_pb" bytes", data->values[i].value.bytes_value.size);
       break;
     }
   }
@@ -722,7 +723,7 @@ void message_util_log_ping_request(const cr_PingRequest *payload)
 void message_util_log_ping_response(const cr_PingResponse *payload)
 {
   i3_log(LOG_MASK_REACH, "  Ping Response:");
-  i3_log(LOG_MASK_REACH, "    signal strength : %d", payload->signal_strength);
+  i3_log(LOG_MASK_REACH, "    signal strength : %"PRId32, payload->signal_strength);
   if (payload->echo_data.size == 0)
   {
     i3_log(LOG_MASK_REACH, "    No payload");
@@ -733,12 +734,12 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
   if (payload->echo_data.size > 24)
   {
     sByte_array_to_hex_string(payload->echo_data.bytes, 24, hex_string);
-    i3_log(LOG_MASK_REACH, "    First 24 of %d payload bytes:", payload->echo_data.size);
+    i3_log(LOG_MASK_REACH, "    First 24 of %"PRIu_pb" payload bytes:", payload->echo_data.size);
     i3_log(LOG_MASK_REACH, "      %s\r\n", hex_string);
     return;
   }
   sByte_array_to_hex_string(payload->echo_data.bytes, payload->echo_data.size, hex_string);
-  i3_log(LOG_MASK_REACH, "    %d payload bytes:", payload->echo_data.size);
+  i3_log(LOG_MASK_REACH, "    %"PRIu_pb" payload bytes:", payload->echo_data.size);
   i3_log(LOG_MASK_REACH, "      %s\r\n", hex_string);
 }
 
@@ -754,9 +755,9 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
     void message_util_log_time_get_response(const cr_TimeGetResponse *payload) 
     {
       i3_log(LOG_MASK_REACH, "  Time get response result: %d", (int)payload->result);
-      i3_log(LOG_MASK_REACH, "    seconds_utc: %lld", payload->seconds_utc);
+      i3_log(LOG_MASK_REACH, "    seconds_utc: %"PRId64, payload->seconds_utc);
       if (payload->has_timezone)
-        i3_log(LOG_MASK_REACH, "    timezone: %lld", payload->timezone);
+        i3_log(LOG_MASK_REACH, "    timezone: %"PRId32, payload->timezone);
       else
         i3_log(LOG_MASK_REACH, "    no timezone");
       if (payload->has_result_message)
@@ -767,9 +768,9 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
     void message_util_log_time_set_request(const cr_TimeSetRequest *payload) 
     {
       i3_log(LOG_MASK_REACH, "  Time set request:");
-      i3_log(LOG_MASK_REACH, "    seconds_utc: %lld", payload->seconds_utc);
+      i3_log(LOG_MASK_REACH, "    seconds_utc: %"PRId64, payload->seconds_utc);
       if (payload->has_timezone)
-        i3_log(LOG_MASK_REACH, "    timezone: %lld", payload->timezone);
+        i3_log(LOG_MASK_REACH, "    timezone: %"PRId32, payload->timezone);
       else
         i3_log(LOG_MASK_REACH, "    no timezone");
     }
@@ -811,13 +812,13 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
 
     void message_util_log_discover_wifi_response(cr_DiscoverWiFiResponse *payload)
     {
-        i3_log(LOG_MASK_REACH, "  Discover WiFi Response, result %d:", payload->result);
+        i3_log(LOG_MASK_REACH, "  Discover WiFi Response, result %d:", (int)payload->result);
         for (int i = 0; i < payload->cd_count; i++)
         {
             i3_log(LOG_MASK_REACH, "    AP %d:", i);
             i3_log(LOG_MASK_REACH, "      SSID : '%s'.", payload->cd[i].ssid);
             if (payload->cd[i].is_connected) i3_log(LOG_MASK_REACH, "      Connected.");
-            if (payload->cd[i].has_signal_strength) i3_log(LOG_MASK_REACH, "      Signal strength: %d.", payload->cd[i].signal_strength);
+            if (payload->cd[i].has_signal_strength) i3_log(LOG_MASK_REACH, "      Signal strength: %"PRId32".", payload->cd[i].signal_strength);
             if (payload->cd[i].has_sec)
             {
                 switch (payload->cd[i].sec)
@@ -864,13 +865,13 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
 
     void message_util_log_WiFi_connection_response(cr_WiFiConnectionResponse *payload)
     {
-      i3_log(LOG_MASK_REACH, "  WiFi ConnectionResponse, result %d:", payload->result);
+      i3_log(LOG_MASK_REACH, "  WiFi ConnectionResponse, result %d:", (int)payload->result);
       if (payload->connected)
         i3_log(LOG_MASK_REACH, "    Connected.");
       else
         i3_log(LOG_MASK_REACH, "    NOT Connected.");
       if (payload->has_signal_strength)
-        i3_log(LOG_MASK_REACH, "    Signal strength: %d.", payload->signal_strength);
+        i3_log(LOG_MASK_REACH, "    Signal strength: %"PRId32".", payload->signal_strength);
       if (payload->has_result_message)
         i3_log(LOG_MASK_REACH, "    Message: '%s'.", payload->result_message);
       i3_log(LOG_MASK_REACH, "\r\n");

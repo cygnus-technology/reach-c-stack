@@ -54,6 +54,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -124,7 +125,7 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
             I3_LOG(LOG_MASK_PARAMS, "discover files, Too many for one.");
         }
         // pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_FILES;
-        I3_LOG(LOG_MASK_PARAMS, "discover files, count %d.", pvtCr_num_remaining_objects);
+        I3_LOG(LOG_MASK_PARAMS, "discover files, count %"PRIu32".", pvtCr_num_remaining_objects);
     }
 
     
@@ -258,7 +259,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     if (request->has_requested_ack_rate)
     {
         requested_ack_rate = request->requested_ack_rate;
-        I3_LOG(LOG_MASK_FILES, "Has requested_ack_rate %d.",
+        I3_LOG(LOG_MASK_FILES, "Has requested_ack_rate %"PRIu32".",
                request->requested_ack_rate);
     }
     // crcb_file_get_preferred_ack_rate() is weak by default and an implementation can override it.
@@ -315,7 +316,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
                                    request->request_offset, 
                                    request->transfer_length);
         if (rval == 0) {
-            I3_LOG(LOG_MASK_ALWAYS, "Start file write, timeout %d ms:", 
+            I3_LOG(LOG_MASK_ALWAYS, "Start file write, timeout %"PRIu32" ms:", 
                    sCr_file_xfer_state.timeout_in_ms);
         }
         else
@@ -327,11 +328,11 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     }
     else
     {
-        I3_LOG(LOG_MASK_ALWAYS, "Start file read, timeout %d ms:", 
+        I3_LOG(LOG_MASK_ALWAYS, "Start file read, timeout %"PRIu32" ms:", 
                    sCr_file_xfer_state.timeout_in_ms);
     }
 
-    I3_LOG(LOG_MASK_ALWAYS, "  File ID: %d. offset %d. size %d. msgs per ACK: %d",
+    I3_LOG(LOG_MASK_ALWAYS, "  File ID: %"PRIu32". offset %"PRIu32". size %"PRIu32". msgs per ACK: %"PRIu32"",
            request->file_id, request->request_offset, request->transfer_length,
            response->ack_rate);
 
@@ -383,7 +384,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     if (dataTransfer->transfer_id != sCr_file_xfer_state.transfer_id)
     {
         // the transfer_id is not rigorously enforced (yet)
-        I3_LOG(LOG_MASK_WARN, "Unmatched transfer_id (%d not %d)", 
+        I3_LOG(LOG_MASK_WARN, "Unmatched transfer_id (%"PRIu32" not %"PRIu32")", 
                   dataTransfer->transfer_id, sCr_file_xfer_state.transfer_id);
     }
     response->transfer_id = dataTransfer->transfer_id;
@@ -416,11 +417,11 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                              dataTransfer->message_data.bytes);
     if (rval != 0)
     {
-        LOG_ERROR("File write of %d bytes to fid %d failed with error %d", 
+        LOG_ERROR("File write of %d bytes to fid %"PRIu32" failed with error %d", 
                   bytes_to_write, sCr_file_xfer_state.file_id, rval);
         response->result = cr_ErrorCodes_WRITE_FAILED;
         cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
-                        "%s: Requested write of %d bytes for fid %d failed.",
+                        "%s: Requested write of %d bytes for fid %"PRIu32" failed.",
                         __FUNCTION__, bytes_to_write, sCr_file_xfer_state.transfer_id);
         pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_WRITE_FAILED;
@@ -435,7 +436,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     if (dataTransfer->message_number != sCr_file_xfer_state.message_number)
     {
         sCr_file_xfer_state.request_offset -= bytes_to_write;
-        LOG_ERROR("At %d, message number mismatch. Got %d, not %d", 
+        LOG_ERROR("At %"PRIu32", message number mismatch. Got %"PRIu32", not %"PRIu32, 
                   sCr_file_xfer_state.bytes_transfered,
                   dataTransfer->message_number, 
                   sCr_file_xfer_state.message_number);
@@ -466,7 +467,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                bytes_remaining_to_write, sCr_file_xfer_state.messages_until_ack,
                sCr_file_xfer_state.message_number);*/
 
-    I3_LOG(LOG_MASK_FILES, "fwtd, msg %d. until ack: %d.  num %d.", 
+    I3_LOG(LOG_MASK_FILES, "fwtd, msg %"PRIu32". until ack: %"PRIu32".  num %"PRIu32".", 
            dataTransfer->message_number, 
            sCr_file_xfer_state.messages_until_ack,
            sCr_file_xfer_state.message_number);
@@ -485,7 +486,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
             if (localChecksum != dataTransfer->checksum)
             {
                 sCr_file_xfer_state.request_offset -= bytes_to_write;
-                LOG_ERROR("At %d, Checksum mismatch.  Got 0x%x, expected 0x%x", 
+                LOG_ERROR("At %"PRIu32", Checksum mismatch.  Got 0x%"PRIx16", expected 0x%"PRIx32, 
                           sCr_file_xfer_state.bytes_transfered,
                           localChecksum, dataTransfer->checksum);
                 response->result = cr_ErrorCodes_CHECKSUM_MISMATCH;
@@ -526,7 +527,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         return cr_ErrorCodes_NO_RESPONSE;
     }
     // here we want to ack, also reset the counters.
-    I3_LOG(LOG_MASK_FILES, "ACK file write.  per ack: %d.  num %d.", 
+    I3_LOG(LOG_MASK_FILES, "ACK file write.  per ack: %"PRIu32".  num %"PRIu32".", 
                sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.message_number);
 
     sCr_file_xfer_state.messages_until_ack = sCr_file_xfer_state.messages_per_ack;
@@ -597,7 +598,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
         }
         if (request->is_complete)
         {
-            I3_LOG(LOG_MASK_ALWAYS, "file read of fid %d is complete.", 
+            I3_LOG(LOG_MASK_ALWAYS, "file read of fid %"PRIu32" is complete.", 
                    sCr_file_xfer_state.file_id);
             sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -623,9 +624,9 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             (bytes_remaining_to_read >= REACH_BYTES_IN_A_FILE_PACKET)
                 ? REACH_BYTES_IN_A_FILE_PACKET : bytes_remaining_to_read;
 
-    I3_LOG(LOG_MASK_FILES, "file read %d, %d remaining of %d.", bytes_requested,
+    I3_LOG(LOG_MASK_FILES, "file read %zd, %d remaining of %"PRIu32".", bytes_requested,
            bytes_remaining_to_read, sCr_file_xfer_state.transfer_length);
-    I3_LOG(LOG_MASK_FILES, " per ack: %d.  until ack: %d.  num %d.", 
+    I3_LOG(LOG_MASK_FILES, " per ack: %"PRIu32".  until ack: %"PRIu32".  num %"PRIu32".", 
            sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.messages_until_ack,
            sCr_file_xfer_state.message_number);
 
@@ -696,7 +697,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
 int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
                             cr_FileEraseResponse *response)
 {
-    I3_LOG(LOG_MASK_ALWAYS, "Erase file %d.", request->file_id);
+    I3_LOG(LOG_MASK_ALWAYS, "Erase file %"PRIu32".", request->file_id);
     response->file_id = request->file_id;
     response->result  = crcb_erase_file(request->file_id);
     response->has_result_message = false;
@@ -732,10 +733,10 @@ void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks)
         sTimeoutWatchdog_is_active = true;
         sTimeoutWatchdog_period    = msec;
         sTimeoutWatchdog_target = ticks + msec;
-        I3_LOG(LOG_MASK_DEBUG, "%s: set timeout to %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+        I3_LOG(LOG_MASK_DEBUG, "%s: set timeout to %"PRIu32" ms at %"PRIu32" ticks.", __FUNCTION__, msec, ticks);
         return;
     }
-    I3_LOG(LOG_MASK_DEBUG, "%s: Disable timeout with %d ms at %d ticks.", __FUNCTION__, msec, ticks);
+    I3_LOG(LOG_MASK_DEBUG, "%s: Disable timeout with %"PRIu32" ms at %"PRIu32" ticks.", __FUNCTION__, msec, ticks);
     sTimeoutWatchdog_is_active = false;
 }
 
@@ -744,7 +745,7 @@ void pvtCr_watchdog_stroke_timeout(uint32_t ticks)
 {
     if (sTimeoutWatchdog_is_active) {
         sTimeoutWatchdog_target = ticks + sTimeoutWatchdog_period;
-        I3_LOG(LOG_MASK_DEBUG, "%s: Stroke timeout with %d ms at %d ticks.", 
+        I3_LOG(LOG_MASK_DEBUG, "%s: Stroke timeout with %"PRIu32" ms at %"PRIu32" ticks.", 
                __FUNCTION__, sTimeoutWatchdog_period, ticks);
         return;
     }

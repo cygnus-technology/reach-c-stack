@@ -54,6 +54,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -298,7 +299,7 @@
                 }
             }
             // one object in each response.
-            I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %d.",
+            I3_LOG(LOG_MASK_PARAMS, "discover params ex, object count %"PRIu32".",
                    pvtCr_num_remaining_objects);
 
             // here we've found at least one so use it.
@@ -563,7 +564,7 @@
         // we are supplied a list of params.
         for (int i=0; i<request->values_count; i++)
         {
-            I3_LOG(LOG_MASK_PARAMS, "%s(): Write param[%d] id %d", __FUNCTION__, i, request->values[i].parameter_id);
+            I3_LOG(LOG_MASK_PARAMS, "%s(): Write param[%d] id %"PRIu32, __FUNCTION__, i, request->values[i].parameter_id);
 
             if (request->values[i].which_value == cr_ParameterValue_string_value_tag)
                 pvtCr_sanitize_string_to_utf8(request->values[i].value.string_value);
@@ -649,7 +650,7 @@
         {   // return early
             pvtCr_num_remaining_objects = 0;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            I3_LOG(LOG_MASK_PARAMS, "%s: No active notifications.");
+            I3_LOG(LOG_MASK_PARAMS, "%s: No active notifications.", __FUNCTION__);
             return 0;
         }
 
@@ -709,7 +710,7 @@
                 if (pConfig && sParamNotifyEnabled(pConfig))
                 {
                     memcpy(&response->configs[numFound], pConfig, sizeof(cr_ParameterNotifyConfig));
-                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", 
+                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %"PRIu32" IS notifying.", 
                            __FUNCTION__, pConfig->parameter_id);
                     numFound++;
                     sCr_requested_notify_index++;
@@ -733,7 +734,7 @@
                 if (pConfig && sParamNotifyEnabled(pConfig))
                 {
                     memcpy(&response->configs[numFound], pConfig, sizeof(cr_ParameterNotifyConfig));
-                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %d IS notifying.", 
+                    I3_LOG(LOG_MASK_PARAMS, "%s: Param ID %"PRIu32" IS notifying.", 
                            __FUNCTION__, pConfig->parameter_id);
                     numFound++;
                     sCr_requested_notify_index++;
@@ -747,12 +748,12 @@
         if (pvtCr_num_remaining_objects == 0)
         {
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            I3_LOG(LOG_MASK_PARAMS, "pvtCr_num_remaining_objects: %d", pvtCr_num_remaining_objects);
+            I3_LOG(LOG_MASK_PARAMS, "pvtCr_num_remaining_objects: %"PRIu32, pvtCr_num_remaining_objects);
             return cr_ErrorCodes_NO_DATA;
         }
         pvtCr_num_remaining_objects = sCr_requested_notify_count - sCr_requested_notify_index;
         pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_NOTIFICATIONS;
-        I3_LOG(LOG_MASK_PARAMS, "pvtCr_num_remaining_objects: %d", pvtCr_num_remaining_objects);
+        I3_LOG(LOG_MASK_PARAMS, "pvtCr_num_remaining_objects: %"PRIu32, pvtCr_num_remaining_objects);
         return 0;
     }
 
@@ -768,7 +769,7 @@
                 if (sCr_param_notify_list[notify_idx].parameter_id == pnd->parameter_ids[disable_idx])
                 {
                     memset(&sCr_param_notify_list[notify_idx], 0, sizeof(cr_ParameterNotifyConfig));
-                    I3_LOG(LOG_MASK_PARAMS, "%s: Disabled notification on pid %u.", __FUNCTION__, pnd->parameter_ids[disable_idx]);
+                    I3_LOG(LOG_MASK_PARAMS, "%s: Disabled notification on pid %"PRIu32".", __FUNCTION__, pnd->parameter_ids[disable_idx]);
                     break;
                 }
             }
@@ -819,7 +820,7 @@
                 if (pnc->configs[i].parameter_id == sCr_param_notify_list[idx].parameter_id) {
                     sCr_param_notify_list[idx] = pnc->configs[i];
                     // store the index of the param with this PID.
-                    I3_LOG(LOG_MASK_PARAMS, "Updated notification %d on PID %d",
+                    I3_LOG(LOG_MASK_PARAMS, "Updated notification %d on PID %"PRIu32,
                            idx, pnc->configs[i].parameter_id);
                     pncr->result = cr_ErrorCodes_NO_ERROR;
                     canContinue = true;
@@ -848,7 +849,7 @@
             }
             sCr_param_notify_list[idx] = pnc->configs[i];
             // store the index of the param with this PID.
-            I3_LOG(LOG_MASK_PARAMS, "Enabled notification %d on PID %d",
+            I3_LOG(LOG_MASK_PARAMS, "Enabled notification %d on PID %"PRIu32,
                    idx, pnc->configs[i].parameter_id);
         }
         pncr->result = rval;
@@ -1064,7 +1065,7 @@ void pvtCrParam_check_for_notifications()
         }
         if (checkedDelta && (delta >= sCr_param_notify_list[idx].minimum_delta))
         {
-            I3_LOG(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on delta %.1f" TEXT_RESET,
+            I3_LOG(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %"PRIu32" on delta %.1f" TEXT_RESET,
                    sCr_param_notify_list[idx].parameter_id, delta);
             needToNotify = true;
         }
@@ -1083,7 +1084,7 @@ void pvtCrParam_check_for_notifications()
         if ((sCr_param_notify_list[idx].maximum_notification_period !=0) &&
             (timeSinceLastNotify > sCr_param_notify_list[idx].maximum_notification_period) )
         {
-            I3_LOG(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %d on max period" TEXT_RESET,
+            I3_LOG(LOG_MASK_PARAMS, TEXT_MAGENTA "Notify PID %"PRIu32" on max period" TEXT_RESET,
                    sCr_param_notify_list[idx].parameter_id);
             needToNotify = true;
         }
