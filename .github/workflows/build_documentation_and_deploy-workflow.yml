@@ -133,6 +133,7 @@ jobs:
         GH_TOKEN: ${{ secrets.REACH_DOCUMENTATION_PAT }}
       run: |
         gh pr create \
+          --repo cygnus-technology/reach-documentation \
           --title "Update Documentation" \
           --body "Automated documentation update." \
           --base development \
