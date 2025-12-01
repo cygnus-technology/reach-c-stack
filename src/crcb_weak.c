@@ -592,16 +592,22 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   fid : File ID, in case this affects the decision 
     * @param   requested_rate: might factor into the decison. 
     * @param   is_write true if enquiring about write.
+    * @param   transfer_length The length of the transfer that is being requested.
+    * @param   timeout_ms The time in milliseconds before the transfer times out.
     * @return  A return value of zero means that there is no preferred rate and the 
     *          client can specify it.
     */
     int __attribute__((weak)) crcb_file_get_preferred_ack_rate(uint32_t fid,
                                                                uint32_t requested_rate,
-                                                               bool is_write)
+                                                               bool is_write,
+                                                               uint32_t transfer_length,
+                                                               uint32_t timeout_ms)
     {
         (void)fid;
         (void)requested_rate;
         (void)is_write;
+        (void)transfer_length;
+        (void)timeout_ms;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return 0;
     }

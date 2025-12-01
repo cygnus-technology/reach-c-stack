@@ -62,7 +62,7 @@ static uint32_t sDecodeReach_current_transaction = 0;
 * @brief   cr_get_transaction_id
 * @return  Return the current transaction ID.
 */
-uint32_t cr_get_transaction_id()
+uint32_t cr_get_transaction_id(void)
 {
     return sDecodeReach_current_transaction;
 }

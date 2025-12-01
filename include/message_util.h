@@ -31,7 +31,7 @@
     // Stubs are provided.
     const char *msg_type_string(int32_t);
 
-    void message_util_log_device_info_request();
+    void message_util_log_device_info_request(cr_DeviceInfoRequest* data);
     void message_util_log_device_info_response(const cr_DeviceInfoResponse *);
 
     void message_util_log_ping_request(const cr_PingRequest *);
@@ -52,7 +52,7 @@
     #endif  // INCLUDE_PARAMETER_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
-        void message_util_log_discover_files();
+        void message_util_log_discover_files(void);
         void message_util_log_discover_files_response(const cr_DiscoverFilesResponse *);
         void message_util_log_file_transfer_request(const cr_FileTransferRequest *);
         void message_util_log_file_transfer_response(const cr_FileTransferResponse *);
@@ -80,7 +80,7 @@
 
     #ifdef INCLUDE_COMMAND_SERVICE
         // Commands
-        void message_util_log_discover_commands();
+        void message_util_log_discover_commands(void);
         void message_util_log_discover_commands_response(const cr_DiscoverCommandsResponse *);
         void message_util_log_send_command(const cr_SendCommand *);
         void message_util_log_command_response(const cr_SendCommandResponse *);

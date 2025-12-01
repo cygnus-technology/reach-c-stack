@@ -127,7 +127,7 @@ extern "C" {
 * @details To be called before starting the stack.
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
 */
-int cr_init();
+int cr_init(void);
 
 /**
 * @brief   cr_set_advertised_name
@@ -146,7 +146,7 @@ int cr_set_advertised_name(char *name, int length);
 * @details Retrieves the name stored by cr_set_advertised_name().
 * @return  pointer to a string of length REACH_SHORT_STRING_LEN.
 */
-const char *cr_get_advertised_name();
+const char *cr_get_advertised_name(void);
 
 /**
 * @brief   cr_process
@@ -261,12 +261,12 @@ void cr_get_notification_statistics(uint32_t *numActive, uint32_t *numSent);
 *          other Reach functions access to that value. 
 * @return  The same tick count passed into cr_process().
 */
-uint32_t cr_get_current_ticks();
+uint32_t cr_get_current_ticks(void);
 
 /// <summary>
 /// Verify that buffer structures fit into limited size memory
 /// </summary>
-void cr_test_sizes();
+void cr_test_sizes(void);
 
 
 /** The reach_sizes_t is used to communicate the sizes of device structures to
@@ -326,7 +326,7 @@ typedef struct {
 * @return  Returns a pointer to a null terminated string 
 *          containing the C stack version.
 */
-const char *cr_get_reach_version();
+const char *cr_get_reach_version(void);
 #define CR_STACK_VERSION_LEN    16  ///< The length of the version string
 
 /**
@@ -337,7 +337,7 @@ const char *cr_get_reach_version();
 * @return  Returns a pointer to a null terminated string 
 *          containing the C protobuf version.
 */
-const char *cr_get_proto_version();
+const char *cr_get_proto_version(void);
 
 #ifdef __cplusplus
 }

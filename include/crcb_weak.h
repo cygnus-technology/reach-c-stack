@@ -226,7 +226,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @details returns the number of parameters exposed by this device.
     * @return  Total number of parameter descriptions
     */
-    int crcb_parameter_get_count();
+    int crcb_parameter_get_count(void);
 
     /**
     * @brief   crcb_parameter_discover_reset
@@ -359,7 +359,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     *          implemented by the device.
     * @return  the number of commands implemented by the device.
     */    
-    int crcb_get_command_count();
+    int crcb_get_command_count(void);
 
     /**
     * @brief   crcb_command_discover_reset
@@ -404,7 +404,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     *          implemented by the device.
     * @return  the number of files implemented by the device.
     */    
-    int crcb_file_get_file_count();
+    int crcb_file_get_file_count(void);
 
     /**
     * @brief   crcb_file_discover_reset
@@ -449,10 +449,12 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @param   fid : File ID, in case this affects the decision 
     * @param   requested_rate: might factor into the decison. 
     * @param   is_write true if enquiring about write.
+    * @param   transfer_length The length of the transfer that is being requested.
+    * @param   timeout_ms The time in milliseconds before the transfer times out.
     * @return  A return value of zero means that there is no preferred rate and the 
     *          client can specify it.
     */
-    int crcb_file_get_preferred_ack_rate(uint32_t fid, uint32_t requested_rate, bool is_write);
+    int crcb_file_get_preferred_ack_rate(uint32_t fid, uint32_t requested_rate, bool is_write, uint32_t transfer_length, uint32_t timeout_ms);
 
     /**
     * @brief   crcb_read_file
@@ -575,7 +577,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @return  The number of wifi access points available to the
     *          the device.
     */    
-    int crcb_get_wifi_count();
+    int crcb_get_wifi_count(void);
 
     /**
     * @brief   crcb_wifi_discover_reset

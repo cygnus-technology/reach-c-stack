@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "i3_log.h"
 #include "reach-server.h"
 
 // i3_assert() is intended to catch cases unhandled by the programmer. 
