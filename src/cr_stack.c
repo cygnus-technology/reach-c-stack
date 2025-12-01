@@ -70,6 +70,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <inttypes.h> // allows PRI things to optimize %d et al.
 
 #include "cr_stack.h"
 #include "cr_private.h"

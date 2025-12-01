@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2023-2024 i3 Product Development
- * 
+ *
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -35,14 +35,14 @@
 
 /**
  * @file      message_util.c
- * @brief     Provides functions that help you understand and 
+ * @brief     Provides functions that help you understand and
  *            debug Reach message traffic. These utility
  *            functions print out Reach messages in a human
  *            readable format. They are not required and can
  *            be removed by #defining NO_REACH_LOGGING in
  *            reach-server.h. This message logging code takes
  *            about 20k in code space on an ARM.
- * @copyright (c) Copyright 2023-2024 i3 Product Development. 
+ * @copyright (c) Copyright 2023-2024 i3 Product Development.
  *            All Rights Reserved.
  */
 
@@ -52,6 +52,7 @@
 #include "message_util.h"
 #include "i3_log.h"
 #include "pbtypes.h"
+#include <inttypes.h>  // supporting PRI things over %d
 
 // None of these message utilities are required without logging.
 #ifndef NO_REACH_LOGGING
@@ -245,7 +246,7 @@ void message_util_log_device_info_request(cr_DeviceInfoRequest* data) {
 
 
 
-void message_util_log_device_info_response(const cr_DeviceInfoResponse *response) 
+void message_util_log_device_info_response(const cr_DeviceInfoResponse *response)
 {
     i3_log(LOG_MASK_REACH, "  Device Info Response:");
     i3_log(LOG_MASK_REACH, "    name                  : %s", response->device_name);
@@ -268,7 +269,7 @@ void message_util_log_device_info_response(const cr_DeviceInfoResponse *response
     i3_log(LOG_MASK_REACH, "\r\n");
 }
 
-void message_util_log_discover_files(void) 
+void message_util_log_discover_files(void)
 {
   i3_log(LOG_MASK_REACH, "  Discover Files Request\r\n");
 }
@@ -314,7 +315,7 @@ void message_util_log_file_transfer_response(const cr_FileTransferResponse *resp
   i3_log(LOG_MASK_REACH, "    result            : %"PRIu32, response->result);
   i3_log(LOG_MASK_REACH, "    transfer_id       : %"PRIu32, response->transfer_id);
   i3_log(LOG_MASK_REACH, "    ack_rate          : %"PRIu32, response->ack_rate);
-  if (response->has_result_message) {            
+  if (response->has_result_message) {
     i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
   }
   i3_log(LOG_MASK_REACH, "\r\n");
@@ -348,8 +349,8 @@ message_util_log_transfer_data_response(const cr_FileTransferData *request)
     i3_log(LOG_MASK_REACH, "    checksum       : 0x%x\r\n", request->checksum);
   }
   i3_log(LOG_MASK_REACH, "    No CRC\r\n");
-} 
-*/ 
+}
+*/
 
 void message_util_log_file_erase_request(cr_FileEraseRequest *request)
 {
@@ -362,7 +363,7 @@ void message_util_log_file_erase_response(cr_FileEraseResponse *response)
   i3_log(LOG_MASK_REACH, "  File Erase Response:");
   i3_log(LOG_MASK_REACH, "    file_id           : %"PRIu32, response->file_id);
   i3_log(LOG_MASK_REACH, "    result            : %"PRIu32, response->result);
-  if (response->has_result_message) {            
+  if (response->has_result_message) {
     i3_log(LOG_MASK_REACH, "    result_message  : %s", response->result_message);
   }
   i3_log(LOG_MASK_REACH, "\r\n");
@@ -405,7 +406,7 @@ void message_util_log_param_info_response(const cr_ParameterInfoResponse *respon
   if (response->parameter_infos_count == 0) {
     i3_log(LOG_MASK_REACH, "    No Parameters\r\n");
     return;
-  } 
+  }
   for (size_t i = 0; i < response->parameter_infos_count; i++) {
     i3_log(LOG_MASK_REACH, "    [id            : %"PRIu32, response->parameter_infos[i].id);
     i3_log(LOG_MASK_REACH, "     data type     : %d", response->parameter_infos[i].which_desc - cr_ParameterInfo_uint32_desc_tag);
@@ -425,7 +426,7 @@ void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *respo
   i3_log(LOG_MASK_REACH, "    keys_count : %"PRIu_pb, response->keys_count);
   for (size_t i = 0; i < response->keys_count; i++)
   {
-    i3_log(LOG_MASK_REACH, "    [id: %"PRIu32".  name: %s]", 
+    i3_log(LOG_MASK_REACH, "    [id: %"PRIu32".  name: %s]",
            response->keys[i].id, response->keys[i].name);
   }
 }
@@ -443,7 +444,7 @@ void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *respo
         for (int i=0; i<resp->streams_count; i++)
         {
             i3_log(LOG_MASK_REACH, "  Stream %d:", i);
-            i3_log(LOG_MASK_REACH, "    ID: %d, named '%s'", 
+            i3_log(LOG_MASK_REACH, "    ID: %d, named '%s'",
                    resp->streams[i].stream_id, resp->streams[i].name);
             i3_log(LOG_MASK_REACH, "    Description: '%s'", resp->streams[i].description);
             if (resp->streams[i].access == cr_AccessLevel_READ)
@@ -462,7 +463,7 @@ void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *respo
     }
     void message_util_log_open_stream_response(const cr_StreamResponse *resp)
     {
-        i3_log(LOG_MASK_REACH, "  Open Stream %d response: %d.", 
+        i3_log(LOG_MASK_REACH, "  Open Stream %d response: %d.",
                resp->stream_id, resp->result);
         if (resp->has_result_message)
         {
@@ -478,7 +479,7 @@ void message_util_log_param_info_ex_response(const cr_ParamExInfoResponse *respo
 
     void message_util_log_close_stream_response(const cr_StreamResponse *resp)
     {
-        i3_log(LOG_MASK_REACH, "  Close Stream %d response: %d.", 
+        i3_log(LOG_MASK_REACH, "  Close Stream %d response: %d.",
                resp->stream_id, resp->result);
         if (resp->has_result_message)
         {
@@ -520,9 +521,9 @@ void message_util_log_discover_commands_response(
   for (size_t i = 0; i < payload->available_commands_count; i++) {
     i3_log(LOG_MASK_REACH, "    [id         : %"PRIu32, payload->available_commands[i].id);
     i3_log(LOG_MASK_REACH, "     name       : %s", payload->available_commands[i].name);
-    if ( payload->available_commands[i].has_description ) 
+    if ( payload->available_commands[i].has_description )
       i3_log(LOG_MASK_REACH, "     description : %s", payload->available_commands[i].description);
-    if ( payload->available_commands[i].has_timeout ) 
+    if ( payload->available_commands[i].has_timeout )
       i3_log(LOG_MASK_REACH, "     timeout     : %"PRIu32, payload->available_commands[i].timeout);
     i3_log(LOG_MASK_REACH, "    ]");
   }
@@ -570,7 +571,7 @@ void message_util_log_read_param(const cr_ParameterRead *request)
 void message_util_log_read_param_response(const cr_ParameterReadResponse *response)
 {
     i3_log(LOG_MASK_REACH, "  Read Parameter Response:");
-    for (size_t i = 0; i < response->values_count; i++) 
+    for (size_t i = 0; i < response->values_count; i++)
     {
       // This doesn't print the timestamp.
       sLogParameterValue(&response->values[i]);
@@ -580,7 +581,7 @@ void message_util_log_read_param_response(const cr_ParameterReadResponse *respon
 void message_util_log_write_param(const cr_ParameterWrite *payload)
 {
   i3_log(LOG_MASK_REACH, "  Write Parameter Request:");
-  for (size_t i = 0; i < payload->values_count; i++) 
+  for (size_t i = 0; i < payload->values_count; i++)
   {
     sLogParameterValue(&payload->values[i]);
   }
@@ -634,9 +635,9 @@ void message_util_log_discover_notifications_response(const cr_DiscoverParameter
         }
         else {
             i3_log(LOG_MASK_REACH, "    ID %"PRIu32", enabled, period min %"PRIu32", max %"PRIu32", delta %.1f",
-               payload->configs[i].parameter_id, 
+               payload->configs[i].parameter_id,
                payload->configs[i].minimum_notification_period,
-               payload->configs[i].maximum_notification_period, 
+               payload->configs[i].maximum_notification_period,
                payload->configs[i].minimum_delta);
         }
     }
@@ -648,7 +649,7 @@ void message_util_log_param_notification(const cr_ParameterNotification *data)
   i3_log(LOG_MASK_REACH, "  Paramter Notification(s):");
   for (int i= 0; i< data->values_count; i++)
   {
-    i3_log(LOG_MASK_REACH, "    Notification %d: pid %"PRIu32", which %"PRIu_pb":", i, 
+    i3_log(LOG_MASK_REACH, "    Notification %d: pid %"PRIu32", which %"PRIu_pb":", i,
            data->values[i].parameter_id, data->values[i].which_value);
     switch (data->values[i].which_value)
     {
@@ -744,7 +745,7 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
 }
 
 #ifdef INCLUDE_TIME_SERVICE
-    void message_util_log_time_set_response(const cr_TimeSetResponse *payload) 
+    void message_util_log_time_set_response(const cr_TimeSetResponse *payload)
     {
         i3_log(LOG_MASK_REACH, "  Time set response result: %d", (int)payload->result);
         if (payload->has_result_message)
@@ -752,7 +753,7 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         i3_log(LOG_MASK_REACH, "\r\n");
     }
 
-    void message_util_log_time_get_response(const cr_TimeGetResponse *payload) 
+    void message_util_log_time_get_response(const cr_TimeGetResponse *payload)
     {
       i3_log(LOG_MASK_REACH, "  Time get response result: %d", (int)payload->result);
       i3_log(LOG_MASK_REACH, "    seconds_utc: %"PRId64, payload->seconds_utc);
@@ -765,7 +766,7 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
       i3_log(LOG_MASK_REACH, "\r\n");
     }
 
-    void message_util_log_time_set_request(const cr_TimeSetRequest *payload) 
+    void message_util_log_time_set_request(const cr_TimeSetRequest *payload)
     {
       i3_log(LOG_MASK_REACH, "  Time set request:");
       i3_log(LOG_MASK_REACH, "    seconds_utc: %"PRId64, payload->seconds_utc);
@@ -775,7 +776,7 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         i3_log(LOG_MASK_REACH, "    no timezone");
     }
 
-    void message_util_log_time_get_request(const cr_TimeGetRequest *payload) 
+    void message_util_log_time_get_request(const cr_TimeGetRequest *payload)
     {
       (void)payload;
       i3_log(LOG_MASK_REACH, "  Time get request:\r\n");
@@ -950,7 +951,7 @@ void message_util_log_ping_response(const cr_PingResponse *payload)
         void message_util_log_time_set_response(const cr_TimeSetResponse *payload){}
         void message_util_log_time_get_response(const cr_TimeGetResponse *payload){}
         void message_util_log_time_set_request(const cr_TimeSetRequest *payload){}
-        void message_util_log_time_get_request(const cr_TimeGetRequest *payload){} 
+        void message_util_log_time_get_request(const cr_TimeGetRequest *payload){}
     #endif // def INCLUDE_TIME_SERVICE
 
     #ifdef INCLUDE_WIFI_SERVICE

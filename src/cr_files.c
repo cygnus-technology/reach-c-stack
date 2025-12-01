@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2023-2024 i3 Product Development
- * 
+ *
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,9 +39,9 @@
 
 /**
  * @file      cr_files.c
- * @brief     Contains the private parts of the Cygnus Reach firmware stack 
+ * @brief     Contains the private parts of the Cygnus Reach firmware stack
  *            supporting the file service.
- * @note      Functions that are not static are prefixed with pvtCrFile_.  The 
+ * @note      Functions that are not static are prefixed with pvtCrFile_.  The
  *            entire contents can be excluded from the build when
  *            INCLUDE_FILE_SERVICE is not defined.
  * @author    Chuck Peplinski
@@ -54,7 +54,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <inttypes.h>
+#include <inttypes.h>    // allows PRI things to optimize %d et al.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -128,18 +128,18 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
         I3_LOG(LOG_MASK_PARAMS, "discover files, count %"PRIu32".", pvtCr_num_remaining_objects);
     }
 
-    
+
     response->file_infos_count = 0;
     for (int i=0; i<REACH_DISCOVER_FILES_COUNT; i++)
     {
         rval = crcb_file_discover_next(&response->file_infos[i]);
-        if (rval != cr_ErrorCodes_NO_ERROR) 
+        if (rval != cr_ErrorCodes_NO_ERROR)
         {   // there are no more params.  clear on last.
             pvtCr_num_remaining_objects = 0;
             if (i==0)
             {
                 I3_LOG(LOG_MASK_FILES, "No files with i=0.");
-                return cr_ErrorCodes_NO_DATA; 
+                return cr_ErrorCodes_NO_DATA;
             }
             return 0;
         }
@@ -172,10 +172,10 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
                             cr_FileTransferResponse *response)
 {
     if (!crcb_access_granted(cr_ServiceIds_FILES, request->file_id)) {
-        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
+        sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
         response->result = cr_ErrorCodes_CHALLENGE_FAILED;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-        return cr_ErrorCodes_NO_DATA; 
+        return cr_ErrorCodes_NO_DATA;
     }
 
     cr_FileInfo file_desc;
@@ -186,9 +186,9 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     int rval = crcb_file_get_description(request->file_id, &file_desc);
     if (rval != 0)
     {
-        sCr_file_xfer_state.state = cr_FileTransferState_IDLE; 
-        cr_report_error(cr_ErrorCodes_BAD_FILE, 
-                        "%s No file description for fid %d.", 
+        sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
+        cr_report_error(cr_ErrorCodes_BAD_FILE,
+                        "%s No file description for fid %d.",
                         __FUNCTION__, request->file_id);
         response->result = rval;
         return rval;
@@ -198,8 +198,8 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     default:
     case cr_AccessLevel_NO_ACCESS:
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
-        cr_report_error(cr_ErrorCodes_PERMISSION_DENIED, 
-                        "%s File ID %d access permission denied.", 
+        cr_report_error(cr_ErrorCodes_PERMISSION_DENIED,
+                        "%s File ID %d access permission denied.",
                         __FUNCTION__, request->file_id);
         response->result = cr_ErrorCodes_PERMISSION_DENIED;
         return rval;
@@ -207,8 +207,8 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         if (request->read_write)    // 1 for write
         {
             sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
-            cr_report_error(cr_ErrorCodes_PERMISSION_DENIED, 
-                            "%s File ID %d write permission denied.", 
+            cr_report_error(cr_ErrorCodes_PERMISSION_DENIED,
+                            "%s File ID %d write permission denied.",
                             __FUNCTION__, request->file_id);
             response->result = cr_ErrorCodes_PERMISSION_DENIED;
             return rval;
@@ -218,8 +218,8 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         if (!request->read_write)   // 0 for read
         {
             sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
-            cr_report_error(cr_ErrorCodes_PERMISSION_DENIED, 
-                            "%s File ID %d read permission denied.", 
+            cr_report_error(cr_ErrorCodes_PERMISSION_DENIED,
+                            "%s File ID %d read permission denied.",
                             __FUNCTION__, request->file_id);
             response->result = cr_ErrorCodes_PERMISSION_DENIED;
             return rval;
@@ -235,7 +235,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         The requested_ack_rate is optional.
             Optional uint32 requested_ack_rate;
         The responding ack_rate is not optional.
-     
+
         If the requested_ack_rate is provided, then the reach device should try to use it.
             The reach device may confirm the requested ack_rate in its response.
             The reach device may override the requested ack rate with its own preference if
@@ -291,17 +291,17 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
         response->ack_rate = 10;  // default
     }
     response->result = 0;
-    preferred_ack_rate = response->ack_rate; 
+    preferred_ack_rate = response->ack_rate;
 
     // sCr_file_xfer_state was zero'ed above.
     sCr_file_xfer_state.state                   = cr_FileTransferState_INIT;
     sCr_file_xfer_state.transfer_id             = request->transfer_id;
     sCr_file_xfer_state.file_id                 = request->file_id;
-    sCr_file_xfer_state.timeout_in_ms           = request->timeout_in_ms;  
-    sCr_file_xfer_state.request_offset          = request->request_offset; 
+    sCr_file_xfer_state.timeout_in_ms           = request->timeout_in_ms;
+    sCr_file_xfer_state.request_offset          = request->request_offset;
     sCr_file_xfer_state.transfer_length         = request->transfer_length;
     sCr_file_xfer_state.read_write              = request->read_write;
-    sCr_file_xfer_state.message_number          = 0; 
+    sCr_file_xfer_state.message_number          = 0;
     sCr_file_xfer_state.checksum                = 0;
     sCr_file_xfer_state.messages_per_ack        = preferred_ack_rate;
     sCr_file_xfer_state.messages_until_ack      = preferred_ack_rate;
@@ -311,24 +311,24 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     if (request->read_write)
     {
         // give the app a chance to erase flash:
-        int rval = 
-        crcb_file_prepare_to_write(request->file_id, 
-                                   request->request_offset, 
+        int rval =
+        crcb_file_prepare_to_write(request->file_id,
+                                   request->request_offset,
                                    request->transfer_length);
         if (rval == 0) {
-            I3_LOG(LOG_MASK_ALWAYS, "Start file write, timeout %"PRIu32" ms:", 
+            I3_LOG(LOG_MASK_ALWAYS, "Start file write, timeout %"PRIu32" ms:",
                    sCr_file_xfer_state.timeout_in_ms);
         }
         else
         {
             LOG_ERROR("crcb_file_prepare_to_write failed");
-            cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
+            cr_report_error(cr_ErrorCodes_WRITE_FAILED,
                             "crcb_file_prepare_to_write() failed with %d.", rval);
         }
     }
     else
     {
-        I3_LOG(LOG_MASK_ALWAYS, "Start file read, timeout %"PRIu32" ms:", 
+        I3_LOG(LOG_MASK_ALWAYS, "Start file read, timeout %"PRIu32" ms:",
                    sCr_file_xfer_state.timeout_in_ms);
     }
 
@@ -336,7 +336,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
            request->file_id, request->request_offset, request->transfer_length,
            response->ack_rate);
 
-    pvtCr_watchdog_start_timeout(sCr_file_xfer_state.timeout_in_ms, 
+    pvtCr_watchdog_start_timeout(sCr_file_xfer_state.timeout_in_ms,
                                  cr_get_current_ticks());
 
     return 0;
@@ -358,21 +358,21 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     default:
     case cr_FileTransferState_FILE_TRANSFER_INVALID:
         LOG_ERROR("State invalid");
-        cr_report_error(cr_ErrorCodes_INVALID_STATE, 
+        cr_report_error(cr_ErrorCodes_INVALID_STATE,
                         "%s should not be called in state invalid.", __FUNCTION__);
         response->result = cr_ErrorCodes_INVALID_STATE;
         pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_IDLE:
         LOG_ERROR("In idle state is not right");
-        cr_report_error(cr_ErrorCodes_INVALID_STATE, 
+        cr_report_error(cr_ErrorCodes_INVALID_STATE,
                         "%s should not be called in state idle.", __FUNCTION__);
         response->result = cr_ErrorCodes_INVALID_STATE;
         pvtCr_watchdog_end_timeout();
         return cr_ErrorCodes_INVALID_STATE;
     case cr_FileTransferState_COMPLETE:
         LOG_ERROR("In complete state is not right");
-        cr_report_error(cr_ErrorCodes_INVALID_STATE, 
+        cr_report_error(cr_ErrorCodes_INVALID_STATE,
                         "%s should not be called in state complete.", __FUNCTION__);
         response->result = cr_ErrorCodes_INVALID_STATE;
         pvtCr_watchdog_end_timeout();
@@ -384,7 +384,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     if (dataTransfer->transfer_id != sCr_file_xfer_state.transfer_id)
     {
         // the transfer_id is not rigorously enforced (yet)
-        I3_LOG(LOG_MASK_WARN, "Unmatched transfer_id (%"PRIu32" not %"PRIu32")", 
+        I3_LOG(LOG_MASK_WARN, "Unmatched transfer_id (%"PRIu32" not %"PRIu32")",
                   dataTransfer->transfer_id, sCr_file_xfer_state.transfer_id);
     }
     response->transfer_id = dataTransfer->transfer_id;
@@ -395,7 +395,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                   bytes_to_write, REACH_BYTES_IN_A_FILE_PACKET);
         sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
         response->result = cr_ErrorCodes_INVALID_PARAMETER;
-        cr_report_error(cr_ErrorCodes_INVALID_PARAMETER, 
+        cr_report_error(cr_ErrorCodes_INVALID_PARAMETER,
                         "%s: Requested xfer of %d bytes > REACH_BYTES_IN_A_FILE_PACKET (%d).",
                         __FUNCTION__, bytes_to_write, REACH_BYTES_IN_A_FILE_PACKET);
         pvtCr_watchdog_end_timeout();
@@ -403,12 +403,12 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     }
 
     sCr_file_xfer_state.bytes_transfered += bytes_to_write;
-    int bytes_remaining_to_write = 
-        sCr_file_xfer_state.transfer_length - sCr_file_xfer_state.bytes_transfered; 
+    int bytes_remaining_to_write =
+        sCr_file_xfer_state.transfer_length - sCr_file_xfer_state.bytes_transfered;
     // I3_LOG(LOG_MASK_FILES, "fwtd %d bytes, %d remaining of %d.", bytes_to_write,
     //        bytes_remaining_to_write, sCr_file_xfer_state.transfer_length);
 
-    // Here I could compare a locally calculated CRC with one sent and 
+    // Here I could compare a locally calculated CRC with one sent and
     // report an error if they are unmatched.
 
     int rval = crcb_write_file(sCr_file_xfer_state.file_id,
@@ -417,10 +417,10 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
                              dataTransfer->message_data.bytes);
     if (rval != 0)
     {
-        LOG_ERROR("File write of %d bytes to fid %"PRIu32" failed with error %d", 
+        LOG_ERROR("File write of %d bytes to fid %"PRIu32" failed with error %d",
                   bytes_to_write, sCr_file_xfer_state.file_id, rval);
         response->result = cr_ErrorCodes_WRITE_FAILED;
-        cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
+        cr_report_error(cr_ErrorCodes_WRITE_FAILED,
                         "%s: Requested write of %d bytes for fid %"PRIu32" failed.",
                         __FUNCTION__, bytes_to_write, sCr_file_xfer_state.transfer_id);
         pvtCr_watchdog_end_timeout();
@@ -436,22 +436,22 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     if (dataTransfer->message_number != sCr_file_xfer_state.message_number)
     {
         sCr_file_xfer_state.request_offset -= bytes_to_write;
-        LOG_ERROR("At %"PRIu32", message number mismatch. Got %"PRIu32", not %"PRIu32, 
+        LOG_ERROR("At %"PRIu32", message number mismatch. Got %"PRIu32", not %"PRIu32,
                   sCr_file_xfer_state.bytes_transfered,
-                  dataTransfer->message_number, 
+                  dataTransfer->message_number,
                   sCr_file_xfer_state.message_number);
         response->result = cr_ErrorCodes_PACKET_COUNT_ERR;
         // tell the client the offset at which to retry.
         response->retry_offset = sCr_file_xfer_state.request_offset + sCr_file_xfer_state.bytes_transfered;
         response->has_result_message = true;
         sprintf(response->result_message,
-                "At %d, message number mismatch. Got %d, not %d", 
+                "At %d, message number mismatch. Got %d, not %d",
                 (int)sCr_file_xfer_state.bytes_transfered,
                 (int)dataTransfer->message_number,
                 (int)sCr_file_xfer_state.message_number);
         /*
-        cr_report_error(cr_ErrorCodes_WRITE_FAILED, 
-                        "%s: At %d, message number mismatch. Got %d, not %d", 
+        cr_report_error(cr_ErrorCodes_WRITE_FAILED,
+                        "%s: At %d, message number mismatch. Got %d, not %d",
                         __FUNCTION__, sCr_file_xfer_state.bytes_transfered,
                         dataTransfer->message_number, sCr_file_xfer_state.message_number);
         */
@@ -463,12 +463,12 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
 
 
 
-    /*I3_LOG(LOG_MASK_FILES, "fwtd, rem %d. until ack: %d.  num %d.", 
+    /*I3_LOG(LOG_MASK_FILES, "fwtd, rem %d. until ack: %d.  num %d.",
                bytes_remaining_to_write, sCr_file_xfer_state.messages_until_ack,
                sCr_file_xfer_state.message_number);*/
 
-    I3_LOG(LOG_MASK_FILES, "fwtd, msg %"PRIu32". until ack: %"PRIu32".  num %"PRIu32".", 
-           dataTransfer->message_number, 
+    I3_LOG(LOG_MASK_FILES, "fwtd, msg %"PRIu32". until ack: %"PRIu32".  num %"PRIu32".",
+           dataTransfer->message_number,
            sCr_file_xfer_state.messages_until_ack,
            sCr_file_xfer_state.message_number);
 
@@ -486,7 +486,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
             if (localChecksum != dataTransfer->checksum)
             {
                 sCr_file_xfer_state.request_offset -= bytes_to_write;
-                LOG_ERROR("At %"PRIu32", Checksum mismatch.  Got 0x%"PRIx16", expected 0x%"PRIx32, 
+                LOG_ERROR("At %"PRIu32", Checksum mismatch.  Got 0x%"PRIx16", expected 0x%"PRIx32,
                           sCr_file_xfer_state.bytes_transfered,
                           localChecksum, dataTransfer->checksum);
                 response->result = cr_ErrorCodes_CHECKSUM_MISMATCH;
@@ -519,7 +519,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
     if (sCr_file_xfer_state.messages_until_ack != 0)
     {
         /*
-        I3_LOG(LOG_MASK_FILES, "file write, no ACK. per ack: %d.  until ack: %d.  num %d.", 
+        I3_LOG(LOG_MASK_FILES, "file write, no ACK. per ack: %d.  until ack: %d.  num %d.",
                sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.messages_until_ack,
                sCr_file_xfer_state.message_number);
          */
@@ -527,7 +527,7 @@ int pvtCrFile_transfer_data(const cr_FileTransferData *dataTransfer,
         return cr_ErrorCodes_NO_RESPONSE;
     }
     // here we want to ack, also reset the counters.
-    I3_LOG(LOG_MASK_FILES, "ACK file write.  per ack: %"PRIu32".  num %"PRIu32".", 
+    I3_LOG(LOG_MASK_FILES, "ACK file write.  per ack: %"PRIu32".  num %"PRIu32".",
                sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.message_number);
 
     sCr_file_xfer_state.messages_until_ack = sCr_file_xfer_state.messages_per_ack;
@@ -551,14 +551,14 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
         default:
         case cr_FileTransferState_FILE_TRANSFER_INVALID:
             LOG_ERROR("State invalid");
-            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE,
                             "%s should not be called in state invalid.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
             pvtCr_watchdog_end_timeout();
             return cr_ErrorCodes_INVALID_STATE;
         case cr_FileTransferState_IDLE:
             LOG_ERROR("In idle state is not right");
-            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE,
                             "%s should not be called in state idle.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
             pvtCr_watchdog_end_timeout();
@@ -577,7 +577,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
             }
 
             LOG_ERROR("In complete state is not right");
-            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE,
                             "%s should not be called in state complete.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_INVALID_STATE;
             pvtCr_watchdog_end_timeout();
@@ -590,7 +590,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
         if (sCr_file_xfer_state.read_write)
         {   // expecting read
             LOG_ERROR("Expecting read, not write");
-            cr_report_error(cr_ErrorCodes_INVALID_STATE, 
+            cr_report_error(cr_ErrorCodes_INVALID_STATE,
                             "%s Expecting read, not write.", __FUNCTION__);
             dataTransfer->result = cr_ErrorCodes_WRITE_FAILED;
             pvtCr_watchdog_end_timeout();
@@ -598,7 +598,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
         }
         if (request->is_complete)
         {
-            I3_LOG(LOG_MASK_ALWAYS, "file read of fid %"PRIu32" is complete.", 
+            I3_LOG(LOG_MASK_ALWAYS, "file read of fid %"PRIu32" is complete.",
                    sCr_file_xfer_state.file_id);
             sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
@@ -616,17 +616,17 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     memset(dataTransfer, 0, sizeof(cr_FileTransferData));
 
     dataTransfer->transfer_id = sCr_file_xfer_state.transfer_id;
-    size_t bytes_remaining_to_read = 
+    size_t bytes_remaining_to_read =
         sCr_file_xfer_state.transfer_length - sCr_file_xfer_state.bytes_transfered;
 
-    size_t 
-        bytes_requested = 
+    size_t
+        bytes_requested =
             (bytes_remaining_to_read >= REACH_BYTES_IN_A_FILE_PACKET)
                 ? REACH_BYTES_IN_A_FILE_PACKET : bytes_remaining_to_read;
 
     I3_LOG(LOG_MASK_FILES, "file read %zd, %d remaining of %"PRIu32".", bytes_requested,
            bytes_remaining_to_read, sCr_file_xfer_state.transfer_length);
-    I3_LOG(LOG_MASK_FILES, " per ack: %"PRIu32".  until ack: %"PRIu32".  num %"PRIu32".", 
+    I3_LOG(LOG_MASK_FILES, " per ack: %"PRIu32".  until ack: %"PRIu32".  num %"PRIu32".",
            sCr_file_xfer_state.messages_per_ack, sCr_file_xfer_state.messages_until_ack,
            sCr_file_xfer_state.message_number);
 
@@ -639,8 +639,8 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     if (rval != 0)
     {
         dataTransfer->result = cr_ErrorCodes_READ_FAILED;
-        cr_report_error(cr_ErrorCodes_READ_FAILED, 
-                        "%s: File read of %d bytes from fid %d failed with error %d", 
+        cr_report_error(cr_ErrorCodes_READ_FAILED,
+                        "%s: File read of %d bytes from fid %d failed with error %d",
                         __FUNCTION__, bytes_requested, sCr_file_xfer_state.file_id, rval);
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
         pvtCr_num_remaining_objects = 0;
@@ -654,7 +654,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     if (sCr_file_xfer_state.use_checksum)
     {
         // Calculate CRC.
-        dataTransfer->checksum = sCalculate_checksum(dataTransfer->message_data.bytes, 
+        dataTransfer->checksum = sCalculate_checksum(dataTransfer->message_data.bytes,
                                                   dataTransfer->message_data.size);
         dataTransfer->has_checksum = true;
     }
@@ -666,14 +666,14 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
 
     if (sCr_file_xfer_state.messages_until_ack != 0)
         sCr_file_xfer_state.messages_until_ack--;
-    
+
     if (sCr_file_xfer_state.messages_until_ack == 0)
     {
         I3_LOG(LOG_MASK_FILES, "file read wait for ACK now.");
     }
-    
+
     pvtCr_num_remaining_objects = sCr_file_xfer_state.messages_until_ack;
-    pvtCr_continued_message_type = pvtCr_num_remaining_objects == 0  ? 
+    pvtCr_continued_message_type = pvtCr_num_remaining_objects == 0  ?
             cr_ReachMessageTypes_INVALID : cr_ReachMessageTypes_TRANSFER_DATA;
 
     sCr_file_xfer_state.message_number++;
@@ -708,8 +708,8 @@ int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
     case cr_ErrorCodes_NO_ERROR:
         break;
     case cr_ErrorCodes_INCOMPLETE:
-        // crcb_erase_file() can report incomplete to avoid blocking the main 
-        // loop for an extended time.  If the erase takes a long time it's 
+        // crcb_erase_file() can report incomplete to avoid blocking the main
+        // loop for an extended time.  If the erase takes a long time it's
         // accepted that several calls to erase might be required to know that
         // the erase has completed.
         return cr_ErrorCodes_INCOMPLETE;
@@ -718,10 +718,10 @@ int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
 }
 
 
-// 
+//
 // Timeout Watchdog interface
 // This is used in the file write sequences.
-// 
+//
 static bool  sTimeoutWatchdog_is_active = false;
 static uint32_t sTimeoutWatchdog_period = 0;
 static uint32_t sTimeoutWatchdog_target = 0;
@@ -745,7 +745,7 @@ void pvtCr_watchdog_stroke_timeout(uint32_t ticks)
 {
     if (sTimeoutWatchdog_is_active) {
         sTimeoutWatchdog_target = ticks + sTimeoutWatchdog_period;
-        I3_LOG(LOG_MASK_DEBUG, "%s: Stroke timeout with %"PRIu32" ms at %"PRIu32" ticks.", 
+        I3_LOG(LOG_MASK_DEBUG, "%s: Stroke timeout with %"PRIu32" ms at %"PRIu32" ticks.",
                __FUNCTION__, sTimeoutWatchdog_period, ticks);
         return;
     }
