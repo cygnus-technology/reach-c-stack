@@ -4,9 +4,9 @@
 
 I3 Product Design
 
-Version 4.00
+Version 4.01
 
-Date        April 15, 2024
+Date        November 2025
 
 ***See release note to know what has changed..***
 
@@ -19,7 +19,9 @@ In case you aren’t familiar with Cygnus Reach, here are two links with some ov
 * [https://cygnustechnology.com/](https://cygnustechnology.com/)
 * [https://cygnustechnology.com/see-reach-in-action/](https://cygnustechnology.com/see-reach-in-action/)
 
-This package provides code to exercise the Cygnus Reach system using the “Thunderboard”, which is a common IoT development board.  This allows a user to evaluate the mobile apps and the web interface that are involved.  This document briefly describes how to run the prebuilt demo and then how to rebuild the demo to make a more detailed evaluation.  
+And [here is a slide deck](Cygnus_Reach_Overview.pdf) that gives an overview aimed more at the IoT device builder.
+
+This package provides code to exercise the Cygnus Reach system using the “Thunderboard”, which is a common IoT development board.  It can similarly be run on an nRF52840 Dongle or a Microchip WBZ653 demo board for the PIC32WM_BZ6204. This allows a user to evaluate the mobile apps and the web interface that are involved.  This document briefly describes how to run the prebuilt demo and then how to rebuild the demo to make a more detailed evaluation.  
 
 The SDK’s necessary to develop customized mobile app and web pages for Reach access are available through your Cygnus sales representative.  While the demo works with the Silicon Labs hardware, the system is deployed on other platforms.
 
@@ -35,7 +37,9 @@ The Cygnus Reach Evaluation Kit for the Silicon Labs Thunderboard assumes that t
 
 3.01: March 12, 2024.  The project structure has changed allowing for complete import.
 
-4.00: April 12, 2004.  The SiLabs project accesses Thunderboard sensors.
+4.00: April 12, 2024.  The SiLabs project accesses Thunderboard sensors.
+
+4.01: November 2025. Adding information on porting.
 
 # Running the Demo
 

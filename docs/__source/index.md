@@ -2,7 +2,7 @@
 
 ## Overview
 
-This documentation covers the Cygnus Reach Embedded Stack, including tutorials, a programmer's guide, and API reference.  You can find more documentation about other parts of Reach at [Cygnus Reach Portal](https://portal.cygnusreach.com/documentation).
+This documentation covers the Cygnus Reach Embedded Stack, including a programmer's guide, a porting guide and an API reference.  You can find more documentation about other parts of Reach at [Cygnus Reach Portal](https://portal.cygnusreach.com/documentation).
 
 
 ```{toctree}
@@ -10,6 +10,7 @@ This documentation covers the Cygnus Reach Embedded Stack, including tutorials, 
 :caption: Contents:
 Getting Started/index
 programmers_guide/index
+Porting_Guide/index
 API Reference/index
 
 
