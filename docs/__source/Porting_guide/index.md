@@ -1,6 +1,6 @@
 # Porting Guide
 
-Welcome to the "Porting Guide" section of the documentation. Here you'll find a step by step guide to bringing up Reach on a new platform.
+The porting guide describes the steps required to bring up Reach on a new platform.
 
 ```{toctree}
 :maxdepth: 2

@@ -8,9 +8,9 @@ This documentation covers the Cygnus Reach Embedded Stack, including a programme
 ```{toctree}
 :maxdepth: 1
 :caption: Contents:
+
 Getting Started/index
 programmers_guide/index
 Porting_guide/index
 API Reference/index
-
 
