@@ -106,7 +106,7 @@ jobs:
       working-directory: reach-c-stack/docs
 
     - name: Upload documentation logs
-        if: always()   # <-- uploads even if doxygen/sphinx fail
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: documentation-logs
