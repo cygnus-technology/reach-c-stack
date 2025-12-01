@@ -6,7 +6,8 @@ on:
       - development
   workflow_dispatch:
 
-# GITHUB_TOKEN must be allowed to push and open PRs in the target repo
+# These permissions apply to GITHUB_TOKEN. They don't hurt even when using a PAT,
+# and keep things sane if you later switch back.
 permissions:
   contents: write
   pull-requests: write
@@ -22,15 +23,15 @@ jobs:
         path: reach-c-stack
         fetch-depth: 0
 
-    # Checkout the OUTPUT repo using the built-in token.
-    # This makes origin authenticated for subsequent push.
+    # Checkout the OUTPUT repo using your PAT stored in reach-c-stack secrets.
+    # This sets an authenticated "origin" remote for pushes.
     - name: Checkout "reach-documentation"
       uses: actions/checkout@v4
       with:
         repository: cygnus-technology/reach-documentation
         ref: development
         path: reach-documentation
-        token: ${{ github.token }}
+        token: ${{ secrets.NEW_DOCS_PAT }}
         fetch-depth: 0
 
     - name: Install prerequisites
@@ -106,8 +107,8 @@ jobs:
 
     - name: Setup Git for "reach-documentation"
       run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
       working-directory: reach-documentation
 
     - name: Create a new feature branch in "reach-documentation"
@@ -129,7 +130,7 @@ jobs:
 
     - name: Create Pull Request using GitHub CLI
       env:
-        GH_TOKEN: ${{ github.token }}
+        GH_TOKEN: ${{ secrets.NEW_DOCS_PAT }}
       run: |
         gh pr create \
           --title "Update Documentation" \
