@@ -10,7 +10,7 @@ This documentation covers the Cygnus Reach Embedded Stack, including a programme
 :caption: Contents:
 Getting Started/index
 programmers_guide/index
-Porting_Guide/index
+Porting_guide/index
 API Reference/index
 
 
