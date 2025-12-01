@@ -5,4 +5,3 @@ Welcome to the "Porting Guide" section of the documentation. Here you'll find a 
 ```{toctree}
 :maxdepth: 2
 Porting Guide
-```
