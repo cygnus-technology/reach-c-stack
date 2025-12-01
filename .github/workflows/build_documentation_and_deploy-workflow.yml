@@ -105,6 +105,18 @@ jobs:
         echo "Documentation generation complete."
       working-directory: reach-c-stack/docs
 
+    - name: Upload documentation logs
+        if: always()   # <-- uploads even if doxygen/sphinx fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-logs
+          path: |
+            reach-c-stack/docs/doxygen_build.log
+            reach-c-stack/docs/doxygen_error.log
+            reach-c-stack/docs/sphinx_build.log
+            reach-c-stack/docs/sphinx_error.log
+          retention-days: 14
+
     - name: Setup Git for "reach-documentation"
       run: |
         git config user.name "${{ github.actor }}"

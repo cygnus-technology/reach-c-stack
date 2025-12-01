@@ -1,3 +1,5 @@
+![alt_text](_images/CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
+
 # Porting Reach to a New Chip
 November, 2025	Chuck Peplinski	version 3
 
