@@ -6,22 +6,32 @@ on:
       - development
   workflow_dispatch:
 
+# GITHUB_TOKEN must be allowed to push and open PRs in the target repo
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build-and-generate-docs:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout "reach-c-stack"
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: reach-c-stack
+        fetch-depth: 0
 
-    - name: Clone Repository "reach-documentation"
-      env:
-        REACH_DOCUMENTATION_PAT: ${{ secrets.REACH_DOCUMENTATION_PAT }}
-      run: |
-        git clone -b development https://github.com/cygnus-technology/reach-documentation.git reach-documentation
-      working-directory: ${{ github.workspace }}
+    # Checkout the OUTPUT repo using the built-in token.
+    # This makes origin authenticated for subsequent push.
+    - name: Checkout "reach-documentation"
+      uses: actions/checkout@v4
+      with:
+        repository: cygnus-technology/reach-documentation
+        ref: development
+        path: reach-documentation
+        token: ${{ github.token }}
+        fetch-depth: 0
 
     - name: Install prerequisites
       run: |
@@ -54,7 +64,7 @@ jobs:
         fi
         echo "pyenv is installed."
       working-directory: reach-c-stack
-    
+
     - name: Set local Python version
       run: |
         export PYENV_ROOT="$HOME/.pyenv"
@@ -96,8 +106,8 @@ jobs:
 
     - name: Setup Git for "reach-documentation"
       run: |
-        git config user.name "Developer-i3PD"
-        git config user.email "Developer@i3pd.com"
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
       working-directory: reach-documentation
 
     - name: Create a new feature branch in "reach-documentation"
@@ -110,19 +120,21 @@ jobs:
         cp -R ../reach-c-stack/docs/__build/* .
       working-directory: reach-documentation
 
-    - name: Commit and push changes to the feature branch in "reach-documenation"
-      env:
-        REACH_DOCUMENTATION_PAT: ${{ secrets.REACH_DOCUMENTATION_PAT }}
+    - name: Commit and push changes to the feature branch in "reach-documentation"
       run: |
         git add .
-        git commit -m "Update documentation"
-        git push https://${REACH_DOCUMENTATION_PAT}@github.com/cygnus-technology/reach-documentation.git feature/update-documentation-${GITHUB_SHA}
+        git commit -m "Update documentation" || echo "Nothing to commit"
+        git push origin feature/update-documentation-${GITHUB_SHA}
       working-directory: reach-documentation
 
     - name: Create Pull Request using GitHub CLI
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        echo "${{ secrets.REACH_DOCUMENTATION_PAT }}" | gh auth login --with-token
-        gh pr create --title "Update Documentation" --body "Automated documentation update." --base development --head feature/update-documentation-${GITHUB_SHA}
+        gh pr create \
+          --title "Update Documentation" \
+          --body "Automated documentation update." \
+          --base development \
+          --head feature/update-documentation-${GITHUB_SHA}
       working-directory: reach-documentation
-
 
