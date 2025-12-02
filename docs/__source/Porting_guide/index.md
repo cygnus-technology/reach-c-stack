@@ -4,4 +4,4 @@ The porting guide describes the steps required to bring up Reach on a new platfo
 
 ```{toctree}
 :maxdepth: 2
-Porting Guide
+Porting

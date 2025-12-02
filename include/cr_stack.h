@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2023-2024 i3 Product Development
- * 
+ *
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,7 +39,7 @@
 
 /**
  * @file      cr_stack.h
- * @brief     This file exposes the core of the public Reach stack API. It 
+ * @brief     This file exposes the core of the public Reach stack API. It
  *            depends on reach-server.h which defines what parts of the stack
  *            are being used by an applicaiton.  crcb_weak.h is incluced. That
  *            is the part of the API that must be implemented by a server
@@ -58,7 +58,7 @@
 #include <stddef.h>
 
 // reach-server.h defines the build configuration of the Reach stack.
-// This includes which services, and the basic size of structures appropriate for the 
+// This includes which services, and the basic size of structures appropriate for the
 // current transport means.  For example, BLE.
 #include "reach-server.h"
 
@@ -74,21 +74,21 @@ extern "C" {
 //----------------------------------------------------------------------------
 // Conventions:
 //----------------------------------------------------------------------------
-// Naming convention:  
+// Naming convention:
 //  cr_ prefix (for Cygnus Reach), then service name, then verb.
 // crcb_ prefix for the "weak" callback functions required.
-// 
+//
 // All API functions return zero on success or an identifiable error code.
 //
 // There are a small number of API functions that are to be called by
-// the hosting application.  Most of the functions in the API are to be 
+// the hosting application.  Most of the functions in the API are to be
 // provided by the application.  The reach stack provides "weak" declared
 // versions so the application provide only what is required.
-// The stack can be built to report errors if required weak functions are 
+// The stack can be built to report errors if required weak functions are
 // not overridden.
 //
-// The configuration structures that must be passed in to the stack to 
-// describe  the system are designed to be constant and stored in flash 
+// The configuration structures that must be passed in to the stack to
+// describe  the system are designed to be constant and stored in flash
 // if the application desires.  This allows for a minimum use of RAM.
 //
 // Lists of items such as parameters, command, files, etc are handled using
@@ -104,7 +104,7 @@ extern "C" {
 //----------------------------------------------------------------------------
 
 // Error codes are defined in the proto file so that the client can see them.
-    
+
 /*
 //----------------------------------------------------------------------------
 // static buffers used and reused by the reach stack.
@@ -115,23 +115,23 @@ extern "C" {
 //   A message has a header and a payload.
 //   The prompt is a received payload.
 //   The response is a generated payload.
- 
+
 */
 
 /// \cond IGNORE
 #define ALIGN_TO_WORD   __attribute__((aligned(4)))
-/// \endcond 
+/// \endcond
 
 /**
 * @brief   cr_init
 * @details To be called before starting the stack.
-* @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_.
 */
 int cr_init(void);
 
 /**
 * @brief   cr_set_advertised_name
-* @details Sets the name of the device that should be advertised before 
+* @details Sets the name of the device that should be advertised before
 *          connecting.  Used in BLE.  The length of the string is set by
 *          APP_ADVERTISED_NAME_LENGTH which can be define in the application.
 *          See reach-server.h.  Uses REACH_SHORT_STRING_LEN when
@@ -150,27 +150,27 @@ const char *cr_get_advertised_name(void);
 
 /**
 * @brief   cr_process
-* @details The application must call cr_process() regularly as it does most of 
+* @details The application must call cr_process() regularly as it does most of
 *          the work required of Reach. The ticks parameter is expected to be a
 *          monotonically increasing value representing the time since the system
 *          started. This allows it to perform timing related tasks such as
 *          notifications. cr_process() returns immediately if the device is not
 *          connected to BLE.
-* @param   ticks: A measure of time passed, typically milliseconds, but the 
+* @param   ticks: A measure of time passed, typically milliseconds, but the
 *               units are not specified.
-* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code, however these are 
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code, however these are
 *          indicative only.  The non-zero returns indicate normal conditions.
 */
 int cr_process(uint32_t ticks);
 
 /**
 * @brief   cr_store_coded_prompt
-* @details Allows the application to store the prompt where the 
+* @details Allows the application to store the prompt where the
 *          Reach stack can see it.  The byte data and length are
 *          copied into private storage. This data is retrieved
 *          using crcb_get_coded_prompt().
-* @param   data: The coded prompt to be stored. 
-* @param   len : number of bytes to be stored. 
+* @param   data: The coded prompt to be stored.
+* @param   len : number of bytes to be stored.
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
 */
 int cr_store_coded_prompt(uint8_t *data, size_t len);
@@ -178,7 +178,7 @@ int cr_store_coded_prompt(uint8_t *data, size_t len);
 
 /**
 * @brief   cr_get_coded_response_buffer
-* @details Retrieve the adress of the "coded response buffer".  This buffer 
+* @details Retrieve the adress of the "coded response buffer".  This buffer
 *          contains the response to a prompt, coded according to protobuf specs,
 *          to be transmitted to the client.  The stored coded length is zeroed
 *          by this call.
@@ -186,19 +186,19 @@ int cr_store_coded_prompt(uint8_t *data, size_t len);
 * @param   pLen : pointer to the number of bytes for transmission.
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
 */
-int cr_get_coded_response_buffer(uint8_t **pResponse, size_t *len);
+int cr_get_coded_response_buffer(uint8_t **ppResponse, size_t *pLen);
 
 /**
 * @brief   cr_report_error
-* @details Report an error condition to the client.  This can be called at any 
+* @details Report an error condition to the client.  This can be called at any
 *          point as the report to the client is asynchronous and immediate.  The
 *          stack can be configured to use only the error code, but the
 *          printf-like string describing the error condition is encouraged.
 *          This is intended to make it easier to find and eliminate errors
 *          during development.
-* @param error_code : Use of the cr_ErrorCodes_ enum is encouraged but not 
+* @param error_code : Use of the cr_ErrorCodes_ enum is encouraged but not
 *                   required.
-* @param fmt : A printf-like string with variables. 
+* @param fmt : A printf-like string with variables.
 */
 void cr_report_error(int error_code, const char *fmt, ...);
 
@@ -213,7 +213,7 @@ int cr_notify_stream(cr_StreamData *data);
 
 /**
 * @brief   cr_set_comm_link_connected
-* @details The communication stack must inform the Reach stack of the status of 
+* @details The communication stack must inform the Reach stack of the status of
 *          the communication link. The integration must inform Reach when
 *          the connection status changes. The Reach loop only runs when the
 *          connection is valid. All parameter notifications are cleared when a
@@ -240,14 +240,14 @@ void cr_clear_param_notifications(void);
 
 /**
 * @brief   cr_init_param_notifications
-* @details Enable all locally specified parameter notifications 
+* @details Enable all locally specified parameter notifications
 *          via crcb_parameter_notification_init().
 */
 void  cr_init_param_notifications(void);
 
 /**
 * @brief   cr_get_notification_statistics
-* @param   numActive is populated with the number of  
+* @param   numActive is populated with the number of
 *          notifications currently enabled.a
 * @param   numSent is populated with the number of notifications
 *          sent since last called.
@@ -257,8 +257,8 @@ void cr_get_notification_statistics(uint32_t *numActive, uint32_t *numSent);
 
 /**
 * @brief   cr_get_current_ticks
-* @details The tick count is passed in to cr_process(). This function gives 
-*          other Reach functions access to that value. 
+* @details The tick count is passed in to cr_process(). This function gives
+*          other Reach functions access to that value.
 * @return  The same tick count passed into cr_process().
 */
 uint32_t cr_get_current_ticks(void);
@@ -287,54 +287,54 @@ typedef struct {
     /// This determines the number of parameters that can be
     /// handled in a single message.
     uint8_t   parameter_buffer_count;
-    /// The number of parameter values that fit in one message. 
+    /// The number of parameter values that fit in one message.
     uint8_t   num_params_in_response;
-    /// The length of the device and command description fields. 
+    /// The length of the device and command description fields.
     uint8_t   description_len;
     /// The number of bytes in the largest parameter types
     /// eg, strings and byte array.
     uint8_t   max_param_bytes;
-    /// Length of the text string for parameter info description. 
+    /// Length of the text string for parameter info description.
     uint8_t   param_info_description_len;
     /// The length of longer strings.
     uint8_t   medium_string_len;
     /// The number of bytes in short strings like the units label.
     uint8_t   short_string_len;
-    /// The max number of parameter notification configurations 
-    /// that a client can provide in a message. 
+    /// The max number of parameter notification configurations
+    /// that a client can provide in a message.
     uint8_t   param_notify_config_count;
-    /// number of descriptors (stream, file) that fit in one message. 
+    /// number of descriptors (stream, file) that fit in one message.
     uint8_t   num_descriptors_in_response;
     /// Number of parameter notifications supported
     uint8_t   num_param_notifications;
     /// number of commands that can be in one info packet
     uint8_t   num_commands_in_response;
-    /// number of parameter descriptions that 
+    /// number of parameter descriptions that
     ///  can be in one info packet.
     uint8_t   num_param_desc_in_response;
 } reach_sizes_t;
 
-// The size of this structure (REACH_SIZE_STRUCT_SIZE) must be defined in 
+// The size of this structure (REACH_SIZE_STRUCT_SIZE) must be defined in
 // reach_ble_proto_sizes.h, or the analogous file used to set structure sizes.
 // #define REACH_SIZE_STRUCT_SIZE      16
 
 /**
-* @brief   cr_get_reach_version 
-* @details The version is in semantic version format: 
+* @brief   cr_get_reach_version
+* @details The version is in semantic version format:
 *          MAJOR.MINOR.PATCH
-*          with an optional string appended. 
-* @return  Returns a pointer to a null terminated string 
+*          with an optional string appended.
+* @return  Returns a pointer to a null terminated string
 *          containing the C stack version.
 */
 const char *cr_get_reach_version(void);
 #define CR_STACK_VERSION_LEN    16  ///< The length of the version string
 
 /**
-* @brief   cr_get_proto_version 
-* @details The version is in semantic version format: 
+* @brief   cr_get_proto_version
+* @details The version is in semantic version format:
 *          MAJOR.MINOR.PATCH
-*          with an optional string appended. 
-* @return  Returns a pointer to a null terminated string 
+*          with an optional string appended.
+* @return  Returns a pointer to a null terminated string
 *          containing the C protobuf version.
 */
 const char *cr_get_proto_version(void);

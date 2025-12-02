@@ -145,7 +145,7 @@ typedef enum _cr_ErrorCodes {
     cr_ErrorCodes_WRITE_FAILED = 3, /**< The write failed. */
     cr_ErrorCodes_NOT_IMPLEMENTED = 4, /**< returned by weak implementations */
     cr_ErrorCodes_RESERVED_1 = 5, /**< not yet used */
-    cr_ErrorCodes_COMPLETE = 6, /**< The operation is complete. */
+    cr_ErrorCodes_RESERVED_2 = 6, /**< not yet used */
     cr_ErrorCodes_PERMISSION_DENIED = 7, /**< access not allowed */
     cr_ErrorCodes_BUFFER_TOO_SMALL = 8, /**< Requested a size larger than the buffer. */
     cr_ErrorCodes_INVALID_PARAMETER = 9, /**< Some function parameter is out of range */

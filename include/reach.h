@@ -1,13 +1,13 @@
 /**
  * @file      reach.h
- * @brief     This file an annotated copy of reach.pb.h which is generated from reach.proto. 
- *            reach.pb.h defines the protobuf structures in C. 
+ * @brief     This file an annotated copy of reach.pb.h which is generated from reach.proto.
+ *            reach.pb.h defines the protobuf structures in C.
  *            This version is hand edited to provide Doxygen comments.
  *             See reach.pb.h for the latest.
  * @date      2024-06-14
- * @copyright (c) Copyright 2023-2024 i3 Product Development. 
- * All Rights Reserved. The Cygngus Reach firmware stack is 
- * shared under an MIT license. 
+ * @copyright (c) Copyright 2023-2024 i3 Product Development.
+ * All Rights Reserved. The Cygngus Reach firmware stack is
+ * shared under an MIT license.
  */
 
 #ifndef PB_CR_REACH_PB_H_INCLUDED
@@ -204,7 +204,7 @@ typedef enum _cr_SizesOffsets {
 } cr_SizesOffsets;
 
 /* Struct definitions */
-/** This is the "classic" Reach service routing message header.  
+/** This is the "classic" Reach service routing message header.
 / It is now deprecated in favor of the AhsokaMessageHeader. */
 typedef struct _cr_ReachMessageHeader {
     uint32_t message_type; /**< This ID defines the Type of Message being carried in the Envelope / Header */
@@ -228,7 +228,7 @@ typedef struct _cr_ReachMessage {
 
 /// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
-/// \endcond 
+/// \endcond
 
 /** This Service Routing Message Header is used in the OpenPV system.
 / Reach can speak it.
@@ -243,19 +243,19 @@ typedef struct _cr_AhsokaMessageHeader {
         Called transaction_id in the OpenPV system.
         Called transaction_id in Reach terms. */
     int32_t transaction_id;
-    /** Unique ID for a Client used in Services that support Multiple Clients 
+    /** Unique ID for a Client used in Services that support Multiple Clients
        OpenPV would use a GUID but Reach uses a 4 byte integer */
     cr_AhsokaMessageHeader_client_id_t client_id;
     /** Called message_size in the OpenPV system.
         Called remaining_objects in Reach terms
-        In Reach it defines the number of objects that remain to be 
+        In Reach it defines the number of objects that remain to be
         transmitted in a continuued transaction.
 / The size of the message payload (in packets) that follows this header */
     int32_t remaining_objects;
-    /** Routing for Non-Endpoint Style Transports. 
+    /** Routing for Non-Endpoint Style Transports.
        Note: Endpoint 0 is Reserved for Service Discovery for Non-Endpoint Transports */
     uint32_t endpoint_id;
-    /** Not used or supported in Reach.  
+    /** Not used or supported in Reach.
         In OpenPV, indicates that the message has used deflate compression in addition to pbuff encoding */
     bool is_message_compressed;
 } cr_AhsokaMessageHeader;
@@ -268,7 +268,7 @@ typedef struct _cr_ErrorReport {
 
 /// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(194) cr_PingRequest_echo_data_t;
-/// \endcond 
+/// \endcond
 
 /** Request Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingRequest {
@@ -277,7 +277,7 @@ typedef struct _cr_PingRequest {
 
 /// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(194) cr_PingResponse_echo_data_t;
-/// \endcond 
+/// \endcond
 
 /** Response Object used to Echo Data for testing the Device Communication */
 typedef struct _cr_PingResponse {
@@ -296,7 +296,7 @@ typedef struct _cr_DeviceInfoRequest {
 /// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_application_identifier_t;
 typedef PB_BYTES_ARRAY_T(16) cr_DeviceInfoResponse_sizes_struct_t;
-/// \endcond 
+/// \endcond
 
 /** This message is returned in answer to the first "who are you" query from the client. */
 typedef struct _cr_DeviceInfoResponse {
@@ -317,9 +317,9 @@ typedef struct _cr_DeviceInfoResponse {
 
 /**
   Parameter Service
-  Parameters provide a simple key:value database. The key is an ID number.  
-  The value can be of various common types up to (typically) 32 bytes.  
-  Parameters support a robust description which can be const, stored in flash.  
+  Parameters provide a simple key:value database. The key is an ID number.
+  The value can be of various common types up to (typically) 32 bytes.
+  Parameters support a robust description which can be const, stored in flash.
   Parameters can be configured to support notifying the client.
   The ParameterInfoRequest is used by the client to request detailed information
   about a set of parameters. */
@@ -330,7 +330,7 @@ typedef struct _cr_ParameterInfoRequest {
 
 /** A member of a union (oneof) that describes a uint32 */
 typedef struct _cr_Uint32ParameterInfo {
-    bool has_range_min;  ///< Controls corresponding optional member 
+    bool has_range_min;  ///< Controls corresponding optional member
     uint32_t range_min; /**< The (optional) minimum value for this parameter. */
     bool has_range_max;  ///< Controls corresponding optional member
     uint32_t range_max; /**< The (optional) minimum value for this parameter. */
@@ -444,7 +444,7 @@ typedef struct _cr_BitfieldParameterInfo {
 
 /// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(32) cr_ByteArrayParameterInfo_default_value_t;
-/// \endcond 
+/// \endcond
 
 /** A member of a union (oneof) that describes a byte array */
 typedef struct _cr_ByteArrayParameterInfo {
@@ -453,7 +453,7 @@ typedef struct _cr_ByteArrayParameterInfo {
     uint32_t max_size; /**< The size in bytes of the largest array to be stored. */
 } cr_ByteArrayParameterInfo;
 
-/** A ParameterInfo structure describes a parameter so that it can be easily viewed an edited 
+/** A ParameterInfo structure describes a parameter so that it can be easily viewed an edited
 / by humans using a generic parameter editor. */
 typedef struct _cr_ParameterInfo {
     uint32_t id; /**< The integer ID used to reference this parameter. */
@@ -556,7 +556,7 @@ typedef struct _cr_DiscoverParameterNotificationsResponse {
 
 /// \cond IGNORE
 typedef PB_BYTES_ARRAY_T(32) cr_ParameterValue_bytes_value_t;
-/// \endcond 
+/// \endcond
 
 /** A message used to send or receive a single parameter value. */
 typedef struct _cr_ParameterValue {
@@ -575,7 +575,7 @@ typedef struct _cr_ParameterValue {
         uint32_t enum_value; /**< An extended description gives names to 32 bit integer values. */
         uint64_t bitfield_value; /**< An extended description gives names to up to 64 bit positions. */
         cr_ParameterValue_bytes_value_t bytes_value; /**< An array of bytes. */
-    } value;
+    } value;    /**< the union name supporting the various types of data */
 } cr_ParameterValue;
 
 /** A structure used to return the values read from one or more parameters */
@@ -598,7 +598,7 @@ typedef struct _cr_ParameterNotification {
 
 /** The optional file service provides a method of efficiently transfering large blocks of data. */
 typedef struct _cr_DiscoverFiles {
-    char dummy_field;
+    char dummy_field;   /**< Unused */
 } cr_DiscoverFiles;
 
 /** A structure describing a file */
@@ -680,7 +680,7 @@ typedef struct _cr_FileEraseResponse {
 
 /** A request to list the streams supported by the device */
 typedef struct _cr_DiscoverStreams {
-    char dummy_field;
+    char dummy_field;   /**< Unused */
 } cr_DiscoverStreams;
 
 /** A structure describing a stream */
@@ -729,7 +729,7 @@ typedef struct _cr_StreamData {
 
 /** The (optional) Command Service allows actions to be triggered from the Reach UI. */
 typedef struct _cr_DiscoverCommands {
-    char dummy_field;
+    char dummy_field;   /**< Unused */
 } cr_DiscoverCommands;
 
 /** The description of a command. */
@@ -763,13 +763,13 @@ typedef struct _cr_SendCommandResponse {
 /** The optional Command Line Interface (CLI) service allows command line messages to be transfered
 / between the client and the server.  Messages can travel in both directions.  Messages are asynchronous.
 / The client can send a command line and the server can respond.
-/ The server can also asynchrously send strings representing the output of the device. 
+/ The server can also asynchrously send strings representing the output of the device.
 / The CLIData message is used in both directions. */
 typedef struct _cr_CLIData {
     char message_data[194]; /**< The command line as a null terminated string. */
 } cr_CLIData;
 
-/** The optional Time Service is designed to allow the client to 
+/** The optional Time Service is designed to allow the client to
 / set and adjust the real time clock in a server device.
 / The time is best specified as UTC plus timezone offset.
 / Although the timezone is optional, it's best to use it.
@@ -789,7 +789,7 @@ typedef struct _cr_TimeSetResponse {
 
 /** A request to read the time from the server. */
 typedef struct _cr_TimeGetRequest {
-    char dummy_field;
+    char dummy_field;   /**< Unused */
 } cr_TimeGetRequest;
 
 /** The response to a TimeGetRequest */
@@ -803,7 +803,7 @@ typedef struct _cr_TimeGetResponse {
 } cr_TimeGetResponse;
 
 /** A structure describing a WiFi connection or access point
-/ The optional WiFi service is intended to simplify the 
+/ The optional WiFi service is intended to simplify the
 / repetitive task of communicating WiFi credentials to the device. */
 typedef struct _cr_ConnectionDescription {
     char ssid[32]; /**< The SSID of this connection */
@@ -816,21 +816,15 @@ typedef struct _cr_ConnectionDescription {
     cr_WiFiBand band; /**< The RF band used by this connection */
 } cr_ConnectionDescription;
 
-/** Commands the server to initiate a scan for WiFi access points.
-/ As this may take some time, issue it and check the response later. */
-typedef struct _cr_ScanWiFi {
-    char dummy_field;
-} cr_ScanWiFi;
-
 /** A request to provide a list access points */
 typedef struct _cr_DiscoverWiFi {
-    char dummy_field;
+    char dummy_field;   /**< Unused */
 } cr_DiscoverWiFi;
 
 /** response to DiscoverWiFi */
 typedef struct _cr_DiscoverWiFiResponse {
     int32_t result; /**< A result of zero indicates completed OK. The "INCOMPLETE" result means the operation must be retried. */
-    pb_size_t cd_count;
+    pb_size_t cd_count;    /**< count of access points */
     cr_ConnectionDescription cd[4]; /**< An array of available access points */
 } cr_DiscoverWiFiResponse;
 
@@ -855,7 +849,7 @@ typedef struct _cr_WiFiConnectionResponse {
     int32_t signal_strength;  /**< RSSI */
 } cr_WiFiConnectionResponse;
 
-/** This data describing the sizes of the structures used in C code is 
+/** This data describing the sizes of the structures used in C code is
  *  communicated in a packed format in the device info structure.
  *  Here it's defined in an unpacked (all 32 bit) format.  Use
  *  the offsets defined below (SizesOffsets) to unpack into this
@@ -865,7 +859,7 @@ typedef struct _cr_WiFiConnectionResponse {
 typedef struct _cr_BufferSizes {
     /** The largest message that can be communicated (16 bits) */
     uint32_t max_message_size;
-    /** The size of the buffer used for the longest strings. (16 bits) 
+    /** The size of the buffer used for the longest strings. (16 bits)
         Examples include the command line and the error string. */
     uint32_t big_data_buffer_size;
     /** The number of parameter buffers kept by the device.

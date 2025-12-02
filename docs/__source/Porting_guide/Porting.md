@@ -1,13 +1,18 @@
 ![alt_text](_images/CygnusLogo_REACH-horiz-bg_light.png "image_tooltip")
 
 # Porting Reach to a New Chip
-November, 2025	Chuck Peplinski	version 3
+
+I3 Product Design
+
+version 3
+
+November, 2025	Chuck Peplinski	
 
 The original Reach version was built in the SiLabs ecosystem. It was soon after ported to the Nordic ecosystem where it is used by the Trico project. The SiLabs port is “bare metal,” in that there is no RTOS. It focuses on being as small as possible to prove its viability in small memory systems. But this is just one possible constraint. Other environments have different constraints. We have recently ported Reach to two new chips, namely the Microchip PIC32WM_BZ6204 ("BZ6") and the RealTek BW16 (AmebaD). Each of these are FreeRTOS systems.
 
-[Here is a slide deck](../Getting_Started/Cygnus_Reach_Overview.pdf) that gives some introductory background.
+[Here is a slide deck](../Getting Started/Cygnus_Reach_Overview.pdf) that gives some introductory background.
 
-## Ecosystems
+# Ecosystems
 
 Let’s compare and contrast five Reach ecosystems that we are familiar with.
 
@@ -19,27 +24,27 @@ Let’s compare and contrast five Reach ecosystems that we are familiar with.
 
 Each of these systems has its own unique communication stack.
 
-### SiLabs
+## SiLabs
 
 SiLabs has no RTOS. It has limited code and data space. “User space” is split between a function called in the main loop and handlers for BLE stack events.
 
-### Nordic/Zephyr
+## Nordic/Zephyr
 
 Nordic uses the Zephyr (RT)OS. Reach runs in a task which communicates with the BLE stack callbacks from the BLE system. User space is mostly made up of code in a separate task. The existing examples are quite closely coupled to Reach.
 
-### Microchip Harmony
+## Microchip Harmony
 
 Harmony uses FreeRTOS. BLE support runs in an opaque task. Reach runs in its own thread which receives queued notifications from the BLE task. The BZ6 has plenty of code and data space. User space is in one or more other threads that have their own data structures. From the point of view of the “user space” code, Reach is being added to an existing system.
 
-### RealTek BW16 AmebaD
+## RealTek BW16 AmebaD
 
 The RealTek AmebaD similarly uses FreeRTOS. While “user space” code can be built onto the part (it has plenty of memory), it is treated here as a “Reach CoProcessor” (RCP). The user space host processor connects to the Reach CoProcessor by a serial port.
 
-### Direct MQTT
+## Direct MQTT
 
 MQTT is used instead of using BLE to transmit data to and from a cloud host.
 
-## Reach Overview
+# Reach Overview
 
 Reach should be integrated into your app as three submodules.
 
@@ -51,7 +56,7 @@ Further there will be an **Integrations** directory that connects the Reach stac
 
 The code generation python script found in the utils directory is applied to a JSON format description of your project to produce a boiler plate version of the code to support your product. You must then extend this code with product specific code to do things like actually read the data that parameters use. The generated code uses comments to delineate the start and end of user code that is preserved when the code is regenerated.
 
-## Porting Steps
+# Porting Steps
 
 The task can be broken down into a few key steps.
 
@@ -61,13 +66,13 @@ The task can be broken down into a few key steps.
 4. Respond to Get Device Info
 5. Complete the Reach port
 
-## 1. Explore the (BLE) Interface
+# 1. Explore the (BLE) Interface
 
 Reach includes an “integrations” layer that is designed to be customized to the current platform. The **Integrations** directory typically includes a subdirectory for this particular platform. This code is designed to be reused in multiple projects using the platform. The separate subdirectories allow us to distribute a package with multiple integrations, but the integration directory is committed with the specific project. Reach was originally designed and optimized for use over BLE but it can function over other interfaces.
 
 The code in the integrations directory connects Reach to the native features on the platform. You can refer to existing integrations and reuse as much as is convenient. Here we assume you are working on a new platform. The first step is to understand how the native features work.
 
-### BLE
+## BLE
 
 When a Reach device is a peripheral, it uses one service and one characteristic. Reach needs to be able to receive data written to a characteristic and it needs to notify the central device with changed data. Reach relies on BLE 4 generation MTU lengths of 247 bytes.
 
@@ -75,7 +80,7 @@ When a Reach device is a peripheral, it uses one service and one characteristic.
 - Configure your device to enable notifications on this characteristic and then demonstrate that you can notify the central with data.
 - Prove that the data packet (MTU) can be as large as 247 bytes.
 
-### MQTT
+## MQTT
 
 MQTT transport of Reach has been explored but it has not yet been productized. When a device uses an MQTT interface it publishes and subscribes to one topic.
 
@@ -84,9 +89,9 @@ MQTT transport of Reach has been explored but it has not yet been productized. W
 - We will want to use QoS that guarantees each message is delivered once.
 - Be sure to check that the message is delivered.
 
-## 2. Advertise Reach
+# 2. Advertise Reach
 
-### BLE
+## BLE
 
 Reach requires your device to advertise a service with a specified 128 bit UUID. This is specified in the Reach Programmers Introduction on github. Reach requires this service to include one characteristic with a specified UUID. The Cygnus app will write (without confirmation) to this characteristic. The device will notify the central of data on this characteristic. The Cygnus app does not read except in the context of a notification.
 
@@ -123,11 +128,11 @@ The SiLabs version manages to display these 10 characters for the name. The BZ6 
 
 When your advertisement satisfies the Cygnus app your device will be listed with the Cygnus icon.
 
-### MQTT
+## MQTT
 
 I don’t think this is necessary if the device is publishing and subscribing to the Reach topic.
 
-## 3. Integrate i3_log()
+# 3. Integrate i3_log()
 
 The Reach stack is configured to supply a lot of diagnostic information via the printf-like i3_log() function. Any port should first support this to enable further debugging during bringup. The Reach C stack includes a weak implementation of the i3_log() functions that simply calls printf. If this works you can simply use it. In a multithreaded environment it makes sense to consistently protect i3_log() with a mutex so that it can be used reliably throughout the system. The BZ6 implementation satisfies this requirement.
 
@@ -135,7 +140,7 @@ I3_assert() should also be tested to prove that it stops and indicates its prese
 
 These features are required to support the debugging features that Reach relies on. These debugging features can well be used by the user space code.
 
-## 4. Respond to Get Device Info
+# 4. Respond to Get Device Info
 
 With a proper advertisement and i3_log() ported you can bring in the Reach C stack and connect it to the BLE stack so that the Cygnus app (or web page) can discover the device. The host will issue a device information request. To respond to the request for device information you will need to:
 
@@ -151,30 +156,30 @@ The response to get device info (GDI) is on the order of 100 bytes, so it will f
 
 When this basic exchange is operating, what remains is to fill in things that are specific to your device.
 
-## 5. Complete the Reach Port
+# 5. Complete the Reach Port
 
 The generated Reach code has places to add your own code. In a new project this user code will be empty. You can copy enough things to test from the reference code. For instance, the “commands” will all return “20” (not handled) until you put in handlers. You can copy these from the Thunderboard example. Eventually you will want to create reasonable handlers for each service and verify that they work correctly.
 
 Note that there are init functions generated for each service. These need to be called before the service is accessed. When the parameter repo contains the name of the device, the parameter repo needs to be initialized before the communication stack.
 
-### Commands
+## Commands
 
 - You should see the names of the commands and pressing the buttons in the host interface you should see the action.
 
-### Parameters
+## Parameters
 
 - You should see the list of parameters.
 - You should verify that you can read values and write values.
 
-### Time
+## Time
 
 - You should verify that you can set the local time and read it back.
 
-### Files
+## Files
 
 - You should be able to upload something like a 50k file from the host and store it at /dev/null.
 - The debug mode of the Cygnus app measures the transfer rate which should ideally be north of 100k.
 
-### (Remote) CLI
+## (Remote) CLI
 
 The CLI service includes a default command handler in cli.c. There are a couple of standard commands such as “help” and “ver” and “/”. You should connect this to the CLI of the device. Then when you enable the remote CLI (using a command) you should see the output of i3_log() at the host and commands from the host should flow to the device.

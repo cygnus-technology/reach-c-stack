@@ -14,7 +14,7 @@
 
 /**
  * @file      i3_log.h
- * @brief     Contains printf style logging functions as used by the Cygnus 
+ * @brief     Contains printf style logging functions as used by the Cygnus
  *            Reach firmware stack. The log module is designed
  *            to be easily retargeted to the console IO of the
  *            target. It is designed to be easily removed for
@@ -37,15 +37,15 @@ extern "C"
 #endif
 
 /**
- * The logging system used by Reach relies on a "mask" to control the amount of 
- * logging. The "mask" concept here is chosen over the "level" concept so that 
- * masks can be assigned to specific features.  Turning on all of the masks is 
- * likely to be too much information.  You can turn on the logging from only the 
- * modules that you want to debug. Reach uses a few bits.  You can assign your 
- * own bits. 
- * The lowest nibble is reserved to system things. 
- * Higher bits can be defined and used by the application in 
- * app_log_masks.h. 
+ * The logging system used by Reach relies on a "mask" to control the amount of
+ * logging. The "mask" concept here is chosen over the "level" concept so that
+ * masks can be assigned to specific features.  Turning on all of the masks is
+ * likely to be too much information.  You can turn on the logging from only the
+ * modules that you want to debug. Reach uses a few bits.  You can assign your
+ * own bits.
+ * The lowest nibble is reserved to system things.
+ * Higher bits can be defined and used by the application in
+ * app_log_masks.h.
  */
 
 ///  The lowest nibble is reserved to system things.
@@ -97,7 +97,7 @@ extern "C"
 
 /**
 * @brief   i3_log_set_mask
-* @details Sets the mask which determines whether or not a log statement 
+* @details Sets the mask which determines whether or not a log statement
 *              generates output. See defines starting with LOG_MASK_.
 */
 void i3_log_set_mask(uint32_t mask);
@@ -105,14 +105,14 @@ void i3_log_set_mask(uint32_t mask);
 
 /**
 * @brief   i3_log_set_mask
-* @details Gets the mask which determines whether or not a log statement 
+* @details Gets the mask which determines whether or not a log statement
 *              generates output. See defines starting with LOG_MASK_.
 */
 uint32_t i3_log_get_mask(void);
 
 /**
 * @brief   i3_log_set_remote_cli_enable
-* @param   enable : Enabling the remote CLI can generate 
+* @param   enable : Enabling the remote CLI can generate
 *          significant BLE traffic. This can slow down speed
 *          related things like file transfer.  Hence this API
 *          allows the remote command line to be easily
@@ -147,18 +147,18 @@ bool i3_log_get_ble_error_state(void);
 
 /**
 * @brief   i3_log_get_remote_buffer
-* @details Retrieve the pointer and size of the remote buffer. 
+* @details Retrieve the pointer and size of the remote buffer.
 *           Intended to be used by implementations that override
 *           the weak i3_log() given here.
 * @param   pRcli    pointer to char pointer of buffer.
 * @param   pBufSize  pointer to the size of the buffer.
 * @return  zero.
 */
-int i3_log_get_remote_buffer(char **pRcli, size_t *bufSize);
+int i3_log_get_remote_buffer(char **pRcli, size_t *pBufSize);
 
 /**
 * @brief   i3_log
-* @details A printf style logging function conditioned on a mask. The mask is 
+* @details A printf style logging function conditioned on a mask. The mask is
 *          and'ed with the control set by i3_log_set_mask(). The string is
 *          printed if the result is non-zero. See LOG_MASK_.
 *          ANSI color codes are inserted for errors (red), warnings (yellow) and
@@ -174,7 +174,7 @@ void i3_log(const uint32_t mask, const char *fmt, ...)
 
 /**
 * @brief   i3_log_dump_buffer
-* @details Logs a hex dump of a buffer. Used to view the 
+* @details Logs a hex dump of a buffer. Used to view the
 *          contents of coded buffers sent and received. The
 *          buffer is dumped locally, and not remotely. The width
 *          of the dump is set by the DUMP_WIDTH defined just
@@ -196,13 +196,13 @@ void i3_log_dump_buffer(const uint32_t mask,
 
 /**
 * @brief   i3_log_persistent_init
-* @details Creates a buffer that persists across warm resets. 
+* @details Creates a buffer that persists across warm resets.
 */
 void i3_log_persistent_init(void);
 
 /**
 * @brief   i3_log_persist
-* @details A printf style logging function. Has no OS 
+* @details A printf style logging function. Has no OS
 *          dependency. Just sprintf into a buffer. The buffer is
 *          designed to persist over a (warm) reboot. The simple
 *          function should also have no OS dependency so that it
@@ -219,9 +219,9 @@ void i3_log_persistent_clear(void);
 
 /**
 * @brief   i3_log_persistent_dump
-* @details Prints the console of the persistent buffer to the 
+* @details Prints the console of the persistent buffer to the
 *          console using i3_log().
-* @param   lines : If negative, dump the entire buffer. Else 
+* @param   lines : If negative, dump the entire buffer. Else
 *                dump only the last N lines of the buffer.
 */
 void i3_log_persistent_dump(int lines);
@@ -237,81 +237,83 @@ void i3_log_persistent_dump(int lines);
 #endif
 
 
+
+#ifndef DOXYGEN_PARSE
 // Text color escape codes
 #ifndef TEXT_RESET
 // escape codes so traces (printf) can have colors:
 /// CSI - Control Sequence Introducer
     #define CSI                 "\033["
-// Text Reset
+/// Text Reset
     #define TEXT_RESET          CSI"0m"
-// Bold define
-    #define TEXT_BOLD           CSI"1m"           // Bold
-// Colors
-    #define TEXT_BLACK          CSI"30m"          // Black
-    #define TEXT_RED            CSI"31m"          // Red
-    #define TEXT_GREEN          CSI"32m"          // Green
-    #define TEXT_YELLOW         CSI"33m"          // Yellow
-    #define TEXT_BLUE           CSI"34m"          // Blue
-    #define TEXT_MAGENTA        CSI"35m"          // Magenta
-    #define TEXT_CYAN           CSI"36m"          // Cyan
-    #define TEXT_WHITE          CSI"37m"          // White
+/// Bold define
+    #define TEXT_BOLD           CSI"1m"
+/// Colors
+    #define TEXT_BLACK          CSI"30m"
+    #define TEXT_RED            CSI"31m"
+    #define TEXT_GREEN          CSI"32m"
+    #define TEXT_YELLOW         CSI"33m"
+    #define TEXT_BLUE           CSI"34m"
+    #define TEXT_MAGENTA        CSI"35m"
+    #define TEXT_CYAN           CSI"36m"
+    #define TEXT_WHITE          CSI"37m"
 
 // Bright Colors
-    #define TEXT_BRIGHT_BLACK   CSI"90m"          // Bright Black
-    #define TEXT_BRIGHT_RED     CSI"91m"          // Bright Red
-    #define TEXT_BRIGHT_GREEN   CSI"92m"          // Bright Green
-    #define TEXT_BRIGHT_YELLOW  CSI"93m"          // Bright Yellow
-    #define TEXT_BRIGHT_BLUE    CSI"94m"          // Bright Blue
-    #define TEXT_BRIGHT_MAGENTA CSI"95m"          // Bright Magenta
-    #define TEXT_BRIGHT_CYAN    CSI"96m"          // Bright Cyan
-    #define TEXT_BRIGHT_WHITE   CSI"97m"          // Bright White
+    #define TEXT_BRIGHT_BLACK   CSI"90m"
+    #define TEXT_BRIGHT_RED     CSI"91m"
+    #define TEXT_BRIGHT_GREEN   CSI"92m"
+    #define TEXT_BRIGHT_YELLOW  CSI"93m"
+    #define TEXT_BRIGHT_BLUE    CSI"94m"
+    #define TEXT_BRIGHT_MAGENTA CSI"95m"
+    #define TEXT_BRIGHT_CYAN    CSI"96m"
+    #define TEXT_BRIGHT_WHITE   CSI"97m"
 
 // Bold (
-    #define TEXT_BOLDBLACK      TEXT_BOLD TEXT_BLACK   // Bold Black
-    #define TEXT_BOLDRED        TEXT_BOLD TEXT_RED     // Bold Red
-    #define TEXT_BOLDGREEN      TEXT_BOLD TEXT_GREEN   // Bold Green
-    #define TEXT_BOLDYELLOW     TEXT_BOLD TEXT_YELLOW  // Bold Yellow
-    #define TEXT_BOLDBLUE       TEXT_BOLD TEXT_BLUE    // Bold Blue
-    #define TEXT_BOLDMAGENTA    TEXT_BOLD TEXT_MAGENTA // Bold Magenta
-    #define TEXT_BOLDCYAN       TEXT_BOLD TEXT_CYAN    // Bold Cyan
-    #define TEXT_BOLDWHITE      TEXT_BOLD TEXT_WHITE   // Bold White
+    #define TEXT_BOLDBLACK      TEXT_BOLD TEXT_BLACK
+    #define TEXT_BOLDRED        TEXT_BOLD TEXT_RED
+    #define TEXT_BOLDGREEN      TEXT_BOLD TEXT_GREEN
+    #define TEXT_BOLDYELLOW     TEXT_BOLD TEXT_YELLOW
+    #define TEXT_BOLDBLUE       TEXT_BOLD TEXT_BLUE
+    #define TEXT_BOLDMAGENTA    TEXT_BOLD TEXT_MAGENTA
+    #define TEXT_BOLDCYAN       TEXT_BOLD TEXT_CYAN
+    #define TEXT_BOLDWHITE      TEXT_BOLD TEXT_WHITE
 
 // Bright Colors
-    #define TEXT_BOLD_BRIGHT_BLACK      TEXT_BOLD TEXT_BRIGHT_BLACK   // Bold Bright Black
-    #define TEXT_BOLD_BRIGHT_RED        TEXT_BOLD TEXT_BRIGHT_RED     // Bold Bright Red
-    #define TEXT_BOLD_BRIGHT_GREEN      TEXT_BOLD TEXT_BRIGHT_GREEN   // Bold Bright Green
-    #define TEXT_BOLD_BRIGHT_YELLOW     TEXT_BOLD TEXT_BRIGHT_YELLOW  // Bold Bright Yellow
-    #define TEXT_BOLD_BRIGHT_BLUE       TEXT_BOLD TEXT_BRIGHT_BLUE    // Bold Bright Blue
-    #define TEXT_BOLD_BRIGHT_MAGENTA    TEXT_BOLD TEXT_BRIGHT_MAGENTA // Bold Bright Magenta
-    #define TEXT_BOLD_BRIGHT_CYAN       TEXT_BOLD TEXT_BRIGHT_CYAN    // Bold Bright Cyan
-    #define TEXT_BOLD_BRIGHT_WHITE      TEXT_BOLD TEXT_BRIGHT_WHITE   // Bold Bright White
+    #define TEXT_BOLD_BRIGHT_BLACK      TEXT_BOLD TEXT_BRIGHT_BLACK
+    #define TEXT_BOLD_BRIGHT_RED        TEXT_BOLD TEXT_BRIGHT_RED
+    #define TEXT_BOLD_BRIGHT_GREEN      TEXT_BOLD TEXT_BRIGHT_GREEN
+    #define TEXT_BOLD_BRIGHT_YELLOW     TEXT_BOLD TEXT_BRIGHT_YELLOW
+    #define TEXT_BOLD_BRIGHT_BLUE       TEXT_BOLD TEXT_BRIGHT_BLUE
+    #define TEXT_BOLD_BRIGHT_MAGENTA    TEXT_BOLD TEXT_BRIGHT_MAGENTA
+    #define TEXT_BOLD_BRIGHT_CYAN       TEXT_BOLD TEXT_BRIGHT_CYAN
+    #define TEXT_BOLD_BRIGHT_WHITE      TEXT_BOLD TEXT_BRIGHT_WHITE
 
 //Cursor Movement
 // Command support moving by n:
-//  ESC[nA � move cursor up n lines
-//  ESC[nB � move cursor down n lines
-//  ESC[nC � move cursor right n
-//  ESC[nD � move cursor left n
+//  ESC[nA - move cursor up n lines
+//  ESC[nB - move cursor down n lines
+//  ESC[nC - move cursor right n
+//  ESC[nD m- ove cursor left n
     #define CURSOR_UP         CSI"1A"
     #define CURSOR_DOWN       CSI"1B"
     #define CURSOR_RIGH       CSI"1C"
     #define CURSOR_LEFT       CSI"1D"
-// ESC[n;nH or ESC[n;n f � set cursor position (row; column) 
+// ESC[n;nH or ESC[n;n f - set cursor position (row; column)
     #define CURSOR_HOME       CSI"H"
 
 // Screen and Line Erasing
-//  ESC[2J � clear whole screen
-//  ESC[1J � clear from cursor to beginning
-//  ESC[0J � clear from cursor to end (default)
+//  ESC[2J - clear whole screen
+//  ESC[1J - clear from cursor to beginning
+//  ESC[0J - clear from cursor to end (default)
     #define CLEAR_SCREEN        CSI"2J"
-//  ESC[2K � erase current line
-//  ESC[0K, ESC[1K � clear to end or from start of line 
+//  ESC[2K - erase current line
+//  ESC[0K, ESC[1K - clear to end or from start of line
     #define EMPTY_LINE          CSI"1K"
     #define CLR_TO_END          CSI"0K"
 
 // There are others, including background colors and a 256 color mode.
 
 #endif  // ndef TEXT_RESET
-
+#endif  // ndef DOXYGEN_PARSE
 
 #endif /* LOG_H_ */
