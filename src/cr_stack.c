@@ -55,10 +55,10 @@
  * @author    Chuck Peplinski
  * @date      2024-01-18
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
- * The Cygngus Reach firmware stack is shared under an MIT license.
+ * The Cygnus Reach firmware stack is shared under an MIT license.
  */
 
-// from the applicaiton
+// from the application
 #include "reach-server.h"
 
 #include <assert.h>
@@ -417,7 +417,7 @@ int cr_store_coded_prompt(uint8_t *data, size_t len)
 
 /**
 * @brief   cr_get_coded_response_buffer
-* @details Retrieve the adress of the "coded response buffer".  This buffer 
+* @details Retrieve the address of the "coded response buffer".  This buffer 
 *          contains the response to a prompt, coded according to protobuf specs,
 *          to be transmitted to the client.  The stored coded length is zeroed
 *          by this call.
@@ -719,7 +719,7 @@ static int handle_coded_classic_prompt(void)
 static int handle_coded_prompt(void) // ahsoka version
 {
     // Is this a classic Reach header or an Ahsoka header?
-    // Classic reach witll start with 0x0A
+    // Classic reach will start with 0x0A
     if ((sCr_encoded_message_buffer[0] == 0x0A) && (sCr_encoded_message_buffer[1] != 0x0))
     {
         sClassic_header_format = true;
@@ -1889,7 +1889,7 @@ bool encode_ahsoka_header(const cr_AhsokaMessageHeader *header,  // in:  message
   return status;
 }
 
-// Encodes a message transission format.
+// Encodes a message transmission format.
 // When responding to a prompt, the caller must populate the header.
 // When encoding a notification hdr is passed as NULL.
 int pvtCr_encode_message(cr_ReachMessageTypes message_type, // in

@@ -6,7 +6,7 @@
  *             See reach.pb.h for the latest.
  * @date      2024-06-14
  * @copyright (c) Copyright 2023-2024 i3 Product Development.
- * All Rights Reserved. The Cygngus Reach firmware stack is
+ * All Rights Reserved. The Cygnus Reach firmware stack is
  * shared under an MIT license.
  */
 
@@ -63,7 +63,7 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_ERASE_FILE = 16, /**< Set file size to zero. */
     /** Commands */
     cr_ReachMessageTypes_DISCOVER_COMMANDS = 17, /**< Get a list of supported commands */
-    cr_ReachMessageTypes_SEND_COMMAND = 18, /**< Reqeuest excecution of a command */
+    cr_ReachMessageTypes_SEND_COMMAND = 18, /**< Request execution of a command */
     /* Command Line Interface */
     cr_ReachMessageTypes_CLI_NOTIFICATION = 20, /**< Inform the other side (bi-directional) of a command line. */
     /* Streams */
@@ -75,7 +75,7 @@ typedef enum _cr_ReachMessageTypes {
     cr_ReachMessageTypes_SET_TIME = 30, /**< Set the real time clock */
     cr_ReachMessageTypes_GET_TIME = 31, /**< Read the real time clock */
     /* WiFi */
-    cr_ReachMessageTypes_DISCOVER_WIFI = 40, /**< Get a list of WiFi acces points */
+    cr_ReachMessageTypes_DISCOVER_WIFI = 40, /**< Get a list of WiFi access points */
     cr_ReachMessageTypes_WIFI_CONNECT = 41 /**< Connect or disconnect to an access point */
 } cr_ReachMessageTypes;
 
@@ -233,7 +233,7 @@ typedef PB_BYTES_ARRAY_T(4) cr_AhsokaMessageHeader_client_id_t;
 /** This Service Routing Message Header is used in the OpenPV system.
 / Reach can speak it.
 / This object represents the Layer 2 Message Format for OpenPV Service Messages.
-/ The ordinals are presereved but the names are changed to match */
+/ The ordinals are preserved but the names are changed to match */
 typedef struct _cr_AhsokaMessageHeader {
     /** This ID defines the Type of Message being carried in the Envelope / Header
         Called transport_id in OpenPV terminology.
@@ -249,7 +249,7 @@ typedef struct _cr_AhsokaMessageHeader {
     /** Called message_size in the OpenPV system.
         Called remaining_objects in Reach terms
         In Reach it defines the number of objects that remain to be
-        transmitted in a continuued transaction.
+        transmitted in a continued transaction.
 / The size of the message payload (in packets) that follows this header */
     int32_t remaining_objects;
     /** Routing for Non-Endpoint Style Transports.
@@ -262,7 +262,7 @@ typedef struct _cr_AhsokaMessageHeader {
 
 /** ERROR_REPORT: Could be sent asynchronously to indicate an error. */
 typedef struct _cr_ErrorReport {
-    int32_t result; /**< The integer error code being reported, preferrably from the ErrorCodes enum. */
+    int32_t result; /**< The integer error code being reported, preferably from the ErrorCodes enum. */
     char result_message[194]; /**< A human readable string describing the error. */
 } cr_ErrorReport;
 
@@ -437,7 +437,7 @@ typedef struct _cr_EnumParameterInfo {
 typedef struct _cr_BitfieldParameterInfo {
     bool has_default_value;  ///< Controls corresponding optional member
     uint64_t default_value; /**< The (optional) default value for this parameter. */
-    uint32_t bits_available; /**< How many bits of this bifield are valid */
+    uint32_t bits_available; /**< How many bits of this bitfield are valid */
     bool has_pei_id;    ///< Controls corresponding optional member
     uint32_t pei_id; /**< The (optional) ID of the extended description that names the bits. */
 } cr_BitfieldParameterInfo;
@@ -472,7 +472,7 @@ typedef struct _cr_ParameterInfo {
         cr_Float64ParameterInfo float64_desc; /**< If float64 */
         cr_BoolParameterInfo bool_desc; /**< If a boolean */
         cr_StringParameterInfo string_desc; /**< If a string */
-        cr_EnumParameterInfo enum_desc; /**< If an enumeated type */
+        cr_EnumParameterInfo enum_desc; /**< If an enumerated type */
         cr_BitfieldParameterInfo bitfield_desc; /**< If a bitfield */
         cr_ByteArrayParameterInfo bytearray_desc; /**< If a byte array */
     } desc;  /**< A union to efficiently store the details of each parameter description */
@@ -625,7 +625,7 @@ typedef struct _cr_FileTransferRequest {
     uint32_t read_write; /**< 0 for read, 1 for write. */
     uint32_t request_offset; /**< where to access in the file, in bytes */
     uint32_t transfer_length; /**< number of bytes to read or write */
-    uint32_t transfer_id; /**< Copied from the header, the same for the continuued transfer. */
+    uint32_t transfer_id; /**< Copied from the header, the same for the continued transfer. */
     uint32_t timeout_in_ms; /**< ms before abandonment */
     bool has_requested_ack_rate;    ///< Controls corresponding optional member
     uint32_t requested_ack_rate; /**< number of messages before ACK. */
@@ -648,7 +648,7 @@ typedef PB_BYTES_ARRAY_T(194) cr_FileTransferData_message_data_t;
 /** A bidirectional message describing a packet of file data */
 typedef struct _cr_FileTransferData {
     int32_t result; /**< non-zero for error */
-    uint32_t transfer_id; /**< Unchanged during the continuued transfer. */
+    uint32_t transfer_id; /**< Unchanged during the continued transfer. */
     uint32_t message_number; /**< counts up from 1 in the first transfer */
     cr_FileTransferData_message_data_t message_data; /**< Data */
     bool has_checksum;  ///< Controls corresponding optional member
@@ -660,8 +660,8 @@ typedef struct _cr_FileTransferDataNotification {
     int32_t result; /**< 0 for success */
     bool has_result_message;    ///< Controls corresponding optional member
     char result_message[194]; /**< Provides more information if an error occurs. */
-    bool is_complete; /**< Set to true when all data has been trasnferred. */
-    uint32_t transfer_id; /**< Unchanged during the continuued transfer. */
+    bool is_complete; /**< Set to true when all data has been transferred. */
+    uint32_t transfer_id; /**< Unchanged during the continued transfer. */
     uint32_t retry_offset; /**< If there is an error, this gives the offset at which a new transfer should start with good data. */
 } cr_FileTransferDataNotification;
 
@@ -721,8 +721,8 @@ typedef PB_BYTES_ARRAY_T(194) cr_StreamData_message_data_t;
 /** Bi-Directional message used to asynchronously send stream data to the other side. */
 typedef struct _cr_StreamData {
     uint32_t stream_id; /**< The ID by which this stream is addressed. */
-    uint32_t roll_count; /**< Message Number.  Increases with each send.  As stream transmission may be less relaible, allows for continuity checking. */
-    cr_StreamData_message_data_t message_data; /**< An array of bytes representing the streami data. */
+    uint32_t roll_count; /**< Message Number.  Increases with each send.  As stream transmission may be less reliable, allows for continuity checking. */
+    cr_StreamData_message_data_t message_data; /**< An array of bytes representing the stream data. */
     bool has_checksum;  ///< Controls corresponding optional member
     int32_t checksum; /**< Optional RFC 1071 checksum for integrity checking */
 } cr_StreamData;
@@ -760,10 +760,10 @@ typedef struct _cr_SendCommandResponse {
     char result_message[194]; /**< Allows to provide a human readable explanation in case of an error. */
 } cr_SendCommandResponse;
 
-/** The optional Command Line Interface (CLI) service allows command line messages to be transfered
+/** The optional Command Line Interface (CLI) service allows command line messages to be transferred
 / between the client and the server.  Messages can travel in both directions.  Messages are asynchronous.
 / The client can send a command line and the server can respond.
-/ The server can also asynchrously send strings representing the output of the device.
+/ The server can also asynchronously send strings representing the output of the device.
 / The CLIData message is used in both directions. */
 typedef struct _cr_CLIData {
     char message_data[194]; /**< The command line as a null terminated string. */
@@ -777,7 +777,7 @@ typedef struct _cr_CLIData {
 typedef struct _cr_TimeSetRequest {
     int64_t seconds_utc; /**< linux epoch, since 1970 */
     bool has_timezone;  ///< Controls corresponding optional member
-    int32_t timezone; /**< An adjustmeent in seconds to UTC time respresenting the local timezone. */
+    int32_t timezone; /**< An adjustment in seconds to UTC time respresenting the local timezone. */
 } cr_TimeSetRequest;
 
 /** The response to the TimeSetRequest */
@@ -799,7 +799,7 @@ typedef struct _cr_TimeGetResponse {
     char result_message[194]; /**< Allows to provide a human readable explanation in case of an error. */
     int64_t seconds_utc; /**< linux epoch, since 1970 */
     bool has_timezone;  ///< Controls corresponding optional member
-    int32_t timezone; /**< An adjustmeent in seconds to UTC time respresenting the local timezone. */
+    int32_t timezone; /**< An adjustment in seconds to UTC time respresenting the local timezone. */
 } cr_TimeGetResponse;
 
 /** A structure describing a WiFi connection or access point

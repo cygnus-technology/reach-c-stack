@@ -92,3 +92,6 @@ var/
 
 # PyBuilder
 target/
+
+# For VSCode Users
+.vscode/settings.json

@@ -47,7 +47,7 @@
  * @author    Chuck Peplinski
  * @date      2024-01-17
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
- * The Cygngus Reach firmware stack is shared under an MIT license.
+ * The Cygnus Reach firmware stack is shared under an MIT license.
  */
 
 #include <assert.h>
@@ -235,7 +235,7 @@
 
     /**
     * @brief   pvtCrParam_discover_parameters_ex
-    * @details Private function gandles extended parameter data describing enums and
+    * @details Private function handles extended parameter data describing enums and
     *          bitfields.
     * @return  cr_ErrorCodes_NO_ERROR or a non-zero error (see cr_ErrorCodes_).
     */
@@ -892,7 +892,7 @@
 
   #endif // NUM_SUPPORTED_PARAM_NOTIFY != 0
 
-    ///  Private helper function to initialize parameter notificaitons.
+    ///  Private helper function to initialize parameter notifications.
     ///  Calls crcb_parameter_notification_init()
     void  cr_init_param_notifications(void)
     {

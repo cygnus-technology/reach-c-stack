@@ -62,7 +62,7 @@ The demo requires a Reach enabled IoT device.  The Silicon Labs Thunderboard fil
 
 * For any Linux users, be aware that the default installation can go a lot faster if you set the make to use multiple threads.
 
-* If you are only going to flash the prebuilt binary, you can more quickly install only the Simplicity Commander tool.  Google “[download Simplicity Commande](https://community.silabs.com/s/article/simplicity-commander?language=en_US)r” and choose the version you like.  They offer Windows, Mac and Linux.
+* If you are only going to flash the prebuilt binary, you can more quickly install only the Simplicity Commander tool.  Google “[download Simplicity Commander](https://community.silabs.com/s/article/simplicity-commander?language=en_US)r” and choose the version you like.  They offer Windows, Mac and Linux.
 
 * Install the Cygnus Reach application on your mobile device.  You can find an appropriate version in the Google Play Store and in Apple’s App Store.
   

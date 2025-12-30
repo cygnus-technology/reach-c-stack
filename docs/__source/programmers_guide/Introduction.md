@@ -35,7 +35,7 @@ This document is addressed to the embedded developer who is considering using th
 
 3.0: March 12, 2024.  The directory structure of the code is changed to simplify maintenance.
 
-3.1: March 20, 2024. Editing pass to reflectd the latest (stack 2.5) changes.
+3.1: March 20, 2024. Editing pass to reflected the latest (stack 2.5) changes.
 
 3.3: June 6, 2024: More overview.
 
@@ -85,7 +85,7 @@ A typical Reach session follows a pattern like this:
 
 ![alt_text](_images/typical.png "image_tooltip")
 
-The exchange always begins with the client requesting device information.  The server replies.  The client can then request more information such as the parameter data.  The response packets are limited in size so as to fit in a Bluetooth Low Energ (BLE) packet.  The response may require several "continued" packets.  A subsequent section titled "Multi-Message (Continuing) Transactions" gives some more background on how continuing messages are handled.
+The exchange always begins with the client requesting device information.  The server replies.  The client can then request more information such as the parameter data.  The response packets are limited in size so as to fit in a Bluetooth Low Energy (BLE) packet.  The response may require several "continued" packets.  A subsequent section titled "Multi-Message (Continuing) Transactions" gives some more background on how continuing messages are handled.
 The device information response tells the client what services are supported by the server.  The client can then request data from each service as necessary.  
 
 A number of design patterns used by Reach in multiple places.
@@ -283,7 +283,7 @@ The authors worked off of this set of requirements for logging:
 1. Users must be able to enable and disable logging on a per-function basis.  This must be configurable via the command line at run time.  Log calls are provided with a “mask” to serve this purpose.
 2. “Levels” separate from masks are unnecessary.  The typical hierarchy of error, warn, debug, info, etc. is too limiting.  Masks take this place and masks must be per function.
 3. A “\n” line ending is provided by default, but it must be possible to print into the buffer “bare” without this termination.  LOG_MASK_BARE allows for this.
-4. Log entries classed as “error”, “warning” and “always” cannot be disabled by the mask.  Errors are printed red.  Warings are yellow.  Always is white.
+4. Log entries classed as “error”, “warning” and “always” cannot be disabled by the mask.  Errors are printed red.  Warnings are yellow.  Always is white.
 5. Function and line are not included by default.  Users add them where appropriate.  
 6. Reach defines a set of masks that can be used to debug its internal functions.  Other mask bits are reserved to user applications.
 7. It must be possible to turn off all logging at build time to minimize size.
@@ -355,7 +355,7 @@ Reach conceptually uses six buffers to exchange prompts and replies.  Each buffe
 2. **cr_ReachMessage sCr_uncoded_message_structure**
    
         Contains the encoded prompt separated from the header.
-        Also used for enccoding.
+        Also used for encoding.
 
 3. **sCr_decoded_prompt_buffer**
    
@@ -428,7 +428,7 @@ Some items to keep in mind are:
 
 - Setting any of the notification parameters to zero means they will be ignored. Setting all of them to zero (delta, min, max) is the same as disabling that notification.
 
-- No delta applies for strings and byte arrays. They are checked for any change by strcmp() and memcmp() respectively.
+- No delta applies for strings and byte arrays. They are checked for any change by `strcmp()` and `memcmp()` respectively.
 
 ### Access Control
 
@@ -472,10 +472,10 @@ Commands provide a simple means to remotely trigger a function with fixed parame
 
 The response to DISCOVER_PARAMETERS, and in fact to any “discover” command could extend over multiple “messages”.  To define terms:
 
-* A _transaction is a series of messages.
-* A _message _has a _header _and a _payload_.
-* The _prompt _is a received payload.
-* The _response _is a generated payload.
+* A _transaction_ is a series of messages.
+* A _message_ has a _header_ and a _payload_.
+* The _prompt_ is a received payload.
+* The _response_ is a generated payload.
 * When transferring a file there is a further entity known as the “_transfer_”.  The file (read) is a _transaction_.  It can be made up of a series of _transfers_, each terminated by an acknowledgement.
 
 The response to any “discover” message may require several messages to complete the transaction.  For this purpose the cr_process() function must call a handle_continued_transactions() function before looking for a new prompt.  The reach system must keep track of any continuing transactions.
