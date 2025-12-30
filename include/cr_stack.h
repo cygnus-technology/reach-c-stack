@@ -41,13 +41,13 @@
  * @file      cr_stack.h
  * @brief     This file exposes the core of the public Reach stack API. It
  *            depends on reach-server.h which defines what parts of the stack
- *            are being used by an applicaiton.  crcb_weak.h is incluced. That
+ *            are being used by an application.  crcb_weak.h is included. That
  *            is the part of the API that must be implemented by a server
  *            application.
  * @author    Chuck Peplinski
  * @date      2024-01-24
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
- * The Cygngus Reach firmware stack is shared under an MIT license.
+ * The Cygnus Reach firmware stack is shared under an MIT license.
  */
 
 #ifndef _CR_STACK_H
@@ -178,7 +178,7 @@ int cr_store_coded_prompt(uint8_t *data, size_t len);
 
 /**
 * @brief   cr_get_coded_response_buffer
-* @details Retrieve the adress of the "coded response buffer".  This buffer
+* @details Retrieve the address of the "coded response buffer".  This buffer
 *          contains the response to a prompt, coded according to protobuf specs,
 *          to be transmitted to the client.  The stored coded length is zeroed
 *          by this call.

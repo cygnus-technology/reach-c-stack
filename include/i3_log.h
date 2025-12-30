@@ -22,7 +22,7 @@
  *            users to turn on and off logging on a per function
  *            basis.
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
- * The Cygngus Reach firmware stack is shared under an MIT license.
+ * The Cygnus Reach firmware stack is shared under an MIT license.
  */
 
 #include <stdint.h>
@@ -49,9 +49,9 @@ extern "C"
  */
 
 ///  The lowest nibble is reserved to system things.
-#define LOG_MASK_ALWAYS     0x01    ///< Cannot be supressed
-#define LOG_MASK_ERROR      0x02    ///< Prints red, cannot be supressed
-#define LOG_MASK_WARN       0x04    ///< Prints yellow, cannot be supressed
+#define LOG_MASK_ALWAYS     0x01    ///< Cannot be suppressed
+#define LOG_MASK_ERROR      0x02    ///< Prints red, cannot be suppressed
+#define LOG_MASK_WARN       0x04    ///< Prints yellow, cannot be suppressed
 #define LOG_MASK_BARE       0x08    ///< trailing \n is omitted
 #define LOG_MASK_REMOTE     0x10    ///< Set this to indicate that a message should be shared remotely.
 
@@ -116,7 +116,7 @@ uint32_t i3_log_get_mask(void);
 *          significant BLE traffic. This can slow down speed
 *          related things like file transfer.  Hence this API
 *          allows the remote command line to be easily
-*          supressed.  The initial state can be set in
+*          suppressed.  The initial state can be set in
 *          reach-server.h
 * @return  cr_ErrorCodes_NO_ERROR on success.
 */

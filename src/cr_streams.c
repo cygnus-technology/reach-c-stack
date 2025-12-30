@@ -47,7 +47,7 @@
  * @author    Chuck Peplinski
  * @date      2024-04-23
  * @copyright (c) Copyright 2024 i3 Product Development. All 
- * Rights Reserved. The Cygngus Reach firmware stack is shared 
+ * Rights Reserved. The Cygnus Reach firmware stack is shared 
  * under an MIT license. 
  */
 

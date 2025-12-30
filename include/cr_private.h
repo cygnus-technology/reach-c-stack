@@ -42,7 +42,7 @@
  * @brief     defines things internal to the Reach stack. In a C++ system these 
  *            would be private members.
  * @copyright (c) Copyright 2023 i3 Product Development. All Rights Reserved.
- * The Cygngus Reach firmware stack is shared under an MIT license.
+ * The Cygnus Reach firmware stack is shared under an MIT license.
  */
 
 #ifndef _CR_PRIVATE_H

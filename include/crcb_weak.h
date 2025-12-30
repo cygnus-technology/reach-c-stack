@@ -51,7 +51,7 @@
  * @author    Chuck Peplinski
  * @date      2024-02-21
  * @copyright (c) Copyright 2023-2024 i3 Product Development.
- * All Rights Reserved. The Cygngus Reach firmware stack is
+ * All Rights Reserved. The Cygnus Reach firmware stack is
  * shared under an MIT license.
  */
 
@@ -293,7 +293,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     /**
     * @brief   crcb_parameter_read
     * @details The overriding implementation allows the stack to access the
-    *          parameter repository of the device.  The parameter descripion of this
+    *          parameter repository of the device.  The parameter description of this
     *          pid specifying the size and type of the data is known both by the app
     *          and the stack.
     * @param   pid (input) parameter ID
@@ -309,7 +309,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     /**
     * @brief   crcb_parameter_write
     * @details The overriding implementation allows the stack to access the
-    *          parameter repository of the device.  The parameter descripion of this
+    *          parameter repository of the device.  The parameter description of this
     *          pid specifying the size and type of the data is known both by the app
     *          and the stack.
     * @param   pid (input) parameter ID
@@ -325,7 +325,7 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     /**
     * @brief   crcb_compute_parameter_hash
     * @details The overriding implementation is to compute a number that will change
-    *          if the table of parmeter descriptions is changed.  This allows the
+    *          if the table of parameter descriptions is changed.  This allows the
     *          client to cache a large table of parameter descriptions.
     *               into the devices parameter repository.
     * @return  cr_ErrorCodes_NO_ERROR on success or an error from the cr_ErrorCodes_
@@ -445,9 +445,9 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     * @brief   crcb_file_get_preferred_ack_rate
     * @details If the device has a preferred acknowledge rate it can implement this
     *          function to advise the file transfer code of the rate.
-    *          Higher ack rates mean less acknowlegements and faster file trasnfer.
+    *          Higher ack rates mean less acknowledgements and faster file transfer.
     * @param   fid : File ID, in case this affects the decision
-    * @param   requested_rate: might factor into the decison.
+    * @param   requested_rate: might factor into the decision.
     * @param   is_write true if enquiring about write.
     * @param   transfer_length The length of the transfer that is being requested.
     * @param   timeout_ms The time in milliseconds before the transfer times out.
