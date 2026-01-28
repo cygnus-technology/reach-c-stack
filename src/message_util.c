@@ -384,7 +384,8 @@ void message_util_log_transfer_data_notification(bool is_request,
     i3_log(LOG_MASK_REACH, "    result_message: %s", request->result_message);
   if (request->is_complete)
     i3_log(LOG_MASK_REACH, "    Transfer Complete.\r\n");
-  i3_log(LOG_MASK_REACH, "    Transfer NOT Complete.\r\n");
+  else
+    i3_log(LOG_MASK_REACH, "    Transfer NOT Complete.\r\n");
 }
 
 void message_util_log_param_info_request(const cr_ParameterInfoRequest *request)
