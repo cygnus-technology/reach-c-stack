@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 i3 Product Development
+ * Copyright (c) 2023-2026 i3 Product Development
  *
  * MIT License
  *
@@ -527,6 +527,19 @@ int crcb_ping_get_signal_strength(int8_t *rssi);
     int crcb_file_prepare_to_write(const uint32_t fid,
                                    const size_t offset,
                                    const size_t bytes_to_write);
+
+    /**
+    * @brief   crcb_file_prepare_to_read
+    * @details Called when a file read has been requested.  Designed to give the app
+    *          the chance to lock the data before the read sequence.
+    * @param   fid (input) which file
+    * @param   offset start address of read
+    * @param   bytes_to_read
+    * @return  returns zero or an error code.  The stack reacts to an error code.
+    */
+    int __attribute__((weak)) crcb_file_prepare_to_read(const uint32_t fid,
+                                                         const size_t offset,
+                                                         size_t *bytes_to_read);
 
 #endif // def INCLUDE_FILE_SERVICE
 

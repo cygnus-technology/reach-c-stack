@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 i3 Product Development
+ * Copyright (c) 2023-2026 i3 Product Development
  *
  * MIT License
  *
@@ -328,8 +328,28 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     }
     else
     {
+        // prepare by taking mutex.
+        size_t bytes_to_read = request->transfer_length;
+        int rval =
+        crcb_file_prepare_to_read(request->file_id,
+                                   request->request_offset,
+                                   &bytes_to_read);
+        if (rval == 0) {
+            if (request->transfer_length != bytes_to_read)
+            {
+                I3_LOG(LOG_MASK_FILES, "transfer length changed from %u to %u, do nothing.",
+                       request->transfer_length, bytes_to_read);
+                // sCr_file_xfer_state.transfer_length = bytes_to_read;
+            }
         I3_LOG(LOG_MASK_ALWAYS, "Start file read, timeout %"PRIu32" ms:",
                    sCr_file_xfer_state.timeout_in_ms);
+    }
+        else
+        {
+            LOG_ERROR("crcb_file_prepare_to_read failed");
+            cr_report_error(cr_ErrorCodes_READ_FAILED,
+                            "crcb_file_prepare_to_read() failed with %d.", rval);
+        }
     }
 
     I3_LOG(LOG_MASK_ALWAYS, "  File ID: %"PRIu32". offset %"PRIu32". size %"PRIu32". msgs per ACK: %"PRIu32"",
@@ -572,6 +592,7 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
                 pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
                 pvtCr_num_remaining_objects = 0;
                 I3_LOG(LOG_MASK_FILES, "Completing the file read.");
+                crcb_file_transfer_complete(sCr_file_xfer_state.file_id);
                 pvtCr_watchdog_end_timeout();
                 return 0;
             }
@@ -679,13 +700,17 @@ int pvtCrFile_transfer_data_notification(const cr_FileTransferDataNotification *
     sCr_file_xfer_state.message_number++;
     dataTransfer->message_number = sCr_file_xfer_state.message_number;
 
+    I3_LOG(LOG_MASK_FILES, "bytes_remaining_to_read %u - bytes_read %u.",
+        bytes_remaining_to_read, bytes_read);
+
     bytes_remaining_to_read -= bytes_read;
     if (bytes_remaining_to_read == 0)
     {
-        I3_LOG(LOG_MASK_ALWAYS, "File read complete.");
-        pvtCr_num_remaining_objects = 0;
         sCr_file_xfer_state.state = cr_FileTransferState_COMPLETE;
         pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
+        pvtCr_num_remaining_objects = 0;
+        I3_LOG(LOG_MASK_ALWAYS, "File %u read complete.", sCr_file_xfer_state.file_id);
+        // crcb_file_transfer_complete(sCr_file_xfer_state.file_id);
         pvtCr_watchdog_end_timeout();
         return 0;
     }

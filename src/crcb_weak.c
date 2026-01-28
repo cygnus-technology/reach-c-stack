@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 i3 Product Development
+ * Copyright (c) 2023-2026 i3 Product Development
  * 
  * MIT License
  *
@@ -696,6 +696,27 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
         (void)fid;
         I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
         return cr_ErrorCodes_NOT_IMPLEMENTED;
+    }
+
+    /**
+    * @brief   crcb_file_prepare_to_read
+    * @details Called when a file read has been requested.  Designed to give the app
+    *          the chance to lock the data before the read sequence. If the actual
+    *          file is smaller than the request, change bytes to read.
+    * @param   fid (input) which file
+    * @param   offset start address of read
+    * @param   *bytes_to_read
+    * @return  returns zero or an error code.  The stack reacts to an error code.
+    */
+    int __attribute__((weak)) crcb_file_prepare_to_read(const uint32_t fid,
+                                                         const size_t offset,
+                                                         size_t *bytes_to_read)
+    {
+        (void)fid;
+        (void)offset;
+        (void)bytes_to_read;
+        I3_LOG(LOG_MASK_WEAK, "%s: weak default.\n", __FUNCTION__);
+        return cr_ErrorCodes_NO_ERROR;
     }
 
     /**

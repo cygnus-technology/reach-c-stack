@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 i3 Product Development
+ * Copyright (c) 2023-2026 i3 Product Development
  * 
  * MIT License
  *
