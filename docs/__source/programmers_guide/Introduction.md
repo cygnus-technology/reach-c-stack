@@ -170,6 +170,20 @@ The reach.proto file is available on the cygnus-technology github site in the re
 
 We use nanopb to convert the .proto file into C structures. Following nanopb guidelines, we use a .options file to avoid the use of malloc(). All arrays are converted to fixed sizes which are set in the .options file. The .options file is generated using a python script, reach_proto\proto\preprocess_options.py. This reads in reach-c-stack/includes/reach_ble_proto_sizes.h and a prototype of the options file. It outputs an options file that reflects the sizes set by the device. The sizes here are optimized for efficient BLE transfer. A system that does not use BLE could adjust these sizes. The UI applications are designed to respect these size constraints that are advertised in the device info structure.
 
+### The Ahsoka Header
+
+Programmers who attempt to understand the operating code are often confused by the "Ahsoka" header. As anyone would expect, Reach messages have a header and a body. But the Ahsoka header does not follow typical protobuf practice. This header follows the practice of the Enovation Systems OpenPV system where Reach is one subsystem.
+
+A Reach packet follows this structure using the Ahsoka header:
+
+`|-------------------------|-----------------|-------------------------|`
+
+`|  Header Size (2-bytes)  |  Ahsoka Header  |  Message Payload Bytes  |`
+
+`|-------------------------|-----------------|-------------------------|`
+
+The header and the payload are each independently encoded using the protobufs format. Starting the packet with the header size allows varying modules flexibility for alternative coding methods. The Reach source code includes a control variable "sClassic_header_format" that can be set to use a non-Ahsoka header format, but this is no longer supported.\
+
 ## System Structure
 
 The Thunderboard demo has two parts, namely a “server” written in C and a “client” written in Kotlin or Swift or typescript.  The demo server we describe here runs on a Silicon Labs (SiLabs) Thunderboard.  It advertises itself as a Reach device on BLE.  Android and iOS mobile apps are available as the demo client.  These are available in the corresponding play/app store.  Cygnus also supports a web client.
