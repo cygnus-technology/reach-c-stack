@@ -313,6 +313,21 @@ void i3_log_persistent_dump(int lines);
 
 // There are others, including background colors and a 256 color mode.
 
+    // These are used in the command line history
+    #define EMPTY_LINE          CSI"1K"
+    #define CLR_TO_END          CSI"0K"
+    #define CURSOR_LEFT         CSI"1D"
+    #define CURSOR_RIGHT        CSI"1C"
+
+    #define CARRIAGE_RETURN  '\r'
+    #define LINE_FEED        '\n'
+    #define BACK_SPACE       '\b'
+    #define NULL_CHARACTER   '\0'
+    #define PROMPT           '>'
+    #define ESCAPE           '\x1B'
+
+
+
 #endif  // ndef TEXT_RESET
 #endif  // ndef DOXYGEN_PARSE
 
