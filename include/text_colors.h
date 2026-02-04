@@ -1,7 +1,7 @@
 /***********************************************************************************************************************
  * @brief   Serial Handler
  * @author  i3 Product Development (C. Peplinski)
- * @date    2021
+ * @date    2026
  **********************************************************************************************************************/
 #ifndef _TEXT_COLORS_H
 #define _TEXT_COLORS_H
@@ -51,6 +51,19 @@
     #define TEXT_BOLD_BRIGHT_MAGENTA    TEXT_BOLD TEXT_BRIGHT_MAGENTA // Bold Bright Magenta
     #define TEXT_BOLD_BRIGHT_CYAN       TEXT_BOLD TEXT_BRIGHT_CYAN    // Bold Bright Cyan
     #define TEXT_BOLD_BRIGHT_WHITE      TEXT_BOLD TEXT_BRIGHT_WHITE   // Bold Bright White
+
+    #define EMPTY_LINE          CSI"1K"
+    #define CLR_TO_END          CSI"0K"
+    #define CURSOR_LEFT         CSI"1D"
+    #define CURSOR_RIGHT        CSI"1C"
+
+    #define CARRIAGE_RETURN  '\r'
+    #define LINE_FEED        '\n'
+    #define BACK_SPACE       '\b'
+    #define NULL_CHARACTER   '\0'
+    #define PROMPT           '>'
+    #define ESCAPE           '\x1B'
+
 
 #endif  // ndef TEXT_RESET
 #endif  // def _TEXT_COLORS_H
