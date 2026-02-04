@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "reach-server.h"  // excludes logging
+#include "reach-server.h" // configuration
 #include "i3_error.h"
 
 #ifdef __cplusplus
