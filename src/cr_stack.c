@@ -308,6 +308,9 @@ static int handle_continued_transactions(void)
     #endif  // def INCLUDE_WIFI_SERVICE
 
     #ifdef INCLUDE_FILE_SERVICE
+    case cr_ReachMessageTypes_DISCOVER_FILES:
+        rval = pvtCrFile_discover(NULL, &sCr_uncoded_response_buffer.discover_files_response);
+        break;
     case cr_ReachMessageTypes_TRANSFER_DATA:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
         rval = pvtCrFile_transfer_data_notification(NULL, &sCr_uncoded_response_buffer.file_transfer_data);
