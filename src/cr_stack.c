@@ -309,8 +309,7 @@ static int handle_continued_transactions(void)
 
     #ifdef INCLUDE_FILE_SERVICE
     case cr_ReachMessageTypes_DISCOVER_FILES:
-        rval = pvtCrFile_discover(NULL,
-                                  (cr_DiscoverFilesResponse *)sCr_uncoded_response_buffer);
+        rval = pvtCrFile_discover(NULL, &sCr_uncoded_response_buffer.discover_files_response);
         break;
     case cr_ReachMessageTypes_TRANSFER_DATA:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued rf.", __FUNCTION__);
