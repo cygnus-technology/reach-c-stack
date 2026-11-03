@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2023-2024 i3 Product Development
- * 
+ *
  * MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,12 +39,12 @@
 
 /**
  * @file      cr_stack.c
- * @brief     Contains the core of the Cygnus Reach firmware 
+ * @brief     Contains the core of the Cygnus Reach firmware
  *            stack. The Reach stack depends on reach-server.h
  *            to control its configuration at build time.  The
  *            file reach-server.h should be part of the server
  *            application using the reach stack.
- * @brief TERMINOLOGY: 
+ * @brief TERMINOLOGY:
  *      A transaction is a series of messages.
  *      A message has a header and a payload.
  *      The prompt is a received payload.
@@ -89,14 +89,14 @@
 // This is private data.
 //----------------------------------------------------------------------------
 
-// the fully encoded message is received in the sCr_encoded_message_buffer. 
+// the fully encoded message is received in the sCr_encoded_message_buffer.
 /// @private
 static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 
 /// @private
 static size_t  sCr_encoded_message_size = 0;
 
-// The message header is decoded into this buffer containing an encoded payload buffer: 
+// The message header is decoded into this buffer containing an encoded payload buffer:
 /// @private
 static cr_ReachMessage sCr_uncoded_message_structure;
 
@@ -141,7 +141,7 @@ union uncoded_response_message {
 #endif  // def INCLUDE_WIFI_SERVICE
 };
 
-// A decoded prompt payload. This can be reused from the encoded message buffer. 
+// A decoded prompt payload. This can be reused from the encoded message buffer.
 /// @private
 static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
 
@@ -153,21 +153,20 @@ static union uncoded_response_message sCr_uncoded_response_buffer ALIGN_TO_WORD;
 /// so that the header can be added.
 #define ENCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
 
-// The response payload is encoded into sCr_encoded_payload_buffer[]. 
+// The response payload is encoded into sCr_encoded_payload_buffer[].
 /// @private
-static uint8_t sCr_encoded_payload_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD; 
+static uint8_t sCr_encoded_payload_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 /// @private
-static size_t sCr_encoded_payload_size; 
- 
+static size_t sCr_encoded_payload_size;
+
 // The response payload is copied into the sCr_uncoded_message_structure
 
-// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]  
+// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]
 /// @private
 static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
 /// @private
 static size_t  sCr_encoded_response_size = 0;
 
-static bool sClassic_header_format = false;
 
 static uint8_t sCr_raw_notification[CR_CODED_BUFFER_SIZE]    ALIGN_TO_WORD;
 static uint8_t sCr_coded_notification[CR_CODED_BUFFER_SIZE]  ALIGN_TO_WORD;
@@ -196,7 +195,7 @@ static bool sCr_error_reported = false;
 static int handle_coded_prompt(void);
 
 /// @private
-static int 
+static int
 handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *data, size_t size);
 
 /// <summary>
@@ -218,7 +217,7 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
                                       cr_DeviceInfoResponse *response);
 
 #ifdef INCLUDE_COMMAND_SERVICE
-    // Commands 
+    // Commands
     static int handle_discover_commands(const cr_DiscoverCommands *,
                                         cr_DiscoverCommandsResponse *);
     static int handle_send_command(const cr_SendCommand *, cr_SendCommandResponse *);
@@ -232,16 +231,16 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
 #endif // def INCLUDE_CLI_SERVICE
 
 #ifdef INCLUDE_TIME_SERVICE
-    static int handle_time_set(const cr_TimeSetRequest *request, 
+    static int handle_time_set(const cr_TimeSetRequest *request,
                                cr_TimeSetResponse *response);
-    static int handle_time_get(const cr_TimeGetRequest *request, 
+    static int handle_time_get(const cr_TimeGetRequest *request,
                                cr_TimeGetResponse *response);
 #endif  // def INCLUDE_TIME_SERVICE
 
 #ifdef INCLUDE_WIFI_SERVICE
     static int handle_discover_wifi(const cr_DiscoverWiFi *request,
                                 cr_DiscoverWiFiResponse *response);
-    static int handle_wifi_connect(const cr_WiFiConnectionRequest *request, 
+    static int handle_wifi_connect(const cr_WiFiConnectionRequest *request,
                                       cr_WiFiConnectionResponse *response);
 #endif  // def INCLUDE_WIFI_SERVICE
 
@@ -275,12 +274,12 @@ static int handle_continued_transactions(void)
     #ifdef INCLUDE_PARAMETER_SERVICE
     case cr_ReachMessageTypes_DISCOVER_PARAMETERS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dp.", __FUNCTION__);
-        rval = 
+        rval =
             pvtCrParam_discover_parameters(NULL, &sCr_uncoded_response_buffer.parameter_info_response);
         break;
     case cr_ReachMessageTypes_DISCOVER_PARAM_EX:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued dpx.", __FUNCTION__);
-        rval = 
+        rval =
             pvtCrParam_discover_parameters_ex(NULL, &sCr_uncoded_response_buffer.parameter_ex_info_response);
         break;
     case cr_ReachMessageTypes_READ_PARAMETERS:
@@ -295,7 +294,7 @@ static int handle_continued_transactions(void)
     #ifdef INCLUDE_COMMAND_SERVICE
     case cr_ReachMessageTypes_DISCOVER_COMMANDS:
         I3_LOG(LOG_MASK_REACH, "%s(): Continued disc cmds.", __FUNCTION__);
-        rval = 
+        rval =
             handle_discover_commands(NULL, &sCr_uncoded_response_buffer.discover_commands_response);
         break;
     #endif  // def INCLUDE_COMMAND_SERVICE
@@ -347,9 +346,9 @@ static int handle_continued_transactions(void)
 /**
 * @brief   cr_init
 * @details To be called before starting the stack.
-* @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_. 
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error like cr_ErrorCodes_.
 */
-int cr_init(void) 
+int cr_init(void)
 {
     return cr_ErrorCodes_NO_ERROR;
 }
@@ -362,15 +361,15 @@ int cr_init(void)
 #endif
 
 /// <summary>
-/// sCr_advertised_name holds the name that will be advertised 
-/// (via BLE).  This can be set programmatically. 
+/// sCr_advertised_name holds the name that will be advertised
+/// (via BLE).  This can be set programmatically.
 /// </summary>
 char sCr_advertised_name[APP_ADVERTISED_NAME_LENGTH];
 
 
 /**
 * @brief   cr_set_advertised_name
-* @details Sets the name of the device that should be advertised before 
+* @details Sets the name of the device that should be advertised before
 *          connecting.  Used in BLE.  The length of the string is set by
 *          APP_ADVERTISED_NAME_LENGTH which can be define in the application.
 *          See reach-server.h.  Uses REACH_SHORT_STRING_LEN when
@@ -383,7 +382,7 @@ int cr_set_advertised_name(char *name, int length)
     strncpy(sCr_advertised_name, name, APP_ADVERTISED_NAME_LENGTH);
     // I3_LOG(LOG_MASK_ALWAYS, "Call sanitize from %s", __FUNCTION__);
     pvtCr_sanitize_string_to_utf8(sCr_advertised_name);
-    if (length >= APP_ADVERTISED_NAME_LENGTH) 
+    if (length >= APP_ADVERTISED_NAME_LENGTH)
         return APP_ADVERTISED_NAME_LENGTH;
     return cr_ErrorCodes_NO_ERROR;
 }
@@ -402,11 +401,11 @@ const char *cr_get_advertised_name(void)
 
 /**
 * @brief   cr_store_coded_prompt
-* @details allows the application to store the prompt where the Reach stack can 
+* @details allows the application to store the prompt where the Reach stack can
 *          see it.  The byte data and length are copied into private storage.
 *          This data is retrieved using crcb_get_coded_prompt().
-* @param   data: The coded prompt to be stored. 
-* @param   len : number of bytes to be stored. 
+* @param   data: The coded prompt to be stored.
+* @param   len : number of bytes to be stored.
 * @return  cr_ErrorCodes_NO_ERROR or a non-zero error code.
 */
 int cr_store_coded_prompt(uint8_t *data, size_t len)
@@ -420,7 +419,7 @@ int cr_store_coded_prompt(uint8_t *data, size_t len)
 
 /**
 * @brief   cr_get_coded_response_buffer
-* @details Retrieve the address of the "coded response buffer".  This buffer 
+* @details Retrieve the address of the "coded response buffer".  This buffer
 *          contains the response to a prompt, coded according to protobuf specs,
 *          to be transmitted to the client.  The stored coded length is zeroed
 *          by this call.
@@ -444,18 +443,18 @@ static uint32_t sCr_currentTicks = 0;
 
 /**
 * @brief   cr_process
-* @details The application must call cr_process() regularly as it does most of 
+* @details The application must call cr_process() regularly as it does most of
 *          the work required of Reach. The ticks parameter is expected to be a
 *          monotonically increasing value representing the time since the system
 *          started. This allows it to perform timing related tasks such as
 *          notifications. cr_process() returns immediately if the device is not
 *          connected to BLE.
-* @param   ticks: A measure of time passed, typically milliseconds, but the 
+* @param   ticks: A measure of time passed, typically milliseconds, but the
 *               units are not specified.
-* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code, however these are 
+* @return  cr_ErrorCodes_NO_ERROR or a non-zero error code, however these are
 *          indicative only.  The non-zero returns indicate normal conditions.
 */
-int cr_process(uint32_t ticks) 
+int cr_process(uint32_t ticks)
 {
     sCr_currentTicks = ticks;   // store it so others can use it.
     sCr_CallCount++;
@@ -529,8 +528,8 @@ int cr_process(uint32_t ticks)
 
 /**
 * @brief   cr_get_current_ticks
-* @details The tick count is passed in to cr_process(). This function gives 
-*          other Reach functions access to that value. 
+* @details The tick count is passed in to cr_process(). This function gives
+*          other Reach functions access to that value.
 * @return  The same tick count passed into cr_process().
 */
 uint32_t cr_get_current_ticks(void)
@@ -542,7 +541,7 @@ uint32_t cr_get_current_ticks(void)
 static bool sCr_comm_link_is_connected = false;
 /**
 * @brief   cr_set_comm_link_connected
-* @details The communication stack must inform the Reach stack of the status of 
+* @details The communication stack must inform the Reach stack of the status of
 *          the communication link. The integration must inform Reach when
 *          the connection status changes. The Reach loop only runs when the
 *          connection is valid. All parameter notifications are cleared when a
@@ -551,7 +550,7 @@ static bool sCr_comm_link_is_connected = false;
 * @param   connected true if connected.
 */
 void cr_set_comm_link_connected(bool connected)
-{ 
+{
    if (!sCr_comm_link_is_connected && connected)
    {
        // we are newly connected, so clear any stale data.
@@ -563,7 +562,7 @@ void cr_set_comm_link_connected(bool connected)
        crcb_invalidate_challenge_key();
    }
    sCr_comm_link_is_connected = connected;
-} 
+}
 
 /**
 * @brief   cr_get_comm_link_connected
@@ -571,13 +570,13 @@ void cr_set_comm_link_connected(bool connected)
 * @return  true if the communication link is connected.
 */
 bool cr_get_comm_link_connected(void)
-{ 
+{
    return sCr_comm_link_is_connected;
-} 
+}
 
 /**
 * @brief   cr_report_error
-* @details The system can report errors to the client.  This 
+* @details The system can report errors to the client.  This
 *          takes some memory and so users are given the option
 *          to configure this with ERROR_REPORT_FORMAT defined in
 *          reach-server.h.  ERROR_FORMAT_FULL causes another 240
@@ -588,9 +587,9 @@ bool cr_get_comm_link_connected(void)
 *          ERROR_FORMAT_LOG_ONLY disables the remote
 *          notification and only prints the error code in the
 *          local log.
-* @param error_code : Use of the cr_ErrorCodes_ enum is encouraged but not 
+* @param error_code : Use of the cr_ErrorCodes_ enum is encouraged but not
 *                   required.
-* @param fmt : A printf-like string with variables. 
+* @param fmt : A printf-like string with variables.
 */
 
 #ifndef ERROR_REPORT_FORMAT
@@ -657,37 +656,24 @@ bool cr_get_comm_link_connected(void)
 #endif // #ifndef ERROR_REPORT_FORMAT
 
 
-// 
-// Static functions 
+//
+// Static functions
 //
 
 /*
- * Ahsoka Serial Header Format
- *
- * |-------------------------|-----------------|-------------------------|
- * |  Header Size (2-bytes)  |  Ahsoka Header  |  Message Payload Bytes  |
- * |-------------------------|-----------------|-------------------------|
- *
- * While the full packet could be stored in a payload, because we know the
- * first two bytes are exclusively going to be used to determine the size
- * of the header,
-*/
-
-
-/*
-* @brief   handle_coded_classic_prompt
+* @brief   handle_coded_prompt
 * @details A static (private) function to decode the wrapper and
 *          dispatch the appropriate message handlers.
 * @return Zero on success or an error code.
 */
 /// @private
-static int handle_coded_classic_prompt(void) 
+static int handle_coded_prompt(void)
 {
     // sCr_uncoded_message_structure will hold the decoded message.
     cr_ReachMessage *msgPtr = &sCr_uncoded_message_structure;
     memset(msgPtr, 0, sizeof(cr_ReachMessage));
-    if(!decode_reach_message(msgPtr, 
-                             (pb_byte_t *)sCr_encoded_message_buffer, 
+    if(!decode_reach_message(msgPtr,
+                             (pb_byte_t *)sCr_encoded_message_buffer,
                              sCr_encoded_message_size))
     {
         cr_report_error(cr_ErrorCodes_DECODING_FAILED, "%s:Reach header Decode failed", __FUNCTION__);
@@ -703,86 +689,13 @@ static int handle_coded_classic_prompt(void)
     I3_LOG(LOG_MASK_REACH, "Message type: \t%s", msg_type_string(msgPtr->header.message_type));
     LOG_DUMP_WIRE("handle_coded_prompt (message): ",
                        msgPtr->payload.bytes, msgPtr->payload.size);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %"PRIu_pb". Transaction ID %"PRIu32", client_id 0x%"PRIx32", endpoint %"PRIu32".", 
+    I3_LOG(LOG_MASK_REACH, "Prompt Payload size: %"PRIu_pb". Transaction ID %"PRIu32", client_id 0x%"PRIx32", endpoint %"PRIu32".",
            msgPtr->payload.size, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
 
     // further decode and process the message
     // The result will be fully encoded at sCr_encoded_response_buffer[]
     // in case of a non-zero return there will be an encoded error report.
     return handle_message(hdr, coded_data, msgPtr->payload.size);
-}
-
-/*
-* @brief   handle_coded_prompt
-* @details A static (private) function to decode the wrapper and
-*          dispatch the appropriate message handlers.
-* @return Zero on success or an error code.
-*/
-/// @private
-static int handle_coded_prompt(void) // ahsoka version
-{
-    // Is this a classic Reach header or an Ahsoka header?
-    // Classic reach will start with 0x0A
-    if ((sCr_encoded_message_buffer[0] == 0x0A) && (sCr_encoded_message_buffer[1] != 0x0))
-    {
-        sClassic_header_format = true;
-        return handle_coded_classic_prompt(); 
-    }
-    sClassic_header_format = false;
-    I3_LOG(LOG_MASK_REACH, TEXT_MAGENTA "Decode Ahsoka header:");
-
-    // We will first decode the header, skipping over the two byte 
-    // packet size at the front. This can go on the stack as it's not large and 
-    // we won't need it after this function.  The key parts are saved to statics.
-    cr_AhsokaMessageHeader header;
-
-    // Store the size of message is in the first two bytes.
-    uint16_t coded_header_size = (sCr_encoded_message_buffer[1] << 8) | sCr_encoded_message_buffer[0];
-
-    // feed the header into the stream buffer, skipping the leading size
-    pb_istream_t is_stream = 
-        pb_istream_from_buffer(((pb_byte_t *)&sCr_encoded_message_buffer) + 2, 
-                               coded_header_size);
-
-    // Decode the header from the incoming buffer.
-    memset(&header, 0, sizeof(cr_AhsokaMessageHeader));
-    bool status = pb_decode(&is_stream, cr_AhsokaMessageHeader_fields, (void *)&header);
-    if (!status)
-    {
-        LOG_ERROR("Ahsoka Header Decoding failed: %s\n", PB_GET_ERROR(&is_stream));
-        cr_report_error(cr_ErrorCodes_DECODING_FAILED, 
-                        "%s: Ahsoka header Decode failed", __FUNCTION__);
-        return cr_ErrorCodes_DECODING_FAILED;
-    }
-
-    // save the things we need out of the header.
-    sCr_transaction_id = header.transaction_id;
-    sCr_endpoint_id    = header.endpoint_id;
-    memcpy(&sCr_client_id, header.client_id.bytes, header.client_id.size);
-    pvtCr_num_remaining_objects = header.remaining_objects;
-
-    // The coded data begins after the header
-    uint8_t *coded_data = (uint8_t *)((unsigned int)(&sCr_encoded_message_buffer)
-                                      + 2 + coded_header_size);
-    uint16_t remaining_objects = sCr_encoded_message_size - 2 - coded_header_size;
-    uint8_t *coded_payload = (uint8_t *)&sCr_uncoded_message_structure;
-    memcpy(coded_payload, coded_data, remaining_objects);
-
-    I3_LOG(LOG_MASK_REACH, "Message type: \t%s",
-           msg_type_string(header.message_type));
-
-    // I don't see how to get the size without decoding.
-    LOG_DUMP_WIRE("handle_coded_prompt ahsoka payload: ",
-                       coded_payload, remaining_objects);
-    I3_LOG(LOG_MASK_REACH, "Prompt Payload: size: %"PRIu16", Transaction ID %"PRIu32", client_id %"PRIu32", endpoint_id %"PRIu32".", 
-           remaining_objects, sCr_transaction_id, sCr_client_id, sCr_endpoint_id);
-
-    // further decode and process the message
-    // The result will be fully encoded at sCr_encoded_response_buffer[]
-    // in case of a non-zero return there will be an encoded error report.
-    cr_ReachMessageHeader rhdr = {0};
-    rhdr.message_type = header.message_type;
-    return handle_message(&rhdr, coded_payload, remaining_objects);
 }
 
 static size_t sCr_MaxBufferSize = 0;
@@ -803,14 +716,14 @@ static int sCr_checkSize(size_t test, size_t limit, char *name)
 }
 
 /// cr_test_sizes(): The test harness checks that buffer sizes
-/// are not too big. These buffer sizes are adjusted via 
-/// reach.options.prototype and update_proto.bat 
+/// are not too big. These buffer sizes are adjusted via
+/// reach.options.prototype and update_proto.bat
 void cr_test_sizes(void)
 {
     int rval = 0;
 
     /// MAX_BLE_SZ is used to check the encoded structure
-    /// sizes. 
+    /// sizes.
     #define MAX_BLE_SZ  CR_CODED_BUFFER_SIZE
 
   #ifdef VERBOSE_SIZES
@@ -819,8 +732,8 @@ void cr_test_sizes(void)
     I3_LOG(LOG_MASK_ALWAYS, "Silent buffer size check:  " TEXT_RESET);
   #endif
     /// reach.pb.h gives us some "Maximum encoded size of messages".
-    /// Check these against MAX_BLE_SZ, the limit of an encoded 
-    /// buffer. 
+    /// Check these against MAX_BLE_SZ, the limit of an encoded
+    /// buffer.
     rval += sCr_checkSize(cr_CLIData_size,                  MAX_BLE_SZ, "cr_CLIData_size");
     rval += sCr_checkSize(cr_CommandInfo_size,              MAX_BLE_SZ, "cr_CommandInfo_size");
     rval += sCr_checkSize(cr_DeviceInfoResponse_size,       MAX_BLE_SZ, "cr_DeviceInfoResponse_size");
@@ -864,7 +777,7 @@ void cr_test_sizes(void)
 
 
     /// <summary>
-    /// MAX_RAW_SZ is used to check the unencoded structure sizes. 
+    /// MAX_RAW_SZ is used to check the unencoded structure sizes.
     /// </summary>
     #define MAX_RAW_SZ  CR_DECODED_BUFFER_SIZE
 
@@ -900,8 +813,8 @@ void cr_test_sizes(void)
 
 }
 
-// <summary> Decodes the payload and calls the appropriate 
-// handler function. 
+// <summary> Decodes the payload and calls the appropriate
+// handler function.
 // </summary>
 // <param name="hdr"> Includes type of message</param>
 // <param name="data">The actual message</param>
@@ -911,7 +824,7 @@ void cr_test_sizes(void)
 /*********************************************************************************
   * The caller separated the wrapper into header and coded_data.
   * The header and coded_data point into sCr_uncoded_message_structure.
-  * In this function: 
+  * In this function:
   *   The prompt is decoded into sCr_decoded_prompt_buffer and handled.
   *   The result is coded into sCr_encoded_response_buffer with length.
   *   First the payload is determined.  Then it is encoded.
@@ -924,16 +837,16 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     affirm(coded_data);
 
     cr_ReachMessageTypes message_type = (cr_ReachMessageTypes)hdr->message_type;
-    cr_ReachMessageTypes encode_message_type = message_type; // default 
+    cr_ReachMessageTypes encode_message_type = message_type; // default
 
-    //LOG_REACH("call decode_reach_payload(from 0x%x, to 0x%x, sz %d)", 
+    //LOG_REACH("call decode_reach_payload(from 0x%x, to 0x%x, sz %d)",
     //          coded_data, sCr_decoded_prompt_buffer, size);
 
     if (!decode_reach_payload(message_type,
                               sCr_decoded_prompt_buffer,
                               coded_data, size))
     {
-        cr_report_error(cr_ErrorCodes_DECODING_FAILED, "%s: decode payload %d failed.", 
+        cr_report_error(cr_ErrorCodes_DECODING_FAILED, "%s: decode payload %d failed.",
                         __FUNCTION__, message_type);
         return cr_ErrorCodes_DECODING_FAILED;
     }
@@ -1012,7 +925,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 
     case cr_ReachMessageTypes_TRANSFER_DATA_NOTIFICATION:
     {
-        cr_FileTransferDataNotification *request = 
+        cr_FileTransferDataNotification *request =
             (cr_FileTransferDataNotification *)sCr_decoded_prompt_buffer;
         rval = pvtCrFile_transfer_data_notification(request, &sCr_uncoded_response_buffer.file_transfer_data);
         // for continuing transactions we need more data.
@@ -1070,11 +983,11 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 
   #ifdef INCLUDE_TIME_SERVICE
     case cr_ReachMessageTypes_SET_TIME:
-        rval = handle_time_set((cr_TimeSetRequest *)sCr_decoded_prompt_buffer, 
+        rval = handle_time_set((cr_TimeSetRequest *)sCr_decoded_prompt_buffer,
                                &sCr_uncoded_response_buffer.time_set_response);
         break;
     case cr_ReachMessageTypes_GET_TIME:
-        rval = handle_time_get((cr_TimeGetRequest *)sCr_decoded_prompt_buffer, 
+        rval = handle_time_get((cr_TimeGetRequest *)sCr_decoded_prompt_buffer,
                                &sCr_uncoded_response_buffer.time_get_response);
         break;
   #endif  // def INCLUDE_TIME_SERVICE
@@ -1085,7 +998,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
                                     &sCr_uncoded_response_buffer.discover_wifi_response);
         break;
     case cr_ReachMessageTypes_WIFI_CONNECT:
-        rval = handle_wifi_connect((cr_WiFiConnectionRequest *)sCr_decoded_prompt_buffer, 
+        rval = handle_wifi_connect((cr_WiFiConnectionRequest *)sCr_decoded_prompt_buffer,
                                    &sCr_uncoded_response_buffer.wifi_connection_response);
         break;
   #endif  // def INCLUDE_WIFI_SERVICE
@@ -1093,7 +1006,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
     default:
         cr_report_error(cr_ErrorCodes_NOT_IMPLEMENTED, "Unhandled message type %d.", message_type);
         LOG_ERROR("Unhandled message type %d.", message_type);
-        rval = cr_ErrorCodes_NOT_IMPLEMENTED; 
+        rval = cr_ErrorCodes_NOT_IMPLEMENTED;
         break;
     }
     if (rval != 0)
@@ -1118,7 +1031,7 @@ handle_message(const cr_ReachMessageHeader *hdr, const uint8_t *coded_data, size
 }
 
 // handle_ping attempts to reuse the encoded prompt
-static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response) 
+static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 {
     int8_t rssi;
 
@@ -1139,16 +1052,16 @@ static int handle_ping(const cr_PingRequest *request, cr_PingResponse *response)
 
 
 // <summary>
-// Fill in the structure that communicates buffer sizes to the 
+// Fill in the structure that communicates buffer sizes to the
 // Reach client.  Comments on the BufferSizes message in the
-// reach.proto file give more description of the meaning of 
-// each entry. 
+// reach.proto file give more description of the meaning of
+// each entry.
 // </summary>
-// <param name="dir">Pointer to a device info response 
-// structure into which the sizes data will be copied</param> 
+// <param name="dir">Pointer to a device info response
+// structure into which the sizes data will be copied</param>
 static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
 {
-    reach_sizes_t sizes_struct; 
+    reach_sizes_t sizes_struct;
 
     sizes_struct.max_message_size             = 244;  // biggest BLE message
     sizes_struct.big_data_buffer_size         = REACH_BIG_DATA_BUFFER_LEN;
@@ -1170,27 +1083,23 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
 
 uint8_t sClientProtocolVersion[3];
 /**
- * @brief   handle_get_device_info 
- * @details In response to a request for device info, get the 
+ * @brief   handle_get_device_info
+ * @details In response to a request for device info, get the
  *         raw data from the app via a crcb function, then
  *         update the provided pointer with the latest accurate
  *         data.
- *@param   request : A pointer to the request which may include  
+ *@param   request : A pointer to the request which may include
  *                 a challenge key.
- *@param   response : A pointer to memory where the complete  
+ *@param   response : A pointer to memory where the complete
  *                  device info response will be composed.
- *@return  0 on success.  cr_ErrorCodes_NO_DATA if the device 
+ *@return  0 on success.  cr_ErrorCodes_NO_DATA if the device
  *          was built to require a challenge key and the
  *          provided key does not match.
 */
-static int 
+static int
 handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
                        cr_DeviceInfoResponse     *response)  // out
 {
-    if (sClassic_header_format)
-    {
-        I3_LOG(LOG_MASK_ERROR, "Please use the Ahsoka header format.");
-    }
     int major = 0, minor = 0, patch = 0;
     memset(sClientProtocolVersion, 0, 3);
     memset(response, 0, sizeof(cr_DeviceInfoResponse));
@@ -1226,11 +1135,11 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 
 
 /**
-* @brief   cr_get_reach_version 
-* @details The version is in semantic version format: 
+* @brief   cr_get_reach_version
+* @details The version is in semantic version format:
 *          MAJOR.MINOR.PATCH
-*          with an optional string appended. 
-* @return  Returns a pointer to a null terminated string 
+*          with an optional string appended.
+* @return  Returns a pointer to a null terminated string
 *          containing the C stack version.
 */
 const char *cr_get_reach_version(void)
@@ -1243,11 +1152,11 @@ const char *cr_get_reach_version(void)
 
 
 /**
-* @brief   cr_get_proto_version 
-* @details The version is in semantic version format: 
+* @brief   cr_get_proto_version
+* @details The version is in semantic version format:
 *          MAJOR.MINOR.PATCH
-*          with an optional string appended. 
-* @return  Returns a pointer to a null terminated string 
+*          with an optional string appended.
+* @return  Returns a pointer to a null terminated string
 *          containing the C protobuf version.
 */
 const char *cr_get_proto_version(void)
@@ -1262,9 +1171,9 @@ const char *cr_get_proto_version(void)
 }
 
  /**
- * @brief   pvtCr_compare_proto_version 
+ * @brief   pvtCr_compare_proto_version
  * @details Used to support backward compatibility.
- * @return  Returns 0 if the client's protocol version is equal 
+ * @return  Returns 0 if the client's protocol version is equal
  *          to the specified version.  A positive value means the
  *          client is greater (newer).  A negative value means
  *          the client version is older than the specified
@@ -1282,7 +1191,7 @@ int pvtCr_compare_proto_version(uint8_t major, uint8_t minor, uint8_t patch)
     }
 
     if ((sClientProtocolVersion[0] == major)
-        && (sClientProtocolVersion[1] == minor) 
+        && (sClientProtocolVersion[1] == minor)
         && (sClientProtocolVersion[2] == patch))
     {
         return 0;
@@ -1305,26 +1214,26 @@ int pvtCr_compare_proto_version(uint8_t major, uint8_t minor, uint8_t patch)
 }
 
 #ifdef INCLUDE_COMMAND_SERVICE
-static int 
+static int
 handle_discover_commands(const cr_DiscoverCommands *request,
                          cr_DiscoverCommandsResponse *response)
 {
     int rval;
     int num_commands;
 
-    if (request != NULL) 
+    if (request != NULL)
     {
         // request will be null on repeated calls.
         // Here implies we are responding to the initial request.
         num_commands = crcb_get_command_count();
         sCr_requested_command_index = 0;
-        I3_LOG(LOG_MASK_DEBUG, "%s: first request, num_commands %d", 
+        I3_LOG(LOG_MASK_DEBUG, "%s: first request, num_commands %d",
                __FUNCTION__, num_commands);
     }
     else  // here the request was null and we are continuing the previous request;
     {
         num_commands = pvtCr_num_remaining_objects;
-        I3_LOG(LOG_MASK_DEBUG, "%s: continued request, num_commands %d from %d", 
+        I3_LOG(LOG_MASK_DEBUG, "%s: continued request, num_commands %d from %d",
                __FUNCTION__, num_commands, sCr_requested_command_index);
 
     }
@@ -1354,7 +1263,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
         I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_commands);
         return 0;
         // and we're done.
-    } 
+    }
     // otherwise there are more so set up for continued commands
     response->available_commands_count = REACH_NUM_COMMANDS_IN_RESPONSE;
     pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_COMMANDS;
@@ -1364,7 +1273,7 @@ handle_discover_commands(const cr_DiscoverCommands *request,
 }
 
 static int handle_send_command(const cr_SendCommand *request,
-                               cr_SendCommandResponse *response) 
+                               cr_SendCommandResponse *response)
 {
     if (!crcb_access_granted(cr_ServiceIds_COMMANDS, request->command_id)) {
         response->result = cr_ErrorCodes_NO_DATA;
@@ -1379,12 +1288,12 @@ static int handle_send_command(const cr_SendCommand *request,
     //*************************************************************************
     //  CLI Service
     //*************************************************************************
-    static int handle_cli_notification(const cr_CLIData *request, 
+    static int handle_cli_notification(const cr_CLIData *request,
                                         cr_CLIData *response)
     {
         (void)response;
         I3_LOG(LOG_MASK_ALWAYS, "Remote command: '%s'", request->message_data);
-        if (!i3_log_get_remote_cli_enable()) 
+        if (!i3_log_get_remote_cli_enable())
             I3_LOG(LOG_MASK_WARN, "  -> Command received, remote CLI response is disabled.");
         crcb_cli_enter(request->message_data);
         return cr_ErrorCodes_NO_RESPONSE;
@@ -1393,7 +1302,7 @@ static int handle_send_command(const cr_SendCommand *request,
 
 
 #ifdef INCLUDE_TIME_SERVICE
-    static int handle_time_set(const cr_TimeSetRequest *request, 
+    static int handle_time_set(const cr_TimeSetRequest *request,
                                cr_TimeSetResponse *response)
     {
         if (!crcb_access_granted(cr_ServiceIds_TIME, 1)) {
@@ -1408,7 +1317,7 @@ static int handle_send_command(const cr_SendCommand *request,
         return 0;
     }
 
-    static int handle_time_get(const cr_TimeGetRequest *request, 
+    static int handle_time_get(const cr_TimeGetRequest *request,
                                cr_TimeGetResponse *response)
     {
         (void)request;
@@ -1445,9 +1354,9 @@ static int handle_send_command(const cr_SendCommand *request,
         if (!crcb_access_granted(cr_ServiceIds_WIFI, -1)) {
             pvtCr_num_remaining_objects = 0;
             pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
-            return cr_ErrorCodes_NO_DATA; 
+            return cr_ErrorCodes_NO_DATA;
         }
-        if (request != NULL) 
+        if (request != NULL)
         {
             // request will be null on repeated calls.
             // Here implies we are responding to the initial request.
@@ -1502,7 +1411,7 @@ static int handle_send_command(const cr_SendCommand *request,
             I3_LOG(LOG_MASK_DEBUG, "%s: Completed with %d", __FUNCTION__, num_ap);
             return 0;
             // and we're done.
-        } 
+        }
         // otherwise there are more so set up for continued commands
         response->cd_count = REACH_WIFI_AP_IN_DISCOVER;
         pvtCr_continued_message_type = cr_ReachMessageTypes_DISCOVER_WIFI;
@@ -1511,7 +1420,7 @@ static int handle_send_command(const cr_SendCommand *request,
         return 0;
     }
 
-    static int handle_wifi_connect(const cr_WiFiConnectionRequest *request, 
+    static int handle_wifi_connect(const cr_WiFiConnectionRequest *request,
                                       cr_WiFiConnectionResponse *response)
     {
         (void)request;
@@ -1546,7 +1455,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
   bool status = false;
 
   /* Now we are ready to encode the message. */
-  switch (message_type) 
+  switch (message_type)
   {
 
   case cr_ReachMessageTypes_GET_DEVICE_INFO:
@@ -1673,7 +1582,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
           *encode_size = os_stream.bytes_written;
           cr_FileTransferData *td = (cr_FileTransferData *)data;
           message_util_log_transfer_data(td);
-          LOG_DUMP_MASK(LOG_MASK_REACH, "Data Sent", 
+          LOG_DUMP_MASK(LOG_MASK_REACH, "Data Sent",
                         td->message_data.bytes, td->message_data.size);
       }
       break;
@@ -1726,7 +1635,7 @@ bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
       }
     break;
 
-#endif // def INCLUDE_STREAM_SERVICE 
+#endif // def INCLUDE_STREAM_SERVICE
 
 #ifdef INCLUDE_COMMAND_SERVICE
   case cr_ReachMessageTypes_DISCOVER_COMMANDS:
@@ -1826,15 +1735,24 @@ bool encode_reach_message(const cr_ReachMessage *message,   // in:  message to b
   return status;
 }
 
-// encodes message to sCr_encoded_response_buffer.
-// The caller must populate the header
-static int sCr_encode_classic_message(cr_ReachMessageTypes message_type,   // in
-                             const void *payload,                  // in:  to be encoded
-                             cr_ReachMessageHeader *hdr)           // in
+// Responses use the supplied header; notifications use a zero-addressed header.
+int pvtCr_encode_message(cr_ReachMessageTypes message_type,
+                         const void *payload,
+                         cr_ReachMessageHeader *hdr)
 {
-    // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
-    //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
+    cr_ReachMessageHeader notification_header = {0};
+    uint8_t *buffer = hdr ? sCr_encoded_response_buffer : sCr_coded_notification;
+    size_t buffer_size = hdr ? sizeof(sCr_encoded_response_buffer) : sizeof(sCr_coded_notification);
+    size_t *encoded_size = hdr ? &sCr_encoded_response_size : &sCr_encoded_notification_size;
+    static cr_ReachMessage notification_message;
+    cr_ReachMessage *message = hdr ? &sCr_uncoded_message_structure : &notification_message;
 
+    if (!hdr)
+    {
+        notification_header.message_type = message_type;
+        hdr = &notification_header;
+    }
+    *encoded_size = 0;
     if (!encode_reach_payload(message_type, payload,
                               sCr_encoded_payload_buffer,
                               sizeof(sCr_encoded_payload_buffer),
@@ -1843,172 +1761,17 @@ static int sCr_encode_classic_message(cr_ReachMessageTypes message_type,   // in
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode payload %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
-    I3_LOG(LOG_MASK_REACH, TEXT_MAGENTA "Encode classic header:");
 
-    // build the message envelope
-    sCr_uncoded_message_structure.header     = *hdr;
-    sCr_uncoded_message_structure.has_header = true;
-    memcpy(sCr_uncoded_message_structure.payload.bytes, 
-           sCr_encoded_payload_buffer, 
-           sCr_encoded_payload_size);
-    sCr_uncoded_message_structure.payload.size = sCr_encoded_payload_size;  
+    message->header = *hdr;
+    message->has_header = true;
+    memcpy(message->payload.bytes, sCr_encoded_payload_buffer, sCr_encoded_payload_size);
+    message->payload.size = sCr_encoded_payload_size;
 
-    I3_LOG(LOG_MASK_REACH, "%s(): type %"PRIu32", remain %"PRIu32", trans_id %"PRIu32", client %"PRIu32", ep %"PRIu32".", 
-           __FUNCTION__,
-           sCr_uncoded_message_structure.header.message_type, 
-           sCr_uncoded_message_structure.header.remaining_objects, 
-           sCr_uncoded_message_structure.header.transaction_id,
-           sCr_uncoded_message_structure.header.client_id,
-           sCr_uncoded_message_structure.header.endpoint_id);
-
-    // encode the wrapped message
-    if (!encode_reach_message(&sCr_uncoded_message_structure,
-                              sCr_encoded_response_buffer,
-                              sizeof(sCr_encoded_response_buffer),
-                              &sCr_encoded_response_size))
+    if (!encode_reach_message(message, buffer, buffer_size, encoded_size))
     {
         cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode message %d failed.", message_type);
         return cr_ErrorCodes_ENCODING_FAILED;
     }
-    return 0;
-}
-
-static
-bool encode_ahsoka_header(const cr_AhsokaMessageHeader *header,  // in:  message to be encoded
-                          uint8_t *buffer,                      // out: Buffer to encode into
-                          size_t buffer_size,                   // in:  max size of encoded message
-                          size_t *encode_size)                  // out: actual size of encoded message.
-{
-  pb_ostream_t os_stream = pb_ostream_from_buffer(buffer, buffer_size);
-
-  bool status = pb_encode(&os_stream, cr_AhsokaMessageHeader_fields, (void *)header);
-  if (status) {
-     *encode_size = os_stream.bytes_written;
-  } else {
-    LOG_ERROR("Encoding ahsoka header failed: %s\n", PB_GET_ERROR(&os_stream));
-  }
-  LOG_DUMP_WIRE("The encoded ahsoka header", buffer, *encode_size);
-
-  return status;
-}
-
-// Encodes a message transmission format.
-// When responding to a prompt, the caller must populate the header.
-// When encoding a notification hdr is passed as NULL.
-int pvtCr_encode_message(cr_ReachMessageTypes message_type, // in
-                         const void *payload,               // in:  to be encoded
-                         cr_ReachMessageHeader *hdr)        // in
-{   // Ahsoka version
-    if (sClassic_header_format)
-    {
-        if (hdr)
-            return sCr_encode_classic_message(message_type, payload, hdr);
-
-        I3_LOG(LOG_MASK_ERROR, "Notifications no longer supported in Reach format.");
-        return 0;
-    }
-
-    cr_AhsokaMessageHeader     ahdr;
-    uint8_t *encBuffer;
-    size_t enbBufferSize;
-
-    if (hdr)  // normal response
-    {
-        LOG_REACH("Encode Ahsoka response:");
-        ahdr.message_type          = message_type;
-        ahdr.client_id.size        = sizeof(hdr->client_id);
-        memcpy(ahdr.client_id.bytes, &hdr->client_id, sizeof(hdr->client_id));
-        ahdr.endpoint_id           = hdr->endpoint_id;
-        ahdr.transaction_id        = hdr->transaction_id;
-        ahdr.remaining_objects     = hdr->remaining_objects;
-        ahdr.is_message_compressed = false;
-        encBuffer = (uint8_t *)sCr_encoded_response_buffer;
-        enbBufferSize = sizeof(sCr_encoded_response_buffer);
-
-        // I3_LOG(LOG_MASK_REACH, "%s(): hdr: type %d, remain %d, trans_id %d.", __FUNCTION__,
-        //        hdr->message_type, hdr->remaining_objects, hdr->transaction_id);
-
-        // encode the header
-        if (!encode_ahsoka_header(&ahdr,
-                                  &encBuffer[2],
-                                  sizeof(sCr_encoded_response_buffer) - 2,
-                                  &sCr_encoded_response_size))
-        {
-            cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode ahsoka header %d failed.", message_type);
-            return cr_ErrorCodes_ENCODING_FAILED;
-        }
-        // copy the size to the start of the buffer
-        uint16_t header_size = sCr_encoded_response_size;
-        *(uint16_t *)encBuffer = header_size;
-        
-        I3_LOG(LOG_MASK_AHSOKA, "Place header_size %d at head of buffer.", header_size);
-        LOG_DUMP_MASK(LOG_MASK_AHSOKA, "Ahsoka header with size prefix: ",
-                      encBuffer, header_size+2);
-
-        if (!encode_reach_payload(message_type, payload,
-                                  &encBuffer[header_size+2],
-                                  enbBufferSize - 2 - header_size,
-                                  &sCr_encoded_payload_size))
-        {
-            cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode response payload %d failed.", message_type);
-            return cr_ErrorCodes_ENCODING_FAILED;
-        }
-        sCr_encoded_response_size = sCr_encoded_payload_size + header_size + 2;
-        LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka response message complete: ",
-                      encBuffer, sCr_encoded_response_size);
-        return 0;
-    }
-
-    // hdr is NULL for notifications.
-    I3_LOG(LOG_MASK_AHSOKA, "Encode Ahsoka Notification:");
-    memset(&ahdr, 0, sizeof(ahdr));
-    ahdr.message_type          = message_type;
-    ahdr.client_id.size        = 4;
-    // The transaction ID should always be 0 for the app
-    // To Do:  Get the endpoint and client ID's from cr_stack.c
-    ahdr.endpoint_id           = 0;
-    ahdr.transaction_id        = 0;
-    ahdr.remaining_objects     = 0;
-    ahdr.is_message_compressed = false;
-    encBuffer = (uint8_t *)sCr_coded_notification;
-    enbBufferSize = sizeof(sCr_coded_notification);
-
-    /*I3_LOG(LOG_MASK_REACH, "%s(): ahdr: type %d, remain %d, trans_id %d. client %d. ep %d", __FUNCTION__,
-            ahdr.message_type, ahdr.remaining_objects, ahdr.transaction_id,
-            *(int*)ahdr.client_id.bytes, ahdr.endpoint_id);*/
-
-    // encode the header
-    if (!encode_ahsoka_header(&ahdr,
-                              &encBuffer[2],
-                              sizeof(sCr_coded_notification) - 2,
-                              &sCr_encoded_notification_size))
-    {
-        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode ahsoka header %d failed.", 
-                        message_type);
-        return cr_ErrorCodes_ENCODING_FAILED;
-    }
-    // copy the size to the start of the buffer
-    uint16_t header_size = sCr_encoded_notification_size;
-    *(uint16_t *)encBuffer = header_size;
-
-    I3_LOG(LOG_MASK_AHSOKA, "Place header_size %d at head of buffer.", header_size);
-    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "Ahsoka header with size prefix: ",
-                  encBuffer, header_size+2);
-
-    // message_util_log_param_notification((cr_ParameterNotification *)payload);
-
-    size_t coded_payload_size;
-    if (!encode_reach_payload(message_type, payload,
-                              &encBuffer[header_size+2],
-                              enbBufferSize - 2 - header_size,
-                              &coded_payload_size))
-    {
-        cr_report_error(cr_ErrorCodes_ENCODING_FAILED, "encode notification payload %d failed.", message_type);
-        return cr_ErrorCodes_ENCODING_FAILED;
-    }
-    sCr_encoded_notification_size = coded_payload_size + header_size + 2;
-    LOG_DUMP_MASK(LOG_MASK_AHSOKA, "ahsoka notification message complete: ",
-                  sCr_coded_notification, sCr_encoded_notification_size);
     return 0;
 }
 
@@ -2024,7 +1787,7 @@ void pvtCr_get_coded_notification_buffers(uint8_t **pCoded, size_t *pSize)
 }
 
 
-// When the device supports a CLI it is expected to share anything printed 
+// When the device supports a CLI it is expected to share anything printed
 // to the CLI back to the stack for remote display using pvtCr_cli_respond()
 int pvtCr_cli_respond(char *cli)
 {
@@ -2088,7 +1851,7 @@ int pvtCr_notify_stream(cr_StreamData *data)
 // sanitize in place using a buffer on the stack
 // Added because a bad string can kill the protobuf codec
 void pvtCr_sanitize_string_to_utf8(char *input) {
-    if (input == NULL) 
+    if (input == NULL)
     {
         // I3_LOG(LOG_MASK_ALWAYS, "Sanitize null");
         return;
@@ -2135,6 +1898,3 @@ void pvtCr_sanitize_string_to_utf8(char *input) {
     // LOG_DUMP_MASK(LOG_MASK_ALWAYS, "After Sanitize", (uint8_t*)input, strlen(input));
     // I3_LOG(LOG_MASK_ALWAYS, "Sanitized %s", input);
 }
-
-
-
