@@ -59,6 +59,10 @@
 extern "C" {
 #endif
 
+    void pvtCrFile_select_session(cr_session_id_t session);
+    void pvtCrFile_reset_session(void);
+    void pvtCrParam_select_session(cr_session_id_t session);
+
     /// <summary>
     /// Private variables controlling the sort of continuing 
     /// transactions used by file transfers, etc. 

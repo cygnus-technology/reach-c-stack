@@ -169,6 +169,13 @@ typedef struct _cr_FileTransferStateMachine {
 
 cr_FileTransferStateMachine sCr_file_xfer_state;
 
+/* The transfer and its timeout belong to the transport session. */
+static cr_FileTransferStateMachine session_xfer[CR_SESSION_COUNT];
+static bool session_watchdog_active[CR_SESSION_COUNT];
+static uint32_t session_watchdog_period[CR_SESSION_COUNT];
+static uint32_t session_watchdog_target[CR_SESSION_COUNT];
+static cr_session_id_t file_session = 0;
+
 int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
                             cr_FileTransferResponse *response)
 {
@@ -726,6 +733,29 @@ int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
 static bool  sTimeoutWatchdog_is_active = false;
 static uint32_t sTimeoutWatchdog_period = 0;
 static uint32_t sTimeoutWatchdog_target = 0;
+
+void pvtCrFile_select_session(cr_session_id_t session)
+{
+    if (session >= CR_SESSION_COUNT || session == file_session)
+        return;
+    session_xfer[file_session] = sCr_file_xfer_state;
+    session_watchdog_active[file_session] = sTimeoutWatchdog_is_active;
+    session_watchdog_period[file_session] = sTimeoutWatchdog_period;
+    session_watchdog_target[file_session] = sTimeoutWatchdog_target;
+    sCr_file_xfer_state = session_xfer[session];
+    sTimeoutWatchdog_is_active = session_watchdog_active[session];
+    sTimeoutWatchdog_period = session_watchdog_period[session];
+    sTimeoutWatchdog_target = session_watchdog_target[session];
+    file_session = session;
+}
+
+void pvtCrFile_reset_session(void)
+{
+    memset(&sCr_file_xfer_state, 0, sizeof(sCr_file_xfer_state));
+    sTimeoutWatchdog_is_active = false;
+    sTimeoutWatchdog_period = 0;
+    sTimeoutWatchdog_target = 0;
+}
 
 // 0 ms disables watchdog.
 void pvtCr_watchdog_start_timeout(uint32_t msec, uint32_t ticks)

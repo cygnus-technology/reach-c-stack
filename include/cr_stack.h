@@ -129,6 +129,11 @@ extern "C" {
 */
 int cr_init(void);
 
+/* Calls into the stack must be serialized when transports use separate tasks. */
+void cr_select_session(cr_session_id_t session);
+cr_session_id_t cr_current_session(void);
+bool cr_has_pending_prompt(void);
+
 /**
 * @brief   cr_set_advertised_name
 * @details Sets the name of the device that should be advertised before

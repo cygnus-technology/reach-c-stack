@@ -186,6 +186,9 @@ static uint32_t sCr_transaction_id = 0;
 static uint32_t sCr_client_id = 0;
 static uint32_t sCr_endpoint_id = 0;
 static bool sCr_error_reported = false;
+#ifdef INCLUDE_WIFI_SERVICE
+static uint8_t sCr_requested_WiFI_index = 0;
+#endif
 
 ///----------------------------------------------------------------------------
 /// Forward declarations of static (private) "member" functions
@@ -410,11 +413,20 @@ const char *cr_get_advertised_name(void)
 */
 int cr_store_coded_prompt(uint8_t *data, size_t len)
 {
-    affirm(len <= sizeof(sCr_encoded_message_buffer));
+    if (len > sizeof(sCr_encoded_message_buffer))
+        return cr_ErrorCodes_BUFFER_TOO_SMALL;
+    if (data == NULL && len != 0)
+        return cr_ErrorCodes_INVALID_PARAMETER;
 
-    memcpy(sCr_encoded_message_buffer, data, len);
+    if (len != 0)
+        memcpy(sCr_encoded_message_buffer, data, len);
     sCr_encoded_message_size = len;
     return cr_ErrorCodes_NO_ERROR;
+}
+
+bool cr_has_pending_prompt(void)
+{
+    return sCr_encoded_message_size != 0;
 }
 
 /**
@@ -539,6 +551,78 @@ uint32_t cr_get_current_ticks(void)
 }
 
 static bool sCr_comm_link_is_connected = false;
+
+typedef struct {
+    uint8_t prompt[CR_CODED_BUFFER_SIZE];
+    size_t prompt_size;
+    uint8_t response[CR_CODED_BUFFER_SIZE];
+    size_t response_size;
+    cr_ReachMessageTypes continued_type;
+    uint32_t remaining_objects, transaction_id, client_id, endpoint_id;
+    uint32_t current_ticks;
+    bool connected, error_reported;
+    unsigned int command_index;
+    uint8_t wifi_index;
+} cr_session_state;
+
+static cr_session_state sessions[CR_SESSION_COUNT];
+static cr_session_id_t current_session = 0;
+
+cr_session_id_t cr_current_session(void)
+{
+    return current_session;
+}
+
+void cr_select_session(cr_session_id_t session)
+{
+    if (session >= CR_SESSION_COUNT || session == current_session)
+        return;
+    cr_session_state *old = &sessions[current_session];
+    cr_session_state *next = &sessions[session];
+    memcpy(old->prompt, sCr_encoded_message_buffer, sizeof(old->prompt));
+    old->prompt_size = sCr_encoded_message_size;
+    memcpy(old->response, sCr_encoded_response_buffer, sizeof(old->response));
+    old->response_size = sCr_encoded_response_size;
+    old->continued_type = pvtCr_continued_message_type;
+    old->remaining_objects = pvtCr_num_remaining_objects;
+    old->transaction_id = sCr_transaction_id;
+    old->client_id = sCr_client_id;
+    old->endpoint_id = sCr_endpoint_id;
+    old->current_ticks = sCr_currentTicks;
+    old->connected = sCr_comm_link_is_connected;
+    old->error_reported = sCr_error_reported;
+#ifdef INCLUDE_COMMAND_SERVICE
+    old->command_index = sCr_requested_command_index;
+#endif
+#ifdef INCLUDE_WIFI_SERVICE
+    old->wifi_index = sCr_requested_WiFI_index;
+#endif
+    memcpy(sCr_encoded_message_buffer, next->prompt, sizeof(next->prompt));
+    sCr_encoded_message_size = next->prompt_size;
+    memcpy(sCr_encoded_response_buffer, next->response, sizeof(next->response));
+    sCr_encoded_response_size = next->response_size;
+    pvtCr_continued_message_type = next->continued_type;
+    pvtCr_num_remaining_objects = next->remaining_objects;
+    sCr_transaction_id = next->transaction_id;
+    sCr_client_id = next->client_id;
+    sCr_endpoint_id = next->endpoint_id;
+    sCr_currentTicks = next->current_ticks;
+    sCr_comm_link_is_connected = next->connected;
+    sCr_error_reported = next->error_reported;
+#ifdef INCLUDE_COMMAND_SERVICE
+    sCr_requested_command_index = next->command_index;
+#endif
+#ifdef INCLUDE_WIFI_SERVICE
+    sCr_requested_WiFI_index = next->wifi_index;
+#endif
+#ifdef INCLUDE_FILE_SERVICE
+    pvtCrFile_select_session(session);
+#endif
+#ifdef INCLUDE_PARAMETER_SERVICE
+    pvtCrParam_select_session(session);
+#endif
+    current_session = session;
+}
 /**
 * @brief   cr_set_comm_link_connected
 * @details The communication stack must inform the Reach stack of the status of
@@ -556,6 +640,9 @@ void cr_set_comm_link_connected(bool connected)
        // we are newly connected, so clear any stale data.
        pvtCr_continued_message_type = cr_ReachMessageTypes_INVALID;
        pvtCr_num_remaining_objects = 0;
+#ifdef INCLUDE_FILE_SERVICE
+       pvtCrFile_reset_session();
+#endif
 #ifdef INCLUDE_PARAMETER_SERVICE
        cr_clear_param_notifications();
 #endif
@@ -1342,7 +1429,6 @@ static int handle_send_command(const cr_SendCommand *request,
         * Client sends WiFiConnectionRequest w/pw, etc.
         * Server responds with status
     */
-    static uint8_t sCr_requested_WiFI_index = 0;
 
     static int handle_discover_wifi(const cr_DiscoverWiFi *request,
                                     cr_DiscoverWiFiResponse *response)
@@ -1750,6 +1836,11 @@ int pvtCr_encode_message(cr_ReachMessageTypes message_type,
     if (!hdr)
     {
         notification_header.message_type = message_type;
+        if (current_session != 0) {
+            notification_header.client_id = sCr_client_id;
+            notification_header.endpoint_id = sCr_endpoint_id;
+            notification_header.transaction_id = sCr_transaction_id;
+        }
         hdr = &notification_header;
     }
     *encoded_size = 0;
