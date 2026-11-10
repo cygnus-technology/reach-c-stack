@@ -83,114 +83,10 @@
 #include "message_util.h"
 #include "reach_decode.h"
 #include "reach_version.h"
+#include "cr_state_aliases.h"
 
-//----------------------------------------------------------------------------
-// static buffers used and reused by the reach stack.
-// This is private data.
-//----------------------------------------------------------------------------
+#define ENCODED_PAYLOAD_SIZE (CR_CODED_BUFFER_SIZE - 4)
 
-// the fully encoded message is received in the sCr_encoded_message_buffer.
-/// @private
-static uint8_t sCr_encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
-
-/// @private
-static size_t  sCr_encoded_message_size = 0;
-
-// The message header is decoded into this buffer containing an encoded payload buffer:
-/// @private
-static cr_ReachMessage sCr_uncoded_message_structure;
-
-union uncoded_response_message {
-  cr_PingResponse ping_response;
-  cr_DeviceInfoResponse device_info_response;
-#ifdef INCLUDE_PARAMETER_SERVICE
-  cr_ParameterInfoResponse parameter_info_response;
-  cr_ParamExInfoResponse parameter_ex_info_response;
-  cr_ParameterReadResponse parameter_read_response;
-  cr_ParameterWriteResponse parameter_write_response;
-  cr_DiscoverParameterNotificationsResponse discover_notifications_response;
-#if NUM_SUPPORTED_PARAM_NOTIFY != 0
-  cr_ParameterNotifyConfigResponse notify_config_response;
-#endif  // NUM_SUPPORTED_PARAM_NOTIFY != 0
-#endif  // def INCLUDE_PARAMETER_SERVICE
-#ifdef INCLUDE_FILE_SERVICE
-  cr_DiscoverFilesResponse discover_files_response;
-  cr_FileTransferResponse file_transfer_response;
-  cr_FileTransferData file_transfer_data;
-  cr_FileTransferDataNotification file_transfer_data_notification;
-  cr_FileEraseResponse file_erase_response;
-#endif // def INCLUDE_FILE_SERVICE
-#ifdef INCLUDE_STREAM_SERVICE
-  cr_DiscoverStreamsResponse discover_streams_response;
-  cr_StreamResponse stream_response;
-#endif // def INCLUDE_STREAM_SERVICE
-#ifdef INCLUDE_COMMAND_SERVICE
-  cr_DiscoverCommandsResponse discover_commands_response;
-  cr_SendCommandResponse send_command_response;
-#endif  // def INCLUDE_COMMAND_SERVICE
-#ifdef INCLUDE_CLI_SERVICE
-  cr_CLIData cli_data;
-#endif // def INCLUDE_CLI_SERVICE
-#ifdef INCLUDE_TIME_SERVICE
-  cr_TimeSetResponse time_set_response;
-  cr_TimeGetResponse time_get_response;
-#endif  // def INCLUDE_TIME_SERVICE
-#ifdef INCLUDE_WIFI_SERVICE
-  cr_DiscoverWiFiResponse discover_wifi_response;
-  cr_WiFiConnectionResponse wifi_connection_response;
-#endif  // def INCLUDE_WIFI_SERVICE
-};
-
-// A decoded prompt payload. This can be reused from the encoded message buffer.
-/// @private
-static uint8_t *sCr_decoded_prompt_buffer = sCr_encoded_message_buffer;
-
-// An uncoded response payload.
-/// @private
-static union uncoded_response_message sCr_uncoded_response_buffer ALIGN_TO_WORD;
-
-/// The payload buffers are slightly smaller than the CR_CODED_BUFFER_SIZE
-/// so that the header can be added.
-#define ENCODED_PAYLOAD_SIZE  (CR_CODED_BUFFER_SIZE-4)
-
-// The response payload is encoded into sCr_encoded_payload_buffer[].
-/// @private
-static uint8_t sCr_encoded_payload_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
-/// @private
-static size_t sCr_encoded_payload_size;
-
-// The response payload is copied into the sCr_uncoded_message_structure
-
-// The sCr_uncoded_message_structure is encoded into sCr_encoded_response_buffer[]
-/// @private
-static uint8_t sCr_encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
-/// @private
-static size_t  sCr_encoded_response_size = 0;
-
-
-static uint8_t sCr_raw_notification[CR_CODED_BUFFER_SIZE]    ALIGN_TO_WORD;
-static uint8_t sCr_coded_notification[CR_CODED_BUFFER_SIZE]  ALIGN_TO_WORD;
-static size_t sCr_encoded_notification_size = 0;
-
-
-///----------------------------------------------------------------------------
-/// private but global variables shared with the Reach stack
-///----------------------------------------------------------------------------
-cr_ReachMessageTypes pvtCr_continued_message_type;
-uint32_t pvtCr_num_remaining_objects = 0;
-
-///----------------------------------------------------------------------------
-/// static (private) "member" variables
-///----------------------------------------------------------------------------
-static uint32_t sCr_transaction_id = 0;
-static uint32_t sCr_client_id = 0;
-static uint32_t sCr_endpoint_id = 0;
-static bool sCr_error_reported = false;
-#ifdef INCLUDE_WIFI_SERVICE
-static uint8_t sCr_requested_WiFI_index = 0;
-#endif
-
-///----------------------------------------------------------------------------
 /// Forward declarations of static (private) "member" functions
 ///----------------------------------------------------------------------------
 
@@ -225,7 +121,6 @@ static int handle_get_device_info(const cr_DeviceInfoRequest *request,
                                         cr_DiscoverCommandsResponse *);
     static int handle_send_command(const cr_SendCommand *, cr_SendCommandResponse *);
 
-    static unsigned int sCr_requested_command_index = 0;
 #endif // def INCLUDE_COMMAND_SERVICE
 
 #ifdef INCLUDE_CLI_SERVICE
@@ -367,7 +262,6 @@ int cr_init(void)
 /// sCr_advertised_name holds the name that will be advertised
 /// (via BLE).  This can be set programmatically.
 /// </summary>
-char sCr_advertised_name[APP_ADVERTISED_NAME_LENGTH];
 
 
 /**
@@ -448,10 +342,6 @@ int cr_get_coded_response_buffer(uint8_t **ppResponse, size_t *pLen)
     sCr_encoded_response_size = 0;
     return cr_ErrorCodes_NO_ERROR;
 }
-
-// static uint32_t lastTick = 0;
-static int sCr_CallCount = 0;
-static uint32_t sCr_currentTicks = 0;
 
 /**
 * @brief   cr_process
@@ -550,79 +440,6 @@ uint32_t cr_get_current_ticks(void)
     return sCr_currentTicks;
 }
 
-static bool sCr_comm_link_is_connected = false;
-
-typedef struct {
-    uint8_t prompt[CR_CODED_BUFFER_SIZE];
-    size_t prompt_size;
-    uint8_t response[CR_CODED_BUFFER_SIZE];
-    size_t response_size;
-    cr_ReachMessageTypes continued_type;
-    uint32_t remaining_objects, transaction_id, client_id, endpoint_id;
-    uint32_t current_ticks;
-    bool connected, error_reported;
-    unsigned int command_index;
-    uint8_t wifi_index;
-} cr_session_state;
-
-static cr_session_state sessions[CR_SESSION_COUNT];
-static cr_session_id_t current_session = 0;
-
-cr_session_id_t cr_current_session(void)
-{
-    return current_session;
-}
-
-void cr_select_session(cr_session_id_t session)
-{
-    if (session >= CR_SESSION_COUNT || session == current_session)
-        return;
-    cr_session_state *old = &sessions[current_session];
-    cr_session_state *next = &sessions[session];
-    memcpy(old->prompt, sCr_encoded_message_buffer, sizeof(old->prompt));
-    old->prompt_size = sCr_encoded_message_size;
-    memcpy(old->response, sCr_encoded_response_buffer, sizeof(old->response));
-    old->response_size = sCr_encoded_response_size;
-    old->continued_type = pvtCr_continued_message_type;
-    old->remaining_objects = pvtCr_num_remaining_objects;
-    old->transaction_id = sCr_transaction_id;
-    old->client_id = sCr_client_id;
-    old->endpoint_id = sCr_endpoint_id;
-    old->current_ticks = sCr_currentTicks;
-    old->connected = sCr_comm_link_is_connected;
-    old->error_reported = sCr_error_reported;
-#ifdef INCLUDE_COMMAND_SERVICE
-    old->command_index = sCr_requested_command_index;
-#endif
-#ifdef INCLUDE_WIFI_SERVICE
-    old->wifi_index = sCr_requested_WiFI_index;
-#endif
-    memcpy(sCr_encoded_message_buffer, next->prompt, sizeof(next->prompt));
-    sCr_encoded_message_size = next->prompt_size;
-    memcpy(sCr_encoded_response_buffer, next->response, sizeof(next->response));
-    sCr_encoded_response_size = next->response_size;
-    pvtCr_continued_message_type = next->continued_type;
-    pvtCr_num_remaining_objects = next->remaining_objects;
-    sCr_transaction_id = next->transaction_id;
-    sCr_client_id = next->client_id;
-    sCr_endpoint_id = next->endpoint_id;
-    sCr_currentTicks = next->current_ticks;
-    sCr_comm_link_is_connected = next->connected;
-    sCr_error_reported = next->error_reported;
-#ifdef INCLUDE_COMMAND_SERVICE
-    sCr_requested_command_index = next->command_index;
-#endif
-#ifdef INCLUDE_WIFI_SERVICE
-    sCr_requested_WiFI_index = next->wifi_index;
-#endif
-#ifdef INCLUDE_FILE_SERVICE
-    pvtCrFile_select_session(session);
-#endif
-#ifdef INCLUDE_PARAMETER_SERVICE
-    pvtCrParam_select_session(session);
-#endif
-    current_session = session;
-}
 /**
 * @brief   cr_set_comm_link_connected
 * @details The communication stack must inform the Reach stack of the status of
@@ -697,7 +514,6 @@ bool cr_get_comm_link_connected(void)
     #define SHORT_ERROR_BUF_LEN  16
     // The asynchronous version requires a buffer.
     /// @private
-    static uint8_t sCr_short_error_buffer[SHORT_ERROR_BUF_LEN] ALIGN_TO_WORD;
 
     void cr_report_error(int error_code, const char *fmt, ...)
     {
@@ -715,7 +531,6 @@ bool cr_get_comm_link_connected(void)
   #else  // (ERROR_REPORT_FORMAT == ERROR_FORMAT_FULL)
     // The asynchronous version requires a buffer.
     /// @private
-    static uint8_t sCr_async_error_buffer[ENCODED_PAYLOAD_SIZE] ALIGN_TO_WORD;
 
     void cr_report_error(int error_code, const char *fmt, ...)
     {
@@ -785,7 +600,6 @@ static int handle_coded_prompt(void)
     return handle_message(hdr, coded_data, msgPtr->payload.size);
 }
 
-static size_t sCr_MaxBufferSize = 0;
 static int sCr_checkSize(size_t test, size_t limit, char *name)
 {
     if (test > sCr_MaxBufferSize)
@@ -1168,7 +982,6 @@ static void sCr_populate_device_info_sizes(cr_DeviceInfoResponse *dir)
     memcpy(dir->sizes_struct.bytes, &sizes_struct,  sizeof(reach_sizes_t));
 }
 
-uint8_t sClientProtocolVersion[3];
 /**
  * @brief   handle_get_device_info
  * @details In response to a request for device info, get the
@@ -1231,7 +1044,6 @@ handle_get_device_info(const cr_DeviceInfoRequest *request,  // in
 */
 const char *cr_get_reach_version(void)
 {
-    static char sCr_c_stack_version[CR_STACK_VERSION_LEN];
     snprintf(sCr_c_stack_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
             REACH_C_MAJOR_VERSION, REACH_C_MINOR_VERSION, REACH_C_PATCH_VERSION);
      return sCr_c_stack_version;
@@ -1248,7 +1060,6 @@ const char *cr_get_reach_version(void)
 */
 const char *cr_get_proto_version(void)
 {
-    static char sCr_proto_version[CR_STACK_VERSION_LEN];
 
     snprintf(sCr_proto_version, CR_STACK_VERSION_LEN, "%u.%u.%u",
              cr_ReachProto_MAJOR_Version_MAJOR_VERSION,
@@ -1526,7 +1337,6 @@ static int handle_send_command(const cr_SendCommand *request,
  *  Encode Section
  */
 
-static bool sTestHeader = false;
 
 static
 bool encode_reach_payload(cr_ReachMessageTypes message_type,    // in
@@ -1830,13 +1640,12 @@ int pvtCr_encode_message(cr_ReachMessageTypes message_type,
     uint8_t *buffer = hdr ? sCr_encoded_response_buffer : sCr_coded_notification;
     size_t buffer_size = hdr ? sizeof(sCr_encoded_response_buffer) : sizeof(sCr_coded_notification);
     size_t *encoded_size = hdr ? &sCr_encoded_response_size : &sCr_encoded_notification_size;
-    static cr_ReachMessage notification_message;
-    cr_ReachMessage *message = hdr ? &sCr_uncoded_message_structure : &notification_message;
+    cr_ReachMessage *message = hdr ? &sCr_uncoded_message_structure : &cr_get_state()->notification_message;
 
     if (!hdr)
     {
         notification_header.message_type = message_type;
-        if (current_session != 0) {
+        if (cr_current_session() != 0) {
             notification_header.client_id = sCr_client_id;
             notification_header.endpoint_id = sCr_endpoint_id;
             notification_header.transaction_id = sCr_transaction_id;

@@ -51,11 +51,11 @@
 #include <time.h>
 #include "crcb_weak.h"
 #include "i3_log.h"
+#include "cr_state_aliases.h"
 
 #ifndef DEFAULT_LOG_MASK
     #define DEFAULT_LOG_MASK 0
 #endif
-static uint32_t sLogMask = DEFAULT_LOG_MASK;
 
 /**
 * @brief   i3_log_set_mask
@@ -77,7 +77,6 @@ uint32_t i3_log_get_mask(void)
     return sLogMask;
 }
 
-static bool sBleErrorsDetected = false;
 
 /**
 * @brief   i3_log_set_ble_error_state
@@ -105,7 +104,6 @@ bool i3_log_get_ble_error_state()
 
 #ifdef DEV_BUILD
     // This should be used by any derived fatal error handler.
-    char gFatalErrorBuffer[256];
 #endif
 
 void __attribute__((weak)) i3_log_fatal_error(char * msg)
@@ -128,11 +126,10 @@ void __attribute__((weak)) i3_log_fatal_error(char * msg)
     /**
      * When remote logging is enabled the strings for output are generated into a 
      * local buffer with length REACH_ERROR_BUFFER_LEN. 
-     * This is static here to work with the weak implementation. 
+     * The buffer belongs to the currently selected Reach instance.
      * A function is provided to obtain it for derived 
      * implementations. 
      */
-    static char sLog_rcliBuf[REACH_ERROR_BUFFER_LEN];
     int i3_log_get_remote_buffer(char **pRcli, size_t *bufSize)
     {
         *pRcli = sLog_rcliBuf;
@@ -140,11 +137,6 @@ void __attribute__((weak)) i3_log_fatal_error(char * msg)
         return 0;
     }
 
-  #ifdef DISABLE_REMOTE_CLI
-    static bool sUseRemoteCLI = false;
-  #else
-    static bool sUseRemoteCLI = true;
-  #endif
 
     /**
      * i3_log_set_remote_cli_enable() is a stub when the the CLI 

@@ -66,6 +66,7 @@
 
 #include "cr_stack.h"
 #include "cr_private.h"
+#include "cr_state_aliases.h"
 #include "i3_log.h"
 
 #include "pb_decode.h"
@@ -150,32 +151,6 @@ int pvtCrFile_discover(const cr_DiscoverFiles *request,
     return 0;
 }
 
-typedef PB_BYTES_ARRAY_T(REACH_BYTES_IN_A_FILE_PACKET) cr_FileTransferStateMachine_message_data_t;
-typedef struct _cr_FileTransferStateMachine {
-    cr_FileTransferState    state;
-    uint32_t                transfer_id;    // determined on init
-    int32_t                 file_id;        // requested at init
-    int32_t                 timeout_in_ms;  // requested at init
-    uint32_t                request_offset; // requested at init
-    uint32_t                transfer_length;    // requested at init
-    uint8_t                 read_write;         // 0: read, 1: write.
-    uint32_t                message_number;     // rolling counter
-    int32_t                 checksum;
-    uint32_t                messages_per_ack;   // target, fixed
-    uint32_t                messages_until_ack; // current, counts down
-    uint32_t                bytes_transfered;   // to date
-    bool                    use_checksum;
-} cr_FileTransferStateMachine;
-
-cr_FileTransferStateMachine sCr_file_xfer_state;
-
-/* The transfer and its timeout belong to the transport session. */
-static cr_FileTransferStateMachine session_xfer[CR_SESSION_COUNT];
-static bool session_watchdog_active[CR_SESSION_COUNT];
-static uint32_t session_watchdog_period[CR_SESSION_COUNT];
-static uint32_t session_watchdog_target[CR_SESSION_COUNT];
-static cr_session_id_t file_session = 0;
-
 int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
                             cr_FileTransferResponse *response)
 {
@@ -189,7 +164,7 @@ int pvtCrFile_transfer_init(const cr_FileTransferRequest *request,
     cr_FileInfo file_desc;
     memset(response, 0, sizeof(cr_FileTransferResponse));
     response->transfer_id = request->transfer_id;
-    memset(&sCr_file_xfer_state, 0, sizeof(cr_FileTransferStateMachine));
+    memset(&sCr_file_xfer_state, 0, sizeof(sCr_file_xfer_state));
     sCr_file_xfer_state.state = cr_FileTransferState_IDLE;
     int rval = crcb_file_get_description(request->file_id, &file_desc);
     if (rval != 0)
@@ -730,25 +705,6 @@ int pvtCrFile_erase_file(const cr_FileEraseRequest *request,
 // Timeout Watchdog interface
 // This is used in the file write sequences.
 //
-static bool  sTimeoutWatchdog_is_active = false;
-static uint32_t sTimeoutWatchdog_period = 0;
-static uint32_t sTimeoutWatchdog_target = 0;
-
-void pvtCrFile_select_session(cr_session_id_t session)
-{
-    if (session >= CR_SESSION_COUNT || session == file_session)
-        return;
-    session_xfer[file_session] = sCr_file_xfer_state;
-    session_watchdog_active[file_session] = sTimeoutWatchdog_is_active;
-    session_watchdog_period[file_session] = sTimeoutWatchdog_period;
-    session_watchdog_target[file_session] = sTimeoutWatchdog_target;
-    sCr_file_xfer_state = session_xfer[session];
-    sTimeoutWatchdog_is_active = session_watchdog_active[session];
-    sTimeoutWatchdog_period = session_watchdog_period[session];
-    sTimeoutWatchdog_target = session_watchdog_target[session];
-    file_session = session;
-}
-
 void pvtCrFile_reset_session(void)
 {
     memset(&sCr_file_xfer_state, 0, sizeof(sCr_file_xfer_state));

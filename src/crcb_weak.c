@@ -55,6 +55,7 @@
 
 #include "cr_stack.h"
 #include "i3_log.h"
+#include "cr_state_aliases.h"
 
  
 /**
@@ -247,7 +248,6 @@ int __attribute__((weak)) crcb_ping_get_signal_strength(int8_t *rssi)
     * @param   ins A string pointer to be retrieved by crcb_get_command_line 
     * @return  none
     */
-    const char *sSaveIns = NULL;
     void __attribute__((weak)) crcb_set_command_line(const char *ins)
     {
         sSaveIns = ins;

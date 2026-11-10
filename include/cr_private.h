@@ -59,20 +59,130 @@
 extern "C" {
 #endif
 
-    void pvtCrFile_select_session(cr_session_id_t session);
     void pvtCrFile_reset_session(void);
-    void pvtCrParam_select_session(cr_session_id_t session);
 
-    /// <summary>
-    /// Private variables controlling the sort of continuing 
-    /// transactions used by file transfers, etc. 
-    /// </summary>
+/* The application allocates one of these for each Reach session. The stack
+ * obtains the currently selected instance through cr_get_state(). */
+typedef union {
+    cr_PingResponse ping_response;
+    cr_DeviceInfoResponse device_info_response;
+#ifdef INCLUDE_PARAMETER_SERVICE
+    cr_ParameterInfoResponse parameter_info_response;
+    cr_ParamExInfoResponse parameter_ex_info_response;
+    cr_ParameterReadResponse parameter_read_response;
+    cr_ParameterWriteResponse parameter_write_response;
+    cr_DiscoverParameterNotificationsResponse discover_notifications_response;
+#if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    cr_ParameterNotifyConfigResponse notify_config_response;
+#endif
+#endif
+#ifdef INCLUDE_FILE_SERVICE
+    cr_DiscoverFilesResponse discover_files_response;
+    cr_FileTransferResponse file_transfer_response;
+    cr_FileTransferData file_transfer_data;
+    cr_FileTransferDataNotification file_transfer_data_notification;
+    cr_FileEraseResponse file_erase_response;
+#endif
+#ifdef INCLUDE_STREAM_SERVICE
+    cr_DiscoverStreamsResponse discover_streams_response;
+    cr_StreamResponse stream_response;
+#endif
+#ifdef INCLUDE_COMMAND_SERVICE
+    cr_DiscoverCommandsResponse discover_commands_response;
+    cr_SendCommandResponse send_command_response;
+#endif
+#ifdef INCLUDE_CLI_SERVICE
+    cr_CLIData cli_data;
+#endif
+#ifdef INCLUDE_TIME_SERVICE
+    cr_TimeSetResponse time_set_response;
+    cr_TimeGetResponse time_get_response;
+#endif
+#ifdef INCLUDE_WIFI_SERVICE
+    cr_DiscoverWiFiResponse discover_wifi_response;
+    cr_WiFiConnectionResponse wifi_connection_response;
+#endif
+} cr_response_storage_t;
 
-    /// The type of the current continued message
-    extern cr_ReachMessageTypes pvtCr_continued_message_type;
+typedef struct {
+    cr_FileTransferState state;
+    uint32_t transfer_id;
+    int32_t file_id;
+    int32_t timeout_in_ms;
+    uint32_t request_offset;
+    uint32_t transfer_length;
+    uint8_t read_write;
+    uint32_t message_number;
+    int32_t checksum;
+    uint32_t messages_per_ack;
+    uint32_t messages_until_ack;
+    uint32_t bytes_transfered;
+    bool use_checksum;
+} cr_file_transfer_state_t;
 
-    /// The number of continued objects (remaining)
-    extern uint32_t             pvtCr_num_remaining_objects;
+typedef struct {
+    uint8_t encoded_message_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
+    size_t encoded_message_size;
+    cr_ReachMessage uncoded_message_structure;
+    cr_response_storage_t uncoded_response_buffer ALIGN_TO_WORD;
+    uint8_t encoded_payload_buffer[CR_CODED_BUFFER_SIZE - 4] ALIGN_TO_WORD;
+    size_t encoded_payload_size;
+    uint8_t encoded_response_buffer[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
+    size_t encoded_response_size;
+    uint8_t raw_notification[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
+    uint8_t coded_notification[CR_CODED_BUFFER_SIZE] ALIGN_TO_WORD;
+    size_t encoded_notification_size;
+    cr_ReachMessage notification_message;
+    cr_ReachMessageTypes continued_message_type;
+    uint32_t num_remaining_objects;
+    uint32_t transaction_id, client_id, endpoint_id;
+    bool error_reported;
+    uint8_t requested_wifi_index;
+    unsigned int requested_command_index;
+    char advertised_name[APP_ADVERTISED_NAME_LENGTH];
+    int call_count;
+    uint32_t current_ticks;
+    bool comm_link_is_connected;
+    uint8_t short_error_buffer[16] ALIGN_TO_WORD;
+    uint8_t async_error_buffer[CR_CODED_BUFFER_SIZE - 4] ALIGN_TO_WORD;
+    size_t max_buffer_size;
+    char stack_version[16], proto_version[16];
+    uint8_t client_protocol_version[3];
+    bool test_header;
+    uint32_t decoded_transaction_id;
+
+#ifdef INCLUDE_FILE_SERVICE
+    cr_file_transfer_state_t file_transfer;
+    bool watchdog_active;
+    uint32_t watchdog_period, watchdog_target;
+#endif
+#ifdef INCLUDE_PARAMETER_SERVICE
+    uint32_t num_ex_this_pid;
+    int16_t requested_param_array[REACH_COUNT_PARAMS_IN_REQUEST];
+    uint8_t requested_param_info_count, requested_param_index;
+    uint8_t requested_notify_count, requested_param_read_count;
+    bool discover_notify_all;
+#if NUM_SUPPORTED_PARAM_NOTIFY != 0
+    uint32_t notifications_sent;
+    cr_ParameterNotifyConfig param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
+    cr_ParameterValue last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
+    uint8_t requested_notify_index;
+#endif
+#endif
+
+    uint32_t log_mask;
+    bool ble_errors_detected;
+#ifdef DEV_BUILD
+    char fatal_error_buffer[256];
+#endif
+#ifdef INCLUDE_CLI_SERVICE
+    char remote_cli_buffer[REACH_ERROR_BUFFER_LEN];
+    bool remote_cli_enabled;
+    const char *command_line;
+#endif
+} cr_state_t;
+
+cr_state_t *cr_get_state(void);
 
     /// <summary>
     /// Returns the state of the challenge key which may block 

@@ -69,6 +69,7 @@
 
     #include "cr_stack.h"
     #include "cr_private.h"
+    #include "cr_state_aliases.h"
     #include "i3_log.h"
 
     #include "pb_decode.h"
@@ -77,73 +78,6 @@
     #include "message_util.h"
     #include "reach_decode.h"
     #include "reach_version.h"
-
-    static uint32_t sCr_num_ex_this_pid = 0;
-    static int16_t sCr_requested_param_array[REACH_COUNT_PARAMS_IN_REQUEST];
-    static uint8_t sCr_requested_param_info_count = 0;
-    static uint8_t sCr_requested_param_index = 0;
-    static uint8_t sCr_requested_notify_count = 0;
-    static uint8_t sCr_requested_param_read_count = 0;
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-    /// check these params for notification
-    static uint32_t sCr_numNotificationsSent = 0;
-    static cr_ParameterNotifyConfig sCr_param_notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
-    /// storage of the previous value
-    static cr_ParameterValue sCr_last_param_values[NUM_SUPPORTED_PARAM_NOTIFY];
-    static uint8_t sCr_requested_notify_index = 0;
-  #endif
-
-    static bool sCr_discover_notify_all;
-    typedef struct {
-        uint32_t num_ex_this_pid;
-        int16_t requested_param_array[REACH_COUNT_PARAMS_IN_REQUEST];
-        uint8_t requested_param_info_count, requested_param_index;
-        uint8_t requested_notify_count, requested_param_read_count;
-        bool discover_notify_all;
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-        uint32_t notifications_sent;
-        cr_ParameterNotifyConfig notify_list[NUM_SUPPORTED_PARAM_NOTIFY];
-        cr_ParameterValue last_values[NUM_SUPPORTED_PARAM_NOTIFY];
-        uint8_t requested_notify_index;
-  #endif
-    } cr_param_session_state;
-    static cr_param_session_state param_sessions[CR_SESSION_COUNT];
-    static cr_session_id_t param_session = 0;
-
-    void pvtCrParam_select_session(cr_session_id_t session)
-    {
-        if (session >= CR_SESSION_COUNT || session == param_session)
-            return;
-        cr_param_session_state *old = &param_sessions[param_session];
-        cr_param_session_state *next = &param_sessions[session];
-        old->num_ex_this_pid = sCr_num_ex_this_pid;
-        memcpy(old->requested_param_array, sCr_requested_param_array, sizeof(sCr_requested_param_array));
-        old->requested_param_info_count = sCr_requested_param_info_count;
-        old->requested_param_index = sCr_requested_param_index;
-        old->requested_notify_count = sCr_requested_notify_count;
-        old->requested_param_read_count = sCr_requested_param_read_count;
-        old->discover_notify_all = sCr_discover_notify_all;
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-        old->notifications_sent = sCr_numNotificationsSent;
-        memcpy(old->notify_list, sCr_param_notify_list, sizeof(sCr_param_notify_list));
-        memcpy(old->last_values, sCr_last_param_values, sizeof(sCr_last_param_values));
-        old->requested_notify_index = sCr_requested_notify_index;
-  #endif
-        sCr_num_ex_this_pid = next->num_ex_this_pid;
-        memcpy(sCr_requested_param_array, next->requested_param_array, sizeof(sCr_requested_param_array));
-        sCr_requested_param_info_count = next->requested_param_info_count;
-        sCr_requested_param_index = next->requested_param_index;
-        sCr_requested_notify_count = next->requested_notify_count;
-        sCr_requested_param_read_count = next->requested_param_read_count;
-        sCr_discover_notify_all = next->discover_notify_all;
-  #if NUM_SUPPORTED_PARAM_NOTIFY != 0
-        sCr_numNotificationsSent = next->notifications_sent;
-        memcpy(sCr_param_notify_list, next->notify_list, sizeof(sCr_param_notify_list));
-        memcpy(sCr_last_param_values, next->last_values, sizeof(sCr_last_param_values));
-        sCr_requested_notify_index = next->requested_notify_index;
-  #endif
-        param_session = session;
-    }
 
     /**
     * @brief   pvtCrParam_discover_parameters

@@ -54,8 +54,8 @@
 #include "i3_log.h"
 #include "message_util.h"
 #include "reach_decode.h"
+#include "cr_state_aliases.h"
 
-static uint32_t sDecodeReach_current_transaction = 0;
 
 
 /**

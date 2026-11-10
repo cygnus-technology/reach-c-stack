@@ -66,6 +66,7 @@
 
 #include "cr_stack.h"
 #include "cr_private.h"
+#include "cr_state_aliases.h"
 #include "i3_log.h"
 
 #include "pb_decode.h"
